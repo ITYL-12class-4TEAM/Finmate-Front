@@ -1,0 +1,38 @@
+/* Reset & 기본 셋팅 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  font-family: "Inter", sans-serif;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}
+
+/* FinMate Color */
+:root {
+  --color-main: #2d336b;
+  --color-sub: #7d81a2;
+  --color-light: #b9bbcc;
+  --color-bg-light: #eeeef3;
+  --color-white: #ffffff;
+}
+
+/* 반응형 미디어쿼리 */
+@media (max-width: 768px) {
+}
+
+@media (min-width: 769px) {
+}
