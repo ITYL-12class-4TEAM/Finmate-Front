@@ -2,7 +2,7 @@
   <header class="navbar">
     <!-- 로고 -->
     <router-link to="/" class="navbar__logo">
-      <img src="../assets/images/logo.png" alt="FinMate 로고" />
+      <img src="@/assets/images/logo.png" alt="FinMate 로고" />
     </router-link>
 
     <DesktopNavbar v-if="!isMobile" />
