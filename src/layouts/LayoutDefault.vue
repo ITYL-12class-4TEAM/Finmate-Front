@@ -4,11 +4,14 @@
     <main class="main-content">
       <router-view />
     </main>
+
+    <FloatingMenu />
   </div>
 </template>
 
 <script setup>
-import Navbar from "../components/Navbar.vue";
+import Navbar from '@/components/layouts/Navbar.vue';
+import FloatingMenu from '@/components/common/FloatingMenu.vue';
 </script>
 
 <style scoped>
