@@ -41,7 +41,6 @@ const goBack = () => {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-left: 10%;
 }
 
 .icon {
