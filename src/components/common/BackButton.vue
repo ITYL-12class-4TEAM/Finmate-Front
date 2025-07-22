@@ -64,10 +64,4 @@ const goBack = () => {
   font-weight: 600;
   color: var(--color-main);
 }
-
-@media (max-width: 768px) {
-  .back-button {
-    margin-left: 1rem;
-  }
-}
 </style>
