@@ -113,7 +113,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import dayjs from 'dayjs';
 import { useRouter } from 'vue-router';
 
@@ -127,43 +127,55 @@ const goToDetailPage = (id) => {
   router.push({ name: 'CommunityDetail', params: { id: id } });
 };
 
-// TODO: API 요청으로 게시물 GET
-const posts = ref([
-  {
-    id: 1,
-    title: '20대 직장인, 보험 뭐가 좋을까요?',
-    content: '금리가 높은 편인가요? 조언 부탁드려요!',
-    createdAt: '2025-07-23T14:40:00',
-    likes: 1,
-    comments: 10,
-    tendency: 'APWC',
-    productType: '보험',
-    tag: '추천',
-  },
-  {
-    id: 2,
-    title: '적금과 청년도약계좌 차이점이 궁금해요',
-    content: '둘 중 뭐가 더 나을까요? 의견이 궁금합니다~',
-    createdAt: '2025-07-22T10:15:00',
-    likes: 6,
-    comments: 8,
-    tendency: 'IBML',
-    productType: '적금',
-    tag: '질문',
-  },
-  {
-    id: 3,
-    title: '펀드 설명 부탁합니다',
-    content:
-      '펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?',
-    createdAt: '2025-07-21T10:15:00',
-    likes: 5,
-    comments: 7,
-    tendency: 'ABWL',
-    productType: '펀드',
-    tag: '자유',
-  },
-]);
+const posts = ref([]);
+
+const fetchPosts = async () => {
+  try {
+    // TODO: API 요청으로 게시물 GET
+    posts.value = [
+      {
+        id: 1,
+        title: '20대 직장인, 보험 뭐가 좋을까요?',
+        content: '금리가 높은 편인가요? 조언 부탁드려요!',
+        createdAt: '2025-07-23T14:40:00',
+        likes: 1,
+        comments: 10,
+        tendency: 'APWC',
+        productType: '보험',
+        tag: '추천',
+      },
+      {
+        id: 2,
+        title: '적금과 청년도약계좌 차이점이 궁금해요',
+        content: '둘 중 뭐가 더 나을까요? 의견이 궁금합니다~',
+        createdAt: '2025-07-22T10:15:00',
+        likes: 6,
+        comments: 8,
+        tendency: 'IBML',
+        productType: '적금',
+        tag: '질문',
+      },
+      {
+        id: 3,
+        title: '펀드 설명 부탁합니다',
+        content:
+          '펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?',
+        createdAt: '2025-07-21T10:15:00',
+        likes: 5,
+        comments: 7,
+        tendency: 'ABWL',
+        productType: '펀드',
+        tag: '자유',
+      },
+    ];
+  } catch (e) {
+    alert('게시물을 불러오지 못했습니다.');
+  }
+};
+
+onMounted(() => {
+  fetchPosts();
+});
 
 const tendencyOptions = ['A', 'I', 'P', 'B', 'W', 'M', 'C', 'L'];
 const productTags = ['예금', '적금', '펀드', '보험'];
@@ -218,9 +230,6 @@ const formatDate = (dateStr) => {
 </script>
 
 <style scoped>
-.community-list {
-}
-
 .top-bar {
   display: flex;
   justify-content: flex-end;

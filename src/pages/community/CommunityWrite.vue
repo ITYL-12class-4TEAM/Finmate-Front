@@ -1,5 +1,5 @@
 <template>
-  <BackButton />
+  <BackButton title="게시글 작성" />
   <div class="community-write">
     <input
       v-model="title"
@@ -58,6 +58,10 @@
 import { ref } from 'vue';
 import BackButton from '@/components/common/BackButton.vue';
 import BaseButton from '@/components/common/BaseButton.vue';
+import { useModal } from '@/composables/useModal';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const title = ref('');
 const content = ref('');
@@ -76,7 +80,9 @@ const selectType = (tag) => {
   selectedType.value = tag;
 };
 
-const submitPost = () => {
+const showModal = useModal();
+
+const submitPost = async () => {
   if (
     !title.value ||
     !content.value ||
@@ -84,6 +90,12 @@ const submitPost = () => {
     !selectedType.value
   ) {
     alert('모든 항목을 입력해주세요.');
+    return;
+  }
+
+  const confirmed = await showModal('현재 상태로 등록하시겠습니까?');
+
+  if (!confirmed) {
     return;
   }
 
@@ -96,13 +108,11 @@ const submitPost = () => {
   });
 
   // 입력 후 목록으로 이동
+  router.push({ name: 'CommunityList' });
 };
 </script>
 
 <style scoped>
-.community-write {
-}
-
 .input,
 .textarea {
   width: 100%;
