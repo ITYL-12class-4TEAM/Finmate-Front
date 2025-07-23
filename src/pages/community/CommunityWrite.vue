@@ -18,7 +18,7 @@
     <div class="char-limit">최대 60자</div>
 
     <div class="tag-group">
-      <div class="tag-label">금융 상품</div>
+      <div class="tag-label">상품군</div>
       <div class="tag-line"></div>
       <div class="tags">
         <button
@@ -106,7 +106,7 @@ const submitPost = () => {
 .input,
 .textarea {
   width: 100%;
-  border: 1px solid var(--color-sub);
+  border: 2px solid var(--color-light);
   border-radius: 8px;
   padding: 0.75rem 1rem;
   margin-top: 1.2rem;
