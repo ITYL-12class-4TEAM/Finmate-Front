@@ -59,6 +59,8 @@ import { useRoute, useRouter } from 'vue-router';
 import BackButton from '@/components/common/BackButton.vue';
 import BaseButton from '@/components/common/BaseButton.vue';
 import { useModal } from '@/composables/useModal';
+import { getPostById } from '@/api/posts';
+import { updatePostAPI } from '@/api/posts';
 
 // route param에서 게시글 id 가져오기
 const route = useRoute();
@@ -76,18 +78,12 @@ const typeTags = ['추천', '질문', '경험', '자유'];
 // 기존 게시글 정보 가져오기
 const fetchPost = async () => {
   try {
-    // TODO: 실제 API로 교체
-    const response = {
-      title: '20대 직장인, 보험 뭐가 좋을까요?',
-      content: '금리가 높은 편인가요? 조언 부탁드려요!',
-      product: '보험',
-      type: '질문',
-    };
-
-    title.value = response.title;
-    content.value = response.content;
-    selectedProduct.value = response.product;
-    selectedType.value = response.type;
+    const res = await getPostById(postId);
+    console.log(res);
+    title.value = res.title;
+    content.value = res.content;
+    selectedProduct.value = res.tags?.[0] ?? '';
+    selectedType.value = res.tags?.[1] ?? '';
   } catch (e) {
     alert('게시글 정보를 불러오지 못했습니다.');
     router.push('/community'); // 에러 시 목록 페이지로 이동
@@ -125,17 +121,26 @@ const updatePost = async () => {
     return;
   }
 
-  // TODO: 게시글 수정 API 호출
-  console.log('수정된 글:', {
-    id: postId,
+  const postData = {
+    postId,
+    boardId: 1, // 실제 사용 중인 boardId로 대체
+    wmtiId: 1, // 선택된 유형이 있다면 그걸로 대체
+    memberId: 1, // 로그인된 사용자 ID로 대체
     title: title.value,
     content: content.value,
-    product: selectedProduct.value,
-    type: selectedType.value,
-  });
+    isAnonymous: false,
+    status: 'NORMAL',
+  };
 
-  // 수정 후 상세 페이지 이동
-  router.push(`/community/${postId}`);
+  try {
+    const edited = await updatePostAPI(postId, postData);
+    console.log('게시글 수정 성공:', edited);
+    // 수정 후 상세 페이지 이동
+    router.push(`/community/${postId}`);
+  } catch (e) {
+    console.error('수정 실패:', e);
+    alert('수정 중 오류가 발생했습니다.');
+  }
 };
 </script>
 

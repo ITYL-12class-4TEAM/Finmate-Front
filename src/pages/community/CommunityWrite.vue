@@ -60,6 +60,7 @@ import BackButton from '@/components/common/BackButton.vue';
 import BaseButton from '@/components/common/BaseButton.vue';
 import { useModal } from '@/composables/useModal';
 import { useRouter } from 'vue-router';
+import { createPostAPI } from '@/api/posts';
 
 const router = useRouter();
 
@@ -99,16 +100,23 @@ const submitPost = async () => {
     return;
   }
 
-  // TODO: API 연결 후 게시글 등록 요청 보내기
-  console.log('작성된 글:', {
+  const postData = {
     title: title.value,
     content: content.value,
-    product: selectedProduct.value,
-    type: selectedType.value,
-  });
+    boardId: 1, // 고정값 (게시판 ID)
+    memberId: 1, // 로그인 사용자 ID
+    status: 'NORMAL',
+  };
 
-  // 입력 후 목록으로 이동
-  router.push({ name: 'CommunityList' });
+  try {
+    const created = await createPostAPI(postData);
+    console.log('게시글 등록 성공:', created);
+    // 입력 후 목록으로 이동
+    router.push({ name: 'CommunityList' });
+  } catch (e) {
+    console.error('게시글 등록 실패:', e);
+    alert('등록 중 오류가 발생했습니다.');
+  }
 };
 </script>
 

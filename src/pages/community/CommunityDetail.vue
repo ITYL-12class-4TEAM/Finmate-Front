@@ -2,7 +2,7 @@
   <div class="community-detail">
     <BackButton />
 
-    <div class="post-main">
+    <div class="post-main" v-if="post">
       <!-- 게시글 상단 -->
       <div class="post-header">
         <img class="profile-img" :src="post.authorImage" alt="프로필 이미지" />
@@ -112,11 +112,11 @@
       <div class="comment" v-for="comment in comments" :key="comment.id">
         <div class="comment-header">
           <span class="nickname">{{ comment.nickname }}</span>
-          <span class="time">{{ formattedTime(comment.time) }}</span>
+          <span class="time">{{ formattedTime(comment.createdAt) }}</span>
           <button
             v-if="comment.isMine"
             class="delete-btn"
-            @click="deleteComment"
+            @click="deleteComment(comment.id)"
           >
             삭제
           </button>
@@ -169,48 +169,26 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BackButton from '@/components/common/BackButton.vue';
+import { getPostById } from '@/api/posts';
+import { getCommentsByPostId } from '@/api/comments';
+import { useModal } from '@/composables/useModal';
+import { deletePostAPI } from '@/api/posts';
+import { createCommentAPI } from '@/api/comments';
+import { deleteCommentAPI } from '@/api/comments';
 
 const cr = useRoute();
 const router = useRouter();
 
+const showModal = useModal();
+
 const id = cr.params.id;
 
-const post = {
-  authorImage: '/authorImg.jpg',
-  nickname: '곰돌이',
-  createdAt: '2025-07-21T14:40:00',
-  title: '20대 직장인, 적금 뭐가 좋을까요?',
-  content:
-    '안녕하세요! 올해 사회초년생이 된 20대입니다. 매달 일정 금액을 적금으로 넣으려고 하는데, 어떤 상품이 좋을지 고민이에요. 금리도 중요하지만 중도해지 조건이나 우대금리 조건도 궁금합니다. 경험 있으신 분들 조언 부탁드려요!',
-  imageUrl: '',
-  tags: ['예금', '후기'],
-  likes: 13,
-  scraps: 6,
-};
+const post = ref(null);
 
-const comments = ref([
-  {
-    id: 1,
-    nickname: '곰돌이',
-    content: '신한은행도 괜찮더라구요!',
-    time: '2025-07-21T15:00:00',
-    isMine: true,
-    likeCount: 3,
-    liked: false,
-  },
-  {
-    id: 2,
-    nickname: '초보저축',
-    content: '신한은행 금리 얼마인가요?',
-    time: '2025-07-21T15:10:00',
-    isMine: false,
-    likeCount: 1,
-    liked: true,
-  },
-]);
+const comments = ref([]);
 
 const liked = ref(false);
 const scraped = ref(false);
@@ -218,15 +196,14 @@ const newComment = ref('');
 const isLoggedIn = true;
 const isMine = true;
 
-const formattedTime = (d) => {
-  const date = new Date(d);
-
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hour = String(date.getHours()).padStart(2, '0');
-  const minute = String(date.getMinutes()).padStart(2, '0');
-
-  return `${month}/${day} ${hour}:${minute}`; // "07/21 14:40"
+// 날짜 배열 -> "MM/DD HH:mm" 포맷 문자열로 변환
+const formattedTime = (arr) => {
+  if (!arr || arr.length < 6) return '';
+  const [year, month, day, hour, minute] = arr;
+  return `${String(month).padStart(2, '0')}/${String(day).padStart(
+    2,
+    '0'
+  )} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
 };
 
 const toggleLike = () => {
@@ -240,19 +217,51 @@ const toggleScrap = () => {
 };
 
 const goToEditPage = () => {
-  router.push({ name: 'CommunityEdit', params: { id: id } });
+  router.push({ name: 'CommunityEdit', params: { id: post.id } });
 };
 
-const deletePost = () => {
-  // TODO: 게시물 삭제 로직
+const deletePost = async () => {
+  const confirmed = await showModal('정말 삭제하시겠습니까?');
+  if (!confirmed) return;
+
+  try {
+    await deletePostAPI(id);
+    router.push('/community');
+  } catch (e) {
+    console.error('삭제 실패:', e);
+  }
 };
 
-const submitComment = () => {
-  // TODO: 코멘트 등록 로직
+const submitComment = async () => {
+  if (!newComment.value.trim()) return;
+
+  try {
+    await createCommentAPI({
+      postId: Number(id),
+      content: newComment.value.trim(),
+      memberId: 1, // TODO: 추후 로그인 유저 ID로 교체
+      isAnonymous: false,
+    });
+
+    newComment.value = '';
+    await fetchComments(); // 작성 후 목록 갱신
+  } catch (e) {
+    console.error('댓글 작성 실패:', e);
+    alert('댓글 등록 중 오류가 발생했습니다.');
+  }
 };
 
-const deleteComment = () => {
-  // TODO: 코멘트 삭제 처리
+const deleteComment = async (commentId) => {
+  const confirmed = await showModal('댓글을 삭제하시겠습니까?');
+  if (!confirmed) return;
+
+  try {
+    await deleteCommentAPI(commentId);
+    await fetchComments(); // 목록 갱신
+  } catch (e) {
+    console.error('댓글 삭제 실패:', e);
+    alert('댓글 삭제 중 오류가 발생했습니다.');
+  }
 };
 
 const toggleCommentLike = (commentId) => {
@@ -263,6 +272,65 @@ const toggleCommentLike = (commentId) => {
 
   // TODO: API 연동: POST or DELETE 요청
 };
+
+const fetchPostDetail = async () => {
+  try {
+    post.value = await getPostById(id);
+    console.log('getPostById: ', post.value);
+
+    // post.value = {
+    //   authorImage: '/authorImg.jpg',
+    //   nickname: '곰돌이',
+    //   createdAt: '2025-07-21T14:40:00',
+    //   title: '20대 직장인, 적금 뭐가 좋을까요?',
+    //   content:
+    //     '안녕하세요! 올해 사회초년생이 된 20대입니다. 매달 일정 금액을 적금으로 넣으려고 하는데, 어떤 상품이 좋을지 고민이에요. 금리도 중요하지만 중도해지 조건이나 우대금리 조건도 궁금합니다. 경험 있으신 분들 조언 부탁드려요!',
+    //   imageUrl: '',
+    //   tags: ['예금', '후기'],
+    //   likes: 13,
+    //   scraps: 6,
+    // };
+  } catch (e) {
+    console.log(e);
+    alert('게시물을 불러오지 못했습니다.');
+  }
+};
+
+const fetchComments = async () => {
+  try {
+    const currentUserId = 1;
+    comments.value = await getCommentsByPostId(id, currentUserId);
+    console.log('getCommentsByPostId: ', comments.value);
+
+    // comments.value = [
+    //   {
+    //     id: 1,
+    //     nickname: '곰돌이',
+    //     content: '신한은행도 괜찮더라구요!',
+    //     time: '2025-07-21T15:00:00',
+    //     isMine: true,
+    //     likeCount: 3,
+    //     liked: false,
+    //   },
+    //   {
+    //     id: 2,
+    //     nickname: '초보저축',
+    //     content: '신한은행 금리 얼마인가요?',
+    //     time: '2025-07-21T15:10:00',
+    //     isMine: false,
+    //     likeCount: 1,
+    //     liked: true,
+    //   },
+    // ];
+  } catch (e) {
+    console.error('댓글 불러오기 실패:', e);
+  }
+};
+
+onMounted(() => {
+  fetchPostDetail();
+  fetchComments();
+});
 </script>
 
 <style scoped>

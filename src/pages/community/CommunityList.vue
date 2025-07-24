@@ -116,6 +116,7 @@
 import { ref, computed, onMounted } from 'vue';
 import dayjs from 'dayjs';
 import { useRouter } from 'vue-router';
+import { getPosts } from '@/api/posts';
 
 const router = useRouter();
 
@@ -132,43 +133,46 @@ const posts = ref([]);
 const fetchPosts = async () => {
   try {
     // TODO: API 요청으로 게시물 GET
-    posts.value = [
-      {
-        id: 1,
-        title: '20대 직장인, 보험 뭐가 좋을까요?',
-        content: '금리가 높은 편인가요? 조언 부탁드려요!',
-        createdAt: '2025-07-23T14:40:00',
-        likes: 1,
-        comments: 10,
-        tendency: 'APWC',
-        productType: '보험',
-        tag: '추천',
-      },
-      {
-        id: 2,
-        title: '적금과 청년도약계좌 차이점이 궁금해요',
-        content: '둘 중 뭐가 더 나을까요? 의견이 궁금합니다~',
-        createdAt: '2025-07-22T10:15:00',
-        likes: 6,
-        comments: 8,
-        tendency: 'IBML',
-        productType: '적금',
-        tag: '질문',
-      },
-      {
-        id: 3,
-        title: '펀드 설명 부탁합니다',
-        content:
-          '펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?',
-        createdAt: '2025-07-21T10:15:00',
-        likes: 5,
-        comments: 7,
-        tendency: 'ABWL',
-        productType: '펀드',
-        tag: '자유',
-      },
-    ];
+    posts.value = await getPosts();
+    console.log('getPosts: ', posts.value);
+    // posts.value = [
+    //   {
+    //     id: 1,
+    //     title: '20대 직장인, 보험 뭐가 좋을까요?',
+    //     content: '금리가 높은 편인가요? 조언 부탁드려요!',
+    //     createdAt: '2025-07-23T14:40:00',
+    //     likes: 1,
+    //     comments: 10,
+    //     tendency: 'APWC',
+    //     productType: '보험',
+    //     tag: '추천',
+    //   },
+    //   {
+    //     id: 2,
+    //     title: '적금과 청년도약계좌 차이점이 궁금해요',
+    //     content: '둘 중 뭐가 더 나을까요? 의견이 궁금합니다~',
+    //     createdAt: '2025-07-22T10:15:00',
+    //     likes: 6,
+    //     comments: 8,
+    //     tendency: 'IBML',
+    //     productType: '적금',
+    //     tag: '질문',
+    //   },
+    //   {
+    //     id: 3,
+    //     title: '펀드 설명 부탁합니다',
+    //     content:
+    //       '펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?펀드가 뭔지 잘 모르겠습니다. 구체적으로 잘 설명해주실 분 있나요?',
+    //     createdAt: '2025-07-21T10:15:00',
+    //     likes: 5,
+    //     comments: 7,
+    //     tendency: 'ABWL',
+    //     productType: '펀드',
+    //     tag: '자유',
+    //   },
+    // ];
   } catch (e) {
+    console.log(e);
     alert('게시물을 불러오지 못했습니다.');
   }
 };
@@ -220,12 +224,22 @@ const filteredPosts = computed(() => {
   });
 });
 
-const formatDate = (dateStr) => {
-  const now = dayjs();
-  const postDate = dayjs(dateStr);
-  return postDate.isSame(now, 'day')
-    ? postDate.format('HH:mm')
-    : postDate.format('MM/DD');
+// const formatDate = (dateStr) => {
+//   const now = dayjs();
+//   const postDate = dayjs(dateStr);
+//   return postDate.isSame(now, 'day')
+//     ? postDate.format('HH:mm')
+//     : postDate.format('MM/DD');
+// };
+
+// 날짜 배열 -> "MM/DD HH:mm" 포맷 문자열로 변환
+const formatDate = (arr) => {
+  if (!arr || arr.length < 6) return '';
+  const [year, month, day, hour, minute] = arr;
+  return `${String(month).padStart(2, '0')}/${String(day).padStart(
+    2,
+    '0'
+  )} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
 };
 </script>
 
