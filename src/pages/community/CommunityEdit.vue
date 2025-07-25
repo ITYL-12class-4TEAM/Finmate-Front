@@ -58,6 +58,7 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useModal } from '@/composables/useModal';
 import { getPostByIdAPI, updatePostAPI } from '@/api/posts';
+import { reverseCategoryTagMap, reverseProductTagMap } from '@/constants/tags';
 
 import BackButton from '@/components/common/BackButton.vue';
 import BaseButton from '@/components/common/BaseButton.vue';
@@ -88,8 +89,8 @@ const fetchPost = async () => {
     const res = await getPostByIdAPI(postId);
     title.value = res.title;
     content.value = res.content;
-    selectedProduct.value = res.tags?.[0] ?? '';
-    selectedType.value = res.tags?.[1] ?? '';
+    selectedProduct.value = res.tags?.[0] || '';
+    selectedType.value = res.tags?.[1] || '';
   } catch (e) {
     alert('게시글 정보를 불러오지 못했습니다.');
     router.push('/community');
@@ -102,6 +103,8 @@ onMounted(fetchPost);
 const showModal = useModal();
 
 const updatePost = async () => {
+  console.log('postId:', postId); // 이게 null이면 문제 발생
+
   if (
     !title.value ||
     !content.value ||
@@ -116,19 +119,17 @@ const updatePost = async () => {
   if (!confirmed) return;
 
   const postData = {
-    postId,
     boardId: 1, // TODO: 게시판 동적 처리
-    wmtiId: 1, // TODO: 사용자 금융 성향
     memberId, // 실제 로그인 사용자
     title: title.value,
     content: content.value,
-    isAnonymous: false,
     status: 'NORMAL',
+    productTag: reverseProductTagMap[selectedProduct.value],
+    categoryTag: reverseCategoryTagMap[selectedType.value],
   };
 
   try {
     await updatePostAPI(postId, postData);
-    router.push(`/community/${postId}`);
   } catch (e) {
     console.error('수정 실패:', e);
     alert('수정 중 오류가 발생했습니다.');

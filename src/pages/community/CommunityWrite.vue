@@ -59,6 +59,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useModal } from '@/composables/useModal';
 import { createPostAPI } from '@/api/posts';
+import { reverseProductTagMap, reverseCategoryTagMap } from '@/constants/tags';
 
 import BackButton from '@/components/common/BackButton.vue';
 import BaseButton from '@/components/common/BaseButton.vue';
@@ -105,7 +106,8 @@ const submitPost = async () => {
     memberId,
     status: 'NORMAL',
     isAnonymous: false,
-    // TODO: selectedProduct, selectedType도 서버와 연동 필요 시 추가
+    productTag: reverseProductTagMap[selectedProduct.value],
+    categoryTag: reverseCategoryTagMap[selectedType.value],
   };
 
   try {
