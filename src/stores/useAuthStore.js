@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import api from '@/api/index';
 
 export const useAuthStore = defineStore('auth', () => {
   // 상태
@@ -11,43 +12,38 @@ export const useAuthStore = defineStore('auth', () => {
   // Getters
   const isAuthenticated = computed(() => !!accessToken.value);
   const userInfo = computed(() => user.value);
+  const userLevel = computed(() => user.value?.level || 0);
+  const userBadges = computed(() => user.value?.badges || []);
+  const userNickname = computed(() => user.value?.nickname || '');
 
   // 로그인 액션
   const login = async (email, password) => {
     isLoading.value = true;
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
+      const response = await api.post('/auth/login', {
+        email,
+        password,
       });
 
-      const data = await response.json();
+      const data = response.data;
 
-      if (response.ok) {
-        // 성공 시 토큰과 사용자 정보 저장
-        accessToken.value = data.accessToken;
-        refreshToken.value = data.refreshToken;
-        user.value = data.userInfo;
+      // 성공 시 토큰과 사용자 정보 저장
+      accessToken.value = data.accessToken;
+      refreshToken.value = data.refreshToken;
+      user.value = data.userInfo;
 
-        // localStorage에 저장
-        localStorage.setItem('accessToken', data.accessToken);
-        localStorage.setItem('refreshToken', data.refreshToken);
-        localStorage.setItem('user', JSON.stringify(data.userInfo));
+      // localStorage에 저장
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
+      localStorage.setItem('user', JSON.stringify(data.userInfo));
 
-        return { success: true, message: '로그인 성공' };
-      } else {
-        return { success: false, message: data.message || '로그인 실패' };
-      }
+      return { success: true, message: '로그인 성공' };
     } catch (error) {
       console.error('로그인 에러:', error);
-      return { success: false, message: '네트워크 오류가 발생했습니다.' };
+      const message =
+        error.response?.data?.message || '네트워크 오류가 발생했습니다.';
+      return { success: false, message };
     } finally {
       isLoading.value = false;
     }
@@ -58,13 +54,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       // 백엔드에 로그아웃 요청 (선택사항)
       if (accessToken.value) {
-        await fetch('/api/auth/logout', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${accessToken.value}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        await api.post('/auth/logout');
       }
     } catch (error) {
       console.error('로그아웃 에러:', error);
@@ -86,26 +76,14 @@ export const useAuthStore = defineStore('auth', () => {
     if (!refreshToken.value) return false;
 
     try {
-      const response = await fetch('/api/auth/refresh', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          refreshToken: refreshToken.value,
-        }),
+      const response = await api.post('/auth/refresh', {
+        refreshToken: refreshToken.value,
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        accessToken.value = data.accessToken;
-        localStorage.setItem('accessToken', data.accessToken);
-        return true;
-      } else {
-        // refresh token도 만료된 경우
-        await logout();
-        return false;
-      }
+      const newAccessToken = response.data.accessToken;
+      accessToken.value = newAccessToken;
+      localStorage.setItem('accessToken', newAccessToken);
+      return true;
     } catch (error) {
       console.error('토큰 새로고침 에러:', error);
       await logout();
@@ -118,30 +96,19 @@ export const useAuthStore = defineStore('auth', () => {
     if (!accessToken.value) return false;
 
     try {
-      const response = await fetch('/api/auth/me', {
-        headers: {
-          Authorization: `Bearer ${accessToken.value}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const userData = await response.json();
-        user.value = userData;
-        localStorage.setItem('user', JSON.stringify(userData));
-        return true;
-      } else if (response.status === 401) {
-        // 토큰 만료 시 새로고침 시도
+      const response = await api.get('/auth/me');
+      const userData = response.data;
+      user.value = userData;
+      localStorage.setItem('user', JSON.stringify(userData));
+      return true;
+    } catch (error) {
+      console.error('사용자 정보 새로고침 에러:', error);
+      if (error.response?.status === 401) {
         const refreshed = await refreshAccessToken();
         if (refreshed) {
           return await refreshUser(); // 재귀 호출
         }
-        return false;
-      } else {
-        return false;
       }
-    } catch (error) {
-      console.error('사용자 정보 새로고침 에러:', error);
       return false;
     }
   };
@@ -161,14 +128,14 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  // 디버깅용 - localStorage 상태 확인
+  // 디버깅용
   const debugStorage = () => {
-    console.log('=== localStorage 상태 ===');
-    console.log('accessToken:', accessToken.value);
-    console.log('refreshToken:', refreshToken.value);
-    console.log('user:', user.value);
+    console.log('=== Auth Store Debug ===');
+    console.log('accessToken:', localStorage.getItem('accessToken'));
+    console.log('refreshToken:', localStorage.getItem('refreshToken'));
+    console.log('user:', localStorage.getItem('user'));
     console.log('isAuthenticated:', isAuthenticated.value);
-    console.log('========================');
+    console.log('userInfo:', userInfo.value);
   };
 
   return {
@@ -180,13 +147,15 @@ export const useAuthStore = defineStore('auth', () => {
     // Getters
     isAuthenticated,
     userInfo,
+    userLevel,
+    userBadges,
+    userNickname,
     // 액션
     login,
     logout,
     refreshAccessToken,
     refreshUser,
     initialize,
-    // 디버깅
     debugStorage,
   };
 });
