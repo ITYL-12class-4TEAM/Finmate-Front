@@ -56,33 +56,34 @@
 
 <script setup>
 import { ref } from 'vue';
-import BackButton from '@/components/common/BackButton.vue';
-import BaseButton from '@/components/common/BaseButton.vue';
-import { useModal } from '@/composables/useModal';
 import { useRouter } from 'vue-router';
+import { useModal } from '@/composables/useModal';
 import { createPostAPI } from '@/api/posts';
 
-const router = useRouter();
+import BackButton from '@/components/common/BackButton.vue';
+import BaseButton from '@/components/common/BaseButton.vue';
 
-const title = ref('');
-const content = ref('');
-
+// 상수
 const productTags = ['예금', '적금', '펀드', '보험'];
 const typeTags = ['추천', '질문', '경험', '자유'];
 
+// 상태
+const title = ref('');
+const content = ref('');
 const selectedProduct = ref('예금');
 const selectedType = ref('추천');
 
-const selectProduct = (tag) => {
-  selectedProduct.value = tag;
-};
-
-const selectType = (tag) => {
-  selectedType.value = tag;
-};
-
+const router = useRouter();
 const showModal = useModal();
 
+const memberId = 1; // TODO: 전역 사용자 정보 적용
+const boardId = 1; // TODO: 게시판 ID 동적으로 처리 가능
+
+// 태그 선택
+const selectProduct = (tag) => (selectedProduct.value = tag);
+const selectType = (tag) => (selectedType.value = tag);
+
+// 게시글 등록
 const submitPost = async () => {
   if (
     !title.value ||
@@ -95,23 +96,20 @@ const submitPost = async () => {
   }
 
   const confirmed = await showModal('현재 상태로 등록하시겠습니까?');
-
-  if (!confirmed) {
-    return;
-  }
+  if (!confirmed) return;
 
   const postData = {
     title: title.value,
     content: content.value,
-    boardId: 1, // 고정값 (게시판 ID)
-    memberId: 1, // 로그인 사용자 ID
+    boardId,
+    memberId,
     status: 'NORMAL',
+    isAnonymous: false,
+    // TODO: selectedProduct, selectedType도 서버와 연동 필요 시 추가
   };
 
   try {
-    const created = await createPostAPI(postData);
-    console.log('게시글 등록 성공:', created);
-    // 입력 후 목록으로 이동
+    await createPostAPI(postData);
     router.push({ name: 'CommunityList' });
   } catch (e) {
     console.error('게시글 등록 실패:', e);

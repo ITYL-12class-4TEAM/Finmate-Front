@@ -54,15 +54,15 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useModal } from '@/composables/useModal';
+import { getPostByIdAPI, updatePostAPI } from '@/api/posts';
+
 import BackButton from '@/components/common/BackButton.vue';
 import BaseButton from '@/components/common/BaseButton.vue';
-import { useModal } from '@/composables/useModal';
-import { getPostById } from '@/api/posts';
-import { updatePostAPI } from '@/api/posts';
 
-// route param에서 게시글 id 가져오기
+// 상태 변수
 const route = useRoute();
 const router = useRouter();
 const postId = Number(route.params.id);
@@ -75,33 +75,30 @@ const selectedType = ref('');
 const productTags = ['예금', '적금', '펀드', '보험'];
 const typeTags = ['추천', '질문', '경험', '자유'];
 
-// 기존 게시글 정보 가져오기
+// 전역 유저 정보
+const memberId = 1; // TODO: 전역 사용자 정보 적용
+
+// 태그 선택 함수
+const selectProduct = (tag) => (selectedProduct.value = tag);
+const selectType = (tag) => (selectedType.value = tag);
+
+// 게시글 정보 불러오기
 const fetchPost = async () => {
   try {
-    const res = await getPostById(postId);
-    console.log(res);
+    const res = await getPostByIdAPI(postId);
     title.value = res.title;
     content.value = res.content;
     selectedProduct.value = res.tags?.[0] ?? '';
     selectedType.value = res.tags?.[1] ?? '';
   } catch (e) {
     alert('게시글 정보를 불러오지 못했습니다.');
-    router.push('/community'); // 에러 시 목록 페이지로 이동
+    router.push('/community');
   }
 };
 
-onMounted(() => {
-  fetchPost();
-});
+onMounted(fetchPost);
 
-const selectProduct = (tag) => {
-  selectedProduct.value = tag;
-};
-
-const selectType = (tag) => {
-  selectedType.value = tag;
-};
-
+// 수정 요청
 const showModal = useModal();
 
 const updatePost = async () => {
@@ -116,16 +113,13 @@ const updatePost = async () => {
   }
 
   const confirmed = await showModal('현재 상태로 수정하시겠습니까?');
-
-  if (!confirmed) {
-    return;
-  }
+  if (!confirmed) return;
 
   const postData = {
     postId,
-    boardId: 1, // 실제 사용 중인 boardId로 대체
-    wmtiId: 1, // 선택된 유형이 있다면 그걸로 대체
-    memberId: 1, // 로그인된 사용자 ID로 대체
+    boardId: 1, // TODO: 게시판 동적 처리
+    wmtiId: 1, // TODO: 사용자 금융 성향
+    memberId, // 실제 로그인 사용자
     title: title.value,
     content: content.value,
     isAnonymous: false,
@@ -133,9 +127,7 @@ const updatePost = async () => {
   };
 
   try {
-    const edited = await updatePostAPI(postId, postData);
-    console.log('게시글 수정 성공:', edited);
-    // 수정 후 상세 페이지 이동
+    await updatePostAPI(postId, postData);
     router.push(`/community/${postId}`);
   } catch (e) {
     console.error('수정 실패:', e);
