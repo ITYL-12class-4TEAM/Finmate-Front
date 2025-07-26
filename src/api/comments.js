@@ -1,21 +1,20 @@
 import api from './index';
 
-// 댓글 조회
+// 게시글에 해당하는 댓글 리스트 조회
 export const getCommentsByPostId = async (postId, currentUserId = null) => {
-  const res = await api.get('/api/comments');
-  const all = res.data.body.data;
+  const res = await api.get(`/api/comments/post/${postId}`);
+  const comments = res.data.body.data;
 
-  return all
-    .filter((c) => c.postId === Number(postId))
-    .map((c) => ({
-      id: c.commentId,
-      content: c.content,
-      createdAt: c.createdAt, // 날짜 포맷은 Vue 컴포넌트에서 처리
-      nickname: c.anonymous ? '익명' : `사용자${c.memberId}`,
-      isMine: currentUserId ? c.memberId === currentUserId : false,
-      likeCount: 0, // 좋아요 API 연동 시 반영
-      liked: false,
-    }));
+  return comments.map((c) => ({
+    id: c.commentId,
+    content: c.content,
+    createdAt: c.createdAt,
+    nickname: c.anonymous ? '익명' : c.nickname || `사용자${c.memberId}`,
+    isMine: currentUserId ? c.memberId === currentUserId : false,
+    likeCount: c.likeCount,
+    // liked: c.liked || false,
+    // parentComment: c.parentComment,
+  }));
 };
 
 // 댓글 생성
@@ -24,12 +23,14 @@ export const createCommentAPI = async ({
   content,
   memberId = 1,
   isAnonymous = false,
+  parentComment = null,
 }) => {
   const res = await api.post('/api/comments', {
     postId,
     memberId,
     content,
     isAnonymous,
+    parentComment,
   });
   return res.data;
 };

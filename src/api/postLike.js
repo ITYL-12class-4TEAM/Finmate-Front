@@ -13,9 +13,7 @@ export const getPostLikedByMeAPI = async (postId, memberId) => {
 };
 
 // 게시글 좋아요 토글
-export const togglePostLikeAPI = async (postId, memberId) => {
-  const res = await api.post(
-    `/api/post-like/${postId}/toggle?memberId=${memberId}`
-  );
+export const togglePostLikeAPI = async (postId) => {
+  const res = await api.post(`/api/post-like/${postId}/toggle`);
   return res.data.body.data.liked;
 };

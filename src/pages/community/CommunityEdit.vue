@@ -120,7 +120,6 @@ const updatePost = async () => {
 
   const postData = {
     boardId: 1, // TODO: 게시판 동적 처리
-    memberId, // 실제 로그인 사용자
     title: title.value,
     content: content.value,
     status: 'NORMAL',
@@ -130,6 +129,7 @@ const updatePost = async () => {
 
   try {
     await updatePostAPI(postId, postData);
+    router.push({ name: 'CommunityDetail', params: { id: postId } });
   } catch (e) {
     console.error('수정 실패:', e);
     alert('수정 중 오류가 발생했습니다.');

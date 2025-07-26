@@ -252,7 +252,7 @@ const toggleLike = async () => {
 const toggleCommentLike = async (commentId) => {
   const comment = comments.value.find((c) => c.id === commentId);
   if (!comment) return;
-  await toggleCommentLikeAPI(commentId, memberId); // 실제 API 요청
+  await toggleCommentLikeAPI(commentId);
   comment.liked = !comment.liked;
   comment.likeCount += comment.liked ? 1 : -1;
 };
