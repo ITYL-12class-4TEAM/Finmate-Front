@@ -699,7 +699,7 @@ const handleSignup = async () => {
 }
 
 .subtitle {
-  color: #666;
+  color: #7d81a2;
   margin: 0;
   font-size: 0.9rem;
 }
@@ -711,7 +711,7 @@ const handleSignup = async () => {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #333;
+  color: #2d336b;
   font-size: 0.9rem;
   font-weight: 500;
 }
@@ -719,7 +719,7 @@ const handleSignup = async () => {
 .form-group input {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid #b9bbcc;
   border-radius: 6px;
   font-size: 1rem;
   box-sizing: border-box;
@@ -741,7 +741,7 @@ const handleSignup = async () => {
 
 .verify-btn {
   padding: 12px 16px;
-  background-color: #6c757d;
+  background-color: #2d336b;
   color: white;
   border: none;
   border-radius: 6px;
@@ -750,11 +750,11 @@ const handleSignup = async () => {
 }
 
 .verify-btn:hover {
-  background-color: #5a6268;
+  background-color: #1e2347;
 }
 
 .verify-btn:disabled {
-  background-color: #ccc;
+  background-color: #b9bbcc;
   cursor: not-allowed;
 }
 
@@ -770,7 +770,7 @@ const handleSignup = async () => {
   background: none;
   border: none;
   cursor: pointer;
-  color: #666;
+  color: #7d81a2;
 }
 
 /* 약관 동의 스타일 수정 */
@@ -800,7 +800,7 @@ const handleSignup = async () => {
 .checkmark {
   width: 20px;
   height: 20px;
-  border: 2px solid #ddd;
+  border: 2px solid #b9bbcc;
   border-radius: 4px;
   margin-right: 12px;
   position: relative;
@@ -828,7 +828,7 @@ const handleSignup = async () => {
 .agreement-text {
   flex: 1;
   font-size: 0.9rem;
-  color: #333;
+  color: #2d336b;
 }
 
 .all-agreement {
@@ -853,8 +853,8 @@ const handleSignup = async () => {
 
 .view-btn {
   background: none;
-  border: 1px solid #ddd;
-  color: #666;
+  border: 1px solid #b9bbcc;
+  color: #7d81a2;
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.8rem;
@@ -863,12 +863,12 @@ const handleSignup = async () => {
 }
 
 .view-btn:hover {
-  background-color: #f5f5f5;
-  border-color: #999;
+  background-color: #eeeef3;
+  border-color: #7d81a2;
 }
 
 .optional .agreement-text {
-  color: #666;
+  color: #7d81a2;
 }
 
 /* 모달 스타일 */
@@ -953,7 +953,7 @@ const handleSignup = async () => {
 }
 
 .success-message {
-  color: #28a745;
+  color: #2d336b;
   font-size: 0.8rem;
   margin-top: 4px;
 }
@@ -981,7 +981,7 @@ const handleSignup = async () => {
 }
 
 .signup-btn:disabled {
-  background-color: #ccc;
+  background-color: #b9bbcc;
   cursor: not-allowed;
 }
 
@@ -991,18 +991,18 @@ const handleSignup = async () => {
 }
 
 .link {
-  color: #666;
+  color: #7d81a2;
   text-decoration: none;
   font-size: 0.9rem;
 }
 
 .link:hover {
-  color: #333;
+  color: #2d336b;
 }
 
 .divider {
   margin: 0 10px;
-  color: #ccc;
+  color: #b9bbcc;
 }
 
 /* 성별 버튼 스타일 */

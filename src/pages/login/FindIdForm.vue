@@ -273,7 +273,7 @@ const findIdByPhone = async () => {
 }
 
 .description {
-  color: #666;
+  color: #7d81a2;
   margin: 0;
   font-size: 0.9rem;
 }
@@ -289,7 +289,7 @@ const findIdByPhone = async () => {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #333;
+  color: #2d336b;
   font-size: 0.9rem;
   font-weight: 500;
 }
@@ -297,7 +297,7 @@ const findIdByPhone = async () => {
 .form-group input {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid #b9bbcc;
   border-radius: 6px;
   font-size: 1rem;
   box-sizing: border-box;
@@ -321,7 +321,7 @@ const findIdByPhone = async () => {
 
 .verify-btn {
   padding: 12px 16px;
-  background-color: #28a745;
+  background-color: #2d336b;
   color: white;
   border: none;
   border-radius: 6px;
@@ -332,11 +332,11 @@ const findIdByPhone = async () => {
 }
 
 .verify-btn:hover:not(:disabled) {
-  background-color: #218838;
+  background-color: #1e2347;
 }
 
 .verify-btn:disabled {
-  background-color: #ccc;
+  background-color: #b9bbcc;
   cursor: not-allowed;
 }
 
@@ -357,26 +357,26 @@ const findIdByPhone = async () => {
 }
 
 .find-btn:disabled {
-  background-color: #ccc;
+  background-color: #b9bbcc;
   cursor: not-allowed;
 }
 
 .result-section {
   margin: 30px 0;
   padding: 20px;
-  background-color: #f8f9fa;
+  background-color: #eeeef3;
   border-radius: 8px;
   text-align: center;
 }
 
 .success-message i {
   font-size: 2rem;
-  color: #28a745;
+  color: #2d336b;
   margin-bottom: 10px;
 }
 
 .success-message h3 {
-  color: #333;
+  color: #2d336b;
   margin: 0 0 15px 0;
 }
 
@@ -385,7 +385,7 @@ const findIdByPhone = async () => {
   padding: 15px;
   background-color: white;
   border-radius: 6px;
-  border: 1px solid #ddd;
+  border: 1px solid #b9bbcc;
 }
 
 .id-text {
@@ -395,7 +395,7 @@ const findIdByPhone = async () => {
 }
 
 .result-info {
-  color: #666;
+  color: #7d81a2;
   font-size: 0.9rem;
   margin: 10px 0 0 0;
 }
@@ -406,7 +406,7 @@ const findIdByPhone = async () => {
 }
 
 .link {
-  color: #666;
+  color: #7d81a2;
   text-decoration: none;
   font-size: 0.9rem;
   transition: color 0.3s ease;
@@ -418,7 +418,7 @@ const findIdByPhone = async () => {
 
 .divider {
   margin: 0 10px;
-  color: #ccc;
+  color: #b9bbcc;
 }
 
 /* 반응형 디자인 */

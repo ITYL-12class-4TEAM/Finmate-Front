@@ -41,7 +41,7 @@
           </div>
         </div>
         <button type="submit" class="login-btn" :disabled="isLoading">
-          {{ isLoading ? '로그인 중...' : '이메일로 로그인' }}
+          {{ isLoading ? '로그인 중...' : '로그인' }}
         </button>
       </form>
       <!-- 링크들 -->

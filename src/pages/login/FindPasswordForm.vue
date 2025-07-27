@@ -399,14 +399,14 @@ const goToLogin = () => {
 }
 
 .subtitle {
-  color: #333;
+  color: #2d336b;
   margin: 0 0 8px 0;
   font-size: 1.2rem;
   font-weight: 600;
 }
 
 .description {
-  color: #666;
+  color: #7d81a2;
   margin: 0;
   font-size: 0.9rem;
 }
@@ -419,7 +419,7 @@ const goToLogin = () => {
   text-align: center;
   margin-bottom: 25px;
   padding: 20px;
-  background-color: #f8f9fa;
+  background-color: #eeeef3;
   border-radius: 8px;
 }
 
@@ -431,7 +431,7 @@ const goToLogin = () => {
 
 .step-info p {
   margin: 5px 0;
-  color: #333;
+  color: #2d336b;
 }
 
 .form-group {
@@ -441,7 +441,7 @@ const goToLogin = () => {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #333;
+  color: #2d336b;
   font-size: 0.9rem;
   font-weight: 500;
 }
@@ -449,7 +449,7 @@ const goToLogin = () => {
 .form-group input {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid #b9bbcc;
   border-radius: 6px;
   font-size: 1rem;
   box-sizing: border-box;
@@ -473,7 +473,7 @@ const goToLogin = () => {
 
 .verify-btn {
   padding: 12px 16px;
-  background-color: #28a745;
+  background-color: #2d336b;
   color: white;
   border: none;
   border-radius: 6px;
@@ -484,11 +484,11 @@ const goToLogin = () => {
 }
 
 .verify-btn:hover:not(:disabled) {
-  background-color: #218838;
+  background-color: #1e2347;
 }
 
 .verify-btn:disabled {
-  background-color: #ccc;
+  background-color: #b9bbcc;
   cursor: not-allowed;
 }
 
@@ -512,7 +512,7 @@ const goToLogin = () => {
 
 .find-btn:disabled,
 .reset-btn:disabled {
-  background-color: #ccc;
+  background-color: #b9bbcc;
   cursor: not-allowed;
 }
 
@@ -527,12 +527,12 @@ const goToLogin = () => {
   display: flex;
   align-items: center;
   font-size: 0.85rem;
-  color: #666;
+  color: #7d81a2;
   transition: color 0.3s ease;
 }
 
 .requirement.valid {
-  color: #28a745;
+  color: #2d336b;
 }
 
 .requirement i {
@@ -549,13 +549,13 @@ const goToLogin = () => {
 
 .requirement-compact {
   font-size: 0.75rem;
-  color: #999;
+  color: #b9bbcc;
   transition: color 0.3s ease;
   position: relative;
 }
 
 .requirement-compact.valid {
-  color: #28a745;
+  color: #2d336b;
 }
 
 .requirement-compact.valid::before {
@@ -576,7 +576,7 @@ const goToLogin = () => {
 }
 
 .text-success {
-  color: #28a745;
+  color: #2d336b;
 }
 
 .text-danger {
@@ -586,24 +586,24 @@ const goToLogin = () => {
 .result-section {
   margin: 30px 0;
   padding: 20px;
-  background-color: #f8f9fa;
+  background-color: #eeeef3;
   border-radius: 8px;
   text-align: center;
 }
 
 .success-message i {
   font-size: 2rem;
-  color: #28a745;
+  color: #2d336b;
   margin-bottom: 10px;
 }
 
 .success-message h3 {
-  color: #333;
+  color: #2d336b;
   margin: 0 0 15px 0;
 }
 
 .success-message p {
-  color: #666;
+  color: #7d81a2;
   margin-bottom: 25px;
 }
 
@@ -628,7 +628,7 @@ const goToLogin = () => {
 }
 
 .link {
-  color: #666;
+  color: #7d81a2;
   text-decoration: none;
   font-size: 0.9rem;
   transition: color 0.3s ease;
@@ -640,7 +640,7 @@ const goToLogin = () => {
 
 .divider {
   margin: 0 10px;
-  color: #ccc;
+  color: #b9bbcc;
 }
 
 /* 반응형 디자인 */
