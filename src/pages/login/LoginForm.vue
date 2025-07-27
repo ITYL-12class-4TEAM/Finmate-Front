@@ -46,11 +46,13 @@
       </form>
       <!-- 링크들 -->
       <div class="links">
-        <a href="#" class="link">회원가입</a>
+        <router-link to="/login/signup" class="link">회원가입</router-link>
         <span class="divider">|</span>
-        <a href="#" class="link">아이디 찾기</a>
+        <router-link to="/login/find-id" class="link">아이디 찾기</router-link>
         <span class="divider">|</span>
-        <a href="#" class="link">비밀번호 찾기</a>
+        <router-link to="/login/find-password" class="link"
+          >비밀번호 찾기</router-link
+        >
       </div>
       <!-- 소셜 로그인 -->
       <div class="social-login">
