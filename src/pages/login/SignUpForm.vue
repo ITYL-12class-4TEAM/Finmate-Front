@@ -400,9 +400,11 @@
       <div class="links">
         <router-link to="/login" class="link">로그인</router-link>
         <span class="divider">|</span>
-        <a href="#" class="link">아이디 찾기</a>
+        <router-link to="/login/find-id" class="link">아이디 찾기</router-link>
         <span class="divider">|</span>
-        <a href="#" class="link">비밀번호 찾기</a>
+        <router-link to="/login/find-password" class="link"
+          >비밀번호 찾기</router-link
+        >
       </div>
     </div>
   </div>

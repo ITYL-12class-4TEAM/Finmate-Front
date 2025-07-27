@@ -29,8 +29,16 @@ const router = createRouter({
           name: 'signup',
           component: () => import('../pages/login/SignUpForm.vue'),
         }, // 회원가입
-        //{ path: 'find-id', name: 'forgot', component: FindId }, // 아이디 찾기
-        //{ path: 'find-password', name: 'reset', component: FindPassword }, // 비밀번호 찾기
+        {
+          path: 'find-id',
+          name: 'findId',
+          component: () => import('../pages/login/FindIdForm.vue'),
+        }, // 아이디 찾기
+        {
+          path: 'find-password',
+          name: 'findPassword',
+          component: () => import('../pages/login/FindPasswordForm.vue'),
+        }, // 비밀번호 찾기
       ],
     },
 
