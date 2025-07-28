@@ -24,15 +24,23 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-defineProps({
+const props = defineProps({
   title: {
+    type: String,
+    required: false,
+  },
+  to: {
     type: String,
     required: false,
   },
 });
 
 const goBack = () => {
-  router.back();
+  if (props.to) {
+    router.push(props.to);
+  } else {
+    router.back();
+  }
 };
 </script>
 
