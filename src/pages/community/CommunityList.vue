@@ -6,7 +6,7 @@
     </div>
 
     <!-- 금융 성향 필터 -->
-    <section class="filter-section">
+    <!-- <section class="filter-section">
       <div class="filter-label">금융 성향</div>
       <div class="tendency-group">
         <button
@@ -19,7 +19,7 @@
           {{ option }}
         </button>
       </div>
-    </section>
+    </section> -->
 
     <!-- 상품군 & 속성 필터 -->
     <section class="filter-section">
@@ -33,21 +33,6 @@
             class="tag-button"
             :class="{ selected: selectedProducts.includes(tag) }"
             @click="toggleProduct(tag)"
-          >
-            #{{ tag }}
-          </button>
-        </div>
-      </div>
-      <!-- 속성 -->
-      <div class="filter-group">
-        <div class="filter-label">속성</div>
-        <div class="tag-list">
-          <button
-            v-for="tag in typeTags"
-            :key="tag"
-            class="tag-button"
-            :class="{ selected: selectedTypes.includes(tag) }"
-            @click="toggleType(tag)"
           >
             #{{ tag }}
           </button>
@@ -120,6 +105,7 @@ import { mockPosts } from './communityMock';
 
 const router = useRouter();
 const posts = ref([]);
+const boardId = 1; // TODO
 
 // 게시글 목록 불러오기
 // 테스트용 mock 전환용 flag
@@ -127,7 +113,7 @@ const useMock = false;
 
 const fetchPosts = async () => {
   try {
-    posts.value = useMock ? mockPosts : await getPostsAPI();
+    posts.value = useMock ? mockPosts : await getPostsAPI(boardId);
   } catch (e) {
     console.error('게시물 불러오기 실패:', e);
     alert('게시물을 불러오지 못했습니다.');
@@ -139,11 +125,9 @@ onMounted(fetchPosts);
 // 필터 옵션
 const tendencyOptions = ['A', 'I', 'P', 'B', 'W', 'M', 'C', 'L'];
 const productTags = ['예금', '적금', '펀드', '보험'];
-const typeTags = ['추천', '질문', '경험', '자유'];
 
 const selectedTendency = ref([]);
 const selectedProducts = ref([]);
-const selectedTypes = ref([]);
 
 // 공통 토글 헬퍼
 const toggleItem = (listRef, item) => {
@@ -154,7 +138,6 @@ const toggleItem = (listRef, item) => {
 // 필터 선택 핸들러
 const toggleTendency = (t) => toggleItem(selectedTendency, t);
 const toggleProduct = (t) => toggleItem(selectedProducts, t);
-const toggleType = (t) => toggleItem(selectedTypes, t);
 
 // 필터링 로직
 const filteredPosts = computed(() => {
@@ -165,11 +148,8 @@ const filteredPosts = computed(() => {
     const hasProduct =
       selectedProducts.value.length === 0 ||
       selectedProducts.value.includes(post.productType);
-    const hasType =
-      selectedTypes.value.length === 0 ||
-      selectedTypes.value.includes(post.tag);
 
-    return hasTendency && hasProduct && hasType;
+    return hasTendency && hasProduct;
   });
 });
 
@@ -190,6 +170,12 @@ const goToDetailPage = (id) =>
 </script>
 
 <style scoped>
+.community-list {
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+}
+
 .top-bar {
   display: flex;
   justify-content: flex-end;

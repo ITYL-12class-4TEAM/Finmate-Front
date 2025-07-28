@@ -8,7 +8,6 @@ export const mockPosts = [
     comments: 10,
     tendency: 'APWC',
     productType: '보험',
-    tag: '추천',
   },
   {
     id: 2,
@@ -19,7 +18,6 @@ export const mockPosts = [
     comments: 8,
     tendency: 'IBML',
     productType: '적금',
-    tag: '질문',
   },
   {
     id: 3,
@@ -31,7 +29,6 @@ export const mockPosts = [
     comments: 7,
     tendency: 'ABWL',
     productType: '펀드',
-    tag: '자유',
   },
 ];
 

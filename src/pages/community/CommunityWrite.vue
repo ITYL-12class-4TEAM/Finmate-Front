@@ -1,21 +1,34 @@
 <template>
-  <BackButton title="게시글 작성" />
   <div class="community-write">
+    <BackButton title="게시글 작성" />
+
     <input
       v-model="title"
       type="text"
       placeholder="제목을 입력해주세요."
       class="input"
-      maxlength="20"
+      maxlength="40"
     />
 
     <textarea
       v-model="content"
       placeholder="내용을 입력해주세요."
       class="textarea"
-      maxlength="60"
+      maxlength="120"
     />
-    <div class="char-limit">최대 60자</div>
+    <div class="char-limit">최대 120자</div>
+
+    <div class="image-upload">
+      <label for="files" class="image-label">첨부파일</label>
+      <input
+        id="file"
+        type="file"
+        accept="image/*"
+        ref="files"
+        class="image-input"
+        multiple
+      />
+    </div>
 
     <div class="tag-group">
       <div class="tag-label">상품군</div>
@@ -26,21 +39,6 @@
           :key="tag"
           :class="['tag', selectedProduct === tag && 'active']"
           @click="selectProduct(tag)"
-        >
-          #{{ tag }}
-        </button>
-      </div>
-    </div>
-
-    <div class="tag-group">
-      <div class="tag-label">속성</div>
-      <div class="tag-line"></div>
-      <div class="tags">
-        <button
-          v-for="tag in typeTags"
-          :key="tag"
-          :class="['tag', selectedType === tag && 'active']"
-          @click="selectType(tag)"
         >
           #{{ tag }}
         </button>
@@ -59,20 +57,19 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useModal } from '@/composables/useModal';
 import { createPostAPI } from '@/api/posts';
-import { reverseProductTagMap, reverseCategoryTagMap } from '@/constants/tags';
+import { reverseProductTagMap } from '@/constants/tags';
 
 import BackButton from '@/components/common/BackButton.vue';
 import BaseButton from '@/components/common/BaseButton.vue';
 
 // 상수
 const productTags = ['예금', '적금', '펀드', '보험'];
-const typeTags = ['추천', '질문', '경험', '자유'];
 
 // 상태
 const title = ref('');
 const content = ref('');
 const selectedProduct = ref('예금');
-const selectedType = ref('추천');
+const files = ref(null);
 
 const router = useRouter();
 const showModal = useModal();
@@ -82,16 +79,10 @@ const boardId = 1; // TODO: 게시판 ID 동적으로 처리 가능
 
 // 태그 선택
 const selectProduct = (tag) => (selectedProduct.value = tag);
-const selectType = (tag) => (selectedType.value = tag);
 
 // 게시글 등록
 const submitPost = async () => {
-  if (
-    !title.value ||
-    !content.value ||
-    !selectedProduct.value ||
-    !selectedType.value
-  ) {
+  if (!title.value || !content.value || !selectedProduct.value) {
     alert('모든 항목을 입력해주세요.');
     return;
   }
@@ -99,19 +90,26 @@ const submitPost = async () => {
   const confirmed = await showModal('현재 상태로 등록하시겠습니까?');
   if (!confirmed) return;
 
-  const postData = {
-    title: title.value,
-    content: content.value,
-    boardId,
-    memberId,
-    status: 'NORMAL',
-    isAnonymous: false,
-    productTag: reverseProductTagMap[selectedProduct.value],
-    categoryTag: reverseCategoryTagMap[selectedType.value],
-  };
+  const formData = new FormData();
+  formData.append('title', title.value);
+  formData.append('content', content.value);
+  formData.append('boardId', boardId);
+  formData.append('memberId', memberId);
+  formData.append('status', 'NORMAL');
+  formData.append('isAnonymous', false);
+  formData.append('productTag', reverseProductTagMap[selectedProduct.value]);
+  formData.append('categoryTag', 'FREE');
+
+  if (files.value && files.value.files.length > 0) {
+    // 첨부파일 선택이 있는 경우
+    const fileList = files.value.files;
+    for (let i = 0; i < fileList.length; i++) {
+      formData.append('files', fileList[i]);
+    }
+  }
 
   try {
-    await createPostAPI(postData);
+    await createPostAPI(formData);
     router.push({ name: 'CommunityList' });
   } catch (e) {
     console.error('게시글 등록 실패:', e);
@@ -121,6 +119,12 @@ const submitPost = async () => {
 </script>
 
 <style scoped>
+.community-write {
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+}
+
 .input,
 .textarea {
   width: 100%;
@@ -148,6 +152,21 @@ const submitPost = async () => {
   color: var(--color-light);
   margin-top: -0.2rem;
   margin-bottom: 1rem;
+}
+
+.image-upload {
+  margin-top: 1rem;
+}
+.image-label {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.image-input {
+  display: block;
+  margin-bottom: 2rem;
+  font-size: 0.9rem;
 }
 
 .tag-group {
