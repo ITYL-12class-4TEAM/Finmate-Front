@@ -394,19 +394,19 @@ const goToLogin = () => {
 .logo {
   font-size: 2rem;
   font-weight: bold;
-  color: #2d336b;
+  color: var(--color-main);
   margin: 0 0 8px 0;
 }
 
 .subtitle {
-  color: #2d336b;
+  color: var(--color-main);
   margin: 0 0 8px 0;
   font-size: 1.2rem;
   font-weight: 600;
 }
 
 .description {
-  color: #7d81a2;
+  color: var(--color-sub);
   margin: 0;
   font-size: 0.9rem;
 }
@@ -419,19 +419,19 @@ const goToLogin = () => {
   text-align: center;
   margin-bottom: 25px;
   padding: 20px;
-  background-color: #eeeef3;
+  background-color: var(--color-bg-light);
   border-radius: 8px;
 }
 
 .step-info i {
   font-size: 2rem;
-  color: #2d336b;
+  color: var(--color-main);
   margin-bottom: 10px;
 }
 
 .step-info p {
   margin: 5px 0;
-  color: #2d336b;
+  color: var(--color-main);
 }
 
 .form-group {
@@ -441,7 +441,7 @@ const goToLogin = () => {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #2d336b;
+  color: var(--color-main);
   font-size: 0.9rem;
   font-weight: 500;
 }
@@ -449,7 +449,7 @@ const goToLogin = () => {
 .form-group input {
   width: 100%;
   padding: 12px;
-  border: 1px solid #b9bbcc;
+  border: 1px solid var(--color-light);
   border-radius: 6px;
   font-size: 1rem;
   box-sizing: border-box;
@@ -458,7 +458,7 @@ const goToLogin = () => {
 
 .form-group input:focus {
   outline: none;
-  border-color: #2d336b;
+  border-color: var(--color-main);
   box-shadow: 0 0 0 2px rgba(45, 51, 107, 0.1);
 }
 
@@ -473,7 +473,7 @@ const goToLogin = () => {
 
 .verify-btn {
   padding: 12px 16px;
-  background-color: #2d336b;
+  background-color: var(--color-main);
   color: white;
   border: none;
   border-radius: 6px;
@@ -488,7 +488,7 @@ const goToLogin = () => {
 }
 
 .verify-btn:disabled {
-  background-color: #b9bbcc;
+  background-color: var(--color-light);
   cursor: not-allowed;
 }
 
@@ -496,7 +496,7 @@ const goToLogin = () => {
 .reset-btn {
   width: 100%;
   padding: 12px;
-  background-color: #2d336b;
+  background-color: var(--color-main);
   color: white;
   border: none;
   border-radius: 6px;
@@ -512,7 +512,7 @@ const goToLogin = () => {
 
 .find-btn:disabled,
 .reset-btn:disabled {
-  background-color: #b9bbcc;
+  background-color: var(--color-light);
   cursor: not-allowed;
 }
 
@@ -527,12 +527,12 @@ const goToLogin = () => {
   display: flex;
   align-items: center;
   font-size: 0.85rem;
-  color: #7d81a2;
+  color: var(--color-sub);
   transition: color 0.3s ease;
 }
 
 .requirement.valid {
-  color: #2d336b;
+  color: var(--color-main);
 }
 
 .requirement i {
@@ -549,13 +549,13 @@ const goToLogin = () => {
 
 .requirement-compact {
   font-size: 0.75rem;
-  color: #b9bbcc;
+  color: var(--color-light);
   transition: color 0.3s ease;
   position: relative;
 }
 
 .requirement-compact.valid {
-  color: #2d336b;
+  color: var(--color-main);
 }
 
 .requirement-compact.valid::before {
@@ -576,7 +576,7 @@ const goToLogin = () => {
 }
 
 .text-success {
-  color: #2d336b;
+  color: var(--color-main);
 }
 
 .text-danger {
@@ -586,29 +586,29 @@ const goToLogin = () => {
 .result-section {
   margin: 30px 0;
   padding: 20px;
-  background-color: #eeeef3;
+  background-color: var(--color-bg-light);
   border-radius: 8px;
   text-align: center;
 }
 
 .success-message i {
   font-size: 2rem;
-  color: #2d336b;
+  color: var(--color-main);
   margin-bottom: 10px;
 }
 
 .success-message h3 {
-  color: #2d336b;
+  color: var(--color-main);
   margin: 0 0 15px 0;
 }
 
 .success-message p {
-  color: #7d81a2;
+  color: var(--color-sub);
   margin-bottom: 25px;
 }
 
 .login-btn {
-  background-color: #2d336b;
+  background-color: var(--color-main);
   color: white;
   border: none;
   padding: 12px 30px;
@@ -628,19 +628,19 @@ const goToLogin = () => {
 }
 
 .link {
-  color: #7d81a2;
+  color: var(--color-sub);
   text-decoration: none;
   font-size: 0.9rem;
   transition: color 0.3s ease;
 }
 
 .link:hover {
-  color: #2d336b;
+  color: var(--color-main);
 }
 
 .divider {
   margin: 0 10px;
-  color: #b9bbcc;
+  color: var(--color-light);
 }
 
 /* 반응형 디자인 */

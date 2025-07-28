@@ -56,11 +56,12 @@
       </div>
       <!-- 소셜 로그인 -->
       <div class="social-login">
-        <button class="social-btn naver">N</button>
-        <button class="social-btn kakao">K</button>
-        <button class="social-btn google">G</button>
-        <button class="social-btn apple">A</button>
-        <button class="social-btn facebook">F</button>
+        <button class="social-btn google" @click="handleGoogleLogin">
+          <img src="@/assets/images/google_icon.png" alt="Google" />
+        </button>
+        <button class="social-btn kakao" @click="handleKakaoLogin">
+          <img src="@/assets/images/kakao_icon.png" alt="Kakao" />
+        </button>
       </div>
     </div>
   </div>
@@ -108,6 +109,15 @@ const handleLogin = async () => {
     alert('로그인 처리 중 오류가 발생했습니다.');
   }
 };
+
+// 소셜 로그인 함수들
+const handleGoogleLogin = () => {
+  window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+};
+
+const handleKakaoLogin = () => {
+  window.location.href = 'http://localhost:8080/oauth2/authorization/kakao';
+};
 </script>
 <style scoped>
 .login-container {
@@ -133,11 +143,11 @@ const handleLogin = async () => {
 .logo {
   font-size: 2rem;
   font-weight: bold;
-  color: #2d336b;
+  color: var(--color-main);
   margin: 0 0 8px 0;
 }
 .subtitle {
-  color: #666;
+  color: var(--color-sub);
   margin: 0;
   font-size: 0.9rem;
 }
@@ -147,20 +157,20 @@ const handleLogin = async () => {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #333;
+  color: var(--color-main);
   font-size: 0.9rem;
 }
 .form-group input {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-light);
   border-radius: 6px;
   font-size: 1rem;
   box-sizing: border-box;
 }
 .form-group input:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: var(--color-main);
 }
 .password-input {
   position: relative;
@@ -173,12 +183,12 @@ const handleLogin = async () => {
   background: none;
   border: none;
   cursor: pointer;
-  color: #666;
+  color: var(--color-sub);
 }
 .login-btn {
   width: 100%;
   padding: 12px;
-  background-color: #2d336b;
+  background-color: var(--color-main);
   color: white;
   border: none;
   border-radius: 6px;
@@ -190,7 +200,7 @@ const handleLogin = async () => {
   background-color: #171d4e;
 }
 .login-btn:disabled {
-  background-color: #ccc;
+  background-color: var(--color-light);
   cursor: not-allowed;
 }
 .links {
@@ -198,56 +208,83 @@ const handleLogin = async () => {
   margin-bottom: 30px;
 }
 .link {
-  color: #666;
+  color: var(--color-sub);
   text-decoration: none;
   font-size: 0.9rem;
 }
 .link:hover {
-  color: #333;
+  color: var(--color-main);
 }
 .divider {
   margin: 0 10px;
-  color: #ccc;
+  color: var(--color-light);
 }
 .social-login {
   display: flex;
   justify-content: center;
-  gap: 12px;
+  gap: 16px;
+  margin-top: 20px;
 }
+
+.social-login::before {
+  content: 'SNS LOGIN';
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.8rem;
+  color: var(--color-sub);
+  background: white;
+  padding: 0 15px;
+}
+
+.social-login {
+  position: relative;
+  padding-top: 20px;
+}
+
+.social-login::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-light);
+  z-index: -1;
+}
+
 .social-btn {
-  width: 44px;
-  height: 44px;
+  width: 50px;
+  height: 50px;
   border: none;
-  border-radius: 8px;
+  border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
-  font-weight: bold;
+  padding: 0;
+  transition: transform 0.2s ease;
 }
-.social-btn.naver {
-  background-color: #03c75a;
-  color: white;
+
+.social-btn:hover {
+  transform: scale(1.05);
 }
+
+.social-btn img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
 .social-btn.kakao {
   background-color: #fee500;
-  color: #000;
+  box-shadow: 0 2px 8px rgba(254, 229, 0, 0.3);
 }
+
 .social-btn.google {
   background-color: #fff;
-  color: #4285f4;
-  border: 1px solid #ddd;
-}
-.social-btn.apple {
-  background-color: #000;
-  color: white;
-}
-.social-btn.facebook {
-  background-color: #1877f2;
-  color: white;
-}
-.social-btn:hover {
-  opacity: 0.8;
+  border: 1px solid #dadce0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 </style>

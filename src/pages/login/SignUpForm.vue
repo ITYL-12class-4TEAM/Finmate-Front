@@ -30,13 +30,15 @@
               id="email"
               v-model="signupForm.email"
               placeholder="이메일을 입력하세요"
+              :disabled="isSocialSignup"
               required
             />
             <button
               type="button"
               class="verify-btn"
               @click="checkEmailDuplicate"
-              :disabled="!signupForm.email"
+              :disabled="!signupForm.email || isSocialSignup"
+              v-if="!isSocialSignup"
             >
               중복확인
             </button>
@@ -55,13 +57,15 @@
               id="nickname"
               v-model="signupForm.nickname"
               placeholder="닉네임을 입력하세요"
+              :disabled="isSocialSignup"
               required
             />
             <button
               type="button"
               class="verify-btn"
               @click="checkNicknameDuplicate"
-              :disabled="!signupForm.nickname"
+              :disabled="!signupForm.nickname || isSocialSignup"
+              v-if="!isSocialSignup"
             >
               중복확인
             </button>
@@ -71,8 +75,8 @@
           </div>
         </div>
 
-        <!-- 비밀번호 -->
-        <div class="form-group">
+        <!-- 비밀번호 (소셜 로그인이 아닌 경우만 표시) -->
+        <div class="form-group" v-if="!isSocialSignup">
           <label for="password">비밀번호</label>
           <div class="password-input">
             <input
@@ -80,7 +84,7 @@
               id="password"
               v-model="signupForm.password"
               placeholder="비밀번호를 입력하세요"
-              required
+              :required="!isSocialSignup"
             />
             <button
               type="button"
@@ -95,15 +99,15 @@
           </div>
         </div>
 
-        <!-- 비밀번호 확인 -->
-        <div class="form-group">
+        <!-- 비밀번호 확인 (소셜 로그인이 아닌 경우만 표시) -->
+        <div class="form-group" v-if="!isSocialSignup">
           <label for="passwordConfirm">비밀번호 확인</label>
           <input
             type="password"
             id="passwordConfirm"
             v-model="signupForm.passwordConfirm"
             placeholder="비밀번호를 다시 입력하세요"
-            required
+            :required="!isSocialSignup"
           />
           <div
             v-if="signupForm.passwordConfirm && !passwordMatch"
@@ -392,7 +396,7 @@
         </div>
 
         <button type="submit" class="signup-btn" :disabled="!isFormValid">
-          이메일로 회원가입
+          {{ isSocialSignup ? '소셜 회원가입 완료' : '이메일로 회원가입' }}
         </button>
       </form>
 
@@ -411,11 +415,12 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, watch, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import api from '@/api/index';
 
 const router = useRouter();
+const route = useRoute();
 
 const signupForm = ref({
   name: '',
@@ -449,6 +454,28 @@ const phoneVerified = ref(false);
 const showTermsModal = ref(false);
 const showPrivacyModal = ref(false);
 const showMarketingModal = ref(false);
+const isSocialSignup = ref(false);
+
+// 컴포넌트 마운트 시 소셜 로그인 정보 확인
+onMounted(() => {
+  if (route.query.socialSignup === 'true') {
+    isSocialSignup.value = true;
+
+    // 소셜 로그인으로부터 받은 정보 미리 채우기
+    if (route.query.email) {
+      signupForm.value.email = route.query.email;
+      emailVerified.value = true; // 소셜 로그인 이메일은 검증된 것으로 처리
+    }
+
+    if (route.query.nickname) {
+      signupForm.value.nickname = route.query.nickname;
+      nicknameVerified.value = true; // 소셜 로그인 닉네임은 검증된 것으로 처리
+    }
+
+    // 소셜 로그인의 경우 비밀번호는 필요 없음을 알림
+    alert('소셜 로그인으로 가입하시는 경우 추가 정보만 입력해주세요.');
+  }
+});
 
 // 비밀번호 일치 확인
 const passwordMatch = computed(() => {
@@ -457,21 +484,25 @@ const passwordMatch = computed(() => {
 
 // 폼 유효성 검사
 const isFormValid = computed(() => {
-  return (
+  const baseValidation =
     signupForm.value.name &&
     signupForm.value.email &&
     emailVerified.value &&
     signupForm.value.nickname &&
     nicknameVerified.value &&
-    signupForm.value.password &&
-    passwordMatch.value &&
     signupForm.value.phone &&
     phoneVerified.value &&
     signupForm.value.birthdate &&
     signupForm.value.gender &&
     agreements.value.terms &&
-    agreements.value.privacy
-  );
+    agreements.value.privacy;
+
+  // 소셜 로그인이 아닌 경우에만 비밀번호 검증
+  if (isSocialSignup.value) {
+    return baseValidation;
+  } else {
+    return baseValidation && signupForm.value.password && passwordMatch.value;
+  }
 });
 
 // 전체 동의 처리
@@ -694,12 +725,12 @@ const handleSignup = async () => {
 .logo {
   font-size: 2rem;
   font-weight: bold;
-  color: #2d336b;
+  color: var(--color-main);
   margin: 0 0 8px 0;
 }
 
 .subtitle {
-  color: #7d81a2;
+  color: var(--color-sub);
   margin: 0;
   font-size: 0.9rem;
 }
@@ -711,7 +742,7 @@ const handleSignup = async () => {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #2d336b;
+  color: var(--color-main);
   font-size: 0.9rem;
   font-weight: 500;
 }
@@ -719,7 +750,7 @@ const handleSignup = async () => {
 .form-group input {
   width: 100%;
   padding: 12px;
-  border: 1px solid #b9bbcc;
+  border: 1px solid var(--color-light);
   border-radius: 6px;
   font-size: 1rem;
   box-sizing: border-box;
@@ -727,7 +758,13 @@ const handleSignup = async () => {
 
 .form-group input:focus {
   outline: none;
-  border-color: #2d336b;
+  border-color: var(--color-main);
+}
+
+.form-group input:disabled {
+  background-color: var(--color-bg-light);
+  color: var(--color-sub);
+  cursor: not-allowed;
 }
 
 .input-with-button {
@@ -741,7 +778,7 @@ const handleSignup = async () => {
 
 .verify-btn {
   padding: 12px 16px;
-  background-color: #2d336b;
+  background-color: var(--color-main);
   color: white;
   border: none;
   border-radius: 6px;
@@ -754,7 +791,7 @@ const handleSignup = async () => {
 }
 
 .verify-btn:disabled {
-  background-color: #b9bbcc;
+  background-color: var(--color-light);
   cursor: not-allowed;
 }
 
@@ -770,7 +807,7 @@ const handleSignup = async () => {
   background: none;
   border: none;
   cursor: pointer;
-  color: #7d81a2;
+  color: var(--color-sub);
 }
 
 /* 약관 동의 스타일 수정 */
@@ -800,7 +837,7 @@ const handleSignup = async () => {
 .checkmark {
   width: 20px;
   height: 20px;
-  border: 2px solid #b9bbcc;
+  border: 2px solid var(--color-light);
   border-radius: 4px;
   margin-right: 12px;
   position: relative;
@@ -809,8 +846,8 @@ const handleSignup = async () => {
 }
 
 .agreement-item input[type='checkbox']:checked + .checkmark {
-  background-color: #2d336b;
-  border-color: #2d336b;
+  background-color: var(--color-main);
+  border-color: var(--color-main);
 }
 
 .agreement-item input[type='checkbox']:checked + .checkmark::after {
@@ -828,7 +865,7 @@ const handleSignup = async () => {
 .agreement-text {
   flex: 1;
   font-size: 0.9rem;
-  color: #2d336b;
+  color: var(--color-main);
 }
 
 .all-agreement {
@@ -853,8 +890,8 @@ const handleSignup = async () => {
 
 .view-btn {
   background: none;
-  border: 1px solid #b9bbcc;
-  color: #7d81a2;
+  border: 1px solid var(--color-light);
+  color: var(--color-sub);
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.8rem;
@@ -863,12 +900,12 @@ const handleSignup = async () => {
 }
 
 .view-btn:hover {
-  background-color: #eeeef3;
-  border-color: #7d81a2;
+  background-color: var(--color-bg-light);
+  border-color: var(--color-sub);
 }
 
 .optional .agreement-text {
-  color: #7d81a2;
+  color: var(--color-sub);
 }
 
 /* 모달 스타일 */
@@ -953,7 +990,7 @@ const handleSignup = async () => {
 }
 
 .success-message {
-  color: #2d336b;
+  color: var(--color-main);
   font-size: 0.8rem;
   margin-top: 4px;
 }
@@ -967,7 +1004,7 @@ const handleSignup = async () => {
 .signup-btn {
   width: 100%;
   padding: 12px;
-  background-color: #2d336b;
+  background-color: var(--color-main);
   color: white;
   border: none;
   border-radius: 6px;
@@ -981,7 +1018,7 @@ const handleSignup = async () => {
 }
 
 .signup-btn:disabled {
-  background-color: #b9bbcc;
+  background-color: var(--color-light);
   cursor: not-allowed;
 }
 
@@ -991,18 +1028,18 @@ const handleSignup = async () => {
 }
 
 .link {
-  color: #7d81a2;
+  color: var(--color-sub);
   text-decoration: none;
   font-size: 0.9rem;
 }
 
 .link:hover {
-  color: #2d336b;
+  color: var(--color-main);
 }
 
 .divider {
   margin: 0 10px;
-  color: #b9bbcc;
+  color: var(--color-light);
 }
 
 /* 성별 버튼 스타일 */

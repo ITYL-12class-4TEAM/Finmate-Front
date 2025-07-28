@@ -42,6 +42,13 @@ const router = createRouter({
       ],
     },
 
+    // OAuth2 리다이렉트 처리
+    {
+      path: '/auth/oauth2/redirect',
+      name: 'OAuth2Redirect',
+      component: () => import('../pages/auth/OAuth2Redirect.vue'),
+    },
+
     // 마이페이지
     {
       path: '/mypage',

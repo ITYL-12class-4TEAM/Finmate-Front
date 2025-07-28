@@ -52,7 +52,6 @@ export const useAuthStore = defineStore('auth', () => {
   // 로그아웃 액션
   const logout = async () => {
     try {
-      // 백엔드에 로그아웃 요청 (선택사항)
       if (accessToken.value) {
         await api.post('/auth/logout');
       }
@@ -94,9 +93,8 @@ export const useAuthStore = defineStore('auth', () => {
   // 사용자 정보 새로고침
   const refreshUser = async () => {
     if (!accessToken.value) return false;
-
     try {
-      const response = await api.get('/auth/me');
+      const response = await api.get('/member/me');
       const userData = response.data;
       user.value = userData;
       localStorage.setItem('user', JSON.stringify(userData));
@@ -111,6 +109,16 @@ export const useAuthStore = defineStore('auth', () => {
       }
       return false;
     }
+  };
+
+  // 토큰 설정 (OAuth2 로그인용)
+  const setTokens = (newAccessToken, newRefreshToken) => {
+    accessToken.value = newAccessToken;
+    if (newRefreshToken) {
+      refreshToken.value = newRefreshToken;
+      localStorage.setItem('refreshToken', newRefreshToken);
+    }
+    localStorage.setItem('accessToken', newAccessToken);
   };
 
   // 초기화 (앱 시작 시 실행)
@@ -155,6 +163,7 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     refreshAccessToken,
     refreshUser,
+    setTokens,
     initialize,
     debugStorage,
   };
