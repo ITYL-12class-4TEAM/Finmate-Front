@@ -157,11 +157,9 @@ const updatePost = async () => {
   const editedData = {
     title: title.value,
     content: content.value,
-    memberId,
     status: 'NORMAL',
     anonymous: isAnonymous.value,
     productTag: reverseProductTagMap[selectedProduct.value],
-    categoryTag: 'FREE', // TODO: 테이블 변경 시 삭제
   };
 
   try {

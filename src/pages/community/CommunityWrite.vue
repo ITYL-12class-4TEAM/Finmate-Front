@@ -83,9 +83,6 @@ const isAnonymous = ref(false);
 const router = useRouter();
 const showModal = useModal();
 
-const memberId = 1; // TODO: 전역 사용자 정보 적용
-const boardId = 1; // TODO: 게시판 ID 동적으로 처리 가능
-
 // 태그 선택
 const selectProduct = (tag) => (selectedProduct.value = tag);
 
@@ -102,12 +99,10 @@ const submitPost = async () => {
   const postData = {
     title: title.value,
     content: content.value,
-    boardId,
+    boardId: 1,
     anonymous: isAnonymous.value,
-    memberId,
     status: 'NORMAL',
     productTag: reverseProductTagMap[selectedProduct.value],
-    categoryTag: 'FREE', // TODO: 테이블 변경 시 삭제
   };
 
   try {

@@ -9,28 +9,16 @@ export const getCommentsByPostId = async (postId, currentUserId) => {
     id: c.commentId,
     content: c.content,
     createdAt: c.createdAt,
-    nickname: c.anonymous ? '익명' : c.nickname || `사용자${c.memberId}`,
-    isMine: currentUserId ? c.memberId === currentUserId : false,
+    nickname: c.anonymous ? '익명' : c.nickname || `사용자${c.memberId}`, // TODO: 백 리팩터링 후 교체
+    isMine: c.memberId === currentUserId ? true : false,
     likeCount: c.likeCount,
-    // parentComment: c.parentComment,
+    liked: c.liked,
   }));
 };
 
 // 댓글 생성
-export const createCommentAPI = async ({
-  postId,
-  content,
-  memberId = 1,
-  isAnonymous = false,
-  parentComment = null,
-}) => {
-  const res = await api.post('/api/comments', {
-    postId,
-    memberId,
-    content,
-    isAnonymous,
-    parentComment,
-  });
+export const createCommentAPI = async (commentData) => {
+  const res = await api.post('/api/comments', commentData);
   return res.data;
 };
 

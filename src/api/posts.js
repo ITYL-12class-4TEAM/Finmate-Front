@@ -30,8 +30,10 @@ export const getPostByIdAPI = async (postId, memberId) => {
     content: post.content,
     createdAt: post.createdAt,
     likes: post.likeCount,
+    scraps: post.scrapCount,
     isAnonymous: post.anonymous,
-    scraps: 3, // TODO: 백엔드 연동
+    liked: post.liked,
+    scraped: post.scraped,
     // attaches: post.attaches, // TODO: 배포 후 처리
     tags: [productTagMap[post.productTag]],
     nickname: post.anonymous ? '익명' : '사용자', // TODO: 백엔드에서 닉네임 제공 시 교체

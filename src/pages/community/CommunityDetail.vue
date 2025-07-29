@@ -30,7 +30,7 @@
             <button @click="toggleLike">
               <!-- 눌린 상태 하트 (fill 있음) -->
               <svg
-                v-if="liked"
+                v-if="post.liked"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 fill="currentColor"
@@ -44,7 +44,6 @@
          15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z"
                 />
               </svg>
-
               <!-- 안 눌린 상태 하트 (stroke만 있음) -->
               <svg
                 v-else
@@ -64,13 +63,27 @@
          c0 7.22 9 12 9 12s9-4.78 9-12Z"
                 />
               </svg>
-
-              {{ likeCount }}
+              {{ post.likes }}
             </button>
 
             <!-- 스크랩 버튼 -->
             <button @click="toggleScrap">
+              <!-- 눌린 상태 북마크 (fill 있음) -->
               <svg
+                v-if="post.scraped"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              <!-- 안 눌린 상태 북마크 (stroke만 있음) -->
+              <svg
+                v-else
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -97,69 +110,25 @@
     </div>
 
     <!-- 댓글 작성 -->
-    <div class="comment-write" v-if="isLoggedIn">
+    <div class="comment-write">
+      <div class="anonymous-toggle">
+        <label>
+          <input type="checkbox" v-model="isAnonymous" />
+          익명
+        </label>
+      </div>
       <input v-model="newComment" placeholder="댓글을 입력해주세요." />
       <button @click="submitComment">작성</button>
     </div>
-
     <!-- 댓글 목록 -->
     <div class="comment-section">
       <p class="comment-count">댓글 {{ comments.length }}개</p>
-      <div class="comment" v-for="comment in comments" :key="comment.id">
-        <div class="comment-header">
-          <span class="nickname">{{ comment.nickname }}</span>
-          <span class="time">{{ formattedTime(comment.createdAt) }}</span>
-          <button
-            v-if="comment.isMine"
-            class="delete-btn"
-            @click="deleteComment(comment.id)"
-          >
-            삭제
-          </button>
-        </div>
-        <p class="comment-content">{{ comment.content }}</p>
-        <!-- 댓글 좋아요 버튼 -->
-        <div class="comment-footer">
-          <button @click="toggleCommentLike(comment.id)">
-            <svg
-              v-if="comment.liked"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="size-5"
-            >
-              <path
-                d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218
-         25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25
-         2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052
-         5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25
-         0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17
-         15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z"
-              />
-            </svg>
-            <svg
-              v-else
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="size-5"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5
-         -1.935 0-3.597 1.126-4.312 2.733
-         -.715-1.607-2.377-2.733-4.313-2.733
-         C5.1 3.75 3 5.765 3 8.25
-         c0 7.22 9 12 9 12s9-4.78 9-12Z"
-              />
-            </svg>
-            {{ comment.likeCount }}
-          </button>
-        </div>
-      </div>
+      <CommentItem
+        v-for="comment in comments"
+        :key="comment.id"
+        :comment="comment"
+        :refresh="fetchComments"
+      />
     </div>
   </div>
 </template>
@@ -169,23 +138,12 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import BackButton from '@/components/common/BackButton.vue';
+import CommentItem from '@/components/community/CommentItem.vue';
 
 import { getPostByIdAPI, deletePostAPI } from '@/api/posts';
-import {
-  getCommentsByPostId,
-  createCommentAPI,
-  deleteCommentAPI,
-} from '@/api/comments';
-import {
-  getPostLikeCountAPI,
-  getPostLikedByMeAPI,
-  togglePostLikeAPI,
-} from '@/api/postLike';
-import {
-  getCommentLikeCountAPI,
-  getCommentLikedByMeAPI,
-  toggleCommentLikeAPI,
-} from '@/api/commentLike';
+import { getCommentsByPostId, createCommentAPI } from '@/api/comments';
+import { togglePostLikeAPI } from '@/api/postLike';
+import { togglePostScrapAPI } from '@/api/postScrap';
 
 import { useModal } from '@/composables/useModal';
 
@@ -202,10 +160,7 @@ const postId = route.params.id;
 const post = ref(null);
 const comments = ref([]);
 const newComment = ref('');
-
-const likeCount = ref(0);
-const liked = ref(false);
-const isLoggedIn = true;
+const isAnonymous = ref(false);
 
 // 날짜 배열 포맷: [2024, 7, 25, 13, 45] → "07/25 13:45"
 const formattedTime = (arr) => {
@@ -230,38 +185,23 @@ const fetchPostDetail = async () => {
 const fetchComments = async () => {
   try {
     comments.value = await getCommentsByPostId(postId, memberId);
-    await fetchCommentLikeStatus();
     // comments.value = mockComments;
   } catch (e) {
     alert('댓글을 불러오지 못했습니다.');
   }
 };
 
-const fetchPostLikeStatus = async () => {
-  likeCount.value = await getPostLikeCountAPI(postId);
-  liked.value = await getPostLikedByMeAPI(postId, memberId);
-};
-
-const fetchCommentLikeStatus = async () => {
-  for (const comment of comments.value) {
-    comment.liked = await getCommentLikedByMeAPI(comment.id, memberId);
-    comment.likeCount = await getCommentLikeCountAPI(comment.id);
-  }
-};
-
 // 액션 핸들러
 const toggleLike = async () => {
-  const newStatus = await togglePostLikeAPI(postId, memberId);
-  liked.value = newStatus;
-  likeCount.value += newStatus ? 1 : -1;
+  const newStatus = await togglePostLikeAPI(postId);
+  post.value.liked = newStatus;
+  post.value.likes += newStatus ? 1 : -1;
 };
 
-const toggleCommentLike = async (commentId) => {
-  const comment = comments.value.find((c) => c.id === commentId);
-  if (!comment) return;
-  await toggleCommentLikeAPI(commentId);
-  comment.liked = !comment.liked;
-  comment.likeCount += comment.liked ? 1 : -1;
+const toggleScrap = async () => {
+  const newStatus = await togglePostScrapAPI(postId);
+  post.value.scraped = newStatus;
+  post.value.scraps += newStatus ? 1 : -1;
 };
 
 const goToEditPage = () => {
@@ -278,17 +218,20 @@ const deletePost = async () => {
   }
 };
 
+// 댓글 등록
 const submitComment = async () => {
   const content = newComment.value.trim();
   if (!content) return;
 
+  const commentData = {
+    postId: Number(postId),
+    content: content,
+    anonymous: isAnonymous.value,
+    parentComment: null, // TODO
+  };
+
   try {
-    await createCommentAPI({
-      postId: Number(postId),
-      content,
-      memberId,
-      isAnonymous: false,
-    });
+    await createCommentAPI(commentData);
     newComment.value = '';
     await fetchComments();
   } catch (e) {
@@ -296,20 +239,9 @@ const submitComment = async () => {
   }
 };
 
-const deleteComment = async (commentId) => {
-  if (!(await showModal('댓글을 삭제하시겠습니까?'))) return;
-  try {
-    await deleteCommentAPI(commentId);
-    await fetchComments();
-  } catch (e) {
-    alert('댓글 삭제 실패');
-  }
-};
-
 onMounted(() => {
   fetchPostDetail();
   fetchComments();
-  fetchPostLikeStatus();
 });
 </script>
 
@@ -453,7 +385,7 @@ onMounted(() => {
   background-color: var(--color-bg-light);
 }
 
-.comment-write input {
+.anonymous .comment-write input {
   flex: 1;
   padding: 0.6rem 0.6rem;
   font-size: 0.8rem;
@@ -478,60 +410,5 @@ onMounted(() => {
   font-size: 0.85rem;
   margin-bottom: 0.2rem;
   font-weight: 600;
-}
-
-.comment {
-  padding: 0.6rem 0;
-  border-bottom: 1px solid #eee;
-}
-
-.comment-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.2rem;
-}
-
-.comment-header .nickname {
-  font-weight: 600;
-  font-size: 0.8rem;
-}
-
-.comment-header .time {
-  font-size: 0.8rem;
-  color: rgba(0, 0, 0, 0.5);
-  margin-left: 0.5rem;
-}
-
-.comment-content {
-  font-size: 0.8rem;
-  line-height: 1.5;
-}
-
-.delete-btn {
-  background: none;
-  color: #ff6b6b;
-  font-size: 0.8rem;
-  margin-left: 1rem;
-}
-
-.comment-footer {
-  margin-top: 0.3rem;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.comment-footer button {
-  background: none;
-  color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.75rem;
-}
-
-.comment-footer svg {
-  width: 1rem;
-  height: 1rem;
 }
 </style>
