@@ -29,15 +29,13 @@
             id="email"
             v-model="signupForm.email"
             placeholder="이메일을 입력하세요"
-            :disabled="isSocialSignup"
             required
           />
           <button
             type="button"
             class="verify-btn"
             @click="checkEmailDuplicate"
-            :disabled="!signupForm.email || isSocialSignup"
-            v-if="!isSocialSignup"
+            :disabled="!signupForm.email"
           >
             중복확인
           </button>
@@ -56,15 +54,13 @@
             id="nickname"
             v-model="signupForm.nickname"
             placeholder="닉네임을 입력하세요"
-            :disabled="isSocialSignup"
             required
           />
           <button
             type="button"
             class="verify-btn"
             @click="checkNicknameDuplicate"
-            :disabled="!signupForm.nickname || isSocialSignup"
-            v-if="!isSocialSignup"
+            :disabled="!signupForm.nickname"
           >
             중복확인
           </button>
@@ -82,12 +78,38 @@
             :type="showPassword ? 'text' : 'password'"
             id="password"
             v-model="signupForm.password"
-            placeholder="비밀번호를 입력하세요"
+            placeholder="8자 이상, 영문/숫자/특수문자 포함"
             :required="!isSocialSignup"
           />
           <button type="button" class="password-toggle" @click="togglePassword">
             <i class="bi" :class="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
           </button>
+        </div>
+        <div class="password-requirements-compact">
+          <span
+            class="requirement-compact"
+            :class="{ valid: passwordChecks.length }"
+          >
+            8자 이상
+          </span>
+          <span
+            class="requirement-compact"
+            :class="{ valid: passwordChecks.hasLetter }"
+          >
+            영문
+          </span>
+          <span
+            class="requirement-compact"
+            :class="{ valid: passwordChecks.hasNumber }"
+          >
+            숫자
+          </span>
+          <span
+            class="requirement-compact"
+            :class="{ valid: passwordChecks.hasSpecial }"
+          >
+            특수문자
+          </span>
         </div>
       </div>
 
@@ -101,11 +123,20 @@
           placeholder="비밀번호를 다시 입력하세요"
           :required="!isSocialSignup"
         />
-        <div
-          v-if="signupForm.passwordConfirm && !passwordMatch"
-          class="error-message"
-        >
-          비밀번호가 일치하지 않습니다
+        <div v-if="signupForm.passwordConfirm" class="passwordMatch">
+          <i
+            class="bi"
+            :class="
+              passwordsMatch
+                ? 'bi-check-circle-fill text-success'
+                : 'bi-x-circle-fill text-danger'
+            "
+          ></i>
+          {{
+            passwordsMatch
+              ? '비밀번호가 일치합니다'
+              : '비밀번호가 일치하지 않습니다'
+          }}
         </div>
       </div>
 
@@ -169,7 +200,7 @@
 
       <!-- 성별 -->
       <div class="form-group">
-        <label>성별 (선택 안 함)</label>
+        <label>성별</label>
         <div class="gender-buttons">
           <button
             type="button"
@@ -470,7 +501,23 @@ const passwordMatch = computed(() => {
   return signupForm.value.password === signupForm.value.passwordConfirm;
 });
 
-// 폼 유효성 검사
+// 비밀번호 유효성 검사 수정
+const passwordChecks = computed(() => ({
+  length: signupForm.value.password.length >= 8, // newPasswordForm -> signupForm으로 변경
+  hasLetter: /[a-zA-Z]/.test(signupForm.value.password),
+  hasNumber: /\d/.test(signupForm.value.password),
+  hasSpecial: /[!@#$%^&*(),.?":{}|<>]/.test(signupForm.value.password),
+}));
+
+const isPasswordValid = computed(() => {
+  return Object.values(passwordChecks.value).every((check) => check);
+});
+
+const passwordsMatch = computed(() => {
+  return signupForm.value.password === signupForm.value.passwordConfirm; // 변수명 통일
+});
+
+// 폼 유효성 검사 수정
 const isFormValid = computed(() => {
   const baseValidation =
     signupForm.value.name &&
@@ -489,7 +536,7 @@ const isFormValid = computed(() => {
   if (isSocialSignup.value) {
     return baseValidation;
   } else {
-    return baseValidation && signupForm.value.password && passwordMatch.value;
+    return baseValidation && isPasswordValid.value && passwordsMatch.value;
   }
 });
 
@@ -746,6 +793,50 @@ const handleSignup = async () => {
 
 .input-with-button input {
   flex: 1;
+}
+/* 비밀번호 요구사항 - 컴팩트 버전 */
+.password-requirements-compact {
+  margin-top: 0.375rem; /* 6px */
+  display: flex;
+  gap: 0.75rem; /* 12px */
+  flex-wrap: wrap;
+}
+
+.requirement-compact {
+  font-size: 0.75rem; /* 12px */
+  color: var(--color-light);
+  transition: color 0.3s ease;
+  position: relative;
+}
+
+.requirement-compact.valid {
+  color: var(--color-main);
+}
+
+.requirement-compact.valid::before {
+  content: '✓';
+  margin-right: 0.25rem; /* 4px */
+  font-weight: bold;
+}
+
+/* 비밀번호 일치 확인 */
+.password-match {
+  margin-top: 0.5rem; /* 8px */
+  font-size: 0.875rem; /* 14px */
+  display: flex;
+  align-items: center;
+}
+
+.password-match i {
+  margin-right: 0.375rem; /* 6px */
+}
+
+.text-success {
+  color: var(--color-main);
+}
+
+.text-danger {
+  color: #dc3545;
 }
 
 .verify-btn {
