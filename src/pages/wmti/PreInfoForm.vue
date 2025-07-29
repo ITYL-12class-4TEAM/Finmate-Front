@@ -134,7 +134,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { postPreinfoAPI } from '@/api/wmti';
 
 export default {
   name: 'PreInfoForm',
@@ -224,19 +224,21 @@ export default {
 
       // 모든 유효성 통과 → 제출
       try {
-      // ✅ POST 요청 보내기 (토큰 등 헤더 필요시 설정 가능)
-      const response = await axios.post('/api/preinfo/submit', finalData);
+        // ✅ POST 요청 보내기 (토큰 등 헤더 필요시 설정 가능)
+        // const response = await axios.post('/api/preinfo/submit', finalData);
 
-      console.log('✅ 응답 데이터:', response.data);
+        // console.log('✅ 응답 데이터:', response.data);
 
-      // 응답 성공 시
-      localStorage.setItem('preinfoSubmitted', 'true');
-      this.$router.push('/wmti/basic');
+        const res = await postPreinfoAPI(finalData);
+        console.log('✅ 응답 데이터:', res);
 
-    } catch (error) {
-      console.error('❌ 제출 실패:', error);
-      alert('제출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
-    }
+        // 응답 성공 시
+        localStorage.setItem('preinfoSubmitted', 'true');
+        this.$router.push('/wmti/basic');
+      } catch (error) {
+        console.error('❌ 제출 실패:', error);
+        alert('제출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      }
     },
   },
 };
