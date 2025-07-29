@@ -1,177 +1,173 @@
 <template>
-  <div class="find-password-container">
-    <div class="find-password-form">
-      <!-- 헤더 -->
-      <div class="header">
-        <h1 class="logo">FinMate</h1>
-        <p class="subtitle">비밀번호 찾기</p>
-        <p class="description">
-          가입 시 등록한 정보로 비밀번호를 재설정할 수 있습니다.
-        </p>
-      </div>
+  <!-- 헤더 -->
+  <div class="header">
+    <h1 class="logo">FinMate</h1>
+    <p class="subtitle">비밀번호 찾기</p>
+    <p class="description">
+      가입 시 등록한 정보로 비밀번호를 재설정할 수 있습니다.
+    </p>
+  </div>
 
-      <!-- 사용자 정보 입력 및 휴대폰 인증 -->
-      <div v-if="currentStep === 1" class="form-content">
-        <form @submit.prevent="findPasswordByPhone">
-          <div class="form-group">
-            <label for="name">이름</label>
-            <input
-              type="text"
-              id="name"
-              v-model="phoneForm.name"
-              placeholder="이름을 입력하세요"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="phone">휴대폰 번호</label>
-            <div class="input-with-button">
-              <input
-                type="tel"
-                id="phone"
-                v-model="phoneForm.phone"
-                @input="formatPhoneNumber"
-                placeholder="010-0000-0000"
-                maxlength="13"
-                required
-              />
-              <button
-                type="button"
-                class="verify-btn"
-                @click="sendPhoneVerification"
-                :disabled="!phoneForm.phone || phoneVerificationSent"
-              >
-                {{ phoneVerificationSent ? '발송완료' : '인증하기' }}
-              </button>
-            </div>
-          </div>
-          <div v-if="phoneVerificationSent" class="form-group">
-            <label for="verificationCode">인증번호</label>
-            <div class="input-with-button">
-              <input
-                type="text"
-                id="verificationCode"
-                v-model="phoneForm.verificationCode"
-                placeholder="인증번호를 입력하세요"
-                required
-              />
-              <button
-                type="button"
-                class="verify-btn"
-                @click="verifyPhoneCode"
-                :disabled="!phoneForm.verificationCode"
-              >
-                인증확인
-              </button>
-            </div>
-          </div>
+  <!-- 사용자 정보 입력 및 휴대폰 인증 -->
+  <div v-if="currentStep === 1" class="form-content">
+    <form @submit.prevent="findPasswordByPhone">
+      <div class="form-group">
+        <label for="name">이름</label>
+        <input
+          type="text"
+          id="name"
+          v-model="phoneForm.name"
+          placeholder="이름을 입력하세요"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="phone">휴대폰 번호</label>
+        <div class="input-with-button">
+          <input
+            type="tel"
+            id="phone"
+            v-model="phoneForm.phone"
+            @input="formatPhoneNumber"
+            placeholder="010-0000-0000"
+            maxlength="13"
+            required
+          />
           <button
-            type="submit"
-            class="find-btn"
-            :disabled="!phoneVerified || isLoading"
+            type="button"
+            class="verify-btn"
+            @click="sendPhoneVerification"
+            :disabled="!phoneForm.phone || phoneVerificationSent"
           >
-            {{ isLoading ? '찾는 중...' : '비밀번호 재설정하기' }}
+            {{ phoneVerificationSent ? '발송완료' : '인증하기' }}
           </button>
-        </form>
-      </div>
-
-      <!-- 새 비밀번호 설정 -->
-      <div v-if="currentStep === 2" class="form-content">
-        <div class="step-info">
-          <i class="bi bi-shield-check"></i>
-          <p>새로운 비밀번호를 설정해주세요.</p>
-        </div>
-        <form @submit.prevent="resetPassword">
-          <div class="form-group">
-            <label for="newPassword">새 비밀번호</label>
-            <input
-              type="password"
-              id="newPassword"
-              v-model="newPasswordForm.password"
-              placeholder="8자 이상, 영문/숫자/특수문자 포함"
-              required
-            />
-            <div class="password-requirements-compact">
-              <span
-                class="requirement-compact"
-                :class="{ valid: passwordChecks.length }"
-              >
-                8자 이상
-              </span>
-              <span
-                class="requirement-compact"
-                :class="{ valid: passwordChecks.hasLetter }"
-              >
-                영문
-              </span>
-              <span
-                class="requirement-compact"
-                :class="{ valid: passwordChecks.hasNumber }"
-              >
-                숫자
-              </span>
-              <span
-                class="requirement-compact"
-                :class="{ valid: passwordChecks.hasSpecial }"
-              >
-                특수문자
-              </span>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="confirmPassword">비밀번호 확인</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              v-model="newPasswordForm.confirmPassword"
-              placeholder="비밀번호를 다시 입력하세요"
-              required
-            />
-            <div v-if="newPasswordForm.confirmPassword" class="password-match">
-              <i
-                class="bi"
-                :class="
-                  passwordsMatch
-                    ? 'bi-check-circle-fill text-success'
-                    : 'bi-x-circle-fill text-danger'
-                "
-              ></i>
-              {{
-                passwordsMatch
-                  ? '비밀번호가 일치합니다'
-                  : '비밀번호가 일치하지 않습니다'
-              }}
-            </div>
-          </div>
-          <button
-            type="submit"
-            class="reset-btn"
-            :disabled="!isPasswordValid || !passwordsMatch || isLoading"
-          >
-            {{ isLoading ? '설정 중...' : '비밀번호 변경' }}
-          </button>
-        </form>
-      </div>
-
-      <!-- 완료 단계 -->
-      <div v-if="currentStep === 3" class="result-section">
-        <div class="success-message">
-          <i class="bi bi-check-circle-fill"></i>
-          <h3>비밀번호 변경 완료!</h3>
-          <p>새로운 비밀번호로 로그인해주세요.</p>
-          <button @click="goToLogin" class="login-btn">로그인하러 가기</button>
         </div>
       </div>
-
-      <!-- 링크들 (완료 단계가 아닐 때만 표시) -->
-      <div v-if="currentStep !== 3" class="links">
-        <router-link to="/login" class="link">로그인</router-link>
-        <span class="divider">|</span>
-        <router-link to="/login/find-id" class="link">아이디 찾기</router-link>
-        <span class="divider">|</span>
-        <router-link to="/login/signup" class="link">회원가입</router-link>
+      <div v-if="phoneVerificationSent" class="form-group">
+        <label for="verificationCode">인증번호</label>
+        <div class="input-with-button">
+          <input
+            type="text"
+            id="verificationCode"
+            v-model="phoneForm.verificationCode"
+            placeholder="인증번호를 입력하세요"
+            required
+          />
+          <button
+            type="button"
+            class="verify-btn"
+            @click="verifyPhoneCode"
+            :disabled="!phoneForm.verificationCode"
+          >
+            인증확인
+          </button>
+        </div>
       </div>
+      <button
+        type="submit"
+        class="find-btn"
+        :disabled="!phoneVerified || isLoading"
+      >
+        {{ isLoading ? '찾는 중...' : '비밀번호 재설정하기' }}
+      </button>
+    </form>
+  </div>
+
+  <!-- 새 비밀번호 설정 -->
+  <div v-if="currentStep === 2" class="form-content">
+    <div class="step-info">
+      <i class="bi bi-shield-check"></i>
+      <p>새로운 비밀번호를 설정해주세요.</p>
     </div>
+    <form @submit.prevent="resetPassword">
+      <div class="form-group">
+        <label for="newPassword">새 비밀번호</label>
+        <input
+          type="password"
+          id="newPassword"
+          v-model="newPasswordForm.password"
+          placeholder="8자 이상, 영문/숫자/특수문자 포함"
+          required
+        />
+        <div class="password-requirements-compact">
+          <span
+            class="requirement-compact"
+            :class="{ valid: passwordChecks.length }"
+          >
+            8자 이상
+          </span>
+          <span
+            class="requirement-compact"
+            :class="{ valid: passwordChecks.hasLetter }"
+          >
+            영문
+          </span>
+          <span
+            class="requirement-compact"
+            :class="{ valid: passwordChecks.hasNumber }"
+          >
+            숫자
+          </span>
+          <span
+            class="requirement-compact"
+            :class="{ valid: passwordChecks.hasSpecial }"
+          >
+            특수문자
+          </span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="confirmPassword">비밀번호 확인</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          v-model="newPasswordForm.confirmPassword"
+          placeholder="비밀번호를 다시 입력하세요"
+          required
+        />
+        <div v-if="newPasswordForm.confirmPassword" class="password-match">
+          <i
+            class="bi"
+            :class="
+              passwordsMatch
+                ? 'bi-check-circle-fill text-success'
+                : 'bi-x-circle-fill text-danger'
+            "
+          ></i>
+          {{
+            passwordsMatch
+              ? '비밀번호가 일치합니다'
+              : '비밀번호가 일치하지 않습니다'
+          }}
+        </div>
+      </div>
+      <button
+        type="submit"
+        class="reset-btn"
+        :disabled="!isPasswordValid || !passwordsMatch || isLoading"
+      >
+        {{ isLoading ? '설정 중...' : '비밀번호 변경' }}
+      </button>
+    </form>
+  </div>
+
+  <!-- 완료 단계 -->
+  <div v-if="currentStep === 3" class="result-section">
+    <div class="success-message">
+      <i class="bi bi-check-circle-fill"></i>
+      <h3>비밀번호 변경 완료!</h3>
+      <p>새로운 비밀번호로 로그인해주세요.</p>
+      <button @click="goToLogin" class="login-btn">로그인하러 가기</button>
+    </div>
+  </div>
+
+  <!-- 링크들 (완료 단계가 아닐 때만 표시) -->
+  <div v-if="currentStep !== 3" class="links">
+    <router-link to="/login" class="link">로그인</router-link>
+    <span class="divider">|</span>
+    <router-link to="/login/find-id" class="link">아이디 찾기</router-link>
+    <span class="divider">|</span>
+    <router-link to="/login/signup" class="link">회원가입</router-link>
   </div>
 </template>
 
@@ -368,24 +364,6 @@ const goToLogin = () => {
 </script>
 
 <style scoped>
-.find-password-container {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
-  background-color: white;
-  padding: 80px 20px 20px 20px;
-}
-
-.find-password-form {
-  background: white;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
-}
-
 .header {
   text-align: center;
   margin-bottom: 30px;
@@ -394,19 +372,19 @@ const goToLogin = () => {
 .logo {
   font-size: 2rem;
   font-weight: bold;
-  color: #2d336b;
+  color: var(--color-main);
   margin: 0 0 8px 0;
 }
 
 .subtitle {
-  color: #333;
+  color: var(--color-main);
   margin: 0 0 8px 0;
   font-size: 1.2rem;
   font-weight: 600;
 }
 
 .description {
-  color: #666;
+  color: var(--color-sub);
   margin: 0;
   font-size: 0.9rem;
 }
@@ -419,19 +397,19 @@ const goToLogin = () => {
   text-align: center;
   margin-bottom: 25px;
   padding: 20px;
-  background-color: #f8f9fa;
+  background-color: var(--color-bg-light);
   border-radius: 8px;
 }
 
 .step-info i {
   font-size: 2rem;
-  color: #2d336b;
+  color: var(--color-main);
   margin-bottom: 10px;
 }
 
 .step-info p {
   margin: 5px 0;
-  color: #333;
+  color: var(--color-main);
 }
 
 .form-group {
@@ -441,7 +419,7 @@ const goToLogin = () => {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #333;
+  color: var(--color-main);
   font-size: 0.9rem;
   font-weight: 500;
 }
@@ -449,7 +427,7 @@ const goToLogin = () => {
 .form-group input {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-light);
   border-radius: 6px;
   font-size: 1rem;
   box-sizing: border-box;
@@ -458,7 +436,7 @@ const goToLogin = () => {
 
 .form-group input:focus {
   outline: none;
-  border-color: #2d336b;
+  border-color: var(--color-main);
   box-shadow: 0 0 0 2px rgba(45, 51, 107, 0.1);
 }
 
@@ -473,7 +451,7 @@ const goToLogin = () => {
 
 .verify-btn {
   padding: 12px 16px;
-  background-color: #28a745;
+  background-color: var(--color-main);
   color: white;
   border: none;
   border-radius: 6px;
@@ -484,11 +462,11 @@ const goToLogin = () => {
 }
 
 .verify-btn:hover:not(:disabled) {
-  background-color: #218838;
+  background-color: #1e2347;
 }
 
 .verify-btn:disabled {
-  background-color: #ccc;
+  background-color: var(--color-light);
   cursor: not-allowed;
 }
 
@@ -496,7 +474,7 @@ const goToLogin = () => {
 .reset-btn {
   width: 100%;
   padding: 12px;
-  background-color: #2d336b;
+  background-color: var(--color-main);
   color: white;
   border: none;
   border-radius: 6px;
@@ -512,7 +490,7 @@ const goToLogin = () => {
 
 .find-btn:disabled,
 .reset-btn:disabled {
-  background-color: #ccc;
+  background-color: var(--color-light);
   cursor: not-allowed;
 }
 
@@ -527,12 +505,12 @@ const goToLogin = () => {
   display: flex;
   align-items: center;
   font-size: 0.85rem;
-  color: #666;
+  color: var(--color-sub);
   transition: color 0.3s ease;
 }
 
 .requirement.valid {
-  color: #28a745;
+  color: var(--color-main);
 }
 
 .requirement i {
@@ -549,13 +527,13 @@ const goToLogin = () => {
 
 .requirement-compact {
   font-size: 0.75rem;
-  color: #999;
+  color: var(--color-light);
   transition: color 0.3s ease;
   position: relative;
 }
 
 .requirement-compact.valid {
-  color: #28a745;
+  color: var(--color-main);
 }
 
 .requirement-compact.valid::before {
@@ -576,7 +554,7 @@ const goToLogin = () => {
 }
 
 .text-success {
-  color: #28a745;
+  color: var(--color-main);
 }
 
 .text-danger {
@@ -586,29 +564,29 @@ const goToLogin = () => {
 .result-section {
   margin: 30px 0;
   padding: 20px;
-  background-color: #f8f9fa;
+  background-color: var(--color-bg-light);
   border-radius: 8px;
   text-align: center;
 }
 
 .success-message i {
   font-size: 2rem;
-  color: #28a745;
+  color: var(--color-main);
   margin-bottom: 10px;
 }
 
 .success-message h3 {
-  color: #333;
+  color: var(--color-main);
   margin: 0 0 15px 0;
 }
 
 .success-message p {
-  color: #666;
+  color: var(--color-sub);
   margin-bottom: 25px;
 }
 
 .login-btn {
-  background-color: #2d336b;
+  background-color: var(--color-main);
   color: white;
   border: none;
   padding: 12px 30px;
@@ -628,23 +606,23 @@ const goToLogin = () => {
 }
 
 .link {
-  color: #666;
+  color: var(--color-sub);
   text-decoration: none;
   font-size: 0.9rem;
   transition: color 0.3s ease;
 }
 
 .link:hover {
-  color: #2d336b;
+  color: var(--color-main);
 }
 
 .divider {
   margin: 0 10px;
-  color: #ccc;
+  color: var(--color-light);
 }
 
 /* 반응형 디자인 */
-@media (max-width: 480px) {
+@media (max-width: 375px) {
   .find-password-container {
     padding: 20px 10px;
   }
