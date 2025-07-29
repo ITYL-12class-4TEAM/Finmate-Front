@@ -92,7 +92,7 @@ const router = createRouter({
     {
       path: "/wmti",
       name: "WMTI",
-      component: () => import("../pages/wmti/WMTILayout.vue"), // 선택
+      component: () => import("../layouts/WMTILayout.vue"), // 선택
       children: [
         {
           path: "basic",
