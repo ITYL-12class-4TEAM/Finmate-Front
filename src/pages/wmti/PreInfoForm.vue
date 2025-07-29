@@ -46,85 +46,26 @@
       <div class="form-group">
         <label>투자 기간</label>
         <div class="radio-group">
-          <label
-            ><input type="radio" value="단기" v-model="form.period" />
-            단기</label
-          >
-          <label
-            ><input type="radio" value="중기" v-model="form.period" />
-            중기</label
-          >
-          <label
-            ><input type="radio" value="장기" v-model="form.period" />
-            장기</label
-          >
+          <label v-for="item in InvestmentPeriod" :key="item.value">
+            <input type="radio" :value="item.value" v-model="form.period" />
+            {{ item.label }}
+          </label>
         </div>
       </div>
 
       <!-- 투자 목적 -->
+      <!-- <pre>{{ PurposeCategory }}</pre> -->
       <div class="form-group">
         <label>투자 목적</label>
         <div class="radio-group column">
-          <label
+          <label v-for="item in PurposeCategory" :key="item.value"
             ><input
               type="radio"
-              value="비상자금 마련"
+              :value="item.value"
               v-model="form.purposeCategory"
             />
-            비상자금 마련</label
-          >
-          <label
-            ><input
-              type="radio"
-              value="여행자금"
-              v-model="form.purposeCategory"
-            />
-            여행자금</label
-          >
-          <label
-            ><input
-              type="radio"
-              value="결혼자금"
-              v-model="form.purposeCategory"
-            />
-            결혼자금</label
-          >
-          <label
-            ><input
-              type="radio"
-              value="주택구입"
-              v-model="form.purposeCategory"
-            />
-            주택구입</label
-          >
-          <label
-            ><input
-              type="radio"
-              value="노후준비"
-              v-model="form.purposeCategory"
-            />
-            노후준비</label
-          >
-          <label
-            ><input
-              type="radio"
-              value="자녀교육비"
-              v-model="form.purposeCategory"
-            />
-            자녀교육비</label
-          >
-          <label
-            ><input
-              type="radio"
-              value="자산증식"
-              v-model="form.purposeCategory"
-            />
-            자산증식</label
-          >
-          <label
-            ><input type="radio" value="기타" v-model="form.purposeCategory" />
-            기타</label
-          >
+            {{ item.label }}
+          </label>
         </div>
       </div>
 
@@ -135,6 +76,11 @@
 
 <script>
 import { postPreinfoAPI } from '@/api/wmti';
+import {
+  InvestmentPeriodEnum,
+  PurposeCategoryEnum,
+} from '../../constants/wmtienums';
+import { getEnumLabel } from '../../constants/enumUtils';
 
 export default {
   name: 'PreInfoForm',
@@ -153,6 +99,14 @@ export default {
         purposeCategory: '',
       },
     };
+  },
+  computed: {
+    InvestmentPeriod() {
+      return InvestmentPeriodEnum;
+    },
+    PurposeCategory() {
+      return PurposeCategoryEnum;
+    },
   },
   methods: {
     async handleSubmit() {
@@ -197,22 +151,14 @@ export default {
       }
 
       // 투자기간 검사
-      if (!['단기', '중기', '장기'].includes(period)) {
+      const validPeriods = InvestmentPeriodEnum.map((item) => item.value);
+      if (!validPeriods.includes(period)) {
         alert('투자 기간을 선택해주세요.');
         return;
       }
 
       // 투자목적 검사
-      const validPurposes = [
-        '비상자금 마련',
-        '여행자금',
-        '결혼자금',
-        '주택구입',
-        '노후준비',
-        '자녀교육비',
-        '자산증식',
-        '기타',
-      ];
+      const validPurposes = PurposeCategoryEnum.map((item) => item.value);
       if (!validPurposes.includes(purposeCategory)) {
         alert('투자 목적을 선택해주세요.');
         return;
@@ -222,11 +168,16 @@ export default {
         married: this.form.married === 'true',
       };
 
+      finalData.platform = /Mobi|Android/i.test(navigator.userAgent)
+        ? 'mobile'
+        : 'web';
+      finalData.userAgent = navigator.userAgent;
+      finalData.screenSize = `${window.innerWidth}x${window.innerHeight}`;
+
       // 모든 유효성 통과 → 제출
       try {
         // ✅ POST 요청 보내기 (토큰 등 헤더 필요시 설정 가능)
         // const response = await axios.post('/api/preinfo/submit', finalData);
-
         // console.log('✅ 응답 데이터:', response.data);
 
         const res = await postPreinfoAPI(finalData);

@@ -56,7 +56,7 @@ export default {
       this.$router.push('/wmti/preinfo');
     },
     goToSurvey() {
-      this.$router.push('/survey'); // 또는 '/wmti/start'
+      this.$router.push('/wmti/survey'); // 또는 '/wmti/start'
     },
   },
 };
