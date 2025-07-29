@@ -85,6 +85,11 @@ const router = createRouter({
         //{ path: 'fund', name: 'ProductFund', component: () => import('../pages/products/ProductFund.vue')}, // 펀드
         //{ path: 'loan', name: 'ProductLoan', component: () => import('../pages/products/ProductLoan.vue')}, // 대출
         //{ path: 'insurance', name: 'ProductInsurance', component: () => import('../pages/products/ProductInsurance.vue')}, // 보험
+        {
+          path: ":category/:id",
+          name: "ProductDetail",
+          component: () => import("../pages/products/ProductDetail.vue"),
+        }, // 상세보기
       ],
     },
 
