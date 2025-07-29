@@ -98,7 +98,13 @@ const router = createRouter({
           path: "basic",
           name: "BasicSurvey",
           component: () => import("../pages/wmti/BasicSurvey.vue"),
-        }, // 기본 성향 검사
+        },
+        {
+          path: "preinfo",
+          name: "PreInfoForm",
+          component: () => import("../pages/wmti/PreInfoForm.vue"),
+        } 
+        // 기본 성향 검사
         //{ path: 'wmti', name: 'WMTISurvey', component: () => import('../pages/Wmti/WMTISurvey.vue')}, // WMTI 성향 검사
         //{ path: 'result', name: 'WMTIResult', component: () => import('../pages/Wmti/WMTIResult.vue')}, // WMTI 결과
         //{ path: 'collection', name: 'WMTICollection', component: () => import('../pages/Wmti/WMTICollection.vue')}, // WMTI 컬렉션
