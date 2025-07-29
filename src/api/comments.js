@@ -1,7 +1,7 @@
 import api from './index';
 
 // 게시글에 해당하는 댓글 리스트 조회
-export const getCommentsByPostId = async (postId, currentUserId = null) => {
+export const getCommentsByPostId = async (postId, currentUserId) => {
   const res = await api.get(`/api/comments/post/${postId}`);
   const comments = res.data.body.data;
 
@@ -12,7 +12,6 @@ export const getCommentsByPostId = async (postId, currentUserId = null) => {
     nickname: c.anonymous ? '익명' : c.nickname || `사용자${c.memberId}`,
     isMine: currentUserId ? c.memberId === currentUserId : false,
     likeCount: c.likeCount,
-    // liked: c.liked || false,
     // parentComment: c.parentComment,
   }));
 };

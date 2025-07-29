@@ -30,9 +30,11 @@ export const getPostByIdAPI = async (postId, memberId) => {
     content: post.content,
     createdAt: post.createdAt,
     likes: post.likeCount,
-    attaches: post.attaches,
+    isAnonymous: post.anonymous,
+    scraps: 3, // TODO: 백엔드 연동
+    // attaches: post.attaches, // TODO: 배포 후 처리
     tags: [productTagMap[post.productTag]],
-    nickname: '익명', // TODO: 백엔드에서 닉네임 제공 시 교체
+    nickname: post.anonymous ? '익명' : '사용자', // TODO: 백엔드에서 닉네임 제공 시 교체
     isMine: memberId ? post.memberId === memberId : false,
     authorImage: '/authorImg.jpg', // TODO: 백엔드 이미지 연결 시 교체
   };
@@ -56,8 +58,8 @@ export const deletePostAPI = async (postId) => {
   return res.data;
 };
 
-// 첨부파일 삭제
-export const deleteFileAPI = async (no) => {
-  const res = await api.delete(`/api/posts/attachment/${no}`);
-  return res.data;
-};
+// 첨부파일 삭제 TODO: 배포 후 처리
+// export const deleteFileAPI = async (no) => {
+//   const res = await api.delete(`/api/posts/attachment/${no}`);
+//   return res.data;
+// };

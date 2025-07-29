@@ -170,12 +170,6 @@ const goToDetailPage = (id) =>
 </script>
 
 <style scoped>
-.community-list {
-  width: 100%;
-  max-width: 430px;
-  margin: 0 auto;
-}
-
 .top-bar {
   display: flex;
   justify-content: flex-end;

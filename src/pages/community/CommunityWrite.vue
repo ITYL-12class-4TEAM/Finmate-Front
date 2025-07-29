@@ -2,6 +2,7 @@
   <div class="community-write">
     <BackButton title="게시글 작성" />
 
+    <!-- 제목 입력 -->
     <input
       v-model="title"
       type="text"
@@ -10,6 +11,7 @@
       maxlength="40"
     />
 
+    <!-- 내용 입력 -->
     <textarea
       v-model="content"
       placeholder="내용을 입력해주세요."
@@ -18,7 +20,7 @@
     />
     <div class="char-limit">최대 120자</div>
 
-    <div class="image-upload">
+    <!-- <div class="image-upload">
       <label for="files" class="image-label">첨부파일</label>
       <input
         id="file"
@@ -28,8 +30,9 @@
         class="image-input"
         multiple
       />
-    </div>
+    </div> -->
 
+    <!-- 상품군 태그 선택 -->
     <div class="tag-group">
       <div class="tag-label">상품군</div>
       <div class="tag-line"></div>
@@ -43,6 +46,12 @@
           #{{ tag }}
         </button>
       </div>
+    </div>
+
+    <!-- 익명 여부 선택 -->
+    <div class="anonymous-group">
+      <div class="anonymous-label">익명</div>
+      <input type="checkbox" v-model="isAnonymous" class="custom-checkbox" />
     </div>
 
     <!-- 등록 버튼 -->
@@ -69,7 +78,7 @@ const productTags = ['예금', '적금', '펀드', '보험'];
 const title = ref('');
 const content = ref('');
 const selectedProduct = ref('예금');
-const files = ref(null);
+const isAnonymous = ref(false);
 
 const router = useRouter();
 const showModal = useModal();
@@ -90,26 +99,19 @@ const submitPost = async () => {
   const confirmed = await showModal('현재 상태로 등록하시겠습니까?');
   if (!confirmed) return;
 
-  const formData = new FormData();
-  formData.append('title', title.value);
-  formData.append('content', content.value);
-  formData.append('boardId', boardId);
-  formData.append('memberId', memberId);
-  formData.append('status', 'NORMAL');
-  formData.append('isAnonymous', false);
-  formData.append('productTag', reverseProductTagMap[selectedProduct.value]);
-  formData.append('categoryTag', 'FREE');
-
-  if (files.value && files.value.files.length > 0) {
-    // 첨부파일 선택이 있는 경우
-    const fileList = files.value.files;
-    for (let i = 0; i < fileList.length; i++) {
-      formData.append('files', fileList[i]);
-    }
-  }
+  const postData = {
+    title: title.value,
+    content: content.value,
+    boardId,
+    anonymous: isAnonymous.value,
+    memberId,
+    status: 'NORMAL',
+    productTag: reverseProductTagMap[selectedProduct.value],
+    categoryTag: 'FREE', // TODO: 테이블 변경 시 삭제
+  };
 
   try {
-    await createPostAPI(formData);
+    await createPostAPI(postData);
     router.push({ name: 'CommunityList' });
   } catch (e) {
     console.error('게시글 등록 실패:', e);
@@ -119,12 +121,6 @@ const submitPost = async () => {
 </script>
 
 <style scoped>
-.community-write {
-  width: 100%;
-  max-width: 430px;
-  margin: 0 auto;
-}
-
 .input,
 .textarea {
   width: 100%;
@@ -169,13 +165,15 @@ const submitPost = async () => {
   font-size: 0.9rem;
 }
 
-.tag-group {
+.tag-group,
+.anonymous-group {
   display: flex;
   margin-bottom: 1rem;
   align-items: center;
 }
 
-.tag-label {
+.tag-label,
+.anonymous-label {
   font-size: 0.9rem;
   font-weight: 600;
   width: 5rem;
@@ -205,6 +203,32 @@ const submitPost = async () => {
 .tag.active {
   background-color: var(--color-light);
   color: black;
+}
+
+.custom-checkbox {
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid var(--color-sub);
+  border-radius: 4px;
+  position: relative;
+  cursor: pointer;
+}
+
+.custom-checkbox:checked {
+  background-color: var(--color-sub);
+}
+
+.custom-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }
 
 .submit-button-wrapper {

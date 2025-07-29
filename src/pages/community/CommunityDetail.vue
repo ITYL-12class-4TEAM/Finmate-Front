@@ -16,23 +16,7 @@
       <div class="post-content">
         <h2 class="title">{{ post.title }}</h2>
         <p class="body-text">{{ post.content }}</p>
-        <!-- 이미지 파일이 있을 경우 -->
-        <div v-for="file in post.attaches" :key="file.no" class="attach">
-          <span @click="download(file.no)">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M18.97 3.659a2.25 2.25 0 0 0-3.182 0l-10.94 10.94a3.75 3.75 0 1 0 5.304 5.303l7.693-7.693a.75.75 0 0 1 1.06 1.06l-7.693 7.693a5.25 5.25 0 1 1-7.424-7.424l10.939-10.94a3.75 3.75 0 1 1 5.303 5.304L9.097 18.835l-.008.008-.007.007-.002.002-.003.002A2.25 2.25 0 0 1 5.91 15.66l7.81-7.81a.75.75 0 0 1 1.061 1.06l-7.81 7.81a.75.75 0 0 0 1.054 1.068L18.97 6.84a2.25 2.25 0 0 0 0-3.182Z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            {{ file.filename }}
-          </span>
-        </div>
+
         <div class="tags">
           <span class="tag" v-for="tag in post.tags" :key="tag"
             >#{{ tag }}</span
@@ -83,7 +67,9 @@
 
               {{ likeCount }}
             </button>
-            <!-- <button @click="toggleScrap">
+
+            <!-- 스크랩 버튼 -->
+            <button @click="toggleScrap">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -98,7 +84,7 @@
                 />
               </svg>
               {{ post.scraps }}
-            </button> -->
+            </button>
           </div>
 
           <!-- 수정/삭제 버튼 (작성자일 경우) -->
@@ -195,11 +181,13 @@ import {
   getPostLikedByMeAPI,
   togglePostLikeAPI,
 } from '@/api/postLike';
-import { toggleCommentLikeAPI } from '@/api/commentLike';
+import {
+  getCommentLikeCountAPI,
+  getCommentLikedByMeAPI,
+  toggleCommentLikeAPI,
+} from '@/api/commentLike';
 
 import { useModal } from '@/composables/useModal';
-
-import { downloadFile } from '@/util/download';
 
 import { mockComments, mockPost } from './communityMock';
 
@@ -242,6 +230,7 @@ const fetchPostDetail = async () => {
 const fetchComments = async () => {
   try {
     comments.value = await getCommentsByPostId(postId, memberId);
+    await fetchCommentLikeStatus();
     // comments.value = mockComments;
   } catch (e) {
     alert('댓글을 불러오지 못했습니다.');
@@ -251,6 +240,13 @@ const fetchComments = async () => {
 const fetchPostLikeStatus = async () => {
   likeCount.value = await getPostLikeCountAPI(postId);
   liked.value = await getPostLikedByMeAPI(postId, memberId);
+};
+
+const fetchCommentLikeStatus = async () => {
+  for (const comment of comments.value) {
+    comment.liked = await getCommentLikedByMeAPI(comment.id, memberId);
+    comment.likeCount = await getCommentLikeCountAPI(comment.id);
+  }
 };
 
 // 액션 핸들러
@@ -310,12 +306,6 @@ const deleteComment = async (commentId) => {
   }
 };
 
-// 첨부파일 다운로드
-const download = async (no) => {
-  const URL = `/api/posts/attachment/${no}/download`;
-  await downloadFile(URL);
-};
-
 onMounted(() => {
   fetchPostDetail();
   fetchComments();
@@ -324,12 +314,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.community-detail {
-  width: 100%;
-  max-width: 430px;
-  margin: 0 auto;
-}
-
 /* 게시글 상단 */
 .post-header {
   display: flex;

@@ -10,8 +10,7 @@
 
 <style scoped>
 .layout-container {
-  max-width: 600px;
+  max-width: 430px;
   margin: 0 auto;
-  padding: 2rem 0;
 }
 </style>

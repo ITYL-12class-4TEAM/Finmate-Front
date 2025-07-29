@@ -2,6 +2,7 @@
   <div class="community-edit">
     <BackButton title="게시글 수정" />
 
+    <!-- 제목 입력 -->
     <input
       v-model="title"
       type="text"
@@ -10,6 +11,7 @@
       maxlength="40"
     />
 
+    <!-- 내용 입력 -->
     <textarea
       v-model="content"
       placeholder="내용을 입력해주세요."
@@ -19,7 +21,7 @@
     <div class="char-limit">최대 120자</div>
 
     <!-- 이미지 파일이 있을 경우 -->
-    <div v-for="file in attaches" :key="file.no" class="attach">
+    <!-- <div v-for="file in attaches" :key="file.no" class="attach">
       <span>
         {{ file.filename }}
         <svg
@@ -38,10 +40,10 @@
           />
         </svg>
       </span>
-    </div>
+    </div> -->
 
     <!-- 파일 업로드 input 추가 -->
-    <div class="image-upload">
+    <!-- <div class="image-upload">
       <label for="file" class="image-label">첨부파일</label>
       <input
         id="file"
@@ -51,8 +53,9 @@
         class="image-input"
         multiple
       />
-    </div>
+    </div> -->
 
+    <!-- 상품군 태그 선택 -->
     <div class="tag-group">
       <div class="tag-label">상품군</div>
       <div class="tag-line"></div>
@@ -68,6 +71,13 @@
       </div>
     </div>
 
+    <!-- 익명 여부 선택 -->
+    <div class="anonymous-group">
+      <div class="anonymous-label">익명</div>
+      <input type="checkbox" v-model="isAnonymous" class="custom-checkbox" />
+    </div>
+
+    <!-- 수정 버튼 -->
     <div class="submit-button-wrapper">
       <BaseButton text="수정" class="submit-button" @click="updatePost" />
     </div>
@@ -78,7 +88,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useModal } from '@/composables/useModal';
-import { getPostByIdAPI, updatePostAPI, deleteFileAPI } from '@/api/posts';
+import { getPostByIdAPI, updatePostAPI } from '@/api/posts';
 import { reverseProductTagMap } from '@/constants/tags';
 
 import BackButton from '@/components/common/BackButton.vue';
@@ -93,7 +103,7 @@ const title = ref('');
 const content = ref('');
 const boardId = ref(1);
 const selectedProduct = ref('');
-const files = ref(null);
+const isAnonymous = ref(false);
 const attaches = ref([]);
 
 const productTags = ['예금', '적금', '펀드', '보험'];
@@ -113,19 +123,20 @@ const fetchPost = async () => {
     content.value = res.content;
     selectedProduct.value = res.tags?.[0] || '';
     attaches.value = res.attaches;
+    isAnonymous.value = res.isAnonymous;
   } catch (e) {
     alert('게시글 정보를 불러오지 못했습니다.');
     router.push('/community');
   }
 };
 
-const removeFile = async (no, filename) => {
-  if (!confirm(filename + '을 삭제할까요?')) return;
+// const removeFile = async (no, filename) => {
+//   if (!confirm(filename + '을 삭제할까요?')) return;
 
-  await deleteFileAPI(no);
-  const ix = attaches.value.findIndex((f) => f.no === no);
-  attaches.value.splice(ix, 1);
-};
+//   await deleteFileAPI(no);
+//   const ix = attaches.value.findIndex((f) => f.no === no);
+//   attaches.value.splice(ix, 1);
+// };
 
 onMounted(fetchPost);
 
@@ -143,26 +154,18 @@ const updatePost = async () => {
   const confirmed = await showModal('현재 상태로 수정하시겠습니까?');
   if (!confirmed) return;
 
-  const formData = new FormData();
-  formData.append('title', title.value);
-  formData.append('content', content.value);
-  formData.append('boardId', boardId.value);
-  formData.append('memberId', memberId);
-  formData.append('status', 'NORMAL');
-  formData.append('isAnonymous', false);
-  formData.append('productTag', reverseProductTagMap[selectedProduct.value]);
-  formData.append('categoryTag', 'FREE');
-
-  if (files.value && files.value.files.length > 0) {
-    // 첨부파일 선택이 있는 경우
-    const fileList = files.value.files;
-    for (let i = 0; i < fileList.length; i++) {
-      formData.append('files', fileList[i]);
-    }
-  }
+  const editedData = {
+    title: title.value,
+    content: content.value,
+    memberId,
+    status: 'NORMAL',
+    anonymous: isAnonymous.value,
+    productTag: reverseProductTagMap[selectedProduct.value],
+    categoryTag: 'FREE', // TODO: 테이블 변경 시 삭제
+  };
 
   try {
-    await updatePostAPI(postId, formData);
+    await updatePostAPI(postId, editedData);
     router.push({ name: 'CommunityDetail', params: { id: postId } });
   } catch (e) {
     console.error('수정 실패:', e);
@@ -172,12 +175,6 @@ const updatePost = async () => {
 </script>
 
 <style scoped>
-.community-edit {
-  width: 100%;
-  max-width: 430px;
-  margin: 0 auto;
-}
-
 .input,
 .textarea {
   width: 100%;
@@ -238,13 +235,15 @@ const updatePost = async () => {
   font-size: 0.9rem;
 }
 
-.tag-group {
+.tag-group,
+.anonymous-group {
   display: flex;
   margin-bottom: 1rem;
   align-items: center;
 }
 
-.tag-label {
+.tag-label,
+.anonymous-label {
   font-size: 0.9rem;
   font-weight: 600;
   width: 5rem;
@@ -274,6 +273,32 @@ const updatePost = async () => {
 .tag.active {
   background-color: var(--color-light);
   color: black;
+}
+
+.custom-checkbox {
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid var(--color-sub);
+  border-radius: 4px;
+  position: relative;
+  cursor: pointer;
+}
+
+.custom-checkbox:checked {
+  background-color: var(--color-sub);
+}
+
+.custom-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }
 
 .submit-button-wrapper {
