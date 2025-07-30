@@ -1,5 +1,5 @@
 <template>
-  <div class="favorites-summary">
+  <div class="post-summary">
     <div class="summary-container">
       <div class="count-section">
         <div class="count-badge">
@@ -47,7 +47,7 @@ const formatCount = (count) => {
 </script>
 
 <style scoped>
-.favorites-summary {
+.post-summary {
   margin-bottom: 1.5rem;
   padding: 0.5rem 0.75rem;
   background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
@@ -118,12 +118,12 @@ const formatCount = (count) => {
 }
 
 /* 빈 상태일 때 */
-.favorites-summary.empty .count-badge {
+.post-summary.empty .count-badge {
   background: rgba(185, 187, 204, 0.1);
   border-color: rgba(185, 187, 204, 0.2);
 }
 
-.favorites-summary.empty .count-badge i {
+.post-summary.empty .count-badge i {
   color: var(--color-light);
 }
 

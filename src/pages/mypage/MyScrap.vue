@@ -1,5 +1,5 @@
 <template>
-  <PageHeader title="내 스크랩" />
+  <!-- <PageHeader title="내 스크랩" /> -->
 
   <LoadingSpinner v-if="loading" />
 
