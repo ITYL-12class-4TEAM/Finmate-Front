@@ -6,13 +6,15 @@ export const getCommentsByPostId = async (postId, currentUserId) => {
   const comments = res.data.body.data;
 
   return comments.map((c) => ({
-    id: c.commentId,
+    commentId: c.commentId,
+    postId: c.postId,
     content: c.content,
     createdAt: c.createdAt,
     nickname: c.anonymous ? '익명' : c.nickname || `사용자${c.memberId}`, // TODO: 백 리팩터링 후 교체
     isMine: c.memberId === currentUserId ? true : false,
     likeCount: c.likeCount,
     liked: c.liked,
+    parentComment: c.parentComment,
   }));
 };
 

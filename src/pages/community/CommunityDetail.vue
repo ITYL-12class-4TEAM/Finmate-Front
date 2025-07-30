@@ -127,9 +127,10 @@
     <div class="comment-section">
       <p class="comment-count">댓글 {{ comments.length }}개</p>
       <CommentItem
-        v-for="comment in comments"
-        :key="comment.id"
+        v-for="comment in comments.filter((c) => !c.parentComment)"
+        :key="comment.commentId"
         :comment="comment"
+        :comments="comments"
         :refresh="fetchComments"
       />
     </div>
@@ -230,7 +231,7 @@ const submitComment = async () => {
     postId: Number(postId),
     content: content,
     anonymous: isAnonymous.value,
-    parentComment: null, // TODO
+    parentComment: null,
   };
 
   try {
@@ -382,9 +383,9 @@ onMounted(() => {
 .comment-write {
   display: flex;
   gap: 0.5rem;
-  margin-top: 1.2rem;
+  margin-top: 0.5rem;
   padding: 0.25rem;
-  border-radius: 10px;
+  border-radius: 5px;
   background-color: var(--color-bg-light);
 }
 
@@ -430,7 +431,7 @@ onMounted(() => {
 
 .comment-input {
   flex: 1;
-  padding: 0.6rem 0.6rem;
+  padding: 0.4rem;
   font-size: 0.8rem;
   border: none;
   border-radius: 6px;

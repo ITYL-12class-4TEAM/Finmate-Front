@@ -1,21 +1,24 @@
 <template>
   <div class="comment">
+    <!-- 댓글 헤더 (작성자, 시각, 삭제) -->
     <div class="comment-header">
       <span class="nickname">{{ comment.nickname }}</span>
       <span class="time">{{ formattedTime(comment.createdAt) }}</span>
       <button
         v-if="comment.isMine"
         class="delete-btn"
-        @click="handleDelete(comment.id)"
+        @click="handleDelete(comment.commentId)"
       >
         삭제
       </button>
     </div>
 
+    <!-- 댓글 내용 -->
     <p class="comment-content">{{ comment.content }}</p>
 
+    <!-- 댓글 푸터 (좋아요, 대댓글 작성) -->
     <div class="comment-footer">
-      <button @click="toggleLike(comment.id)">
+      <button @click="toggleLike(comment.commentId)">
         <svg
           v-if="comment.liked"
           xmlns="http://www.w3.org/2000/svg"
@@ -53,22 +56,71 @@
         </svg>
         {{ comment.likeCount }}
       </button>
+
+      <!-- 대댓글 작성 버튼 -->
+      <button
+        v-if="!isReply"
+        class="reply-toggle-btn"
+        @click="isReplying = !isReplying"
+      >
+        {{ isReplying ? '취소' : '댓글' }}
+      </button>
+    </div>
+
+    <!-- 대댓글 입력창 -->
+    <div class="reply-form" v-if="isReplying">
+      <div class="anonymous-toggle">
+        <input type="checkbox" v-model="isAnonymous" class="custom-checkbox" />
+        <div class="anonymous-label">익명</div>
+      </div>
+      <input
+        v-model="replyContent"
+        placeholder="대댓글을 입력해주세요."
+        class="reply-input"
+      />
+      <button @click="handleReplySubmit" class="reply-submit">등록</button>
+    </div>
+
+    <!-- 대댓글 렌더링 -->
+    <div class="replies" v-if="childReplies.length">
+      <CommentItem
+        v-for="reply in childReplies"
+        :key="reply.commentId"
+        :comment="reply"
+        :comments="comments"
+        :refresh="refresh"
+        :is-reply="true"
+        class="reply"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref, computed } from 'vue';
+
+import CommentItem from './CommentItem.vue';
+
 import { toggleCommentLikeAPI } from '@/api/commentLike';
-import { deleteCommentAPI } from '@/api/comments';
+import { deleteCommentAPI, createCommentAPI } from '@/api/comments';
 
 import { useModal } from '@/composables/useModal';
 
 const props = defineProps({
   comment: Object,
+  comments: Array,
   refresh: Function,
+  isReply: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const showModal = useModal();
+
+const replyContent = ref('');
+const isReplying = ref(false);
+const isAnonymous = ref(false);
 
 // 액션 핸들러
 const toggleLike = async (id) => {
@@ -87,6 +139,31 @@ const handleDelete = async (id) => {
   }
 };
 
+const handleReplySubmit = async () => {
+  if (!replyContent.value.trim()) return;
+
+  try {
+    await createCommentAPI({
+      postId: props.comment.postId,
+      content: replyContent.value,
+      anonymous: isAnonymous.value,
+      parentComment: props.comment.commentId,
+    });
+
+    replyContent.value = '';
+    isReplying.value = false;
+
+    if (props.refresh) await props.refresh();
+  } catch (e) {
+    alert('대댓글 작성 실패');
+  }
+};
+
+// 자식댓글 처리
+const childReplies = computed(() =>
+  props.comments.filter((c) => c.parentComment === props.comment.commentId)
+);
+
 // 날짜 배열 포맷
 const formattedTime = (arr) => {
   if (!arr || arr.length < 5) return '';
@@ -101,9 +178,10 @@ const formattedTime = (arr) => {
 <style scoped>
 .comment {
   padding: 0.6rem 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 0.5px solid var(--color-light);
 }
 
+/* 댓글 헤더 */
 .comment-header {
   display: flex;
   align-items: center;
@@ -121,11 +199,6 @@ const formattedTime = (arr) => {
   margin-left: 0.5rem;
 }
 
-.comment-content {
-  font-size: 0.8rem;
-  line-height: 1.5;
-}
-
 .delete-btn {
   background: none;
   color: #ff6b6b;
@@ -133,11 +206,18 @@ const formattedTime = (arr) => {
   margin-left: 1rem;
 }
 
+/* 댓글 내용 */
+.comment-content {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin-bottom: 0.4rem;
+}
+
+/* 댓글 푸터 (좋아요) */
 .comment-footer {
-  margin-top: 0.3rem;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.6rem;
 }
 
 .comment-footer button {
@@ -145,12 +225,92 @@ const formattedTime = (arr) => {
   color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.2rem;
   font-size: 0.75rem;
 }
 
 .comment-footer svg {
   width: 1rem;
   height: 1rem;
+}
+
+/* 대댓글 작성 */
+.reply-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.reply-toggle-btn {
+  border: 0.2px solid var(--color-light);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+}
+
+.anonymous-toggle {
+  display: flex;
+  align-items: center;
+  padding-left: 0.3rem;
+}
+
+.anonymous-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-left: 0.3rem;
+}
+
+.custom-checkbox {
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid var(--color-main);
+  background-color: var(--color-white);
+  border-radius: 4px;
+  position: relative;
+  cursor: pointer;
+}
+
+.custom-checkbox:checked {
+  background-color: var(--color-sub);
+  border: 1px solid var(--color-sub);
+}
+
+.custom-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.reply-input {
+  flex: 1;
+  padding: 0.3rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  border: 0.5px solid var(--color-light);
+}
+
+.reply-submit {
+  font-size: 0.8rem;
+  border-radius: 6px;
+  padding: 0 0.5rem;
+}
+
+/* 대댓글 */
+.replies {
+  margin-left: 2rem;
+  margin-top: 1rem;
+  padding: 0 0.6rem;
+  background-color: var(--color-bg-light);
+  border-radius: 10px;
+}
+
+.replies .reply:last-child {
+  border-bottom: none;
 }
 </style>
