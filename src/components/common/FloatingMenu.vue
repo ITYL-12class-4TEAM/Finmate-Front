@@ -39,7 +39,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import ChatWindow from './ChatWindow.vue';
 
 const isOpen = ref(false);
@@ -48,9 +48,24 @@ const toggleChat = () => {
   isOpen.value = !isOpen.value;
 };
 const closeChatBot = () => {
-  console.log('부모: 챗봇 닫기 이벤트 받음');
   isOpen.value = false;
 };
+
+function onClickOutside(event) {
+  const floatingMenu = document.querySelector('.floating-menu');
+  // floatingMenu 영역 안을 클릭했으면 무시
+  if (floatingMenu && !floatingMenu.contains(event.target)) {
+    isOpen.value = false;
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('click', onClickOutside);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('click', onClickOutside);
+});
 </script>
 
 <style scoped>
