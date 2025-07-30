@@ -40,7 +40,10 @@
               <option value="">전체 게시판</option>
               <option value="FREE">자유게시판</option>
               <option value="HOT">HOT게시판</option>
-              <option value="NOTICE">공지사항</option>
+              <option value="NOTICE">공지사항</option><option value="like-date-desc">최근 좋아요순</option>
+      <option value="post-date-desc">게시글 최신순</option>
+      <option value="total-like-desc">인기순 (좋아요 많은순)</option>
+      <option value="comment-desc">댓글 많은순</option>
             </select>
             <i class="fa-solid fa-chevron-down select-arrow"></i>
           </div>
