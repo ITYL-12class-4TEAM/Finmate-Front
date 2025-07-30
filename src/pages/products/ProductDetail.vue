@@ -6,7 +6,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { getProductsDetailAPI } from '@/api/product';
+// import { getProductsDetailAPI } from '@/api/product';
 
 const products = ref(null);
 
@@ -22,7 +22,7 @@ const fetchProductsDetail = async () => {
   }
 };
 
-onMounted(()=>{
-    fetchProductsDetail();
-})
+onMounted(() => {
+  fetchProductsDetail();
+});
 </script>
