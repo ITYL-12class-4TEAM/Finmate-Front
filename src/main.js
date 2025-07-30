@@ -3,6 +3,7 @@ import { createPinia } from "pinia";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./assets/styles/common.css";
+import "./assets/styles/tailwind.css";
 
 import "bootstrap";
 import App from "./App.vue";
