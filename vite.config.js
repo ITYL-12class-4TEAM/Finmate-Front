@@ -12,11 +12,13 @@ export default defineConfig({
   },
   server: {
     historyApiFallback: true,
+
     proxy: {
       '/api': {
-        target: 'https://sololevelingdb.glitch.me',
+        target: 'http://localhost:8080',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, '/api'), // 그대로 전달
       },
     },
   },
