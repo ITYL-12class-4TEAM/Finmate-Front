@@ -160,8 +160,7 @@ const router = createRouter({
     // 커뮤니티
     {
       path: '/community',
-      name: 'Community',
-      component: () => import('../pages/community/CommunityLayout.vue'),
+      component: () => import('../layouts/CommunityLayout.vue'), // 레이아웃 컴포넌트
       children: [
         {
           path: '',
