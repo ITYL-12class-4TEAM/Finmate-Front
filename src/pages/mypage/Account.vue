@@ -241,7 +241,7 @@ const forgotPassword = () => {
 .verify-card {
   background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
   border-radius: 1rem;
-  padding: 2rem;
+  padding: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
   box-shadow: 0 2px 8px -2px rgba(45, 51, 107, 0.1);
   backdrop-filter: blur(10px);
