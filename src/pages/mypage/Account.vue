@@ -628,8 +628,8 @@ const forgotPassword = () => {
 }
 
 .success-icon {
-  width: 4rem;
-  height: 4rem;
+  width: 3rem;
+  height: 3rem;
   border-radius: 50%;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   display: flex;
@@ -655,16 +655,12 @@ const forgotPassword = () => {
 
 .modal-btn {
   width: 100%;
-  padding: 1rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-main) 0%,
-    var(--color-sub) 100%
-  );
+  padding: 0.75rem;
+  background: var(--color-sub);
   color: white;
   border: none;
   border-radius: 0.75rem;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
