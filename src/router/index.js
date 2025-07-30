@@ -190,7 +190,7 @@ const router = createRouter({
       ],
     },
     // { path: '/missions', name: 'Missions', component: () => import('../pages/Missions.vue') }, // 미션
-    // { path: '/chatbot', name: 'Chatbot', component: () => import('../pages/Chatbot.vue') }, // 챗봇
+    { path: '/chatbot', name: 'Chatbot', component: () => import('../pages/Chatbot.vue') }, // 챗봇
     // { path: '/terms', name: 'Terms', component: () => import('../pages/Terms.vue') }, // 이용약관
     // { path: '/privacy', name: 'Privacy', component: () => import('../pages/Privacy.vue') }, // 개인정보 처리방침
 
