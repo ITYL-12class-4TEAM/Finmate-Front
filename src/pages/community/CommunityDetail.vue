@@ -111,13 +111,16 @@
 
     <!-- 댓글 작성 -->
     <div class="comment-write">
+      <!-- 익명 여부 선택 -->
       <div class="anonymous-toggle">
-        <label>
-          <input type="checkbox" v-model="isAnonymous" />
-          익명
-        </label>
+        <input type="checkbox" v-model="isAnonymous" class="custom-checkbox" />
+        <div class="anonymous-label">익명</div>
       </div>
-      <input v-model="newComment" placeholder="댓글을 입력해주세요." />
+      <input
+        v-model="newComment"
+        placeholder="댓글을 입력해주세요."
+        class="comment-input"
+      />
       <button @click="submitComment">작성</button>
     </div>
     <!-- 댓글 목록 -->
@@ -385,7 +388,47 @@ onMounted(() => {
   background-color: var(--color-bg-light);
 }
 
-.anonymous .comment-write input {
+.anonymous-toggle {
+  display: flex;
+  align-items: center;
+  padding-left: 0.3rem;
+}
+
+.anonymous-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-left: 0.3rem;
+}
+
+.custom-checkbox {
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid var(--color-main);
+  background-color: var(--color-white);
+  border-radius: 4px;
+  position: relative;
+  cursor: pointer;
+}
+
+.custom-checkbox:checked {
+  background-color: var(--color-sub);
+  border: 1px solid var(--color-sub);
+}
+
+.custom-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.comment-input {
   flex: 1;
   padding: 0.6rem 0.6rem;
   font-size: 0.8rem;
