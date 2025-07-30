@@ -51,6 +51,12 @@ const closeChatBot = () => {
   isOpen.value = false;
 };
 
+const handleClickOutside = (event) => {
+  if (!floatingMenu.value) return;
+  if (floatingMenu.value.contains(event.target)) return; // 내부 클릭 무시
+  isOpen.value = false; // 외부 클릭 시 닫기
+};
+
 function onClickOutside(event) {
   const floatingMenu = document.querySelector('.floating-menu');
   // floatingMenu 영역 안을 클릭했으면 무시
