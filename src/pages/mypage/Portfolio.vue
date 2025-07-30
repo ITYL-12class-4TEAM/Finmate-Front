@@ -1,9 +1,4 @@
 <template>
-  <PageHeader
-    title="포트폴리오"
-    subtitle="나의 투자 현황과 자산 분배를 확인하세요"
-  />
-
   <LoadingSpinner v-if="loading" />
 
   <ErrorAlert v-else-if="error" :message="error" />
@@ -89,26 +84,20 @@ const editForm = ref({
 // 사용자 나이대 (추후 API에서 받아올 예정)
 const userAgeGroup = ref('');
 
-// -------------------- 토큰 관리 --------------------
-const getAuthToken = () => {
-  // 실제 환경에서는 localStorage, sessionStorage, 또는 Pinia store에서 가져오기
-  return 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlckBleGFtcGxlLmNvbSIsIm1lbWJlcklkIjoxLCJpYXQiOjE3NTM3ODc4ODgsImV4cCI6MTc1Mzc4OTY4OH0.PiGG35yyNDeG2I49D3WLoz8x4KhZRDy-TSFkrS0zSMg';
-};
-
 // -------------------- API 호출 --------------------
 const fetchPortfolioData = async () => {
   loading.value = true;
   error.value = '';
 
   try {
-    const token = getAuthToken();
+    const accessToken = localStorage.getItem('accessToken');
 
     const [itemsRes, summaryRes] = await Promise.all([
       axios.get('/api/portfolio', {
-        headers: { Authorization: token },
+        headers: { Authorization: `Bearer ${accessToken}` },
       }),
       axios.get('/api/portfolio/summary', {
-        headers: { Authorization: token },
+        headers: { Authorization: `Bearer ${accessToken}` },
       }),
     ]);
 
@@ -273,7 +262,7 @@ const saveEdit = async (item) => {
   }
 
   try {
-    const token = getAuthToken();
+    const accessToken = localStorage.getItem('accessToken');
 
     await axios.patch(
       `/api/portfolio/${item.portfolioId}`,
@@ -282,7 +271,7 @@ const saveEdit = async (item) => {
         memo: editForm.value.memo,
       },
       {
-        headers: { Authorization: token },
+        headers: { Authorization: `Bearer ${accessToken}` },
       }
     );
 
@@ -310,10 +299,10 @@ const deleteProduct = async (item) => {
   if (!confirm(`${item.productName}을 삭제할까요?`)) return;
 
   try {
-    const token = getAuthToken();
+    const accessToken = localStorage.getItem('accessToken');
 
     await axios.delete(`/api/portfolio/${item.portfolioId}`, {
-      headers: { Authorization: token },
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
 
     alert('삭제 완료');

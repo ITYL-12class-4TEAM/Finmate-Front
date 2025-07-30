@@ -121,11 +121,10 @@ const fetchPosts = async () => {
   error.value = '';
 
   try {
-    const token =
-      'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlckBleGFtcGxlLmNvbSIsIm1lbWJlcklkIjoxLCJpYXQiOjE3NTM3ODU2NTgsImV4cCI6MTc1Mzc4NzQ1OH0.af2VBXjzl3xnYiHEhpvO0s30qmGzoEZYGc0Q3xSBw8w';
+    const accessToken = localStorage.getItem('accessToken');
     const response = await axios.get('/api/post-like/me', {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 
@@ -133,7 +132,7 @@ const fetchPosts = async () => {
 
     const postPromises = apiData.map(async (item) => {
       const postRes = await axios.get(`/api/posts/${item.postId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
       const post = postRes.data.body.data;
 

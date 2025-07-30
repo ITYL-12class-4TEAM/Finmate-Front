@@ -69,7 +69,7 @@ import FavoritesList from '@/components/mypage/favorite/FavoriteList.vue';
 
 const loading = ref(false);
 const error = ref('');
-const favorites = ref([]);
+const favorites = ref([]); // 빈 배열로 초기화
 const currentPage = ref(1);
 const itemsPerPage = 12;
 const searchQuery = ref('');
@@ -97,6 +97,12 @@ const getCategoryFromSubcategory = (subcategoryName) => {
 
 // 필터링된 즐겨찾기 목록
 const filteredFavorites = computed(() => {
+  // favorites.value가 배열인지 확인
+  if (!Array.isArray(favorites.value)) {
+    console.warn('favorites.value is not an array:', favorites.value);
+    return [];
+  }
+
   let filtered = [...favorites.value];
 
   // 검색 필터
@@ -104,8 +110,8 @@ const filteredFavorites = computed(() => {
     const query = searchQuery.value.toLowerCase();
     filtered = filtered.filter(
       (favorite) =>
-        favorite.productName.toLowerCase().includes(query) ||
-        favorite.korCoNm.toLowerCase().includes(query)
+        favorite.productName?.toLowerCase().includes(query) ||
+        favorite.korCoNm?.toLowerCase().includes(query)
     );
   }
 
@@ -135,10 +141,10 @@ const filteredFavorites = computed(() => {
       });
       break;
     case 'name-asc':
-      filtered.sort((a, b) => a.productName.localeCompare(b.productName));
+      filtered.sort((a, b) => a.productName?.localeCompare(b.productName) || 0);
       break;
     case 'wishlist-desc':
-      filtered.sort((a, b) => b.wishlistCount - a.wishlistCount);
+      filtered.sort((a, b) => (b.wishlistCount || 0) - (a.wishlistCount || 0));
       break;
   }
 
@@ -161,19 +167,68 @@ const fetchFavorites = async () => {
   error.value = '';
 
   try {
-    const token =
-      'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlckBleGFtcGxlLmNvbSIsIm1lbWJlcklkIjoxLCJpYXQiOjE3NTM4NDU0NDcsImV4cCI6MTc1Mzg0NzI0N30.GJdVOhVYgFqsYBZ2Tf50HQMJdyW_--csEe6_8_j2lq8';
+    const accessToken = localStorage.getItem('accessToken');
+
+    if (!accessToken) {
+      error.value = '로그인이 필요합니다.';
+      loading.value = false;
+      return;
+    }
+
+    console.log('토큰:', accessToken);
+
     const response = await axios.get('/api/wishlist', {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 
-    favorites.value = response.data;
+    console.log('API 응답:', response.data);
+    console.log('응답 타입:', typeof response.data);
+    console.log('배열인가?', Array.isArray(response.data));
+
+    // API 응답이 배열인지 확인
+    if (Array.isArray(response.data)) {
+      favorites.value = response.data;
+    } else if (response.data && Array.isArray(response.data.data)) {
+      // 응답이 { data: [...] } 형태인 경우
+      favorites.value = response.data.data;
+    } else if (response.data && Array.isArray(response.data.items)) {
+      // 응답이 { items: [...] } 형태인 경우
+      favorites.value = response.data.items;
+    } else if (
+      response.data &&
+      response.data.body &&
+      Array.isArray(response.data.body)
+    ) {
+      // 응답이 { header: {...}, body: [...] } 형태인 경우
+      favorites.value = response.data.body;
+    } else if (
+      response.data &&
+      response.data.body &&
+      Array.isArray(response.data.body.data)
+    ) {
+      // 응답이 { header: {...}, body: { data: [...] } } 형태인 경우
+      favorites.value = response.data.body.data;
+    } else if (
+      response.data &&
+      response.data.body &&
+      Array.isArray(response.data.body.items)
+    ) {
+      // 응답이 { header: {...}, body: { items: [...] } } 형태인 경우
+      favorites.value = response.data.body.items;
+    } else {
+      console.warn('예상하지 못한 API 응답 구조:', response.data);
+      console.log('body 내용:', response.data.body);
+      favorites.value = [];
+    }
+
     currentPage.value = 1;
   } catch (err) {
     error.value = '즐겨찾기를 불러오는데 실패했습니다.';
     console.error('Favorites fetch error:', err);
+    console.error('Error response:', err.response?.data);
+    favorites.value = []; // 에러 시에도 배열로 초기화
   } finally {
     loading.value = false;
   }
@@ -187,16 +242,21 @@ const removeFavorite = async (favorite) => {
   if (!confirm('즐겨찾기에서 삭제하시겠습니까?')) return;
 
   try {
-    const token =
-      'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlckBleGFtcGxlLmNvbSIsIm1lbWJlcklkIjoxLCJpYXQiOjE3NTM4NDU0NDcsImV4cCI6MTc1Mzg0NzI0N30.GJdVOhVYgFqsYBZ2Tf50HQMJdyW_--csEe6_8_j2lq8';
+    const accessToken = localStorage.getItem('accessToken');
+
     await axios.delete(`/api/wishlist/${favorite.productId}`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
-    favorites.value = favorites.value.filter(
-      (f) => f.productId !== favorite.productId
-    );
+
+    // 배열인지 확인 후 필터링
+    if (Array.isArray(favorites.value)) {
+      favorites.value = favorites.value.filter(
+        (f) => f.productId !== favorite.productId
+      );
+    }
+
     alert('즐겨찾기에서 삭제되었습니다.');
   } catch (err) {
     alert('즐겨찾기 삭제에 실패했습니다.');
@@ -214,22 +274,24 @@ const deleteSelected = async () => {
     return;
 
   try {
-    const token =
-      'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlckBleGFtcGxlLmNvbSIsIm1lbWJlcklkIjoxLCJpYXQiOjE3NTM4MDU2MTAsImV4cCI6MTc1MzgwNzQxMH0.DcRuqXxjx_OpJFcVTTKUJR2KKE2KDbFrnB-VZgQGyR0';
+    const accessToken = localStorage.getItem('accessToken');
 
     // 선택된 상품들을 병렬로 삭제
     await Promise.all(
       selectedFavorites.value.map((productId) =>
         axios.delete(`/api/wishlist/${productId}`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${accessToken}` },
         })
       )
     );
 
-    // UI에서 삭제된 상품들 제거
-    favorites.value = favorites.value.filter(
-      (f) => !selectedFavorites.value.includes(f.productId)
-    );
+    // UI에서 삭제된 상품들 제거 (배열인지 확인)
+    if (Array.isArray(favorites.value)) {
+      favorites.value = favorites.value.filter(
+        (f) => !selectedFavorites.value.includes(f.productId)
+      );
+    }
+
     selectedFavorites.value = [];
     alert('선택한 상품들이 즐겨찾기에서 삭제되었습니다.');
   } catch (err) {

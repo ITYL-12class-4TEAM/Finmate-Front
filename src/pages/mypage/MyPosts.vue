@@ -108,11 +108,10 @@ const fetchPosts = async () => {
   error.value = '';
 
   try {
-    const token =
-      'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlckBleGFtcGxlLmNvbSIsIm1lbWJlcklkIjoxLCJpYXQiOjE3NTM3MTE3NTMsImV4cCI6MTc1MzcxMzU1M30.dTwJyHT3H0sZlJoOZRw2KnNN6S3RI4lRq8_5FLMM7S4';
+    const accessToken = localStorage.getItem('accessToken');
     const response = await axios.get('/api/posts/my', {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
     const apiData = response.data.body?.data || response.data;
@@ -141,11 +140,10 @@ const fetchPosts = async () => {
 // 개별 게시글 정보 최신화
 const refreshPost = async (postId) => {
   try {
-    const token =
-      'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlckBleGFtcGxlLmNvbSIsIm1lbWJlcklkIjoxLCJpYXQiOjE3NTM3MTE3NTMsImV4cCI6MTc1MzcxMzU1M30.dTwJyHT3H0sZlJoOZRw2KnNN6S3RI4lRq8_5FLMM7S4';
+    const accessToken = localStorage.getItem('accessToken');
 
     const res = await axios.get(`/api/posts/${postId}`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
 
     const updated = res.data.body?.data;

@@ -131,19 +131,18 @@ const fetchPosts = async () => {
   error.value = '';
 
   try {
-    const token =
-      'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlckBleGFtcGxlLmNvbSIsIm1lbWJlcklkIjoxLCJpYXQiOjE3NTM2OTc1OTAsImV4cCI6MTc1MzY5OTM5MH0.T-NMfkuNL-32qmy1LjN5ls9ElsX-9l9H5MJgrpisIEw';
+    const accessToken = localStorage.getItem('accessToken');
 
     const response = await axios.get('/api/scraps/my', {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 
     const apiData = response.data.body?.data || response.data;
     const postPromises = apiData.map(async (item) => {
       const postRes = await axios.get(`/api/posts/${item.postId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
       const post = postRes.data.body.data;
 

@@ -122,11 +122,10 @@ const fetchPosts = async () => {
   error.value = '';
 
   try {
-    const token =
-      'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlckBleGFtcGxlLmNvbSIsIm1lbWJlcklkIjoxLCJpYXQiOjE3NTM3ODEzODEsImV4cCI6MTc1Mzc4MzE4MX0.nGP_lNQyQr1ZiLGGDnIxG1KSMh80pP49KKjYbbv-xZE';
+    const accessToken = localStorage.getItem('accessToken');
 
     const response = await axios.get('/api/comments/my', {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
 
     const commentList = response.data.body?.data || [];
@@ -134,7 +133,7 @@ const fetchPosts = async () => {
     // 각 댓글에 대해 게시글 정보를 가져오기
     const postPromises = commentList.map(async (comment) => {
       const postRes = await axios.get(`/api/posts/${comment.postId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
 
       const post = postRes.data.body.data;
@@ -179,11 +178,10 @@ const fetchPosts = async () => {
 // 개별 게시글 정보 최신화
 const refreshPost = async (postId) => {
   try {
-    const token =
-      'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlckBleGFtcGxlLmNvbSIsIm1lbWJlcklkIjoxLCJpYXQiOjE3NTM3ODU2NTgsImV4cCI6MTc1Mzc4NzQ1OH0.af2VBXjzl3xnYiHEhpvO0s30qmGzoEZYGc0Q3xSBw8w';
+    const accessToken = localStorage.getItem('accessToken');
 
     const res = await axios.get(`/api/posts/${postId}`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
 
     const updated = res.data.body?.data;

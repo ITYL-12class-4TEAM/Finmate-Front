@@ -24,15 +24,23 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-defineProps({
+const props = defineProps({
   title: {
+    type: String,
+    required: false,
+  },
+  to: {
     type: String,
     required: false,
   },
 });
 
 const goBack = () => {
-  router.back();
+  if (props.to) {
+    router.push(props.to);
+  } else {
+    router.back();
+  }
 };
 </script>
 
@@ -41,7 +49,6 @@ const goBack = () => {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-left: 10%;
 }
 
 .icon {
@@ -64,11 +71,5 @@ const goBack = () => {
   font-size: 1.2rem;
   font-weight: 600;
   color: var(--color-main);
-}
-
-@media (max-width: 768px) {
-  .back-button {
-    margin-left: 1rem;
-  }
 }
 </style>
