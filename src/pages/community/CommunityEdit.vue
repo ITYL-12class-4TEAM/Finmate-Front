@@ -73,8 +73,9 @@
 
     <!-- 익명 여부 선택 -->
     <div class="anonymous-group">
-      <div class="anonymous-label">익명</div>
-      <input type="checkbox" v-model="isAnonymous" class="custom-checkbox" />
+      <CustomCheckbox v-model="isAnonymous" id="edit-anonymous"
+        >익명</CustomCheckbox
+      >
     </div>
 
     <!-- 수정 버튼 -->
@@ -93,6 +94,7 @@ import { reverseProductTagMap } from '@/constants/tags';
 
 import BackButton from '@/components/common/BackButton.vue';
 import BaseButton from '@/components/common/BaseButton.vue';
+import CustomCheckbox from '@/components/community/CustomCheckbox.vue';
 
 // 상태 변수
 const route = useRoute();
@@ -240,8 +242,7 @@ const updatePost = async () => {
   align-items: center;
 }
 
-.tag-label,
-.anonymous-label {
+.tag-label {
   font-size: 0.9rem;
   font-weight: 600;
   width: 5rem;
@@ -271,32 +272,6 @@ const updatePost = async () => {
 .tag.active {
   background-color: var(--color-light);
   color: black;
-}
-
-.custom-checkbox {
-  appearance: none;
-  width: 1rem;
-  height: 1rem;
-  border: 1px solid var(--color-sub);
-  border-radius: 4px;
-  position: relative;
-  cursor: pointer;
-}
-
-.custom-checkbox:checked {
-  background-color: var(--color-sub);
-}
-
-.custom-checkbox:checked::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 5px;
-  width: 4px;
-  height: 9px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
 }
 
 .submit-button-wrapper {

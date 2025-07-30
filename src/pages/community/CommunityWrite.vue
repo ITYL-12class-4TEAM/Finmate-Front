@@ -50,8 +50,9 @@
 
     <!-- 익명 여부 선택 -->
     <div class="anonymous-group">
-      <div class="anonymous-label">익명</div>
-      <input type="checkbox" v-model="isAnonymous" class="custom-checkbox" />
+      <CustomCheckbox v-model="isAnonymous" id="write-anonymous"
+        >익명</CustomCheckbox
+      >
     </div>
 
     <!-- 등록 버튼 -->
@@ -70,6 +71,7 @@ import { reverseProductTagMap } from '@/constants/tags';
 
 import BackButton from '@/components/common/BackButton.vue';
 import BaseButton from '@/components/common/BaseButton.vue';
+import CustomCheckbox from '@/components/community/CustomCheckbox.vue';
 
 // 상수
 const productTags = ['예금', '적금', '펀드', '보험'];
@@ -107,6 +109,8 @@ const submitPost = async () => {
 
   try {
     await createPostAPI(postData);
+    title.value = '';
+    content.value = '';
     router.push({ name: 'CommunityList' });
   } catch (e) {
     console.error('게시글 등록 실패:', e);
@@ -167,8 +171,7 @@ const submitPost = async () => {
   align-items: center;
 }
 
-.tag-label,
-.anonymous-label {
+.tag-label {
   font-size: 0.9rem;
   font-weight: 600;
   width: 5rem;
@@ -200,36 +203,14 @@ const submitPost = async () => {
   color: black;
 }
 
-.custom-checkbox {
-  appearance: none;
-  width: 1rem;
-  height: 1rem;
-  border: 1px solid var(--color-sub);
-  border-radius: 4px;
-  position: relative;
-  cursor: pointer;
-}
-
-.custom-checkbox:checked {
-  background-color: var(--color-sub);
-}
-
-.custom-checkbox:checked::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 5px;
-  width: 4px;
-  height: 9px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
-}
-
 .submit-button-wrapper {
   display: flex;
   justify-content: center;
   margin-top: 5rem;
+}
+
+.submit-button:hover {
+  filter: brightness(0.95);
 }
 
 @media (max-width: 768px) {

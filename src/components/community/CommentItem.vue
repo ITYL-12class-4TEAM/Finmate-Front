@@ -70,8 +70,9 @@
     <!-- 대댓글 입력창 -->
     <div class="reply-form" v-if="isReplying">
       <div class="anonymous-toggle">
-        <input type="checkbox" v-model="isAnonymous" class="custom-checkbox" />
-        <div class="anonymous-label">익명</div>
+        <CustomCheckbox v-model="isAnonymous" id="reply-anonymous"
+          >익명</CustomCheckbox
+        >
       </div>
       <input
         v-model="replyContent"
@@ -105,6 +106,8 @@ import { toggleCommentLikeAPI } from '@/api/commentLike';
 import { deleteCommentAPI, createCommentAPI } from '@/api/comments';
 
 import { useModal } from '@/composables/useModal';
+
+import CustomCheckbox from '@/components/community/CustomCheckbox.vue';
 
 const props = defineProps({
   comment: Object,
@@ -251,40 +254,6 @@ const formattedTime = (arr) => {
   display: flex;
   align-items: center;
   padding-left: 0.3rem;
-}
-
-.anonymous-label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-left: 0.3rem;
-}
-
-.custom-checkbox {
-  appearance: none;
-  width: 1rem;
-  height: 1rem;
-  border: 1px solid var(--color-main);
-  background-color: var(--color-white);
-  border-radius: 4px;
-  position: relative;
-  cursor: pointer;
-}
-
-.custom-checkbox:checked {
-  background-color: var(--color-sub);
-  border: 1px solid var(--color-sub);
-}
-
-.custom-checkbox:checked::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 5px;
-  width: 4px;
-  height: 9px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
 }
 
 .reply-input {

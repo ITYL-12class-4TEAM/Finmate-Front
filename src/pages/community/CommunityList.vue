@@ -45,54 +45,13 @@
       <p v-if="filteredPosts.length === 0" class="empty-message">
         조건에 맞는 게시글이 없습니다.
       </p>
-      <div
+      <PostCard
+        v-else
         v-for="post in filteredPosts"
         :key="post.id"
-        class="post-card"
+        :post="post"
         @click="goToDetailPage(post.id)"
-      >
-        <div class="post-card-inner">
-          <h4 class="post-title">{{ post.title }}</h4>
-          <p class="post-content">{{ post.content }}</p>
-          <div class="post-meta">
-            <div class="post-stats">
-              <span aria-label="좋아요 수">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="2.0"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
-                  />
-                </svg>
-                {{ post.likes }}
-              </span>
-              <span aria-label="댓글 수">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="2.0"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 0 1-.923 1.785A5.969 5.969 0 0 0 6 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337Z"
-                  />
-                </svg>
-                {{ post.comments }}
-              </span>
-            </div>
-            <span class="post-date">{{ formatDate(post.createdAt) }}</span>
-          </div>
-        </div>
-      </div>
+      />
     </section>
   </div>
 </template>
@@ -102,10 +61,11 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { getPostsAPI } from '@/api/posts';
 import { mockPosts } from './communityMock';
+import PostCard from '@/components/community/PostCard.vue';
 
 const router = useRouter();
 const posts = ref([]);
-const boardId = 1; // TODO
+const boardId = 1; // 자유게시판
 
 // 게시글 목록 불러오기
 // 테스트용 mock 전환용 flag
@@ -123,7 +83,7 @@ const fetchPosts = async () => {
 onMounted(fetchPosts);
 
 // 필터 옵션
-const tendencyOptions = ['A', 'I', 'P', 'B', 'W', 'M', 'C', 'L'];
+// const tendencyOptions = ['A', 'I', 'P', 'B', 'W', 'M', 'C', 'L'];
 const productTags = ['예금', '적금', '펀드', '보험'];
 
 const selectedTendency = ref([]);
@@ -136,7 +96,7 @@ const toggleItem = (listRef, item) => {
 };
 
 // 필터 선택 핸들러
-const toggleTendency = (t) => toggleItem(selectedTendency, t);
+// const toggleTendency = (t) => toggleItem(selectedTendency, t);
 const toggleProduct = (t) => toggleItem(selectedProducts, t);
 
 // 필터링 로직
@@ -152,16 +112,6 @@ const filteredPosts = computed(() => {
     return hasTendency && hasProduct;
   });
 });
-
-// 날짜 배열 포맷: [2024, 7, 25, 13, 45] → "07/25 13:45"
-const formatDate = (arr) => {
-  if (!arr || arr.length < 5) return '';
-  const [_, month, day, hour, minute] = arr;
-  return `${String(month).padStart(2, '0')}/${String(day).padStart(
-    2,
-    '0'
-  )} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-};
 
 // 라우팅
 const goToWritePage = () => router.push({ name: 'CommunityWrite' });
@@ -191,6 +141,7 @@ const goToDetailPage = (id) =>
   border-radius: 20px;
   margin-bottom: 0.5rem;
 }
+
 .filter-label {
   font-size: 0.9rem;
   font-weight: 600;
@@ -202,6 +153,7 @@ const goToDetailPage = (id) =>
   flex-wrap: wrap;
   gap: 0.5rem;
 }
+
 .tendency-button {
   width: 3rem;
   height: 2rem;
@@ -211,6 +163,7 @@ const goToDetailPage = (id) =>
   font-size: 0.8rem;
   font-weight: 600;
 }
+
 .tendency-button.selected {
   background-color: var(--color-light);
 }
@@ -218,12 +171,14 @@ const goToDetailPage = (id) =>
 .filter-group {
   margin-bottom: 16px;
 }
+
 .tag-list {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.5rem;
 }
+
 .tag-button {
   font-size: 0.8rem;
   padding: 0.4rem 1rem;
@@ -232,6 +187,7 @@ const goToDetailPage = (id) =>
   background-color: white;
   font-weight: 600;
 }
+
 .tag-button.selected {
   background-color: var(--color-light);
   border-color: var(--color-light);
@@ -242,63 +198,5 @@ const goToDetailPage = (id) =>
   flex-direction: column;
   gap: 0.5rem;
   margin-top: 1rem;
-}
-.post-card {
-  border: 2px solid var(--color-light);
-  border-radius: 16px;
-  padding: 1rem;
-  height: 8.5rem;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.post-card-inner {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  justify-content: space-between;
-}
-.post-title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0;
-}
-.post-content {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-.post-meta {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: rgba(0, 0, 0, 0.5);
-}
-.post-stats {
-  display: flex;
-  gap: 1rem;
-}
-.post-stats span {
-  display: flex;
-  gap: 0.2rem;
-  align-items: center;
-  justify-content: center;
-}
-.post-stats svg {
-  width: 1.2rem;
-}
-
-.empty-message {
-  text-align: center;
-  font-size: 1rem;
-  color: rgba(0, 0, 0, 0.5);
-  margin-top: 2rem;
 }
 </style>

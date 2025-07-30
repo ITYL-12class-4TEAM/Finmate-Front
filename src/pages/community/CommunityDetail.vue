@@ -113,8 +113,9 @@
     <div class="comment-write">
       <!-- 익명 여부 선택 -->
       <div class="anonymous-toggle">
-        <input type="checkbox" v-model="isAnonymous" class="custom-checkbox" />
-        <div class="anonymous-label">익명</div>
+        <CustomCheckbox v-model="isAnonymous" id="comment-anonymous"
+          >익명</CustomCheckbox
+        >
       </div>
       <input
         v-model="newComment"
@@ -143,6 +144,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 import BackButton from '@/components/common/BackButton.vue';
 import CommentItem from '@/components/community/CommentItem.vue';
+import CustomCheckbox from '@/components/community/CustomCheckbox.vue';
 
 import { getPostByIdAPI, deletePostAPI } from '@/api/posts';
 import { getCommentsByPostId, createCommentAPI } from '@/api/comments';
@@ -393,40 +395,6 @@ onMounted(() => {
   display: flex;
   align-items: center;
   padding-left: 0.3rem;
-}
-
-.anonymous-label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-left: 0.3rem;
-}
-
-.custom-checkbox {
-  appearance: none;
-  width: 1rem;
-  height: 1rem;
-  border: 1px solid var(--color-main);
-  background-color: var(--color-white);
-  border-radius: 4px;
-  position: relative;
-  cursor: pointer;
-}
-
-.custom-checkbox:checked {
-  background-color: var(--color-sub);
-  border: 1px solid var(--color-sub);
-}
-
-.custom-checkbox:checked::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 5px;
-  width: 4px;
-  height: 9px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
 }
 
 .comment-input {
