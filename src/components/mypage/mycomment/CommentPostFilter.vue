@@ -10,7 +10,7 @@
             @input="handleSearchInput"
             type="text"
             class="search-input"
-            placeholder="게시글 검색..."
+            placeholder="댓글단 게시글 제목이나 작성자 검색..."
           />
           <button
             v-if="searchQuery"
