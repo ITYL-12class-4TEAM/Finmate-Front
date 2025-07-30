@@ -9,7 +9,7 @@
       @click="toggleMobileMenu"
     >
       <i class="fa-solid" :class="showMobileMenu ? 'fa-times' : 'fa-bars'"></i>
-      <span class="header-title">마이페이지 메뉴</span>
+      <span class="header-title">{{ headerTitle }}</span>
     </div>
 
     <!-- 오버레이 -->
@@ -232,22 +232,43 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-
+import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { useRoute } from 'vue-router';
 const showScrollTop = ref(false);
 const showMobileMenu = ref(false);
 const headerTranslateY = ref(0); // 헤더의 실시간 위치
 const lastScrollY = ref(0);
 
+const route = useRoute();
+const headerTitle = computed(() => {
+  const path = route.path;
+
+  const map = {
+    '/mypage': '즐겨찾기',
+    '/mypage/recent-view': '최근 본 상품',
+    '/mypage/portfolio': '포트폴리오',
+    '/mypage/wmti-result': 'WMTI 결과',
+    '/mypage/wmti-history': '검사 히스토리',
+    '/mypage/my-posts': '내 게시글',
+    '/mypage/my-comments': '내 댓글',
+    '/mypage/my-scrap': '내 스크랩',
+    '/mypage/my-likes': '내 좋아요',
+    '/mypage/settings': '계정 설정',
+    '/mypage/settings/delete': '회원탈퇴',
+  };
+
+  return map[path] || '마이페이지 메뉴';
+});
+
 const handleScroll = () => {
   const currentScrollY = window.scrollY;
 
   // 스크롤 탑 버튼 표시/숨김
-  showScrollTop.value = currentScrollY > 100;
+  showScrollTop.value = currentScrollY > 50;
 
   // 헤더 자연스러운 움직임 로직
   const startHideAt = 0; // 숨기기 시작하는 스크롤 위치
-  const headerHeight = 55; // 헤더바 높이 (2.5rem = 40px)
+  const headerHeight = 56; // 헤더바 높이 (2.5rem = 40px)
 
   if (currentScrollY <= startHideAt) {
     // 상단에서는 완전히 표시
@@ -298,7 +319,6 @@ onUnmounted(() => {
   max-width: 26.875rem;
   margin: 0 auto;
   position: relative;
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
   min-height: 100vh;
 }
 
@@ -524,7 +544,7 @@ onUnmounted(() => {
 /* 콘텐츠 영역 */
 .content {
   width: 100%;
-  padding: 1rem 1.25rem;
+  padding: 1rem 0.1rem;
   background: transparent;
   min-height: calc(100vh - 8rem); /* 네비게이션 + 헤더 + 여유 공간 */
   transition: all 0.3s ease;
