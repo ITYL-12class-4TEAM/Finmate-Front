@@ -1,68 +1,170 @@
 import api from './index';
 
-// 상품 리스트 조회
+/**
+ * 상품 리스트 조회
+ * @param {Object} params - 검색 파라미터
+ * @returns {Promise<Object>} 상품 리스트 및 페이지 정보
+ */
 export const getProductsAPI = async (params = {}) => {
-  console.log('API 호출 파라미터:');
-
-  const res = await api.get(`/api/products`);
-
-  return res.data.body.data;
-};
-
-// 상품 상세 정보 조회
-export const getProductsDetailAPI = async () => {
-  console.log('API 호출 파라미터:');
-
-  const res = await api.get(`/api/products/${productType}/${productId}`);
-  const detail = res.data.body.data.productDetail;
-
-  return{
-    id: detail.product_id,
-    bank_name: detail.kor_co_nm,
-    product_name: detail.fin_prdt_nm,
-    intr_rate_name: detail.intr_rate_name, // 단리 복리
-    save_trm: detail.save_trm, // 예치 기간
-    intr_rate: detail.intr_rate, // 기본 금리
-    intr_rate2: detail.intr_rate2, // 우대 금리
-    // preferencial_conditions: ~ 우대조건 추가해야함
-    join_way: detail.join_way, // 가입 방법
-    join_member: detail.join_member, // 가입대상 (ex. 군인, 50세 이상 등...)
-    available: detail.availablem, // 판매여부 boolean
-    mtrt_int: detail.mtrt_int, // 만기 후 이자율
-    min_deposit: detail.min_deposit,
-    max_deposit: detail.max_deposit,
-    etc_note: detail.etc_note, // 비고
+  try {
+    // 요청 정보 로깅
+    console.log('API 요청 파라미터:', params);
+    
+    // 백엔드 API 호출
+    const response = await api.get('/api/products', { params });
+    
+    // 응답 로깅
+    console.log('API 원본 응답:', response);
+    
+    // 응답 데이터 추출 및 반환
+    if (response.data && response.data.body && response.data.body.data) {
+      return response.data.body.data;
+    } else {
+      console.warn('예상치 못한 API 응답 구조:', response.data);
+      return {
+        products: [],
+        totalCount: 0
+      };
+    }
+  } catch (error) {
+    console.error('상품 조회 API 오류:', error);
+    throw error;
   }
 };
 
+/**
+ * 상품 상세 정보 조회
+ * @param {string|number} productId - 상품 ID
+ * @returns {Promise<Object>} 상품 상세 정보
+ */
+export const getProductDetailAPI = async (productId) => {
+  try {
+    // 요청 로깅
+    console.log('상품 상세 조회 요청:', productId);
+    
+    // API 호출
+    const response = await api.get(`/api/products/${productId}`);
+    
+    // 응답 로깅
+    console.log('상품 상세 응답:', response);
+    
+    // 데이터 추출 및 반환
+    if (response.data && response.data.body && response.data.body.data) {
+      return response.data.body.data;
+    } else {
+      console.warn('예상치 못한 API 응답 구조:', response.data);
+      return null;
+    }
+  } catch (error) {
+    console.error('상품 상세 조회 API 오류:', error);
+    throw error;
+  }
+};
 
-// 상품 카테고리 목록
+/**
+ * 상품 카테고리 목록 조회
+ * @returns {Promise<Array>} 카테고리 목록
+ */
 export const getProductsCategoriesAPI = async () => {
-  const res = await api.get(`/api/products/categories`);
-
-  return res.data.body.data;
+  try {
+    const response = await api.get('/api/products/categories');
+    
+    if (response.data && response.data.body && response.data.body.data) {
+      return response.data.body.data.categories || [];
+    } else {
+      console.warn('예상치 못한 API 응답 구조:', response.data);
+      return [];
+    }
+  } catch (error) {
+    console.error('카테고리 조회 API 오류:', error);
+    throw error;
+  }
 };
 
-// 상품 비교
-export const getProductsCompareAPI = async () => {
-  const res = await api.get(`/api/products/compare`);
-
-  return res.data.body.data;
+/**
+ * 상품 비교
+ * @param {Array<string|number>} productIds - 비교할 상품 ID 목록
+ * @returns {Promise<Object>} 상품 비교 결과
+ */
+export const getProductsCompareAPI = async (productIds = []) => {
+  try {
+    // 쿼리 파라미터 구성
+    const params = {
+      ids: Array.isArray(productIds) ? productIds.join(',') : productIds
+    };
+    
+    const response = await api.get('/api/products/compare', { params });
+    
+    if (response.data && response.data.body && response.data.body.data) {
+      return response.data.body.data;
+    } else {
+      console.warn('예상치 못한 API 응답 구조:', response.data);
+      return { products: [] };
+    }
+  } catch (error) {
+    console.error('상품 비교 API 오류:', error);
+    throw error;
+  }
 };
 
-// 카테고리별 필터 옵션
+/**
+ * 카테고리별 필터 옵션 조회
+ * @param {string} category - 상품 카테고리 (deposit, saving, pension 등)
+ * @param {string} [subCategory] - 서브 카테고리 코드
+ * @returns {Promise<Object>} 필터 옵션 정보
+ */
 export const getProductsFilterOptionsAPI = async (category = 'deposit', subCategory) => {
-  const params = {category};
-  if(subCategory) params.subCategory = subCategory;
-  
-  const res = await api.get(`/api/products/filter-options`,{params});
-
-  return res.data.body.data;
-};
-
-// 카테고리별 하위 카테고리 목록
-export const getProductsSubCategoriesAPI = async () => {
-  const res = await api.get(`/api/products/categories/${categoryCode}/subcategories`);
-
-  return res.data.body.data;
+  try {
+    // 요청 파라미터 구성
+    const params = { category };
+    if (subCategory) {
+      params.subCategory = subCategory;
+    }
+    
+    // API 호출
+    const response = await api.get('/api/products/filter-options', { params });
+    
+    // 응답 로깅
+    console.log('필터 옵션 응답:', response);
+    
+    // 데이터 추출 및 반환
+    if (response.data && response.data.body && response.data.body.data) {
+      return response.data.body.data;
+    } else {
+      console.warn('예상치 못한 API 응답 구조:', response.data);
+      // 기본 필터 옵션 반환
+      return {
+        productType: "deposit",
+        categoryId: 1,
+        subcategoryId: 101,
+        subcategories: [
+          { subcategory_id: 101, name: "정기예금", description: "일정 금액이 가입할 수 있는 예금" },
+          { subcategory_id: 102, name: "자유적금", description: "자유롭게 입출금 가능한 적금" },
+          { subcategory_id: 103, name: "입출금통장", description: "수시 입출 할수 있는 통장" },
+          { subcategory_id: 104, name: "정기적금", description: "매월 일정액을 적립하는 상품" }
+        ],
+        interestTypes: [
+          { code: "S", name: "단리" },
+          { code: "M", name: "복리" }
+        ],
+        saveTerms: [1, 3, 6, 12, 24, 36],
+        joinMethods: [
+          "인터넷",
+          "모바일",
+          "오프라인"
+        ],
+        banks: [
+          "국민은행", "신한은행", "하나은행", "우리은행", "IBK기업은행", "농협은행", "SC제일은행", "씨티은행"
+        ],
+        depositAmountOptions: {
+          min: 10000,
+          max: 100000000,
+          defaultValue: 100000
+        }
+      };
+    }
+  } catch (error) {
+    console.error('필터 옵션 조회 API 오류:', error);
+    throw error;
+  }
 };
