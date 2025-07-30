@@ -89,10 +89,9 @@ export const useAuthStore = defineStore('auth', () => {
       return false;
     }
   };
-
-  // 사용자 정보 새로고침
-  const refreshUser = async () => {
+  const refreshUser = async (retryCount = 0) => {
     if (!accessToken.value) return false;
+
     try {
       const response = await api.get('/member/me');
       const userData = response.data;
@@ -101,12 +100,17 @@ export const useAuthStore = defineStore('auth', () => {
       return true;
     } catch (error) {
       console.error('사용자 정보 새로고침 에러:', error);
-      if (error.response?.status === 401) {
+
+      // 401 에러이고 첫 번째 시도일 때만 refresh 시도
+      if (error.response?.status === 401 && retryCount === 0) {
         const refreshed = await refreshAccessToken();
         if (refreshed) {
-          return await refreshUser(); // 재귀 호출
+          return await refreshUser(1); // 한 번만 재시도
         }
       }
+
+      // 실패하면 로그아웃
+      await logout();
       return false;
     }
   };
@@ -121,18 +125,28 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.setItem('accessToken', newAccessToken);
   };
 
-  // 초기화 (앱 시작 시 실행)
   const initialize = async () => {
     const savedUser = localStorage.getItem('user');
-    if (savedUser && accessToken.value) {
+    const savedAccessToken = localStorage.getItem('accessToken');
+
+    if (savedUser && savedAccessToken) {
       try {
         user.value = JSON.parse(savedUser);
-        // 토큰 유효성 검증
-        await refreshUser();
+        accessToken.value = savedAccessToken;
+        refreshToken.value = localStorage.getItem('refreshToken');
+
+        // 토큰 유효성 확인 (한 번만)
+        const isValid = await refreshUser(0);
+        if (!isValid) {
+          // 토큰 만료면 완전히 초기화
+          await logout();
+        }
       } catch (error) {
         console.error('초기화 에러:', error);
         await logout();
       }
+    } else {
+      console.log('저장된 인증 정보 없음 - 로그인 필요');
     }
   };
 

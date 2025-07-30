@@ -16,6 +16,7 @@
           id="name"
           v-model="signupForm.name"
           placeholder="이름을 입력하세요"
+          :disabled="isSocialSignup"
           required
         />
       </div>
@@ -29,24 +30,31 @@
             id="email"
             v-model="signupForm.email"
             placeholder="이메일을 입력하세요"
+            :disabled="isSocialSignup"
             required
           />
           <button
             type="button"
             class="verify-btn"
             @click="checkEmailDuplicate"
-            :disabled="!signupForm.email"
+            :disabled="!signupForm.email || isSocialSignup"
+            v-if="!isSocialSignup"
           >
             중복확인
           </button>
         </div>
         <div v-if="emailVerified" class="success-message">
-          ✓ 사용 가능한 이메일입니다
+          ✓
+          {{
+            isSocialSignup
+              ? '소셜 로그인 인증된 이메일입니다'
+              : '사용 가능한 이메일입니다'
+          }}
         </div>
       </div>
 
       <!-- 닉네임 -->
-      <div class="form-group">
+      <div class="form-group" v-if="!isSocialSignup || signupForm.nickname">
         <label for="nickname">닉네임</label>
         <div class="input-with-button">
           <input
@@ -54,7 +62,7 @@
             id="nickname"
             v-model="signupForm.nickname"
             placeholder="닉네임을 입력하세요"
-            required
+            :required="!isSocialSignup"
           />
           <button
             type="button"
@@ -123,7 +131,7 @@
           placeholder="비밀번호를 다시 입력하세요"
           :required="!isSocialSignup"
         />
-        <div v-if="signupForm.passwordConfirm" class="passwordMatch">
+        <div v-if="signupForm.passwordConfirm" class="password-match">
           <i
             class="bi"
             :class="
@@ -140,8 +148,8 @@
         </div>
       </div>
 
-      <!-- 휴대폰 번호 -->
-      <div class="form-group">
+      <!-- 휴대폰 번호 (일반 회원가입에서만 표시) -->
+      <div class="form-group" v-if="!isSocialSignup">
         <label for="phone">휴대폰 번호</label>
         <div class="input-with-button">
           <input
@@ -162,8 +170,8 @@
         </div>
       </div>
 
-      <!-- 인증 코드 -->
-      <div class="form-group" v-if="phoneVerificationSent">
+      <!-- 인증 코드 (일반 회원가입에서만 표시) -->
+      <div class="form-group" v-if="phoneVerificationSent && !isSocialSignup">
         <label for="verificationCode">인증 코드</label>
         <div class="input-with-button">
           <input
@@ -474,36 +482,56 @@ const showTermsModal = ref(false);
 const showPrivacyModal = ref(false);
 const showMarketingModal = ref(false);
 const isSocialSignup = ref(false);
+const tempToken = ref(''); // temp 토큰 저장용
 
-// 컴포넌트 마운트 시 소셜 로그인 정보 확인
+// 컴포넌트 마운트 시 URL 파라미터 확인
 onMounted(() => {
+  console.log('SignUpForm 마운트됨');
+  console.log('route.query:', route.query);
+
   if (route.query.socialSignup === 'true') {
+    console.log('소셜 로그인 회원가입 모드');
     isSocialSignup.value = true;
 
-    // 소셜 로그인으로부터 받은 정보 미리 채우기
+    // temp 토큰 저장
+    if (route.query.tempToken) {
+      tempToken.value = route.query.tempToken;
+      console.log('temp 토큰 설정:', route.query.tempToken);
+    }
+
+    // URL에서 받은 정보로 폼 미리 채우기
+    if (route.query.name) {
+      signupForm.value.name = route.query.name;
+      console.log('이름 설정:', route.query.name);
+    }
+
     if (route.query.email) {
       signupForm.value.email = route.query.email;
       emailVerified.value = true; // 소셜 로그인 이메일은 검증된 것으로 처리
+      console.log('이메일 설정:', route.query.email);
     }
 
+    if (route.query.phone) {
+      signupForm.value.phone = route.query.phone;
+      phoneVerified.value = true; // 소셜 로그인 전화번호는 검증된 것으로 처리
+      console.log('전화번호 설정:', route.query.phone);
+    }
+
+    // 닉네임도 URL에서 받는 경우
     if (route.query.nickname) {
       signupForm.value.nickname = route.query.nickname;
       nicknameVerified.value = true; // 소셜 로그인 닉네임은 검증된 것으로 처리
+      console.log('닉네임 설정:', route.query.nickname);
     }
 
-    // 소셜 로그인의 경우 비밀번호는 필요 없음을 알림
+    // 소셜 로그인의 경우 추가 정보만 입력하면 됨을 알림
     alert('소셜 로그인으로 가입하시는 경우 추가 정보만 입력해주세요.');
   }
 });
 
-// 비밀번호 일치 확인
-const passwordMatch = computed(() => {
-  return signupForm.value.password === signupForm.value.passwordConfirm;
-});
-
-// 비밀번호 유효성 검사 수정
+// 비밀번호 유효성 검사
 const passwordChecks = computed(() => ({
-  length: signupForm.value.password.length >= 8, // newPasswordForm -> signupForm으로 변경
+  length: signupForm.value.password.length >= 8,
   hasLetter: /[a-zA-Z]/.test(signupForm.value.password),
   hasNumber: /\d/.test(signupForm.value.password),
   hasSpecial: /[!@#$%^&*(),.?":{}|<>]/.test(signupForm.value.password),
@@ -514,7 +542,7 @@ const isPasswordValid = computed(() => {
 });
 
 const passwordsMatch = computed(() => {
-  return signupForm.value.password === signupForm.value.passwordConfirm; // 변수명 통일
+  return signupForm.value.password === signupForm.value.passwordConfirm;
 });
 
 // 폼 유효성 검사 수정
@@ -522,21 +550,29 @@ const isFormValid = computed(() => {
   const baseValidation =
     signupForm.value.name &&
     signupForm.value.email &&
-    emailVerified.value &&
-    signupForm.value.nickname &&
-    nicknameVerified.value &&
-    signupForm.value.phone &&
-    phoneVerified.value &&
+    (emailVerified.value || isSocialSignup.value) &&
     signupForm.value.birthdate &&
     signupForm.value.gender &&
     agreements.value.terms &&
     agreements.value.privacy;
 
-  // 소셜 로그인이 아닌 경우에만 비밀번호 검증
   if (isSocialSignup.value) {
-    return baseValidation;
+    // 소셜 로그인 시: 닉네임이 있으면 닉네임 검증, 없으면 닉네임 필드 생략
+    const nicknameValidation = signupForm.value.nickname
+      ? nicknameVerified.value
+      : true;
+    return baseValidation && nicknameValidation;
   } else {
-    return baseValidation && isPasswordValid.value && passwordsMatch.value;
+    // 일반 회원가입 시: 모든 필드 필수
+    return (
+      baseValidation &&
+      signupForm.value.nickname &&
+      nicknameVerified.value &&
+      signupForm.value.phone &&
+      phoneVerified.value &&
+      isPasswordValid.value &&
+      passwordsMatch.value
+    );
   }
 });
 
@@ -590,12 +626,6 @@ const checkEmailDuplicate = async () => {
   } catch (error) {
     emailVerified.value = false;
     console.error('이메일 중복 확인 오류:', error);
-
-    if (error.response) {
-      console.error('응답 상태:', error.response.status);
-      console.error('응답 데이터:', error.response.data);
-    }
-
     alert('이메일 중복 확인 중 오류가 발생했습니다.');
   }
 };
@@ -648,19 +678,10 @@ const sendPhoneVerification = async () => {
     }
   } catch (error) {
     console.error('인증번호 발송 오류:', error);
-
-    if (error.response) {
-      console.error('응답 상태:', error.response.status);
-      console.error('응답 데이터:', error.response.data);
-
-      const errorMessage =
-        error.response.data?.header?.message || '인증번호 발송에 실패했습니다.';
-      alert(errorMessage);
-    } else {
-      alert('인증번호 발송에 실패했습니다.');
-    }
+    alert('인증번호 발송에 실패했습니다.');
   }
 };
+
 const verifyPhoneCode = async () => {
   if (!signupForm.value.verificationCode) {
     alert('인증번호를 입력해주세요.');
@@ -697,11 +718,7 @@ const handleSignup = async () => {
   try {
     const signupData = {
       username: signupForm.value.name,
-      password: signupForm.value.password,
-      passwordCheck: signupForm.value.passwordConfirm,
-      nickname: signupForm.value.nickname,
       email: signupForm.value.email,
-      phoneNumber: signupForm.value.phone,
       birthDate: signupForm.value.birthdate,
       gender: genderMapping[signupForm.value.gender] || signupForm.value.gender,
       termsRequired1: agreements.value.terms,
@@ -709,16 +726,41 @@ const handleSignup = async () => {
       receive_push_notification: agreements.value.marketing,
     };
 
-    const response = await api.post(`/signup`, signupData);
+    // 닉네임이 있는 경우에만 추가
+    if (signupForm.value.nickname) {
+      signupData.nickname = signupForm.value.nickname;
+    }
+
+    // 일반 회원가입인 경우에만 비밀번호와 휴대폰 정보 추가
+    if (!isSocialSignup.value) {
+      signupData.password = signupForm.value.password;
+      signupData.passwordCheck = signupForm.value.passwordConfirm;
+      signupData.phoneNumber = signupForm.value.phone;
+    }
+
+    console.log('회원가입 데이터:', signupData);
+
+    // 소셜 회원가입과 일반 회원가입 엔드포인트 분리
+    const endpoint = isSocialSignup.value ? '/signup/social' : '/signup';
+    console.log('요청 URL:', `/api${endpoint}`);
+
+    const response = await api.post(endpoint, signupData);
+
     if (response.data.header.status === 'OK') {
-      alert(response.data.header.message);
+      alert('회원가입이 완료되었습니다.');
+
+      if (isSocialSignup.value) {
+        console.log('소셜 회원가입 완료 - 로그인 페이지로 이동');
+      } else {
+        console.log('일반 회원가입 완료 - 로그인 페이지로 이동');
+      }
+
       router.push('/login');
     } else {
       alert(response.data.header.message);
     }
   } catch (error) {
     console.error('회원가입 오류:', error);
-
     if (error.response) {
       console.error('응답 상태:', error.response.status);
       console.error('응답 데이터:', error.response.data);
@@ -734,8 +776,6 @@ const handleSignup = async () => {
 </script>
 
 <style scoped>
-/* LoginLayout에서 컨테이너 스타일 처리 */
-
 .header {
   text-align: center;
   margin-bottom: 2.5rem; /* 40px */
