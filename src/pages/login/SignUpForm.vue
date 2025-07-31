@@ -54,7 +54,7 @@
       </div>
 
       <!-- 닉네임 -->
-      <div class="form-group" v-if="!isSocialSignup || signupForm.nickname">
+      <div class="form-group">
         <label for="nickname">닉네임</label>
         <div class="input-with-button">
           <input
@@ -62,13 +62,11 @@
             id="nickname"
             v-model="signupForm.nickname"
             placeholder="닉네임을 입력하세요"
-            :required="!isSocialSignup"
           />
           <button
             type="button"
             class="verify-btn"
             @click="checkNicknameDuplicate"
-            :disabled="!signupForm.nickname"
           >
             중복확인
           </button>
@@ -444,10 +442,12 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useAuthStore } from '@/stores/useAuthStore'; // 추가
 import api from '@/api/index';
 
 const router = useRouter();
 const route = useRoute();
+const authStore = useAuthStore(); // 추가
 
 const signupForm = ref({
   name: '',
@@ -493,12 +493,6 @@ onMounted(() => {
     console.log('소셜 로그인 회원가입 모드');
     isSocialSignup.value = true;
 
-    // temp 토큰 저장
-    if (route.query.tempToken) {
-      tempToken.value = route.query.tempToken;
-      console.log('temp 토큰 설정:', route.query.tempToken);
-    }
-
     // URL에서 받은 정보로 폼 미리 채우기
     if (route.query.name) {
       signupForm.value.name = route.query.name;
@@ -515,13 +509,6 @@ onMounted(() => {
       signupForm.value.phone = route.query.phone;
       phoneVerified.value = true; // 소셜 로그인 전화번호는 검증된 것으로 처리
       console.log('전화번호 설정:', route.query.phone);
-    }
-
-    // 닉네임도 URL에서 받는 경우
-    if (route.query.nickname) {
-      signupForm.value.nickname = route.query.nickname;
-      nicknameVerified.value = true; // 소셜 로그인 닉네임은 검증된 것으로 처리
-      console.log('닉네임 설정:', route.query.nickname);
     }
 
     // 소셜 로그인의 경우 추가 정보만 입력하면 됨을 알림
@@ -557,11 +544,10 @@ const isFormValid = computed(() => {
     agreements.value.privacy;
 
   if (isSocialSignup.value) {
-    // 소셜 로그인 시: 닉네임이 있으면 닉네임 검증, 없으면 닉네임 필드 생략
-    const nicknameValidation = signupForm.value.nickname
-      ? nicknameVerified.value
-      : true;
-    return baseValidation && nicknameValidation;
+    // 소셜 로그인 시: 닉네임 무조건 필수 및 검증 필요
+    return (
+      baseValidation && signupForm.value.nickname && nicknameVerified.value
+    );
   } else {
     // 일반 회원가입 시: 모든 필드 필수
     return (
@@ -575,7 +561,6 @@ const isFormValid = computed(() => {
     );
   }
 });
-
 // 전체 동의 처리
 const toggleAllAgreements = () => {
   const allChecked = agreements.value.all;
@@ -740,37 +725,35 @@ const handleSignup = async () => {
 
     console.log('회원가입 데이터:', signupData);
 
-    // 소셜 회원가입과 일반 회원가입 엔드포인트 분리
     const endpoint = isSocialSignup.value ? '/signup/social' : '/signup';
     console.log('요청 URL:', `/api${endpoint}`);
 
     const response = await api.post(endpoint, signupData);
-
-    if (response.data.header.status === 'OK') {
-      alert('회원가입이 완료되었습니다.');
-
+    console.log('회원가입 응답:', response.data);
+    if (response.data.header.status === 'CREATED') {
       if (isSocialSignup.value) {
-        console.log('소셜 회원가입 완료 - 로그인 페이지로 이동');
-      } else {
-        console.log('일반 회원가입 완료 - 로그인 페이지로 이동');
-      }
+        console.log('소셜 회원가입 성공 처리');
 
-      router.push('/login');
+        // ApiResponse의 data 필드에서 AuthResultDTO 추출
+        const authData = response.data.body.data;
+
+        localStorage.setItem('accessToken', authData.accessToken);
+        localStorage.setItem('refreshToken', authData.refreshToken);
+        localStorage.setItem('user', JSON.stringify(authData.userInfo));
+
+        alert('소셜 회원가입이 완료되었습니다!');
+        router.push('/');
+        console.log('소셜 회원가입 완료');
+      } else {
+        alert('회원가입이 완료되었습니다. 로그인해주세요.');
+        router.push('/login');
+      }
     } else {
-      alert(response.data.header.message);
+      alert(response.data.message);
     }
   } catch (error) {
     console.error('회원가입 오류:', error);
-    if (error.response) {
-      console.error('응답 상태:', error.response.status);
-      console.error('응답 데이터:', error.response.data);
-
-      const errorMessage =
-        error.response.data?.header?.message || '회원가입에 실패했습니다.';
-      alert(errorMessage);
-    } else {
-      alert('회원가입에 실패했습니다.');
-    }
+    alert('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
   }
 };
 </script>
