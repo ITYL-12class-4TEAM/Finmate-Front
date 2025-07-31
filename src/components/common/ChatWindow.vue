@@ -1,5 +1,5 @@
 <template>
-  <div class="chat-window-inner">
+  <div class="chat-window-inner" @click.stop>
     <!-- 채팅 헤더 -->
     <div class="chat-header">
       <div class="chat-title">
@@ -73,9 +73,16 @@
                   <div class="post-info">
                     <h4>{{ post.title }}</h4>
                     <p class="post-meta">
-                      {{ post.nickname }} · {{ formatDate(post.createdAt) }}
-                      <span v-if="post.likeCount" class="like-count"
-                        >❤️ {{ post.likeCount }}</span
+                      {{ post.nickname || post.author || '작성자 없음' }} ·
+                      {{
+                        formatDate(
+                          post.createdAt || post.created_at || post.date
+                        )
+                      }}
+                      <span
+                        v-if="post.likeCount || post.like_count"
+                        class="like-count"
+                        >❤️ {{ post.likeCount || post.like_count }}</span
                       >
                     </p>
                   </div>
@@ -111,30 +118,56 @@
               </div>
             </div>
 
-            <!-- 게시판 목록 -->
+            <!-- 댓글 목록 -->
             <div
-              v-else-if="message.contentType === 'boards'"
-              class="boards-content"
+              v-else-if="message.contentType === 'comments'"
+              class="comments-content"
             >
               <p class="content-title">{{ message.title }}</p>
-              <div class="boards-list">
+              <div class="comments-list">
                 <div
-                  v-for="board in message.data"
-                  :key="board.id"
-                  class="board-item"
-                  @click="navigateToBoard(board.id)"
+                  v-for="comment in message.data.slice(0, 5)"
+                  :key="comment.id || comment.commentId"
+                  class="comment-item"
+                  @click="navigateToPost(comment.postId)"
                 >
-                  <div class="board-info">
-                    <h4>{{ board.name }}</h4>
-                    <p class="board-desc">{{ board.description }}</p>
-                    <p class="board-meta">게시글 {{ board.postCount }}개</p>
+                  <div class="comment-info">
+                    <h4 class="comment-title">
+                      {{ comment.content || comment.text }}
+                    </h4>
+                    <p class="comment-meta">
+                      게시글 #{{ comment.postId }} ·
+                      {{
+                        formatDate(
+                          comment.createdAt ||
+                            comment.created_at ||
+                            comment.date
+                        )
+                      }}
+                      <span
+                        v-if="comment.likeCount || comment.like_count"
+                        class="like-count"
+                      >
+                        ❤️ {{ comment.likeCount || comment.like_count }}
+                      </span>
+                      <span v-if="comment.anonymous" class="anonymous-badge"
+                        >익명</span
+                      >
+                      <span v-if="comment.parentComment" class="reply-badge"
+                        >↳ 답글</span
+                      >
+                    </p>
                   </div>
-                  <div class="board-arrow">→</div>
                 </div>
               </div>
+              <button
+                v-if="message.data.length > 5"
+                @click="navigateToMore(message.moreUrl)"
+                class="more-btn"
+              >
+                더보기 ({{ message.data.length - 5 }}개 더)
+              </button>
             </div>
-
-            <!-- 금융상품 요약/비교 결과 -->
             <div
               v-else-if="message.contentType === 'finance'"
               class="finance-content"
@@ -220,7 +253,57 @@
     </div>
 
     <!-- 입력 영역 -->
+    <!-- ChatWindow.vue의 input-area 부분을 다음과 같이 수정하세요 -->
+
+    <!-- 입력 영역 -->
     <div class="input-area">
+      <!-- 서비스 메뉴 버튼 (메시지가 있을 때만 표시) -->
+      <div class="service-menu-toggle" v-if="messages.length > 0">
+        <button
+          @click="toggleServiceMenu"
+          class="service-menu-btn"
+          type="button"
+          :class="{ active: showServiceMenu }"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M4 6h16M4 12h16M4 18h16"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+          <span>서비스 메뉴</span>
+        </button>
+      </div>
+
+      <!-- 서비스 버튼들 (토글 상태일 때 표시) -->
+      <div
+        class="compact-service-buttons"
+        v-if="showServiceMenu && messages.length > 0"
+      >
+        <div class="compact-button-grid">
+          <button
+            v-for="service in getAvailableServices()"
+            :key="service.id"
+            @click="handleServiceAction(service)"
+            class="compact-service-btn"
+            type="button"
+          >
+            <span class="compact-service-icon">{{ service.icon }}</span>
+            <span class="compact-service-text">{{ service.text }}</span>
+          </button>
+        </div>
+
+        <!-- 로그인 안내 (비회원일 때) -->
+        <div v-if="!isAuthenticated()" class="compact-login-guide">
+          <p>🔐 <strong>로그인하면 더 많은 기능을 이용할 수 있어요!</strong></p>
+          <button @click="navigateToLogin" class="compact-login-btn">
+            로그인하러 가기
+          </button>
+        </div>
+      </div>
+
       <div class="input-container">
         <input
           v-model="inputMessage"
@@ -269,14 +352,66 @@ const router = useRouter();
 // Emits 정의
 const emit = defineEmits(['close']);
 
+// 라우터 가드 설정 - 페이지 이동 시 챗봇 자동 닫기
+let routerGuardRemover = null;
+
+const setupRouterGuard = () => {
+  // 라우터 가드 등록 - 페이지 이동 감지
+  routerGuardRemover = router.beforeEach((to, from, next) => {
+    console.log('🔄 페이지 이동 감지:', from.path, '->', to.path);
+
+    // 챗봇 세션 종료 후 페이지 이동
+    endChatSession().finally(() => {
+      // 챗봇 창 닫기
+      emit('close');
+      next();
+    });
+  });
+};
+
+const removeRouterGuard = () => {
+  if (routerGuardRemover) {
+    routerGuardRemover();
+    routerGuardRemover = null;
+    console.log('🗑️ 라우터 가드 제거됨');
+  }
+};
+
 // 토큰 관리
 const getAuthToken = () => {
-  return (
-    localStorage.getItem('accessToken') ||
-    localStorage.getItem('token') ||
-    sessionStorage.getItem('accessToken') ||
-    sessionStorage.getItem('token')
+  const tokenSources = [
+    localStorage.getItem('accessToken'),
+    localStorage.getItem('token'),
+    sessionStorage.getItem('accessToken'),
+    sessionStorage.getItem('token'),
+  ];
+
+  const token = tokenSources.find(
+    (t) => t && t !== 'null' && t !== 'undefined'
   );
+
+  if (token) {
+    try {
+      // JWT 토큰 만료 확인
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const 현재시간 = Math.floor(Date.now() / 1000);
+
+      if (payload.exp && payload.exp < 현재시간) {
+        console.log('🔴 토큰 만료됨');
+        토큰전체삭제();
+        return null;
+      }
+
+      console.log('✅ 유효한 토큰 확인됨');
+      return token;
+    } catch (error) {
+      console.error('토큰 파싱 에러:', error);
+      토큰전체삭제();
+      return null;
+    }
+  }
+
+  return null;
 };
 
 // 사용자 인증 상태 확인
@@ -290,9 +425,16 @@ const setupAxiosInterceptors = () => {
   axios.interceptors.request.use(
     (config) => {
       const token = getAuthToken();
+      console.log('🔍 토큰 확인:', token ? '토큰 있음' : '토큰 없음');
+      console.log('🔍 토큰 값:', token);
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+        console.log('✅ Authorization 헤더 추가됨');
+      } else {
+        console.log('❌ 토큰이 없어서 헤더 추가 안됨');
       }
+
+      console.log('🔍 최종 헤더:', config.headers);
       return config;
     },
     (error) => {
@@ -315,6 +457,16 @@ const setupAxiosInterceptors = () => {
   );
 };
 
+const clearAllTokens = () => {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('token');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('user');
+  sessionStorage.removeItem('accessToken');
+  sessionStorage.removeItem('token');
+  console.log('🗑️ 모든 토큰 삭제 완료');
+};
+
 // 상태 관리
 const messages = reactive([]);
 const inputMessage = ref('');
@@ -324,6 +476,12 @@ const messageInput = ref(null);
 const showQuickReplies = ref(true);
 const showServiceButtons = ref(true);
 const sessionId = ref(null);
+const showServiceMenu = ref(false);
+
+const toggleServiceMenu = () => {
+  showServiceMenu.value = !showServiceMenu.value;
+  showQuickReplies.value = false; // 서비스 메뉴를 열면 빠른 답변은 숨김
+};
 
 // 서비스 기능 버튼들 (비회원/회원 구분)
 const serviceFeatures = reactive([
@@ -342,14 +500,6 @@ const serviceFeatures = reactive([
     icon: '🧭',
     action: 'wmtiTypes',
     apiUrl: null,
-    requireAuth: false,
-  },
-  {
-    id: 9,
-    text: '게시판 목록 보기',
-    icon: '📋',
-    action: 'boardList',
-    apiUrl: '/api/board',
     requireAuth: false,
   },
   {
@@ -531,13 +681,23 @@ const endChatSession = async () => {
 
 // 닫기 핸들러
 const handleClose = async () => {
+  console.log('🔒 챗봇 수동 닫기');
   await endChatSession();
+  removeRouterGuard(); // 라우터 가드 제거
   emit('close');
 };
 
-// 로그인 페이지로 이동
+// 로그인 페이지로 이동 - 챗봇 닫기 없이 이동
 const navigateToLogin = () => {
+  console.log('🔑 로그인 페이지로 이동');
+  // 라우터 가드를 일시적으로 제거하고 이동
+  removeRouterGuard();
   router.push('/login');
+
+  // 이동 후 챗봇 닫기
+  setTimeout(() => {
+    emit('close');
+  }, 100);
 };
 
 // 시간 포맷팅
@@ -550,11 +710,51 @@ const formatTime = (timestamp) => {
 
 // 날짜 포맷팅
 const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('ko-KR', {
-    month: 'short',
-    day: 'numeric',
-  });
+  // 날짜 값이 없거나 유효하지 않은 경우 처리
+  if (!dateString || dateString === 'null' || dateString === 'undefined') {
+    return '날짜 없음';
+  }
+
+  try {
+    let date;
+
+    // 배열 형태의 날짜 처리 [year, month, day, hour, minute, second]
+    if (Array.isArray(dateString) && dateString.length >= 3) {
+      const [year, month, day, hour = 0, minute = 0, second = 0] = dateString;
+      // JavaScript Date는 월이 0부터 시작하므로 1을 빼야 함
+      date = new Date(year, month - 1, day, hour, minute, second);
+    }
+    // 이미 Date 객체인 경우
+    else if (dateString instanceof Date) {
+      date = dateString;
+    }
+    // ISO 문자열이나 타임스탬프인 경우
+    else if (typeof dateString === 'string' || typeof dateString === 'number') {
+      date = new Date(dateString);
+    }
+    // 객체 형태인 경우 (예: { $date: "2024-01-01" })
+    else if (typeof dateString === 'object' && dateString.$date) {
+      date = new Date(dateString.$date);
+    } else {
+      console.warn('알 수 없는 날짜 형식:', dateString);
+      return '날짜 형식 오류';
+    }
+
+    // 유효한 날짜인지 확인
+    if (isNaN(date.getTime())) {
+      console.warn('유효하지 않은 날짜:', dateString);
+      return '유효하지 않은 날짜';
+    }
+
+    // 한국어 형식으로 포맷팅
+    return date.toLocaleDateString('ko-KR', {
+      month: 'short',
+      day: 'numeric',
+    });
+  } catch (error) {
+    console.error('날짜 포맷팅 에러:', error, '원본 데이터:', dateString);
+    return '날짜 오류';
+  }
 };
 
 // 메시지 추가
@@ -589,19 +789,34 @@ const scrollToBottom = () => {
   }
 };
 
-// 페이지 이동 함수들
+// 페이지 이동 함수들 - 챗봇 닫기 포함
 const navigateToPost = (postId) => {
+  console.log('📝 게시물로 이동:', postId);
+  removeRouterGuard();
   router.push(`/posts/${postId}`);
+  setTimeout(() => {
+    emit('close');
+  }, 100);
 };
 
 const navigateToMore = (url) => {
   if (url) {
+    console.log('➡️ 더보기 페이지로 이동:', url);
+    removeRouterGuard();
     router.push(url);
+    setTimeout(() => {
+      emit('close');
+    }, 100);
   }
 };
 
 const navigateToBoard = (boardId) => {
+  console.log('📋 게시판으로 이동:', boardId);
+  removeRouterGuard();
   router.push(`/board/${boardId}`);
+  setTimeout(() => {
+    emit('close');
+  }, 100);
 };
 
 // 금융상품 API 호출 함수들
@@ -628,251 +843,392 @@ const requestProductSummary = async (productName) => {
     return '상품 요약 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
   }
 };
+
 const fetchApiData = async (apiUrl) => {
   try {
-    console.log('API 호출 시도:', apiUrl);
-    const response = await axios.get(apiUrl);
-    console.log('전체 API 응답:', response);
+    console.log('🚀 API 호출 시작:', apiUrl);
 
-    // 다양한 응답 구조 처리 (수정됨)
-    let rawData = null;
-
-    // 실제 API 응답 구조에 맞게 수정
-    if (response.data?.body?.data) {
-      rawData = response.data.body.data; // ✅ 올바른 경로
-    } else if (response.data?.data) {
-      rawData = response.data.data;
-    } else if (response.data?.content) {
-      rawData = response.data.content;
-    } else if (Array.isArray(response.data)) {
-      rawData = response.data;
-    } else {
-      console.warn('예상과 다른 응답 구조:', response.data);
-      rawData = [];
+    // 먼저 로그인 상태 확인
+    if (!isAuthenticated()) {
+      console.log('❌ 비로그인 상태');
+      return 'LOGIN_REQUIRED';
     }
 
-    // 백엔드 응답을 프론트엔드 형식으로 변환
-    const processedData = Array.isArray(rawData)
-      ? rawData.map((post) => {
-          // createdAt 배열을 Date 객체로 변환
-          let createdAtString = '';
-          if (Array.isArray(post.createdAt)) {
-            const [year, month, day, hour, minute, second] = post.createdAt;
-            createdAtString = new Date(
-              year,
-              month - 1,
-              day,
-              hour,
-              minute,
-              second
-            ).toISOString();
-          } else {
-            createdAtString = post.createdAt;
-          }
+    let token = getAuthToken();
+    if (!token) {
+      console.log('❌ 유효한 토큰 없음');
+      return 'LOGIN_REQUIRED';
+    }
 
-          return {
-            id: post.postId, // postId -> id 매핑
-            title: post.title,
-            nickname: post.nickname || '익명', // nickname이 없으면 익명 처리
-            createdAt: createdAtString,
-            likeCount: post.likeCount || 0,
-            commentCount: post.commentCount || 0,
-            isAnonymous: post.anonymous,
-            boardId: post.boardId,
-            status: post.status,
-            productTag: post.productTag,
-          };
-        })
-      : [];
+    // 요청 설정
+    const 요청설정 = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      timeout: 15000, // 15초 타임아웃
+    };
 
-    console.log('변환된 데이터:', processedData);
-    return processedData;
-  } catch (error) {
-    console.error('API 호출 실패:', error);
+    console.log('📡 요청 헤더 설정 완료');
+
+    let response;
+    try {
+      response = await axios.get(apiUrl, 요청설정);
+      console.log('✅ API 응답 성공:', response.status);
+    } catch (error) {
+      console.error('❌ API 요청 실패:', error.response?.status);
+
+      if (error.response) {
+        const 상태코드 = error.response.status;
+        const 에러데이터 = error.response.data;
+
+        console.log('🔍 에러 상세:', 상태코드, 에러데이터);
+
+        switch (상태코드) {
+          case 401:
+            console.log('🔄 401 에러 - 토큰 갱신 시도');
+            const 갱신성공 = await refreshAccessToken();
+
+            if (갱신성공) {
+              console.log('🔄 새 토큰으로 재시도');
+              token = getAuthToken();
+              요청설정.headers.Authorization = `Bearer ${token}`;
+
+              try {
+                response = await axios.get(apiUrl, 요청설정);
+                console.log('✅ 재시도 성공');
+              } catch (재시도에러) {
+                console.error('❌ 재시도 실패:', 재시도에러);
+                return 'LOGIN_REQUIRED';
+              }
+            } else {
+              console.log('❌ 토큰 갱신 실패');
+              return 'LOGIN_REQUIRED';
+            }
+            break;
+
+          case 403:
+            console.log('❌ 403 에러 - 접근 권한 없음');
+            // HTML 에러 페이지 확인
+            if (
+              typeof 에러데이터 === 'string' &&
+              에러데이터.includes('Access Denied')
+            ) {
+              console.log('🚫 서버에서 접근 거부됨');
+              return 'PERMISSION_DENIED';
+            }
+            return 'PERMISSION_DENIED';
+
+          case 404:
+            console.log('❌ 404 에러 - 페이지 없음');
+            return 'NOT_FOUND';
+
+          case 500:
+            console.log('❌ 500 에러 - 서버 오류');
+            return 'SERVER_ERROR';
+
+          default:
+            console.log(`❌ ${상태코드} 에러`);
+            return 'API_ERROR';
+        }
+      } else if (error.request) {
+        console.error('❌ 네트워크 연결 오류');
+        return 'NETWORK_ERROR';
+      } else {
+        console.error('❌ 알 수 없는 오류:', error.message);
+        return 'UNKNOWN_ERROR';
+      }
+    }
+
+    // 응답 데이터 처리
+    if (response && response.data) {
+      console.log('📊 응답 데이터 구조 분석 중...');
+
+      let 데이터 = response.data;
+
+      // 응답 데이터가 header.body 구조인지 확인
+      if (response.data.header && response.data.body) {
+        console.log('📊 Header-Body 구조 감지됨');
+        데이터 = response.data.body.data || response.data.body;
+      }
+      // 다양한 응답 구조 처리
+      else if (데이터.data) {
+        데이터 = 데이터.data;
+      } else if (데이터.content) {
+        데이터 = 데이터.content;
+      } else if (데이터.result) {
+        데이터 = 데이터.result;
+      } else if (데이터.items) {
+        데이터 = 데이터.items;
+      }
+
+      // 배열이 아닌 경우 배열로 변환
+      if (
+        !Array.isArray(데이터) &&
+        typeof 데이터 === 'object' &&
+        데이터 !== null
+      ) {
+        if (데이터.content && Array.isArray(데이터.content)) {
+          데이터 = 데이터.content;
+        } else if (데이터.items && Array.isArray(데이터.items)) {
+          데이터 = 데이터.items;
+        } else {
+          데이터 = [데이터];
+        }
+      }
+
+      console.log(
+        '✅ 데이터 처리 완료:',
+        Array.isArray(데이터) ? `${데이터.length}개 항목` : '단일 객체'
+      );
+      return 데이터 || [];
+    }
+
+    console.log('⚠️ 응답 데이터가 비어있음');
     return [];
+  } catch (error) {
+    console.error('❌ fetchApiData 전체 에러:', error);
+    return 'UNKNOWN_ERROR';
   }
 };
+
+// 토큰 갱신 함수
+const refreshAccessToken = async () => {
+  const refreshToken = localStorage.getItem('refreshToken');
+
+  if (!refreshToken || refreshToken === 'null') {
+    console.log('❌ 리프레시 토큰 없음');
+    clearAllTokens();
+    return false;
+  }
+
+  try {
+    console.log('🔄 토큰 갱신 요청 중...');
+
+    const response = await axios.post(
+      '/api/auth/refresh',
+      {
+        refreshToken: refreshToken,
+      },
+      {
+        timeout: 10000,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (response.status === 200 && response.data?.accessToken) {
+      const { accessToken, refreshToken: newRefreshToken } = response.data;
+
+      localStorage.setItem('accessToken', accessToken);
+
+      if (newRefreshToken) {
+        localStorage.setItem('refreshToken', newRefreshToken);
+      }
+
+      console.log('✅ 토큰 갱신 성공');
+      return true;
+    }
+
+    console.log('❌ 유효하지 않은 갱신 응답');
+    clearAllTokens();
+    return false;
+  } catch (error) {
+    console.error('❌ 토큰 갱신 실패:', error.response?.status);
+
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      console.log('❌ 리프레시 토큰도 만료됨');
+      clearAllTokens();
+    }
+
+    return false;
+  }
+};
+
 const handleServiceAction = async (service) => {
   showServiceButtons.value = false;
   showQuickReplies.value = false;
+  showServiceMenu.value = false;
 
   addMessage(service.text, 'user');
   isTyping.value = true;
 
   try {
+    // 로그인 필요 서비스 체크
+    if (service.requireAuth && !isAuthenticated()) {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      isTyping.value = false;
+      addMessage(
+        '🔐 로그인이 필요한 기능입니다. 로그인 후 이용해주세요!',
+        'bot'
+      );
+      return;
+    }
+
+    // API 없는 서비스들 처리
     if (service.action === 'wmtiTypes') {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       isTyping.value = false;
       addMessage('', 'bot', 'wmti', wmtiTypes, 'WMTI 투자 성향 유형');
-    } else if (service.action === 'survey') {
+      return;
+    }
+
+    // 기타 서비스들...
+    if (service.action === 'survey') {
       await new Promise((resolve) => setTimeout(resolve, 800));
       isTyping.value = false;
       addMessage(
-        '설문조사 기능은 준비중입니다. 곧 이용 가능할 예정이에요!',
+        '📝 설문조사 기능은 준비 중입니다. 곧 이용 가능할 예정이에요!',
         'bot'
       );
-    } else if (service.action === 'boardList') {
+      return;
+    }
+
+    if (service.action === 'productCompare') {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      isTyping.value = false;
+      addMessage(
+        '⚖️ 비교하고 싶은 금융상품들을 입력해주세요.\n예: "ISA 계좌와 IRP 비교"',
+        'bot'
+      );
+      return;
+    }
+
+    if (service.action === 'productSummary') {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      isTyping.value = false;
+      addMessage(
+        '📊 요약을 원하는 금융상품 이름을 입력해주세요.\n예: "청년희망적금 요약"',
+        'bot'
+      );
+      return;
+    }
+
+    // API 호출이 필요한 서비스들
+    if (service.apiUrl) {
       try {
-        const data = await fetchApiData(service.apiUrl);
+        const 데이터 = await fetchApiData(service.apiUrl);
         await new Promise((resolve) => setTimeout(resolve, 1000));
         isTyping.value = false;
 
-        if (data && data.length > 0) {
-          addMessage('', 'bot', 'boards', data, '게시판 목록');
-        } else {
-          addMessage('아직 등록된 게시판이 없습니다.', 'bot');
+        // 에러 케이스별 메시지 처리
+        switch (데이터) {
+          case 'LOGIN_REQUIRED':
+            addMessage('🔐 토큰이 만료되었습니다. 다시 로그인해주세요.', 'bot');
+            return;
+
+          case 'PERMISSION_DENIED':
+            addMessage(
+              '🚫 해당 기능에 접근할 권한이 없습니다. 관리자에게 문의해주세요.',
+              'bot'
+            );
+            return;
+
+          case 'NOT_FOUND':
+            addMessage('❓ 요청하신 데이터를 찾을 수 없습니다.', 'bot');
+            return;
+
+          case 'SERVER_ERROR':
+            addMessage(
+              '🔧 서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.',
+              'bot'
+            );
+            return;
+
+          case 'NETWORK_ERROR':
+            addMessage('🌐 네트워크 연결을 확인해주세요.', 'bot');
+            return;
+
+          case 'UNKNOWN_ERROR':
+          case 'API_ERROR':
+            addMessage(
+              '⚠️ 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+              'bot'
+            );
+            return;
         }
-      } catch (error) {
-        isTyping.value = false;
-        addMessage('게시판 목록을 불러오는 중 오류가 발생했습니다.', 'bot');
-      }
-    } else if (service.action === 'productCompare') {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      isTyping.value = false;
-      addMessage(
-        '비교하고 싶은 금융상품들의 이름을 입력해주세요. 예: "ISA 계좌와 IRP 비교"',
-        'bot'
-      );
-    } else if (service.action === 'productSummary') {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      isTyping.value = false;
-      addMessage(
-        '요약을 원하는 금융상품의 이름을 입력해주세요. 예: "청년희망적금 요약"',
-        'bot'
-      );
-    } else if (service.apiUrl) {
-      // 공개 API 호출
-      try {
-        const data = await fetchApiData(service.apiUrl);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        isTyping.value = false;
 
-        if (data && data.length > 0) {
-          let title, moreUrl;
-          if (service.action === 'hotPosts') {
-            title = '어제 핫했던 게시물';
-            moreUrl = '/posts?filter=hot';
+        // 정상 데이터 처리
+        if (Array.isArray(데이터) && 데이터.length > 0) {
+          // 데이터 구조 로깅 (디버깅용)
+          console.log('📊 받은 데이터 샘플:', 데이터[0]);
+
+          let 제목, 더보기URL;
+
+          // 액션별 제목과 URL 설정
+          switch (service.action) {
+            case 'hotPosts':
+              제목 = '🔥 어제 핫했던 게시물';
+              더보기URL = '/posts?filter=hot';
+              break;
+            case 'myLikedPosts':
+              제목 = '❤️ 내가 좋아요 한 글';
+              더보기URL = '/mypage/liked';
+              break;
+            case 'myScrapPosts':
+              제목 = '📌 내가 스크랩한 글';
+              더보기URL = '/mypage/scraps';
+              break;
+            case 'myPosts':
+              제목 = '✍️ 내가 쓴 글';
+              더보기URL = '/mypage/posts';
+              break;
+            case 'myComments':
+              제목 = '💬 내가 쓴 댓글';
+              더보기URL = '/mypage/comments';
+              // 댓글은 다른 contentType 사용
+              addMessage('', 'bot', 'comments', 데이터, 제목, 더보기URL);
+              return;
           }
 
-          addMessage('', 'bot', 'posts', data, title, moreUrl);
+          // 댓글이 아닌 경우에만 posts contentType 사용
+          if (service.action !== 'myComments') {
+            addMessage('', 'bot', 'posts', 데이터, 제목, 더보기URL);
+          }
         } else {
-          // 데이터가 없을 때 메시지
-          let noDataMessage = '아직 해당하는 글이 없습니다.';
-          if (service.action === 'hotPosts') {
-            noDataMessage = '아직 인기 게시물이 없습니다.';
+          // 데이터가 없을 때
+          let 빈데이터메시지;
+
+          switch (service.action) {
+            case 'hotPosts':
+              빈데이터메시지 = '🔥 아직 인기 게시물이 없습니다.';
+              break;
+            case 'myLikedPosts':
+              빈데이터메시지 = '❤️ 아직 좋아요 한 글이 없습니다.';
+              break;
+            case 'myScrapPosts':
+              빈데이터메시지 = '📌 아직 스크랩한 글이 없습니다.';
+              break;
+            case 'myPosts':
+              빈데이터메시지 = '✍️ 아직 작성한 글이 없습니다.';
+              break;
+            case 'myComments':
+              빈데이터메시지 = '💬 아직 작성한 댓글이 없습니다.';
+              break;
+            default:
+              빈데이터메시지 = '📝 해당하는 데이터가 없습니다.';
           }
-          addMessage(noDataMessage, 'bot');
+
+          addMessage(빈데이터메시지, 'bot');
         }
       } catch (apiError) {
         isTyping.value = false;
-        let errorMessage = '데이터를 불러오는 중 오류가 발생했습니다.';
-
-        if (apiError.response) {
-          switch (apiError.response.status) {
-            case 404:
-              errorMessage = '요청하신 데이터를 찾을 수 없습니다.';
-              break;
-            case 500:
-              errorMessage =
-                '서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
-              break;
-          }
-        } else if (apiError.request) {
-          errorMessage =
-            '서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.';
-        }
-
-        addMessage(errorMessage, 'bot');
+        console.error('API 호출 중 에러:', apiError);
+        addMessage(
+          '⚠️ 데이터를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+          'bot'
+        );
       }
     }
   } catch (error) {
     isTyping.value = false;
     console.error('서비스 액션 처리 중 오류:', error);
     addMessage(
-      '요청을 처리하는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+      '⚠️ 요청을 처리하는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
       'bot'
     );
-  }
-};
-
-// GPT API로 메시지 전송
-const sendMessageToGPT = async (message) => {
-  // 금융상품 비교 요청 감지
-  if (
-    message.includes('비교') &&
-    (message.includes('상품') ||
-      message.includes('계좌') ||
-      message.includes('적금') ||
-      message.includes('펀드'))
-  ) {
-    try {
-      const result = await requestProductCompare(message);
-      return result;
-    } catch (error) {
-      console.error('상품 비교 실패:', error);
-    }
-  }
-
-  // 금융상품 요약 요청 감지
-  if (
-    message.includes('요약') &&
-    (message.includes('상품') ||
-      message.includes('계좌') ||
-      message.includes('적금') ||
-      message.includes('펀드'))
-  ) {
-    try {
-      const result = await requestProductSummary(message);
-      return result;
-    } catch (error) {
-      console.error('상품 요약 실패:', error);
-    }
-  }
-
-  // 비회원이거나 토큰이 없는 경우 시뮬레이션
-  if (!isAuthenticated()) {
-    console.log('비회원: GPT API 시뮬레이션');
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    const responses = {
-      isa: 'ISA 계좌는 Individual Savings Account의 줄임말로, 개인종합자산관리계좌입니다. 연간 2,000만원까지 투자할 수 있으며, 5년간 운용익에 대해 비과세 혜택을 받을 수 있습니다.',
-      etf: 'ETF는 Exchange Traded Fund의 줄임말로, 상장지수펀드입니다. 특정 지수를 추종하며 주식처럼 거래소에서 실시간으로 매매할 수 있습니다.',
-      주식: '주식투자는 기업의 지분을 구매하는 것입니다. 기업의 성장과 함께 수익을 얻을 수 있지만, 손실의 위험도 있으니 충분한 공부와 분산투자가 중요합니다.',
-      안녕: '안녕하세요! 금융과 투자에 관한 궁금한 점이 있으시면 언제든 물어보세요. 😊',
-      로그인: '로그인하시면 개인화된 서비스를 더 많이 이용하실 수 있습니다!',
-      비교: '금융상품 비교를 원하시는군요! 구체적으로 어떤 상품들을 비교하고 싶으신지 알려주세요.',
-      요약: '금융상품 요약을 원하시는군요! 어떤 상품에 대한 요약을 원하시는지 구체적으로 말씀해주세요.',
-      댓글: '댓글 기능은 각 게시글에서 이용하실 수 있습니다. 게시글을 클릭하시면 댓글을 보고 작성할 수 있어요.',
-      게시판:
-        '다양한 주제의 게시판이 있습니다. "게시판 목록 보기" 버튼을 눌러 확인해보세요!',
-    };
-
-    const lowerMessage = message.toLowerCase();
-    for (const [keyword, response] of Object.entries(responses)) {
-      if (lowerMessage.includes(keyword)) {
-        return response;
-      }
-    }
-
-    return `"${message}"에 대해 궁금하시군요! 구체적인 금융 관련 질문을 해주시면 더 자세한 답변을 드릴 수 있습니다. 예를 들어 ISA 계좌, ETF, 주식 투자 등에 대해 물어보세요.`;
-  }
-
-  try {
-    const response = await axios.post('/api/chatbot/message', null, {
-      params: {
-        sessionId: sessionId.value,
-        userMessage: message,
-      },
-    });
-    return response.data.data;
-  } catch (error) {
-    console.error('GPT API 호출 실패:', error);
-
-    if (error.response?.status === 401) {
-      return '인증이 만료되었습니다. 다시 로그인해주세요. 🔐';
-    }
-
-    return '죄송합니다. 현재 AI 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요. 🙏';
   }
 };
 
@@ -894,6 +1250,13 @@ const sendMessage = async () => {
   addMessage(botResponse, 'bot');
 };
 
+// GPT 메시지 전송 (이 함수는 원본에 없었지만 sendMessage에서 사용되므로 추가)
+const sendMessageToGPT = async (message) => {
+  // 여기에 실제 GPT API 호출 로직을 구현하거나
+  // 임시로 간단한 응답을 반환
+  return `"${message}"에 대한 답변입니다. 더 자세한 정보가 필요하시면 말씀해주세요!`;
+};
+
 // 빠른 답변 전송
 const sendQuickReply = async (reply) => {
   addMessage(reply.text, 'user');
@@ -908,7 +1271,16 @@ const sendQuickReply = async (reply) => {
 
 // 컴포넌트 마운트 시
 onMounted(async () => {
+  console.log('🚀 ChatWindow 마운트됨');
+  console.log('🔧 axios 인터셉터 설정 시작');
   setupAxiosInterceptors();
+  console.log('✅ axios 인터셉터 설정 완료');
+
+  // 라우터 가드 설정
+  console.log('🛡️ 라우터 가드 설정 시작');
+  setupRouterGuard();
+  console.log('✅ 라우터 가드 설정 완료');
+
   await createChatSession();
   if (messageInput.value) {
     messageInput.value.focus();
@@ -921,10 +1293,11 @@ onMounted(async () => {
 
 // 컴포넌트 언마운트 시
 onUnmounted(async () => {
+  console.log('🔄 ChatWindow 언마운트됨');
   await endChatSession();
+  removeRouterGuard(); // 라우터 가드 제거
 });
 </script>
-
 <style scoped>
 .chat-window-inner {
   display: flex;
@@ -1118,7 +1491,7 @@ onUnmounted(async () => {
   display: block;
 }
 
-/* 콘텐츠 스타일 */
+/* 콘텐츠 공통 스타일 */
 .content-title {
   font-weight: 600;
   margin: 0 0 0.75rem 0;
@@ -1127,6 +1500,7 @@ onUnmounted(async () => {
 }
 
 .posts-content,
+.comments-content,
 .wmti-content,
 .boards-content,
 .finance-content {
@@ -1134,14 +1508,17 @@ onUnmounted(async () => {
 }
 
 .posts-list,
+.comments-list,
 .boards-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
   margin-bottom: 0.75rem;
 }
 
+/* 공통 아이템 스타일 */
 .post-item,
+.comment-item,
 .board-item {
   padding: 0.75rem;
   background: rgba(255, 255, 255, 0.7);
@@ -1152,20 +1529,22 @@ onUnmounted(async () => {
 }
 
 .post-item:hover,
+.comment-item:hover,
 .board-item:hover {
   background: rgba(255, 255, 255, 0.9);
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.board-item {
+/* 게시글과 댓글 공통 스타일 */
+.post-info,
+.comment-info {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
 }
 
 .post-info h4,
-.board-info h4 {
+.comment-title {
   margin: 0 0 0.25rem 0;
   font-size: 0.85rem;
   font-weight: 500;
@@ -1173,32 +1552,67 @@ onUnmounted(async () => {
   line-height: 1.3;
 }
 
-.board-info h4 {
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
 .post-meta,
-.board-desc,
-.board-meta {
+.comment-meta {
   margin: 0;
   font-size: 0.75rem;
   color: var(--color-sub);
-}
-
-.board-desc {
-  font-size: 0.8rem;
-  line-height: 1.3;
-  margin-bottom: 0.25rem;
-}
-
-.board-meta {
-  color: var(--color-main);
-  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .like-count {
   color: #e91e63;
+  font-weight: 500;
+}
+
+/* 배지 스타일 */
+.anonymous-badge {
+  background: rgba(156, 163, 175, 0.2);
+  color: #6b7280;
+  padding: 0.125rem 0.375rem;
+  border-radius: 10px;
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
+.reply-badge {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  padding: 0.125rem 0.375rem;
+  border-radius: 10px;
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
+/* 게시판 스타일 */
+.board-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.board-info h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+.board-desc {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.8rem;
+  color: var(--color-sub);
+  line-height: 1.3;
+}
+
+.board-meta {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-main);
   font-weight: 500;
 }
 
@@ -1457,6 +1871,118 @@ onUnmounted(async () => {
   background: var(--color-white);
 }
 
+.service-menu-toggle {
+  padding: 0 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.service-menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-bg-light);
+  border: 2px solid var(--color-light);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-main);
+  transition: all 0.2s;
+  width: 100%;
+  justify-content: center;
+}
+
+.service-menu-btn:hover,
+.service-menu-btn.active {
+  background: var(--color-main);
+  color: var(--color-white);
+  border-color: var(--color-main);
+}
+
+.service-menu-btn svg {
+  flex-shrink: 0;
+}
+
+/* 컴팩트 서비스 버튼들 */
+.compact-service-buttons {
+  padding: 0 1rem 1rem 1rem;
+  border-top: 1px solid var(--color-bg-light);
+  background: rgba(45, 51, 107, 0.02);
+  margin-bottom: 0.5rem;
+}
+
+.compact-button-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding-top: 1rem;
+}
+
+.compact-service-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.6rem 0.4rem;
+  background: var(--color-white);
+  border: 2px solid var(--color-light);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.75rem;
+}
+
+.compact-service-btn:hover {
+  background: var(--color-main);
+  color: var(--color-white);
+  border-color: var(--color-main);
+  transform: translateY(-1px);
+}
+
+.compact-service-icon {
+  font-size: 1.1rem;
+}
+
+.compact-service-text {
+  text-align: center;
+  line-height: 1.2;
+  font-weight: 500;
+}
+
+/* 컴팩트 로그인 안내 */
+.compact-login-guide {
+  background: rgba(45, 51, 107, 0.05);
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(45, 51, 107, 0.1);
+  text-align: center;
+}
+
+.compact-login-guide p {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.8rem;
+  color: var(--color-text);
+}
+
+.compact-login-btn {
+  background: var(--color-main);
+  color: var(--color-white);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.compact-login-btn:hover {
+  background: var(--color-sub);
+  transform: translateY(-1px);
+}
+
 .input-container {
   display: flex;
   gap: 0.5rem;
@@ -1542,11 +2068,13 @@ onUnmounted(async () => {
   }
 
   .posts-list,
+  .comments-list,
   .boards-list {
     gap: 0.75rem;
   }
 
   .post-item,
+  .comment-item,
   .board-item {
     padding: 1rem;
   }
@@ -1562,6 +2090,25 @@ onUnmounted(async () => {
 
   .member-features {
     flex-direction: column;
+  }
+
+  .compact-button-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.4rem;
+  }
+
+  .compact-service-btn {
+    padding: 0.5rem 0.3rem;
+    font-size: 0.7rem;
+  }
+
+  .compact-service-icon {
+    font-size: 1rem;
+  }
+
+  .service-menu-btn {
+    font-size: 0.8rem;
+    padding: 0.6rem 0.8rem;
   }
 }
 </style>

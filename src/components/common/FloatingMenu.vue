@@ -1,9 +1,13 @@
 <template>
-  <div class="floating-menu" :class="{ 'chat-open': isOpen }">
+  <div
+    class="floating-menu"
+    :class="{ 'chat-open': isOpen }"
+    ref="floatingMenu"
+  >
     <!-- 챗봇 창 -->
     <ChatWindow v-if="isOpen" class="chat-window" @close="closeChatBot" />
     <!-- 플로팅 버튼 -->
-    <button class="chat-button" @click="toggleChat">
+    <button class="chat-button" @click.stop="toggleChat">
       <span v-if="!isOpen">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -43,30 +47,41 @@ import { ref, onMounted, onBeforeUnmount } from 'vue';
 import ChatWindow from './ChatWindow.vue';
 
 const isOpen = ref(false);
+const floatingMenu = ref(null);
 
 const toggleChat = () => {
   isOpen.value = !isOpen.value;
 };
+
 const closeChatBot = () => {
   isOpen.value = false;
 };
 
-const handleClickOutside = (event) => {
-  if (!floatingMenu.value) return;
-  if (floatingMenu.value.contains(event.target)) return; // 내부 클릭 무시
-  isOpen.value = false; // 외부 클릭 시 닫기
-};
-
 function onClickOutside(event) {
-  const floatingMenu = document.querySelector('.floating-menu');
-  // floatingMenu 영역 안을 클릭했으면 무시
-  if (floatingMenu && !floatingMenu.contains(event.target)) {
+  // 챗봇이 열려있을 때만 외부 클릭 감지
+  if (!isOpen.value) return;
+
+  // 클릭된 요소가 floating-menu나 chat-window 내부인지 확인
+  const floatingMenuElement = floatingMenu.value;
+  const chatWindowElement = document.querySelector('.chat-window');
+
+  if (!floatingMenuElement) return;
+
+  // floating-menu 내부 클릭이거나 chat-window 내부 클릭이면 무시
+  const isInsideFloatingMenu = floatingMenuElement.contains(event.target);
+  const isInsideChatWindow =
+    chatWindowElement && chatWindowElement.contains(event.target);
+
+  if (!isInsideFloatingMenu && !isInsideChatWindow) {
     isOpen.value = false;
   }
 }
 
 onMounted(() => {
-  window.addEventListener('click', onClickOutside);
+  // 약간의 지연을 두어 버튼 클릭과 외부 클릭이 동시에 발생하지 않도록 함
+  setTimeout(() => {
+    window.addEventListener('click', onClickOutside);
+  }, 100);
 });
 
 onBeforeUnmount(() => {
@@ -92,6 +107,7 @@ onBeforeUnmount(() => {
   color: white;
   box-shadow: 0 4px 5px rgba(0, 0, 0, 0.2);
   transition: background-color 0.3s ease;
+  cursor: pointer;
 }
 
 .chat-button svg {
@@ -104,64 +120,39 @@ onBeforeUnmount(() => {
 
 .chat-window {
   position: fixed;
-  bottom: 130px; /* 기존 70px에서 130px로 변경하여 버튼 위에 충분한 공간 확보 */
-  right: 2rem; /* 오른쪽에 여백 추가 */
+  bottom: 130px;
+  right: 2rem;
   width: 600px;
-  max-height: calc(
-    100vh - 180px
-  ); /* 최대 높이도 조정하여 화면을 벗어나지 않도록 */
+  max-height: calc(100vh - 180px);
   background: white;
   border-radius: 20px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   animation: fadeIn 0.3s ease;
 }
+
 @media (max-width: 768px) {
-  .chat-window-inner {
+  .chat-window {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     width: 100vw;
     height: 100vh;
     border-radius: 0;
-    padding: 0.5rem;
-    box-sizing: border-box;
-    max-width: 500px; /* 최대 가로 폭 제한 */
-    margin: 0 auto; /* 중앙 정렬 */
+    max-width: none;
+    max-height: none;
   }
 
-  .button-grid {
-    grid-template-columns: repeat(
-      4,
-      minmax(0, 1fr)
-    ); /* 칸 넓이 균일, 넘침 방지 */
-    gap: 0.15rem;
-    max-width: 100%;
-  }
-  .service-btn {
-    width: 24px !important;
-    height: 24px !important;
-    padding: 0.1rem 0.05rem !important;
-    font-size: 0.35rem !important;
-    max-width: 24px !important;
-    min-width: 24px !important;
-    margin: 0 auto !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    border-radius: 3px;
-    box-sizing: border-box;
+  .floating-menu {
+    bottom: 1rem;
+    right: 1rem;
   }
 
-  .service-icon {
-    font-size: clamp(0.5rem, 2vw, 0.75rem);
-    margin-bottom: 0.1rem;
-  }
-
-  .member-features {
-    flex-direction: column;
-  }
-
-  .chat-title,
-  .chat-description {
-    font-size: 0.8rem;
+  .chat-button {
+    width: 50px;
+    height: 50px;
   }
 }
 
