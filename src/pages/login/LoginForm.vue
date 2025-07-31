@@ -64,9 +64,10 @@ import { useAuthStore } from '@/stores/useAuthStore';
 const router = useRouter();
 const authStore = useAuthStore();
 const loginForm = ref({
-  email: '',
-  password: '',
+  email: 'testuser@example.com', // 자동으로 입력 지워야함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  password: 'Test@1234',
 });
+
 const showPassword = ref(false);
 
 // computed 속성

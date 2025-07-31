@@ -22,18 +22,23 @@ onMounted(async () => {
     console.log('현재 URL:', window.location.href);
 
     const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
+
+    // 서버에서 보내는 파라미터 이름에 맞게 수정
+    const token = urlParams.get('token'); // 서버에서 'token'으로 보냄
     const refreshToken = urlParams.get('refreshToken');
     const isNewMember = urlParams.get('isNewMember') === 'true';
-    const username = urlParams.get('username');
+    const memberId = urlParams.get('memberId');
     const email = urlParams.get('email');
+    const username = urlParams.get('username'); // username 추가
     const profileImage = urlParams.get('profileImage');
 
     console.log('받은 파라미터들:');
     console.log('token:', token);
+    console.log('refreshToken:', refreshToken);
     console.log('isNewMember:', isNewMember);
-    console.log('username:', username);
+    console.log('memberId:', memberId);
     console.log('email:', email);
+    console.log('username:', username);
 
     if (!token) {
       console.error('토큰이 없습니다');
@@ -44,8 +49,9 @@ onMounted(async () => {
 
     if (isNewMember) {
       console.log('신규 회원 - 회원가입 폼으로 이동');
+      console.log('신규 회원 데이터:', { email, username });
 
-      // 신규 회원인 경우 회원가입 폼으로 이동 (토큰 포함)
+      // 신규 회원인 경우 회원가입 폼으로 이동
       router.push({
         path: '/login/signup',
         query: {
@@ -58,8 +64,20 @@ onMounted(async () => {
       });
     } else {
       console.log('기존 회원 - 홈으로 이동');
+      console.log('기존 회원 토큰 정보:', {
+        accessToken: token,
+        refreshToken: refreshToken,
+        memberId: memberId,
+      });
+
       // 기존 회원은 토큰 저장하고 홈으로
-      authStore.setTokens(token, refreshToken);
+      authStore.setTokens(token, refreshToken, memberId);
+
+      // setup 함수가 있다면 호출
+      if (typeof authStore.setup === 'function') {
+        await authStore.setup();
+      }
+
       alert('로그인 성공!');
       router.push('/');
     }

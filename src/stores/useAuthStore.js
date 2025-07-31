@@ -7,6 +7,7 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref(null);
   const accessToken = ref(localStorage.getItem('accessToken') || null);
   const refreshToken = ref(localStorage.getItem('refreshToken') || null);
+  const memberId = ref(localStorage.getItem('memberId') || null);
   const isLoading = ref(false);
 
   // Getters
@@ -31,11 +32,14 @@ export const useAuthStore = defineStore('auth', () => {
       // 성공 시 토큰과 사용자 정보 저장
       accessToken.value = data.accessToken;
       refreshToken.value = data.refreshToken;
+      memberId.value = data.memberId;
+
       user.value = data.userInfo;
 
       // localStorage에 저장
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
+      localStorage.setItem('memberId', data.memberId);
       localStorage.setItem('user', JSON.stringify(data.userInfo));
 
       return { success: true, message: '로그인 성공' };
@@ -62,10 +66,12 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = null;
       accessToken.value = null;
       refreshToken.value = null;
+      memberId.value = null;
 
       // localStorage에서 제거
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('memberId');
       localStorage.removeItem('user');
     }
   };
@@ -116,13 +122,39 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   // 토큰 설정 (OAuth2 로그인용)
-  const setTokens = (newAccessToken, newRefreshToken) => {
+  const setTokens = (newAccessToken, newRefreshToken, newMemberId = null) => {
+    console.log('=== setTokens 호출됨 ===');
+    console.log('newAccessToken:', newAccessToken);
+    console.log('newRefreshToken:', newRefreshToken);
+    console.log('newMemberId:', newMemberId);
+
+    // 상태 업데이트
     accessToken.value = newAccessToken;
-    if (newRefreshToken) {
-      refreshToken.value = newRefreshToken;
-      localStorage.setItem('refreshToken', newRefreshToken);
+    refreshToken.value = newRefreshToken;
+
+    if (newMemberId) {
+      memberId.value = newMemberId;
     }
+
+    // localStorage에 저장
     localStorage.setItem('accessToken', newAccessToken);
+    console.log('accessToken 저장됨:', newAccessToken);
+
+    if (newRefreshToken) {
+      localStorage.setItem('refreshToken', newRefreshToken);
+      console.log('refreshToken 저장됨:', newRefreshToken);
+    }
+
+    if (newMemberId) {
+      localStorage.setItem('memberId', newMemberId);
+      console.log('memberId 저장됨:', newMemberId);
+    }
+
+    console.log('=== localStorage 저장 완료 ===');
+    console.log('저장된 데이터 확인:');
+    console.log('- accessToken:', localStorage.getItem('accessToken'));
+    console.log('- refreshToken:', localStorage.getItem('refreshToken'));
+    console.log('- memberId:', localStorage.getItem('memberId'));
   };
 
   const initialize = async () => {
@@ -134,11 +166,10 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = JSON.parse(savedUser);
         accessToken.value = savedAccessToken;
         refreshToken.value = localStorage.getItem('refreshToken');
+        memberId.value = localStorage.getItem('memberId');
 
-        // 토큰 유효성 확인 (한 번만)
         const isValid = await refreshUser(0);
         if (!isValid) {
-          // 토큰 만료면 완전히 초기화
           await logout();
         }
       } catch (error) {
@@ -165,6 +196,7 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     accessToken,
     refreshToken,
+    memberId,
     isLoading,
     // Getters
     isAuthenticated,

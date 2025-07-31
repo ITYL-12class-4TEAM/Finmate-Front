@@ -739,6 +739,7 @@ const handleSignup = async () => {
 
         localStorage.setItem('accessToken', authData.accessToken);
         localStorage.setItem('refreshToken', authData.refreshToken);
+        localStorage.setItem('memberId', authData.memberId);
         localStorage.setItem('user', JSON.stringify(authData.userInfo));
 
         alert('소셜 회원가입이 완료되었습니다!');
