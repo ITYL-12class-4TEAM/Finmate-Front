@@ -6,7 +6,12 @@
     <form @submit.prevent="searchProducts">
       <div class="form-group">
         <label>예치 금액</label>
-        <input type="text" v-model="depositAmount" class="form-control" @input="formatAmount" />
+        <input
+          type="text"
+          v-model="depositAmount"
+          class="form-control"
+          @input="formatAmount"
+        />
         <span>원</span>
       </div>
 
@@ -71,48 +76,59 @@
       <div v-else-if="error" class="error">{{ error }}</div>
       <div v-else>
         <div class="results-count">검색 결과: {{ totalCount }}개</div>
-        
+
         <!-- 상품 목록 -->
         <div class="product-list">
-          <div v-for="product in depositProducts" :key="product.product_id || product.finPrdtCd" class="product-card">
+          <div
+            v-for="product in depositProducts"
+            :key="product.product_id || product.finPrdtCd"
+            class="product-card"
+            @click="goToProductDetail(product)"
+          >
             <div class="product-header">
-              <div class="bank-name">{{ product.kor_co_nm || product.korCoNm }}</div>
-              <div class="product-name">{{ product.product_name || product.finPrdtNm }}</div>
+              <div class="bank-name">
+                {{ product.kor_co_nm || product.korCoNm }}
+              </div>
+              <div class="product-name">
+                {{ product.product_name || product.finPrdtNm }}
+              </div>
             </div>
-            
+
             <div class="product-details">
               <div class="detail-row">
                 <span class="detail-label">기본 금리</span>
-                <span class="detail-value highlight">{{ formatRate(product.intr_rate || product.intrRate) }}</span>
+                <span class="detail-value highlight">{{
+                  formatRate(product.intr_rate || product.intrRate)
+                }}</span>
               </div>
               <div class="detail-row">
                 <span class="detail-label">우대 금리</span>
-                <span class="detail-value">{{ formatRate(product.intr_rate2 || product.intrRate2) }}</span>
+                <span class="detail-value">{{
+                  formatRate(product.intr_rate2 || product.intrRate2)
+                }}</span>
               </div>
               <div class="detail-row">
                 <span class="detail-label">가입 기간</span>
-                <span class="detail-value">{{ product.save_trm || product.saveTrm }}개월</span>
+                <span class="detail-value"
+                  >{{ product.save_trm || product.saveTrm }}개월</span
+                >
               </div>
             </div>
           </div>
         </div>
-        
+
         <!-- 검색 결과가 없을 경우 -->
         <div v-if="depositProducts.length === 0" class="no-results">
           검색 조건에 맞는 상품이 없습니다.
         </div>
-        
+
         <!-- 페이지네이션 -->
-        <div v-if="totalPages > 1" class="pagination">
-          <button 
-            v-for="page in totalPages" 
-            :key="page" 
-            @click="goToPage(page)" 
-            :class="{ active: currentPage === page }"
-          >
-            {{ page }}
-          </button>
-        </div>
+        <Pagination
+          v-if="totalPages > 1"
+          :total-pages="totalPages"
+          :current-page="currentPage"
+          @page-change="goToPage"
+        />
       </div>
     </div>
   </div>
@@ -120,18 +136,22 @@
 
 <script setup>
 import { onMounted, ref, computed } from 'vue';
-import { 
+import { useRouter } from 'vue-router';
+import {
   getProductsAPI,
   getProductsCategoriesAPI,
   getProductsCompareAPI,
   getProductsFilterOptionsAPI,
 } from '@/api/product';
+import Pagination from './common/Pagination.vue';
+
+const router = useRouter();
 
 // 폼 입력 데이터
 const depositAmount = ref('100000');
-const period = ref('6');  // 기본값 6개월 (이미지 기준)
-const interestType = ref('B');  // 기본값 전체
-const joinWay = ref('all');  // 기본값 전체
+const period = ref('6'); // 기본값 6개월 (이미지 기준)
+const interestType = ref('B'); // 기본값 전체
+const joinWay = ref('all'); // 기본값 전체
 
 // 상품 목록 상태
 const depositProducts = ref([]);
@@ -146,7 +166,7 @@ const totalPages = computed(() => Math.ceil(totalCount.value / pageSize.value));
 const formatAmount = () => {
   // 숫자만 추출
   const numericValue = depositAmount.value.replace(/[^\d]/g, '');
-  
+
   // 숫자 포맷팅 (천 단위 콤마)
   if (numericValue) {
     depositAmount.value = new Intl.NumberFormat('ko-KR').format(numericValue);
@@ -171,37 +191,37 @@ const goToPage = (page) => {
 const searchProducts = async () => {
   loading.value = true;
   error.value = null;
-  
+
   try {
     // 검색 파라미터 구성 (백엔드 API에서 기대하는 형식으로 변경)
     const params = {
       category: 'deposit',
-      categoryId: 1,       // 예금 카테고리
-      subcategoryId: 101,  // 정기예금 서브카테고리
+      categoryId: 1, // 예금 카테고리
+      subcategoryId: 101, // 정기예금 서브카테고리
       minAmount: depositAmount.value.replace(/,/g, ''),
       saveTrm: period.value,
       page: currentPage.value,
       size: pageSize.value,
       sortBy: 'intrRate',
-      sortDirection: 'desc' // 무조건 소문자!!!!!
+      sortDirection: 'desc', // 무조건 소문자!!!!!
     };
-    
+
     // 금리 유형 필터 추가
     if (interestType.value !== 'B') {
       params.intrRateType = interestType.value;
     }
-    
+
     // 가입 방식 필터 추가
     if (joinWay.value !== 'all') {
       params.joinWay = joinWay.value;
     }
 
     console.log('검색 파라미터:', params);
-    
+
     // API 호출 시 콘솔에 응답 로깅
     const response = await getProductsAPI(params);
     console.log('API 응답 (원본):', response);
-    
+
     // 응답 구조 확인 및 데이터 추출
     if (response && response.body && response.body.data) {
       // API 응답 구조를 따라 올바른 경로에서 데이터 추출
@@ -219,7 +239,8 @@ const searchProducts = async () => {
     }
   } catch (err) {
     console.error('상품 검색 실패:', err);
-    error.value = '상품을 검색하는 중 오류가 발생했습니다. ' + (err.message || '');
+    error.value =
+      '상품을 검색하는 중 오류가 발생했습니다. ' + (err.message || '');
     depositProducts.value = [];
     totalCount.value = 0;
   } finally {
@@ -237,19 +258,38 @@ const resetForm = () => {
   searchProducts(); // 초기화 후 검색 실행
 };
 
+// 상품 상세 페이지로 이동하는 함수 추가
+const goToProductDetail = (product) => {
+  // 상품 ID와 saveTrm 값 추출
+  const productId = product.productId;
+  const saveTrm = product.save_trm || product.saveTrm;
+
+  // 쿼리 파라미터를 포함한 라우트로 이동
+  router.push({
+    path: `/products/deposit/${productId}`,
+    query: {
+      saveTrm: saveTrm,
+      // 필요하다면 다른 파라미터도 추가 가능
+      intrRateType: product.intr_rate_type || product.intrRateType,
+    },
+  });
+};
+
 // 초기 데이터 로딩
 onMounted(async () => {
   try {
     // 필터 옵션 먼저 로드
     const filterOptions = await getProductsFilterOptionsAPI('deposit');
     console.log('필터 옵션:', filterOptions);
-    
+
     // 필터 옵션이 있으면 초기값 설정
     if (filterOptions && filterOptions.depositAmountOptions) {
-      depositAmount.value = String(filterOptions.depositAmountOptions.defaultValue || '100000');
+      depositAmount.value = String(
+        filterOptions.depositAmountOptions.defaultValue || '100000'
+      );
       formatAmount(); // 금액 포맷팅 적용
     }
-    
+
     // 초기 검색 실행
     searchProducts();
   } catch (err) {
@@ -306,7 +346,7 @@ onMounted(async () => {
   font-weight: normal;
 }
 
-.radio-group input[type="radio"] {
+.radio-group input[type='radio'] {
   margin-right: 4px;
 }
 
@@ -319,7 +359,7 @@ onMounted(async () => {
 }
 
 .search-btn {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -348,7 +388,9 @@ onMounted(async () => {
   margin-top: 20px;
 }
 
-.loading, .error, .no-results {
+.loading,
+.error,
+.no-results {
   padding: 20px;
   text-align: center;
   background-color: #f9f9f9;
@@ -427,7 +469,7 @@ onMounted(async () => {
 }
 
 .highlight {
-  color: #E91E63;
+  color: #e91e63;
 }
 
 .pagination {
@@ -450,8 +492,8 @@ onMounted(async () => {
 }
 
 .pagination button.active {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
-  border-color: #4CAF50;
+  border-color: #4caf50;
 }
 </style>

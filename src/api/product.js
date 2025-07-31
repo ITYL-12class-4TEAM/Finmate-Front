@@ -9,22 +9,35 @@ export const getProductsAPI = async (params = {}) => {
   try {
     // 요청 정보 로깅
     console.log('API 요청 파라미터:', params);
-    
+
     // 백엔드 API 호출
     const response = await api.get('/api/products', { params });
-    
+
     // 응답 로깅
     console.log('API 원본 응답:', response);
-    
-    // 응답 데이터 추출 및 반환
-    if (response.data && response.data.body && response.data.body.data) {
-      return response.data.body.data;
-    } else {
-      console.warn('예상치 못한 API 응답 구조:', response.data);
-      return {
-        products: [],
-        totalCount: 0
-      };
+
+    // 데이터 추출 및 반환
+    if (response.data) {
+      // API 응답 구조에 맞게 데이터 추출
+      const data = response.data;
+
+      // 응답 구조가 body.data 형태인 경우
+      if (data.body && data.body.data) {
+        return data.body.data;
+      }
+
+      // 응답 구조가 body 형태인 경우
+      if (data.body) {
+        return data.body;
+      }
+
+      // 응답이 data 자체인 경우
+      if (data.data) {
+        return data.data;
+      }
+
+      // 그 외의 경우 응답 전체 반환
+      return data;
     }
   } catch (error) {
     console.error('상품 조회 API 오류:', error);
@@ -37,17 +50,17 @@ export const getProductsAPI = async (params = {}) => {
  * @param {string|number} productId - 상품 ID
  * @returns {Promise<Object>} 상품 상세 정보
  */
-export const getProductDetailAPI = async (productId) => {
+export const getProductDetailAPI = async (productType, productId) => {
   try {
     // 요청 로깅
-    console.log('상품 상세 조회 요청:', productId);
-    
+    console.log(`상품 상세 조회 요청: 유형=${productType}, ID=${productId}`);
+
     // API 호출
-    const response = await api.get(`/api/products/${productId}`);
-    
+    const response = await api.get(`/api/products/${productType}/${productId}`);
+
     // 응답 로깅
     console.log('상품 상세 응답:', response);
-    
+
     // 데이터 추출 및 반환
     if (response.data && response.data.body && response.data.body.data) {
       return response.data.body.data;
@@ -68,7 +81,7 @@ export const getProductDetailAPI = async (productId) => {
 export const getProductsCategoriesAPI = async () => {
   try {
     const response = await api.get('/api/products/categories');
-    
+
     if (response.data && response.data.body && response.data.body.data) {
       return response.data.body.data.categories || [];
     } else {
@@ -90,11 +103,11 @@ export const getProductsCompareAPI = async (productIds = []) => {
   try {
     // 쿼리 파라미터 구성
     const params = {
-      ids: Array.isArray(productIds) ? productIds.join(',') : productIds
+      ids: Array.isArray(productIds) ? productIds.join(',') : productIds,
     };
-    
+
     const response = await api.get('/api/products/compare', { params });
-    
+
     if (response.data && response.data.body && response.data.body.data) {
       return response.data.body.data;
     } else {
@@ -113,20 +126,23 @@ export const getProductsCompareAPI = async (productIds = []) => {
  * @param {string} [subCategory] - 서브 카테고리 코드
  * @returns {Promise<Object>} 필터 옵션 정보
  */
-export const getProductsFilterOptionsAPI = async (category = 'deposit', subCategory) => {
+export const getProductsFilterOptionsAPI = async (
+  category = 'deposit',
+  subCategory
+) => {
   try {
     // 요청 파라미터 구성
     const params = { category };
     if (subCategory) {
       params.subCategory = subCategory;
     }
-    
+
     // API 호출
     const response = await api.get('/api/products/filter-options', { params });
-    
+
     // 응답 로깅
     console.log('필터 옵션 응답:', response);
-    
+
     // 데이터 추출 및 반환
     if (response.data && response.data.body && response.data.body.data) {
       return response.data.body.data;
@@ -134,33 +150,52 @@ export const getProductsFilterOptionsAPI = async (category = 'deposit', subCateg
       console.warn('예상치 못한 API 응답 구조:', response.data);
       // 기본 필터 옵션 반환
       return {
-        productType: "deposit",
+        productType: 'deposit',
         categoryId: 1,
         subcategoryId: 101,
         subcategories: [
-          { subcategory_id: 101, name: "정기예금", description: "일정 금액이 가입할 수 있는 예금" },
-          { subcategory_id: 102, name: "자유적금", description: "자유롭게 입출금 가능한 적금" },
-          { subcategory_id: 103, name: "입출금통장", description: "수시 입출 할수 있는 통장" },
-          { subcategory_id: 104, name: "정기적금", description: "매월 일정액을 적립하는 상품" }
+          {
+            subcategory_id: 101,
+            name: '정기예금',
+            description: '일정 금액이 가입할 수 있는 예금',
+          },
+          {
+            subcategory_id: 102,
+            name: '자유적금',
+            description: '자유롭게 입출금 가능한 적금',
+          },
+          {
+            subcategory_id: 103,
+            name: '입출금통장',
+            description: '수시 입출 할수 있는 통장',
+          },
+          {
+            subcategory_id: 104,
+            name: '정기적금',
+            description: '매월 일정액을 적립하는 상품',
+          },
         ],
         interestTypes: [
-          { code: "S", name: "단리" },
-          { code: "M", name: "복리" }
+          { code: 'S', name: '단리' },
+          { code: 'M', name: '복리' },
         ],
         saveTerms: [1, 3, 6, 12, 24, 36],
-        joinMethods: [
-          "인터넷",
-          "모바일",
-          "오프라인"
-        ],
+        joinMethods: ['인터넷', '모바일', '오프라인'],
         banks: [
-          "국민은행", "신한은행", "하나은행", "우리은행", "IBK기업은행", "농협은행", "SC제일은행", "씨티은행"
+          '국민은행',
+          '신한은행',
+          '하나은행',
+          '우리은행',
+          'IBK기업은행',
+          '농협은행',
+          'SC제일은행',
+          '씨티은행',
         ],
         depositAmountOptions: {
           min: 10000,
           max: 100000000,
-          defaultValue: 100000
-        }
+          defaultValue: 100000,
+        },
       };
     }
   } catch (error) {
