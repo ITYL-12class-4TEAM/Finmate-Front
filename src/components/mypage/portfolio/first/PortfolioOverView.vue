@@ -67,54 +67,6 @@
         </div>
       </div>
     </div>
-
-    <!-- 간단한 분석 -->
-    <div class="row" v-if="processedSummary.length > 0">
-      <div class="col-12">
-        <div class="stats-card analysis-card">
-          <div class="stats-header">
-            <h5 class="stats-title">
-              <i class="fas fa-lightbulb me-2"></i>
-              포트폴리오 분석
-            </h5>
-          </div>
-
-          <div class="stats-content">
-            <div class="analysis-content">
-              <div class="analysis-item">
-                <div class="analysis-icon">
-                  <i class="fas fa-shield-alt"></i>
-                </div>
-                <div class="analysis-text">
-                  <h6>안정성 평가</h6>
-                  <p>{{ getStabilityAnalysis() }}</p>
-                </div>
-              </div>
-
-              <div class="analysis-item">
-                <div class="analysis-icon">
-                  <i class="fas fa-chart-line"></i>
-                </div>
-                <div class="analysis-text">
-                  <h6>성장 가능성</h6>
-                  <p>{{ getGrowthAnalysis() }}</p>
-                </div>
-              </div>
-
-              <div class="analysis-item">
-                <div class="analysis-icon">
-                  <i class="fas fa-bullseye"></i>
-                </div>
-                <div class="analysis-text">
-                  <h6>추천 사항</h6>
-                  <p>{{ getRecommendation() }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 <script setup>
@@ -172,14 +124,14 @@ const overviewPieChart = ref(null);
 let overviewChartInstance = null;
 let isChartLoading = ref(false);
 
-// FinMate 브랜드 색상 팔레트
+// FinMate 브랜드 색상 팔레트 - JSON 데이터의 실제 카테고리명에 맞게 수정
 const CATEGORY_COLORS = {
   예금: '#2d336b',
   적금: '#7d81a2',
+  연금: '#5a6085',
+  보험: '#6b7394',
   펀드: '#b9bbcc',
   대출: '#9ca0b8',
-  보험: '#6b7394',
-  연금: '#5a6085',
   투자: '#4a5578',
   기타: '#8a8ea6',
 };
@@ -241,58 +193,6 @@ const getChartAriaLabel = () => {
     (category) => `${category.categoryName} ${category.ratio.toFixed(1)}%`
   );
   return `자산 분배 현황: ${descriptions.join(', ')}`;
-};
-
-// 안정성 분석
-const getStabilityAnalysis = () => {
-  const depositRatio =
-    props.processedSummary.find((cat) => cat.categoryName === '예금')?.ratio ||
-    0;
-  const savingsRatio =
-    props.processedSummary.find((cat) => cat.categoryName === '적금')?.ratio ||
-    0;
-  const safeRatio = depositRatio + savingsRatio;
-
-  if (safeRatio > 70) return '매우 안정적인 포트폴리오입니다';
-  if (safeRatio > 50) return '안정성이 높은 구성입니다';
-  if (safeRatio > 30) return '균형 잡힌 안정성을 보입니다';
-  return '공격적인 투자 성향입니다';
-};
-
-// 성장 가능성 분석
-const getGrowthAnalysis = () => {
-  const fundRatio =
-    props.processedSummary.find((cat) => cat.categoryName === '펀드')?.ratio ||
-    0;
-  const investRatio =
-    props.processedSummary.find((cat) => cat.categoryName === '투자')?.ratio ||
-    0;
-  const growthRatio = fundRatio + investRatio;
-
-  if (growthRatio > 30) return '높은 성장 잠재력을 가지고 있습니다';
-  if (growthRatio > 15) return '적정한 성장 기회를 확보했습니다';
-  if (growthRatio > 0) return '보수적이지만 안정적인 성장 추구';
-  return '안전 자산 중심의 보수적 운용';
-};
-
-// 추천 사항
-const getRecommendation = () => {
-  const categoryCount = props.processedSummary.length;
-  const totalAmount = props.totalAmount;
-
-  if (categoryCount <= 1) {
-    return '투자 다양성을 높이기 위해 다른 카테고리 상품을 고려해보세요';
-  }
-
-  if (totalAmount < 10000000) {
-    return '꾸준한 적립으로 자산 규모를 늘려나가세요';
-  }
-
-  if (categoryCount >= 3 && totalAmount >= 50000000) {
-    return '현재 포트폴리오를 유지하며 정기적으로 리밸런싱하세요';
-  }
-
-  return '현재 수준을 유지하며 점진적으로 확장해보세요';
 };
 
 // Chart.js 로드
@@ -470,8 +370,8 @@ onBeforeUnmount(cleanup);
 }
 
 .stats-header {
-  margin-bottom: 1.25rem;
-  padding-bottom: 0.875rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
   border-bottom: 1px solid rgba(185, 187, 204, 0.2);
 }
 
@@ -497,11 +397,11 @@ onBeforeUnmount(cleanup);
 
 .chart-container-small {
   position: relative;
-  height: 200px;
+  height: 15rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1rem;
+  padding: 0.5rem;
   background: rgba(255, 255, 255, 0.8);
   border-radius: 0.75rem;
   backdrop-filter: blur(5px);
@@ -624,36 +524,5 @@ onBeforeUnmount(cleanup);
   font-size: 0.85rem;
   line-height: 1.4;
   margin: 0;
-}
-
-/* 반응형 */
-@media (max-width: 480px) {
-  .tab-pane {
-    max-width: none;
-  }
-
-  .stats-card {
-    max-width: none;
-    padding: 1rem;
-  }
-
-  .chart-container-small {
-    height: 180px;
-    padding: 0.75rem;
-  }
-
-  .metrics-grid {
-    gap: 0.75rem;
-  }
-
-  .metric-item {
-    padding: 0.75rem;
-  }
-
-  .analysis-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
 }
 </style>

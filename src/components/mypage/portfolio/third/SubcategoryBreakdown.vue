@@ -10,6 +10,26 @@
 
     <div class="stats-content">
       <div v-if="processedSummary.length > 0" class="subcategory-breakdown">
+        <!-- 전체 펼치기/접기 버튼 -->
+        <div class="breakdown-controls">
+          <button
+            @click="expandAll"
+            class="control-button"
+            :disabled="expandedCategories.size === processedSummary.length"
+          >
+            <i class="bi bi-arrows-expand me-1"></i>
+            전체 펼치기
+          </button>
+          <button
+            @click="collapseAll"
+            class="control-button"
+            :disabled="expandedCategories.size === 0"
+          >
+            <i class="bi bi-arrows-collapse me-1"></i>
+            전체 접기
+          </button>
+        </div>
+
         <div
           v-for="category in processedSummary"
           :key="category.categoryName"
@@ -20,6 +40,9 @@
           <div
             class="category-header"
             @click="toggleCategory(category.categoryName)"
+            role="button"
+            :aria-expanded="expandedCategories.has(category.categoryName)"
+            :aria-controls="`subcategory-${category.categoryName}`"
           >
             <div class="category-info">
               <div class="category-badge">
@@ -31,7 +54,7 @@
                 ></div>
                 <span class="category-name">{{ category.categoryName }}</span>
                 <span class="subcategory-count">
-                  {{ category.subcategories.length }}개
+                  {{ category.subcategories?.length || 0 }}개
                 </span>
               </div>
 
@@ -63,7 +86,7 @@
               <div
                 class="progress-fill"
                 :style="{
-                  width: category.ratio + '%',
+                  width: Math.min(category.ratio, 100) + '%',
                   backgroundColor: getCategoryColor(category.categoryName),
                 }"
               ></div>
@@ -72,13 +95,14 @@
 
           <!-- 서브카테고리 리스트 (확장 가능) -->
           <div
+            :id="`subcategory-${category.categoryName}`"
             class="subcategory-list"
             :class="{
               collapsed: !expandedCategories.has(category.categoryName),
             }"
           >
             <div
-              v-for="(sub, index) in category.subcategories"
+              v-for="(sub, index) in category.subcategories || []"
               :key="sub.subcategoryName"
               class="subcategory-item"
               :style="{ animationDelay: `${index * 0.1}s` }"
@@ -100,7 +124,7 @@
                   <div
                     class="ratio-fill"
                     :style="{
-                      width: sub.ratio + '%',
+                      width: Math.min(sub.ratio, 100) + '%',
                       backgroundColor: adjustColorOpacity(
                         getCategoryColor(category.categoryName),
                         0.4
@@ -117,7 +141,21 @@
                 <div class="subcategory-percentage">
                   카테고리 내 {{ sub.ratio.toFixed(1) }}%
                 </div>
+                <div class="subcategory-global-percentage">
+                  전체 {{ ((category.ratio * sub.ratio) / 100).toFixed(1) }}%
+                </div>
               </div>
+            </div>
+
+            <!-- 서브카테고리가 없는 경우 -->
+            <div
+              v-if="
+                !category.subcategories || category.subcategories.length === 0
+              "
+              class="no-subcategories"
+            >
+              <i class="bi bi-info-circle me-2"></i>
+              세부 분류가 없는 단일 카테고리입니다
             </div>
           </div>
         </div>
@@ -131,28 +169,12 @@
         <p class="empty-text">분석할 카테고리가 없습니다.</p>
         <small class="empty-subtitle">투자 상품을 추가해주세요</small>
       </div>
-
-      <!-- 요약 정보 -->
-      <div v-if="processedSummary.length > 0" class="breakdown-summary">
-        <div class="summary-item">
-          <span class="summary-label">총 카테고리</span>
-          <span class="summary-value">{{ processedSummary.length }}개</span>
-        </div>
-        <div class="summary-item">
-          <span class="summary-label">총 서브카테고리</span>
-          <span class="summary-value">{{ getTotalSubcategories() }}개</span>
-        </div>
-        <div class="summary-item">
-          <span class="summary-label">가장 높은 비중</span>
-          <span class="summary-value">{{ getHighestCategory() }}</span>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, watch } from 'vue';
 
 const props = defineProps({
   processedSummary: {
@@ -165,16 +187,14 @@ const props = defineProps({
 // 반응형 데이터
 const expandedCategories = ref(new Set());
 
-// FinMate 브랜드 색상 팔레트
+// 6개 메인 카테고리에 맞춘 색상 팔레트
 const CATEGORY_COLORS = {
-  예금: '#2d336b',
-  적금: '#7d81a2',
-  펀드: '#b9bbcc',
-  대출: '#9ca0b8',
-  보험: '#6b7394',
-  연금: '#5a6085',
-  투자: '#4a5578',
-  기타: '#8a8ea6',
+  예금: '#2d336b', // 진한 네이비
+  적금: '#5a6085', // 미디엄 네이비
+  보험: '#6b7394', // 그레이 네이비
+  대출: '#9ca0b8', // 라이트 그레이
+  주식: '#7d81a2', // 퍼플 그레이
+  기타: '#8a8ea6', // 중간 그레이
 };
 
 // 색상 가져오기
@@ -197,7 +217,6 @@ const adjustColorOpacity = (color, opacity) => {
 const formatCurrency = (amount) => {
   if (!amount || amount === 0) return '0원';
 
-  // 1억 이상은 억 단위로 표시
   if (amount >= 100000000) {
     const eok = Math.floor(amount / 100000000);
     const remainder = amount % 100000000;
@@ -209,7 +228,6 @@ const formatCurrency = (amount) => {
     }
   }
 
-  // 1만 이상은 만 단위로 표시
   if (amount >= 10000) {
     const man = Math.floor(amount / 10000);
     const remainder = amount % 10000;
@@ -232,29 +250,31 @@ const toggleCategory = (categoryName) => {
   }
 };
 
-// 총 서브카테고리 수 계산
-const getTotalSubcategories = () => {
-  return props.processedSummary.reduce(
-    (total, category) => total + category.subcategories.length,
-    0
+// 전체 펼치기
+const expandAll = () => {
+  expandedCategories.value = new Set(
+    props.processedSummary.map((cat) => cat.categoryName)
   );
 };
 
-// 가장 높은 비중 카테고리
-const getHighestCategory = () => {
-  if (!props.processedSummary.length) return '-';
-
-  const highest = props.processedSummary.reduce((max, current) =>
-    current.ratio > max.ratio ? current : max
-  );
-
-  return `${highest.categoryName} (${highest.ratio.toFixed(1)}%)`;
+// 전체 접기
+const collapseAll = () => {
+  expandedCategories.value.clear();
 };
 
-// 초기 확장 상태 설정 (첫 번째 카테고리만 확장)
-if (props.processedSummary.length > 0) {
-  expandedCategories.value.add(props.processedSummary[0].categoryName);
-}
+// 초기 확장 상태 설정
+watch(
+  () => props.processedSummary,
+  (newData) => {
+    if (newData.length > 0 && expandedCategories.value.size === 0) {
+      const highest = newData.reduce((max, current) =>
+        current.ratio > max.ratio ? current : max
+      );
+      expandedCategories.value.add(highest.categoryName);
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped>
@@ -298,6 +318,35 @@ if (props.processedSummary.length > 0) {
 
 .stats-content {
   padding: 0;
+}
+
+/* 컨트롤 버튼 */
+.breakdown-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.control-button {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(185, 187, 204, 0.3);
+  border-radius: 0.5rem;
+  color: var(--color-main);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.control-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: var(--color-main);
+}
+
+.control-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .subcategory-breakdown {
@@ -468,6 +517,7 @@ if (props.processedSummary.length > 0) {
   color: var(--color-main);
   font-size: 0.9rem;
   font-weight: 500;
+  min-width: 100px;
 }
 
 .subcategory-ratio-bar {
@@ -477,6 +527,7 @@ if (props.processedSummary.length > 0) {
   border-radius: 2px;
   overflow: hidden;
   margin-left: 1rem;
+  max-width: 150px;
 }
 
 .ratio-fill {
@@ -500,6 +551,24 @@ if (props.processedSummary.length > 0) {
   color: var(--color-sub);
   font-size: 0.75rem;
   font-weight: 500;
+  margin-bottom: 0.125rem;
+}
+
+.subcategory-global-percentage {
+  color: var(--color-sub);
+  font-size: 0.7rem;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+/* 서브카테고리 없음 메시지 */
+.no-subcategories {
+  padding: 1rem;
+  color: var(--color-sub);
+  font-size: 0.85rem;
+  text-align: center;
+  font-style: italic;
+  border-top: 1px solid rgba(185, 187, 204, 0.1);
 }
 
 /* 빈 상태 */
@@ -554,7 +623,7 @@ if (props.processedSummary.length > 0) {
 /* 요약 정보 */
 .breakdown-summary {
   margin-top: 1.5rem;
-  padding: 1rem;
+  padding: 1.5rem;
   background: linear-gradient(
     135deg,
     rgba(185, 187, 204, 0.1) 0%,
@@ -562,27 +631,123 @@ if (props.processedSummary.length > 0) {
   );
   border-radius: 0.75rem;
   border: 1px solid rgba(185, 187, 204, 0.2);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .summary-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(185, 187, 204, 0.15);
+}
+
+.summary-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(
+    135deg,
+    var(--color-light) 0%,
+    var(--color-sub) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.summary-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-label {
+  color: var(--color-sub);
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-bottom: 0.125rem;
+}
+
+.summary-value {
+  color: var(--color-main);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* 집중도 분석 */
+.concentration-analysis {
+  padding-top: 1rem;
+  border-top: 1px solid rgba(185, 187, 204, 0.2);
+}
+
+.analysis-title {
+  color: var(--color-main);
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+}
+
+.analysis-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.concentration-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.summary-label {
+.concentration-label {
   color: var(--color-sub);
   font-size: 0.85rem;
   font-weight: 500;
 }
 
-.summary-value {
-  color: var(--color-main);
-  font-size: 0.85rem;
+.concentration-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
   font-weight: 600;
+}
+
+.concentration-badge.excellent {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.concentration-badge.good {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.concentration-badge.average {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.concentration-badge.poor {
+  background: #fed7d7;
+  color: #c53030;
+}
+
+.concentration-badge.dangerous {
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 /* 애니메이션 */
@@ -624,7 +789,11 @@ if (props.processedSummary.length > 0) {
   }
 
   .breakdown-summary {
-    padding: 0.75rem;
+    padding: 1rem;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>

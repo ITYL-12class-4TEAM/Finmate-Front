@@ -33,9 +33,8 @@
               <div class="deletion-content">
                 <h6>개인정보</h6>
                 <ul>
-                  <li>프로필 정보 (이름, 이메일, 전화번호)</li>
+                  <li>프로필 정보</li>
                   <li>계정 인증 정보</li>
-                  <li>개인 설정 및 환경설정</li>
                 </ul>
               </div>
             </div>
@@ -49,7 +48,6 @@
                 <ul>
                   <li>작성한 게시글, 댓글</li>
                   <li>좋아요, 공유 내역</li>
-                  <li>팔로우/팔로워 관계</li>
                 </ul>
               </div>
             </div>
@@ -63,7 +61,6 @@
                 <ul>
                   <li>포트폴리오 및 투자 기록</li>
                   <li>관심 종목 및 알림 설정</li>
-                  <li>거래 내역 및 분석 데이터</li>
                 </ul>
               </div>
             </div>
@@ -77,7 +74,6 @@
                 <ul>
                   <li>스크랩한 게시글</li>
                   <li>즐겨찾기 목록</li>
-                  <li>검색 기록</li>
                 </ul>
               </div>
             </div>
@@ -1051,7 +1047,7 @@ onUnmounted(() => {
 }
 
 .modal-header {
-  padding: 1.5rem;
+  padding: 1rem;
   border-bottom: 1px solid rgba(185, 187, 204, 0.2);
 }
 
@@ -1068,7 +1064,7 @@ onUnmounted(() => {
 }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: 1rem;
 }
 
 .final-warning {
@@ -1076,8 +1072,8 @@ onUnmounted(() => {
 }
 
 .warning-icon-large {
-  width: 4rem;
-  height: 4rem;
+  width: 3rem;
+  height: 3rem;
   border-radius: 50%;
   background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
   display: flex;
@@ -1137,9 +1133,9 @@ onUnmounted(() => {
 
 .modal-footer {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   justify-content: flex-end;
-  padding: 1rem 1.5rem;
+  padding: 1rem 1rem;
   border-top: 1px solid rgba(185, 187, 204, 0.2);
 }
 
