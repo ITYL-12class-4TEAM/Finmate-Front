@@ -338,9 +338,9 @@ onUnmounted(() => {
   padding: 0 1.25rem;
   font-size: 1rem;
   font-weight: 600;
-  z-index: 1002; /* 드롭다운보다 높게 */
+  z-index: 999; /* 드롭다운보다 높게 */
   cursor: pointer;
-  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: box-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -377,7 +377,7 @@ onUnmounted(() => {
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.4);
-  z-index: 998; /* 드롭다운보다 낮게 */
+  z-index: 800; /* 드롭다운보다 낮게 */
   backdrop-filter: blur(4px);
   animation: fadeIn 0.3s ease;
 }
@@ -403,8 +403,8 @@ onUnmounted(() => {
   background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
   padding: 1.5rem 1.25rem 2rem;
   overflow-y: auto;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 999; /* 네비게이션 바보다 낮게 */
+  transition: transform 0.3s;
+  z-index: 950; /* 네비게이션 바보다 낮게 */
   border-radius: 0 0 1rem 1rem;
   box-shadow: 0 8px 25px -5px rgba(45, 51, 107, 0.15);
   backdrop-filter: blur(20px);
@@ -574,7 +574,7 @@ onUnmounted(() => {
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 12px rgba(45, 51, 107, 0.2);
-  z-index: 1000;
+  z-index: 950;
   display: flex;
   align-items: center;
   justify-content: center;
