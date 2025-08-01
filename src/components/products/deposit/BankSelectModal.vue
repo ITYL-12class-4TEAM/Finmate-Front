@@ -336,7 +336,7 @@ onMounted(() => {
 .bank-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+  gap: 0.1rem;
 }
 
 .bank-item {
@@ -373,7 +373,7 @@ onMounted(() => {
 }
 
 .bank-name {
-  font-size: 0.875rem;
+  font-size: 0.7rem;
   text-align: center;
   color: var(--color-sub);
 }
@@ -395,15 +395,4 @@ onMounted(() => {
   cursor: pointer;
 }
 
-/* 모바일 최적화 */
-@media (max-width: 430px) {
-  .bank-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
-  }
-  
-  .bank-name {
-    font-size: 0.75rem;
-  }
-}
 </style>
