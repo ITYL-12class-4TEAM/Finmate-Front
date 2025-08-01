@@ -39,8 +39,8 @@
             >
               <canvas
                 ref="overviewPieChart"
-                width="200"
-                height="200"
+                width="150"
+                height="150"
                 :aria-label="getChartAriaLabel()"
               ></canvas>
 
@@ -353,7 +353,7 @@ onBeforeUnmount(cleanup);
 .stats-card {
   background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
   border-radius: 1rem;
-  padding: 1.25rem;
+  padding: 1rem;
   box-shadow: 0 4px 6px -1px rgba(45, 51, 107, 0.1),
     0 2px 4px -1px rgba(45, 51, 107, 0.06);
   border: 1px solid rgba(185, 187, 204, 0.3);
@@ -472,57 +472,5 @@ onBeforeUnmount(cleanup);
 .empty-subtitle {
   color: var(--color-sub);
   font-size: 0.85rem;
-}
-
-/* 분석 카드 */
-.analysis-card {
-  border: 2px solid rgba(185, 187, 204, 0.2);
-}
-
-.analysis-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.analysis-item {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
-}
-
-.analysis-icon {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(
-    135deg,
-    var(--color-light) 0%,
-    var(--color-sub) 100%
-  );
-  color: white;
-  font-size: 0.9rem;
-  flex-shrink: 0;
-}
-
-.analysis-text {
-  flex: 1;
-}
-
-.analysis-text h6 {
-  color: var(--color-main);
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
-}
-
-.analysis-text p {
-  color: var(--color-sub);
-  font-size: 0.85rem;
-  line-height: 1.4;
-  margin: 0;
 }
 </style>

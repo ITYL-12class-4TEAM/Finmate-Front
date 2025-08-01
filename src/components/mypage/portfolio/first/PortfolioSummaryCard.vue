@@ -13,10 +13,6 @@
         </div>
         <small class="summary-label">총 자산</small>
         <h4 class="summary-value">{{ formatCurrency(totalAmount) }}</h4>
-        <div class="summary-trend" v-if="showTrends">
-          <i class="bi bi-arrow-up"></i>
-          <span>+2.5%</span>
-        </div>
       </div>
 
       <div
@@ -70,14 +66,6 @@
         </div>
       </div>
     </div>
-
-    <!-- 추가 인사이트 (옵션) -->
-    <div v-if="showInsights" class="insights-section">
-      <div class="insight-item">
-        <i class="bi bi-lightbulb"></i>
-        <span>{{ getMainInsight() }}</span>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -102,14 +90,6 @@ const props = defineProps({
     type: Number,
     required: true,
     default: 0,
-  },
-  showTrends: {
-    type: Boolean,
-    default: false,
-  },
-  showInsights: {
-    type: Boolean,
-    default: false,
   },
 });
 
@@ -180,34 +160,6 @@ const getAverageInsight = () => {
   if (props.averageAmount < 10000000) return '중간 규모';
   if (props.averageAmount < 50000000) return '안정적 규모';
   return '대규모 투자';
-};
-
-// 메인 인사이트 - 더 구체적이고 실용적인 조언
-const getMainInsight = () => {
-  const diversityScore = props.categoryCount;
-  const avgAmount = props.averageAmount;
-  const totalAmount = props.totalAmount;
-
-  // 총 자산 규모별 다른 조언
-  if (totalAmount >= 50000000) {
-    if (diversityScore >= 4) {
-      return '훌륭한 자산 분산을 유지하고 있습니다 🎯';
-    } else {
-      return '자산 규모가 크니 분산 투자를 더 고려해보세요 📊';
-    }
-  } else if (totalAmount >= 10000000) {
-    if (diversityScore >= 3) {
-      return '균형 잡힌 포트폴리오를 구성하고 있습니다 👍';
-    } else {
-      return '투자 다양성을 조금 더 높여보는 것을 고려해보세요 📈';
-    }
-  } else {
-    if (diversityScore >= 2) {
-      return '꾸준한 투자로 좋은 기반을 다지고 있네요 💪';
-    } else {
-      return '단계적으로 투자 영역을 확장해나가보세요 🌱';
-    }
-  }
 };
 </script>
 <style scoped>
@@ -345,31 +297,12 @@ const getMainInsight = () => {
 }
 
 .summary-value {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   margin: 0 0 0.25rem 0;
   color: var(--color-main);
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   line-height: 1.2;
-}
-
-.summary-trend {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  margin-top: 0.25rem;
-}
-
-.summary-trend i {
-  font-size: 0.75rem;
-  color: #059669;
-}
-
-.summary-trend span {
-  font-size: 0.75rem;
-  color: #059669;
-  font-weight: 600;
 }
 
 .summary-detail {
@@ -381,35 +314,6 @@ const getMainInsight = () => {
   font-size: 0.7rem;
   font-weight: 500;
   opacity: 0.8;
-}
-
-/* 인사이트 섹션 */
-.insights-section {
-  margin-top: 1rem;
-  padding: 0.75rem;
-  background: linear-gradient(
-    135deg,
-    rgba(185, 187, 204, 0.1) 0%,
-    rgba(125, 129, 162, 0.1) 100%
-  );
-  border-radius: 0.75rem;
-  border: 1px solid rgba(185, 187, 204, 0.2);
-}
-
-.insight-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--color-main);
-  font-size: 0.85rem;
-  font-weight: 500;
-  line-height: 1.4;
-}
-
-.insight-item i {
-  color: var(--color-sub);
-  font-size: 1rem;
-  flex-shrink: 0;
 }
 
 /* 로딩 상태 (옵션) */
