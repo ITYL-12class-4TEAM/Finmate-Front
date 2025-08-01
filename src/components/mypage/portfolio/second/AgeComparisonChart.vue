@@ -12,7 +12,10 @@
 
     <div class="stats-content">
       <!-- 비교 데이터가 있을 때 -->
-      <div v-if="ageComparisonChart.length > 0" class="comparison-chart">
+      <div
+        v-if="userAgeGroup !== '선택 안함' && ageComparisonChart.length > 0"
+        class="comparison-chart"
+      >
         <!-- 데스크톱/태블릿용 전체 목록 -->
         <div class="comparison-list desktop-list">
           <div
@@ -86,7 +89,7 @@
               v-for="(category, index) in ageComparisonChart"
               :key="category.name"
               :class="['tab-button', { active: activeTab === index }]"
-              @click="activeTab = index"
+              @click="toggleTab(index)"
             >
               <span class="tab-name">{{ category.name }}</span>
               <span
@@ -101,7 +104,8 @@
             </button>
           </div>
 
-          <div class="tab-content">
+          <!-- 접기/펼치기 가능한 탭 컨텐츠 -->
+          <div class="tab-content" :class="{ collapsed: activeTab === -1 }">
             <div
               v-for="(category, index) in ageComparisonChart"
               :key="category.name"
@@ -215,8 +219,19 @@ const props = defineProps({
   },
 });
 
-// 모바일 탭 상태
-const activeTab = ref(0);
+// 모바일 탭 상태 (-1은 접힌 상태)
+const activeTab = ref(-1);
+
+// 탭 토글 함수
+const toggleTab = (index) => {
+  if (activeTab.value === index) {
+    // 이미 선택된 탭을 다시 클릭하면 접기
+    activeTab.value = -1;
+  } else {
+    // 다른 탭 선택
+    activeTab.value = index;
+  }
+};
 </script>
 
 <style scoped>
@@ -450,7 +465,30 @@ const activeTab = ref(0);
 }
 
 .tab-content {
-  min-height: 200px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  max-height: 400px;
+}
+
+.tab-content.collapsed {
+  max-height: 0;
+  margin-bottom: 0;
+  opacity: 0;
+}
+
+.tab-panel {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .mobile-comparison-item {
@@ -685,36 +723,16 @@ const activeTab = ref(0);
   }
 }
 
-@media (max-width: 480px) {
-  .tab-buttons {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .mobile-stats-grid {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-  }
-
-  .tab-button {
-    padding: 0.6rem 0.4rem;
-  }
-
-  .tab-name {
-    font-size: 0.75rem;
-  }
-
-  .tab-difference {
-    font-size: 0.65rem;
-  }
-}
-
 /* 접근성 개선 */
 @media (prefers-reduced-motion: reduce) {
   .my-bar,
   .avg-bar,
   .comparison-item,
-  .tab-button {
+  .tab-button,
+  .tab-content,
+  .tab-panel {
     transition: none;
+    animation: none;
   }
 }
 
