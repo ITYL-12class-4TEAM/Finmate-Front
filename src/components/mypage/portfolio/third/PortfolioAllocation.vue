@@ -19,8 +19,8 @@
             <div v-if="processedSummary.length > 0" class="chart-container">
               <canvas
                 ref="pieChart"
-                width="300"
-                height="300"
+                width="200"
+                height="200"
                 :aria-label="getChartAriaLabel()"
               ></canvas>
 
@@ -81,7 +81,7 @@
       </div>
 
       <!-- 서브카테고리 분석 섹션 -->
-      <div class="mb-4">
+      <div>
         <SubcategoryBreakdown :processedSummary="processedSummary" />
       </div>
     </div>
@@ -385,7 +385,7 @@ onBeforeUnmount(cleanup);
 .stats-card {
   background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
   border-radius: 1rem;
-  padding: 1.5rem;
+  padding: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
   box-shadow: 0 4px 6px -1px rgba(45, 51, 107, 0.1),
     0 2px 4px -1px rgba(45, 51, 107, 0.06);
@@ -430,15 +430,14 @@ onBeforeUnmount(cleanup);
 
 .chart-container {
   position: relative;
-  height: 280px;
+  height: 15rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1rem;
+  padding: 0.5rem;
   background: rgba(255, 255, 255, 0.8);
   border-radius: 0.75rem;
   backdrop-filter: blur(5px);
-  margin-bottom: 1.5rem;
 }
 
 .chart-center-info {
@@ -517,11 +516,11 @@ onBeforeUnmount(cleanup);
 .chart-legend {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .legend-item {
-  padding: 1rem;
+  padding: 0.5rem;
   background: rgba(255, 255, 255, 0.8);
   border-radius: 0.75rem;
   border: 1px solid rgba(185, 187, 204, 0.15);
@@ -590,158 +589,6 @@ onBeforeUnmount(cleanup);
   font-weight: 500;
 }
 
-/* 분석 그리드 */
-.analysis-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.analysis-item {
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 0.75rem;
-  border: 1px solid rgba(185, 187, 204, 0.2);
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  transition: all 0.3s ease;
-}
-
-.analysis-item:hover {
-  background: rgba(255, 255, 255, 0.95);
-  transform: translateY(-2px);
-}
-
-.analysis-icon {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  color: white;
-  flex-shrink: 0;
-}
-
-.analysis-icon.safe {
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-}
-
-.analysis-icon.growth {
-  background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
-}
-
-.analysis-icon.diversity {
-  background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
-}
-
-.analysis-content {
-  flex: 1;
-}
-
-.analysis-title {
-  color: var(--color-main);
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
-}
-
-.analysis-score {
-  color: var(--color-main);
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  font-family: 'Pretendard', sans-serif;
-}
-
-.analysis-description {
-  color: var(--color-sub);
-  font-size: 0.85rem;
-  line-height: 1.4;
-  margin: 0;
-}
-
-/* 추천 사항 */
-.recommendations {
-  padding: 1.5rem;
-  background: linear-gradient(
-    135deg,
-    rgba(185, 187, 204, 0.1) 0%,
-    rgba(125, 129, 162, 0.1) 100%
-  );
-  border-radius: 0.75rem;
-  border: 1px solid rgba(185, 187, 204, 0.2);
-}
-
-.recommendations-title {
-  color: var(--color-main);
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-}
-
-.recommendations-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.recommendation-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 0.5rem;
-  border: 1px solid rgba(185, 187, 204, 0.15);
-  transition: all 0.3s ease;
-}
-
-.recommendation-item:hover {
-  background: rgba(255, 255, 255, 0.95);
-  transform: translateY(-1px);
-}
-
-.recommendation-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.5rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-light) 0%,
-    var(--color-sub) 100%
-  );
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-
-.recommendation-content {
-  flex: 1;
-}
-
-.recommendation-title {
-  color: var(--color-main);
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
-}
-
-.recommendation-text {
-  color: var(--color-sub);
-  font-size: 0.85rem;
-  line-height: 1.4;
-  margin: 0;
-}
-
 /* 로딩 상태 */
 .chart-container.loading {
   opacity: 0.7;
@@ -770,93 +617,15 @@ onBeforeUnmount(cleanup);
   }
 }
 
-/* 반응형 처리 */
-@media (max-width: 768px) {
-  .analysis-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .analysis-item {
-    padding: 1rem;
-  }
-
-  .analysis-icon {
-    width: 2.5rem;
-    height: 2.5rem;
-    font-size: 1rem;
-  }
-
-  .analysis-score {
-    font-size: 1.25rem;
-  }
-
-  .recommendations {
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .stats-card {
-    padding: 1rem;
-  }
-
-  .chart-container {
-    height: 240px;
-    padding: 0.75rem;
-  }
-
-  .legend-item {
-    padding: 0.75rem;
-  }
-
-  .legend-info {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .legend-values {
-    text-align: left;
-  }
-
-  .analysis-item {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .recommendation-item {
-    flex-direction: column;
-    text-align: center;
-    gap: 0.75rem;
-  }
-}
-
 /* 접근성 개선 */
 @media (prefers-reduced-motion: reduce) {
   .legend-item,
-  .analysis-item,
-  .recommendation-item {
+  .analysis-item {
     transition: none;
   }
 
   .chart-container.loading::after {
     animation: none;
-  }
-}
-
-/* 고대비 모드 대응 */
-@media (prefers-contrast: high) {
-  .analysis-icon.safe {
-    background: #059669;
-  }
-
-  .analysis-icon.growth {
-    background: #7c3aed;
-  }
-
-  .analysis-icon.diversity {
-    background: #ea580c;
   }
 }
 </style>
