@@ -101,7 +101,8 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import api from '@/api/index';
+import { authAPI } from '@/api/auth';
+import { smsAPI } from '@/api/sms';
 
 const router = useRouter();
 
@@ -143,31 +144,17 @@ const sendPhoneVerification = async () => {
   }
 
   try {
-    // 하이픈 제거한 번호로 API 호출
     const phoneNumber = phoneForm.value.phone.replace(/-/g, '');
-    const response = await api.get(
-      `/sms/send-verification?phoneNumber=${encodeURIComponent(phoneNumber)}`
-    );
+    const response = await smsAPI.sendVerification(phoneNumber);
 
-    if (response.data.header.status === 'OK') {
+    if (response.success) {
       phoneVerificationSent.value = true;
-      alert(response.data.header.message);
+      alert(response.message);
     } else {
-      alert(response.data.header.message);
+      alert(response.message);
     }
   } catch (error) {
-    console.error('인증번호 발송 오류:', error);
-
-    if (error.response) {
-      console.error('응답 상태:', error.response.status);
-      console.error('응답 데이터:', error.response.data);
-
-      const errorMessage =
-        error.response.data?.header?.message || '인증번호 발송에 실패했습니다.';
-      alert(errorMessage);
-    } else {
-      alert('인증번호 발송에 실패했습니다.');
-    }
+    alert('인증번호 발송에 실패했습니다.');
   }
 };
 
@@ -179,20 +166,18 @@ const verifyPhoneCode = async () => {
   }
 
   try {
-    // 하이픈 제거한 번호로 API 호출
     const phoneNumber = phoneForm.value.phone.replace(/-/g, '');
-    const response = await api.post(
-      `/sms/verify-code?phoneNumber=${encodeURIComponent(
-        phoneNumber
-      )}&code=${encodeURIComponent(phoneForm.value.verificationCode)}`
+    const result = await smsAPI.verifyCode(
+      phoneNumber,
+      phoneForm.value.verificationCode
     );
 
-    if (response.data.header.status === 'OK') {
+    if (result.success) {
       phoneVerified.value = true;
-      alert(response.data.header.message);
+      alert(result.message);
     } else {
       phoneVerified.value = false;
-      alert(response.data.header.message);
+      alert(result.message);
     }
   } catch (error) {
     phoneVerified.value = false;
@@ -210,18 +195,15 @@ const findIdByPhone = async () => {
 
   isLoading.value = true;
   try {
-    // 하이픈 제거한 번호로 API 호출
     const phoneNumber = phoneForm.value.phone.replace(/-/g, '');
-    const response = await api.post('/auth/find-id', {
-      name: phoneForm.value.name,
-      phoneNumber: phoneNumber,
-    });
+    const result = await authAPI.findId(phoneForm.value.name, phoneNumber);
 
-    if (response.data.header.status === 'OK') {
-      foundId.value = response.data.body.data.email;
-      foundDate.value = response.data.body.joinDate || '정보 없음';
+    if (result.success) {
+      foundId.value = result.data.email;
+      foundDate.value = result.data.joinDate || '정보 없음';
+      console.log('아이디 찾기 성공:', result.message);
     } else {
-      alert(response.data.header.message);
+      alert(result.message);
     }
   } catch (error) {
     console.error('아이디 찾기 오류:', error);

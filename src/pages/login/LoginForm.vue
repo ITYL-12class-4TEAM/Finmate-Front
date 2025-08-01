@@ -73,6 +73,11 @@ const showPassword = ref(false);
 // computed 속성
 const isLoading = computed(() => authStore.isLoading);
 
+const isValidEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
 const togglePassword = () => {
   showPassword.value = !showPassword.value;
 };
@@ -80,6 +85,10 @@ const togglePassword = () => {
 const handleLogin = async () => {
   if (!loginForm.value.email || !loginForm.value.password) {
     alert('이메일과 비밀번호를 입력해주세요.');
+    return;
+  }
+  if (!isValidEmail(loginForm.value.email)) {
+    alert('올바른 이메일 형식을 입력해주세요.');
     return;
   }
 
@@ -92,7 +101,9 @@ const handleLogin = async () => {
     if (result.success) {
       console.log('로그인 성공:', authStore.userInfo);
       alert('로그인 성공!');
-      router.push('/'); // 홈으로 이동
+      const redirectTo = router.currentRoute.value.query.redirect || '/';
+      await router.push(redirectTo);
+      // alert(`환영합니다! ${authStore.userInfo?.nickname || authStore.userInfo?.username || ''}님`);
     } else {
       alert(result.message);
     }
@@ -102,15 +113,20 @@ const handleLogin = async () => {
   }
 };
 
-// 소셜 로그인 함수들
+const getSocialLoginURL = (provider) => {
+  const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+  return `${baseURL}/oauth2/authorization/${provider}`;
+};
+
 const handleGoogleLogin = () => {
-  window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+  window.location.href = getSocialLoginURL('google');
 };
 
 const handleKakaoLogin = () => {
-  window.location.href = 'http://localhost:8080/oauth2/authorization/kakao';
+  window.location.href = getSocialLoginURL('kakao');
 };
 </script>
+
 <style scoped>
 /* LoginLayout에서 컨테이너 스타일 처리 */
 

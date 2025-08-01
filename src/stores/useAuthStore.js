@@ -1,53 +1,42 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import api from '@/api/index';
+import { authAPI } from '@/api/auth';
+import { memberAPI } from '@/api/member';
 
 export const useAuthStore = defineStore('auth', () => {
   // 상태
   const user = ref(null);
   const accessToken = ref(localStorage.getItem('accessToken') || null);
   const refreshToken = ref(localStorage.getItem('refreshToken') || null);
-  const memberId = ref(localStorage.getItem('memberId') || null);
   const isLoading = ref(false);
 
   // Getters
   const isAuthenticated = computed(() => !!accessToken.value);
   const userInfo = computed(() => user.value);
-  const userLevel = computed(() => user.value?.level || 0);
-  const userBadges = computed(() => user.value?.badges || []);
-  const userNickname = computed(() => user.value?.nickname || '');
 
   // 로그인 액션
   const login = async (email, password) => {
     isLoading.value = true;
 
     try {
-      const response = await api.post('/auth/login', {
-        email,
-        password,
-      });
+      const result = await authAPI.login(email, password);
 
-      const data = response.data;
+      if (result.success) {
+        const loginData = result.data;
+        setTokens(loginData.accessToken, loginData.refreshToken);
 
-      // 성공 시 토큰과 사용자 정보 저장
-      accessToken.value = data.accessToken;
-      refreshToken.value = data.refreshToken;
-      memberId.value = data.memberId;
+        if (loginData.userInfo) {
+          user.value = loginData.userInfo;
+          localStorage.setItem('user', JSON.stringify(loginData.userInfo));
+        }
 
-      user.value = data.userInfo;
-
-      // localStorage에 저장
-      localStorage.setItem('accessToken', data.accessToken);
-      localStorage.setItem('refreshToken', data.refreshToken);
-      localStorage.setItem('memberId', data.memberId);
-      localStorage.setItem('user', JSON.stringify(data.userInfo));
-
-      return { success: true, message: '로그인 성공' };
+        return { success: true, message: result.message };
+      } else {
+        return { success: false, message: result.message };
+      }
     } catch (error) {
-      console.error('로그인 에러:', error);
-      const message =
-        error.response?.data?.message || '네트워크 오류가 발생했습니다.';
-      return { success: false, message };
+      console.error('예상치 못한 로그인 에러:', error);
+      return { success: false, message: '네트워크 연결을 확인해주세요.' };
     } finally {
       isLoading.value = false;
     }
@@ -57,138 +46,123 @@ export const useAuthStore = defineStore('auth', () => {
   const logout = async () => {
     try {
       if (accessToken.value) {
-        await api.post('/auth/logout');
+        const result = await authAPI.logout();
+        console.log('로그아웃:', result.message);
       }
     } catch (error) {
-      console.error('로그아웃 에러:', error);
+      console.error('로그아웃 실패:', error);
     } finally {
-      // 상태 초기화
-      user.value = null;
-      accessToken.value = null;
-      refreshToken.value = null;
-      memberId.value = null;
-
-      // localStorage에서 제거
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('memberId');
-      localStorage.removeItem('user');
+      clearAuthData();
     }
   };
 
-  // 토큰 새로고침
-  const refreshAccessToken = async () => {
-    if (!refreshToken.value) return false;
-
-    try {
-      const response = await api.post('/auth/refresh', {
-        refreshToken: refreshToken.value,
-      });
-
-      const newAccessToken = response.data.accessToken;
-      accessToken.value = newAccessToken;
-      localStorage.setItem('accessToken', newAccessToken);
-      return true;
-    } catch (error) {
-      console.error('토큰 새로고침 에러:', error);
-      await logout();
+  const refreshUser = async () => {
+    if (!accessToken.value) {
+      console.log('토큰이 없습니다.');
       return false;
     }
-  };
-  const refreshUser = async (retryCount = 0) => {
-    if (!accessToken.value) return false;
-
     try {
-      const response = await api.get('/member/me');
-      const userData = response.data;
-      user.value = userData;
-      localStorage.setItem('user', JSON.stringify(userData));
-      return true;
+      const result = await memberAPI.getMyInfo();
+
+      if (result.success) {
+        user.value = result.data;
+        localStorage.setItem('user', JSON.stringify(result.data));
+        console.log('사용자 정보 새로고침 성공');
+        return true;
+      } else {
+        console.warn('사용자 정보 새로고침 실패:', result.message);
+        return false;
+      }
     } catch (error) {
       console.error('사용자 정보 새로고침 에러:', error);
-
-      // 401 에러이고 첫 번째 시도일 때만 refresh 시도
-      if (error.response?.status === 401 && retryCount === 0) {
-        const refreshed = await refreshAccessToken();
-        if (refreshed) {
-          return await refreshUser(1); // 한 번만 재시도
-        }
-      }
-
-      // 실패하면 로그아웃
-      await logout();
       return false;
     }
   };
 
-  // 토큰 설정 (OAuth2 로그인용)
-  const setTokens = (newAccessToken, newRefreshToken, newMemberId = null) => {
-    console.log('=== setTokens 호출됨 ===');
-    console.log('newAccessToken:', newAccessToken);
-    console.log('newRefreshToken:', newRefreshToken);
-    console.log('newMemberId:', newMemberId);
-
-    // 상태 업데이트
-    accessToken.value = newAccessToken;
-    refreshToken.value = newRefreshToken;
-
-    if (newMemberId) {
-      memberId.value = newMemberId;
+  // 토큰 설정
+  const setTokens = (newAccessToken, newRefreshToken) => {
+    if (newAccessToken) {
+      accessToken.value = newAccessToken;
+      localStorage.setItem('accessToken', newAccessToken);
     }
-
-    // localStorage에 저장
-    localStorage.setItem('accessToken', newAccessToken);
-    console.log('accessToken 저장됨:', newAccessToken);
 
     if (newRefreshToken) {
+      refreshToken.value = newRefreshToken;
       localStorage.setItem('refreshToken', newRefreshToken);
-      console.log('refreshToken 저장됨:', newRefreshToken);
     }
+  };
 
-    if (newMemberId) {
-      localStorage.setItem('memberId', newMemberId);
-      console.log('memberId 저장됨:', newMemberId);
-    }
+  // 인증 데이터 초기화
+  const clearAuthData = () => {
+    console.log('인증 데이터 초기화');
 
-    console.log('=== localStorage 저장 완료 ===');
-    console.log('저장된 데이터 확인:');
-    console.log('- accessToken:', localStorage.getItem('accessToken'));
-    console.log('- refreshToken:', localStorage.getItem('refreshToken'));
-    console.log('- memberId:', localStorage.getItem('memberId'));
+    user.value = null;
+    accessToken.value = null;
+    refreshToken.value = null;
+
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
   };
 
   const initialize = async () => {
+    console.log('Auth Store 초기화 시작');
+
     const savedUser = localStorage.getItem('user');
     const savedAccessToken = localStorage.getItem('accessToken');
 
-    if (savedUser && savedAccessToken) {
-      try {
-        user.value = JSON.parse(savedUser);
-        accessToken.value = savedAccessToken;
-        refreshToken.value = localStorage.getItem('refreshToken');
-        memberId.value = localStorage.getItem('memberId');
+    if (!savedUser || !savedAccessToken) {
+      console.log('로그인 필요');
+      return;
+    }
 
-        const isValid = await refreshUser(0);
+    try {
+      user.value = JSON.parse(savedUser);
+      accessToken.value = savedAccessToken;
+      refreshToken.value = localStorage.getItem('refreshToken');
+
+      console.log('인증 정보 복원 완료:', {
+        hasUser: !!user.value,
+        hasAccessToken: !!accessToken.value,
+        hasRefreshToken: !!refreshToken.value,
+      });
+
+      const shouldValidateToken = false; // 설정으로 제어 가능
+
+      if (shouldValidateToken) {
+        console.log('토큰 유효성 확인 중...');
+        const isValid = await refreshUser();
+
         if (!isValid) {
-          await logout();
+          console.log('토큰이 유효하지 않음');
+          clearAuthData();
+        } else {
+          console.log('토큰 유효성 확인 완료');
         }
-      } catch (error) {
-        console.error('초기화 에러:', error);
-        await logout();
       }
-    } else {
-      console.log('저장된 인증 정보 없음 - 로그인 필요');
+    } catch (error) {
+      console.error('초기화 중 오류 발생:', error);
+      console.log('오류로 인한 인증 정보 초기화');
+      clearAuthData();
     }
   };
 
-  // 디버깅용
-  const debugStorage = () => {
-    console.log('=== Auth Store Debug ===');
-    console.log('accessToken:', localStorage.getItem('accessToken'));
-    console.log('refreshToken:', localStorage.getItem('refreshToken'));
-    console.log('user:', localStorage.getItem('user'));
-    console.log('isAuthenticated:', isAuthenticated.value);
-    console.log('userInfo:', userInfo.value);
+  const hasValidTokens = () => {
+    return !!(accessToken.value && refreshToken.value);
+  };
+  const shouldValidateTokenOnInit = async () => {
+    const currentPath = window.location.pathname;
+
+    // 공개 페이지(추가 예정)
+    const publicPages = ['/', '/login', '/register', '/about'];
+
+    if (publicPages.includes(currentPath)) {
+      console.log('공개 페이지 - 토큰 검증 생략');
+      return false;
+    }
+
+    console.log('로그인이 필요한 페이지 입니다.');
+    return true;
   };
 
   return {
@@ -196,21 +170,21 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     accessToken,
     refreshToken,
-    memberId,
     isLoading,
+
     // Getters
     isAuthenticated,
     userInfo,
-    userLevel,
-    userBadges,
-    userNickname,
+
     // 액션
     login,
     logout,
-    refreshAccessToken,
     refreshUser,
     setTokens,
+    clearAuthData,
     initialize,
-    debugStorage,
+
+    hasValidTokens,
+    shouldValidateTokenOnInit,
   };
 });

@@ -174,7 +174,8 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import api from '@/api/index';
+import { authAPI } from '@/api/auth';
+import { smsAPI } from '@/api/sms';
 
 const router = useRouter();
 
@@ -183,7 +184,7 @@ const currentStep = ref(1);
 const isLoading = ref(false);
 const phoneVerificationSent = ref(false);
 const phoneVerified = ref(false);
-const userEmail = ref(''); // 1단계에서 받아온 이메일 저장
+const userEmail = ref('');
 
 // 폼 데이터
 const phoneForm = ref({
@@ -221,31 +222,18 @@ const sendPhoneVerification = async () => {
   }
 
   try {
-    // 하이픈 제거한 번호로 API 호출
     const phoneNumber = phoneForm.value.phone.replace(/-/g, '');
-    const response = await api.get(
-      `/sms/send-verification?phoneNumber=${encodeURIComponent(phoneNumber)}`
-    );
+    const result = await smsAPI.sendVerification(phoneNumber);
 
-    if (response.data.header.status === 'OK') {
+    if (result.success) {
       phoneVerificationSent.value = true;
-      alert(response.data.header.message);
+      alert(result.message);
     } else {
-      alert(response.data.header.message);
+      alert(result.message);
     }
   } catch (error) {
     console.error('인증번호 발송 오류:', error);
-
-    if (error.response) {
-      console.error('응답 상태:', error.response.status);
-      console.error('응답 데이터:', error.response.data);
-
-      const errorMessage =
-        error.response.data?.header?.message || '인증번호 발송에 실패했습니다.';
-      alert(errorMessage);
-    } else {
-      alert('인증번호 발송에 실패했습니다.');
-    }
+    alert('인증번호 발송에 실패했습니다.');
   }
 };
 
@@ -257,20 +245,18 @@ const verifyPhoneCode = async () => {
   }
 
   try {
-    // 하이픈 제거한 번호로 API 호출
     const phoneNumber = phoneForm.value.phone.replace(/-/g, '');
-    const response = await api.post(
-      `/sms/verify-code?phoneNumber=${encodeURIComponent(
-        phoneNumber
-      )}&code=${encodeURIComponent(phoneForm.value.verificationCode)}`
+    const result = await smsAPI.verifyCode(
+      phoneNumber,
+      phoneForm.value.verificationCode
     );
 
-    if (response.data.header.status === 'OK') {
+    if (result.success) {
       phoneVerified.value = true;
-      alert(response.data.header.message);
+      alert(result.message);
     } else {
       phoneVerified.value = false;
-      alert(response.data.header.message);
+      alert(result.message);
     }
   } catch (error) {
     phoneVerified.value = false;
@@ -278,7 +264,6 @@ const verifyPhoneCode = async () => {
     alert('인증번호가 일치하지 않습니다.');
   }
 };
-
 // 비밀번호 유효성 검사
 const passwordChecks = computed(() => ({
   length: newPasswordForm.value.password.length >= 8,
@@ -306,20 +291,18 @@ const findPasswordByPhone = async () => {
 
   isLoading.value = true;
   try {
-    // 하이픈 제거한 번호로 API 호출
     const phoneNumber = phoneForm.value.phone.replace(/-/g, '');
-    const response = await api.post('/auth/find-password', {
-      name: phoneForm.value.name,
-      phoneNumber: phoneNumber,
-    });
+    const response = await authAPI.findPassword(
+      phoneForm.value.name,
+      phoneNumber
+    );
 
-    if (response.data.header.status === 'OK') {
-      // 응답에서 이메일을 받아서 저장
-      userEmail.value = response.data.body.data.email;
+    if (response.success) {
+      userEmail.value = response.data.email;
       currentStep.value = 2;
       alert('본인 인증이 완료되었습니다. 새 비밀번호를 설정해주세요.');
     } else {
-      alert(response.data.header.message);
+      alert(response.message);
     }
   } catch (error) {
     console.error('비밀번호 찾기 오류:', error);
@@ -333,25 +316,21 @@ const findPasswordByPhone = async () => {
 const resetPassword = async () => {
   isLoading.value = true;
   try {
-    const response = await api.post('/auth/reset-password', {
-      newPassword: newPasswordForm.value.password,
-      newPasswordCheck: newPasswordForm.value.confirmPassword,
-      username: userEmail.value, // 1단계에서 받아온 이메일 사용
-    });
+    const response = await authAPI.resetPassword(
+      newPasswordForm.value.password,
+      newPasswordForm.value.confirmPassword,
+      userEmail.value
+    );
 
-    if (response.data.header.status === 'OK') {
+    if (response.success) {
       currentStep.value = 3;
       alert('비밀번호가 성공적으로 변경되었습니다.');
     } else {
-      alert(response.data.header.message);
+      alert(response.message);
     }
   } catch (error) {
     console.error('비밀번호 재설정 오류:', error);
-    if (error.response && error.response.data && error.response.data.header) {
-      alert(error.response.data.header.message);
-    } else {
-      alert('비밀번호 변경에 실패했습니다.');
-    }
+    alert('비밀번호 변경에 실패했습니다.');
   } finally {
     isLoading.value = false;
   }

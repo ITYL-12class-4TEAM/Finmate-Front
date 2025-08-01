@@ -442,12 +442,14 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useAuthStore } from '@/stores/useAuthStore'; // 추가
-import api from '@/api/index';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { authAPI } from '@/api/auth';
+import { smsAPI } from '@/api/sms';
+import { validationAPI } from '@/api/validation';
 
 const router = useRouter();
 const route = useRoute();
-const authStore = useAuthStore(); // 추가
+const authStore = useAuthStore();
 
 const signupForm = ref({
   name: '',
@@ -482,7 +484,6 @@ const showTermsModal = ref(false);
 const showPrivacyModal = ref(false);
 const showMarketingModal = ref(false);
 const isSocialSignup = ref(false);
-const tempToken = ref(''); // temp 토큰 저장용
 
 // 컴포넌트 마운트 시 URL 파라미터 확인
 onMounted(() => {
@@ -501,18 +502,17 @@ onMounted(() => {
 
     if (route.query.email) {
       signupForm.value.email = route.query.email;
-      emailVerified.value = true; // 소셜 로그인 이메일은 검증된 것으로 처리
+      emailVerified.value = true;
       console.log('이메일 설정:', route.query.email);
     }
 
     if (route.query.phone) {
       signupForm.value.phone = route.query.phone;
-      phoneVerified.value = true; // 소셜 로그인 전화번호는 검증된 것으로 처리
+      phoneVerified.value = true;
       console.log('전화번호 설정:', route.query.phone);
     }
 
-    // 소셜 로그인의 경우 추가 정보만 입력하면 됨을 알림
-    alert('소셜 로그인으로 가입하시는 경우 추가 정보만 입력해주세요.');
+    alert('추가 정보를 입력해주세요.');
   }
 });
 
@@ -595,18 +595,14 @@ const checkEmailDuplicate = async () => {
   }
 
   try {
-    const response = await api.get(
-      `/validation/check/email?email=${encodeURIComponent(
-        signupForm.value.email
-      )}`
-    );
+    const response = await validationAPI.checkEmail(signupForm.value.email);
 
-    if (response.data.header.status === 'OK') {
+    if (response.success) {
       emailVerified.value = true;
-      alert(response.data.header.message);
+      alert(response.message);
     } else {
       emailVerified.value = false;
-      alert(response.data.header.message);
+      alert(response.message);
     }
   } catch (error) {
     emailVerified.value = false;
@@ -622,18 +618,16 @@ const checkNicknameDuplicate = async () => {
   }
 
   try {
-    const response = await api.get(
-      `/validation/check/nickname?nickname=${encodeURIComponent(
-        signupForm.value.nickname
-      )}`
+    const response = await validationAPI.checkNickname(
+      signupForm.value.nickname
     );
 
-    if (response.data.header.status === 'OK') {
+    if (response.success) {
       nicknameVerified.value = true;
-      alert(response.data.header.message);
+      alert(response.message);
     } else {
       nicknameVerified.value = false;
-      alert(response.data.header.message);
+      alert(response.message);
     }
   } catch (error) {
     nicknameVerified.value = false;
@@ -649,17 +643,13 @@ const sendPhoneVerification = async () => {
   }
 
   try {
-    const response = await api.get(
-      `/sms/send-verification?phoneNumber=${encodeURIComponent(
-        signupForm.value.phone
-      )}`
-    );
+    const response = await smsAPI.sendVerification(signupForm.value.phone);
 
-    if (response.data.header.status === 'OK') {
+    if (response.success) {
       phoneVerificationSent.value = true;
-      alert(response.data.header.message);
+      alert(response.message);
     } else {
-      alert(response.data.header.message);
+      alert(response.message);
     }
   } catch (error) {
     console.error('인증번호 발송 오류:', error);
@@ -674,18 +664,17 @@ const verifyPhoneCode = async () => {
   }
 
   try {
-    const response = await api.post(
-      `/sms/verify-code?phoneNumber=${encodeURIComponent(
-        signupForm.value.phone
-      )}&code=${encodeURIComponent(signupForm.value.verificationCode)}`
+    const response = await smsAPI.verifyCode(
+      signupForm.value.phone,
+      signupForm.value.verificationCode
     );
 
-    if (response.data.header.status === 'OK') {
+    if (response.success) {
       phoneVerified.value = true;
-      alert(response.data.header.message);
+      alert(response.message);
     } else {
       phoneVerified.value = false;
-      alert(response.data.header.message);
+      alert(response.message);
     }
   } catch (error) {
     phoneVerified.value = false;
@@ -704,17 +693,13 @@ const handleSignup = async () => {
     const signupData = {
       username: signupForm.value.name,
       email: signupForm.value.email,
+      nickname: signupForm.value.nickname,
       birthDate: signupForm.value.birthdate,
       gender: genderMapping[signupForm.value.gender] || signupForm.value.gender,
       termsRequired1: agreements.value.terms,
       termsRequired2: agreements.value.privacy,
       receive_push_notification: agreements.value.marketing,
     };
-
-    // 닉네임이 있는 경우에만 추가
-    if (signupForm.value.nickname) {
-      signupData.nickname = signupForm.value.nickname;
-    }
 
     // 일반 회원가입인 경우에만 비밀번호와 휴대폰 정보 추가
     if (!isSocialSignup.value) {
@@ -725,22 +710,24 @@ const handleSignup = async () => {
 
     console.log('회원가입 데이터:', signupData);
 
-    const endpoint = isSocialSignup.value ? '/signup/social' : '/signup';
-    console.log('요청 URL:', `/api${endpoint}`);
+    const response = isSocialSignup.value
+      ? await authAPI.socialSignup(signupData)
+      : await authAPI.signup(signupData);
 
-    const response = await api.post(endpoint, signupData);
-    console.log('회원가입 응답:', response.data);
-    if (response.data.header.status === 'CREATED') {
+    console.log('회원가입 응답:', response);
+
+    if (response.success) {
       if (isSocialSignup.value) {
         console.log('소셜 회원가입 성공 처리');
 
-        // ApiResponse의 data 필드에서 AuthResultDTO 추출
-        const authData = response.data.body.data;
+        const authData = response.data;
 
-        localStorage.setItem('accessToken', authData.accessToken);
-        localStorage.setItem('refreshToken', authData.refreshToken);
-        localStorage.setItem('memberId', authData.memberId);
-        localStorage.setItem('user', JSON.stringify(authData.userInfo));
+        authStore.setTokens(authData.accessToken, authData.refreshToken);
+
+        if (authData.userInfo) {
+          authStore.user = authData.userInfo;
+          localStorage.setItem('user', JSON.stringify(authData.userInfo));
+        }
 
         alert('소셜 회원가입이 완료되었습니다!');
         router.push('/');
@@ -750,7 +737,7 @@ const handleSignup = async () => {
         router.push('/login');
       }
     } else {
-      alert(response.data.message);
+      alert(response.message);
     }
   } catch (error) {
     console.error('회원가입 오류:', error);
