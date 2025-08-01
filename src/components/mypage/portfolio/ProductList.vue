@@ -3,10 +3,23 @@
     <!-- 헤더 섹션 -->
     <div class="products-header">
       <div class="header-content">
-        <h5 class="section-title">
-          <i class="fas fa-list me-2"></i>
-          보유 상품 목록
-        </h5>
+        <div class="header-top">
+          <h5 class="section-title">
+            <i class="fas fa-layer-group me-2"></i>
+            보유 상품 목록
+          </h5>
+          <div class="header-actions">
+            <button
+              class="btn-add-product"
+              @click="handleAddNewProduct"
+              :disabled="isProcessing"
+            >
+              <i class="fas fa-plus"></i>
+              상품 추가
+            </button>
+          </div>
+        </div>
+
         <div class="header-stats">
           <span class="stats-item">
             <i class="fas fa-box"></i>
@@ -16,38 +29,77 @@
             <i class="fas fa-coins"></i>
             {{ formatTotalAmount() }}
           </span>
+          <span class="stats-item" v-if="portfolioItems.length > 0">
+            <i class="fas fa-chart-line"></i>
+            평균 {{ formatAverageAmount() }}
+          </span>
         </div>
       </div>
+    </div>
 
-      <div class="header-actions">
-        <button
-          class="btn-add-product"
-          @click="$emit('add-new-product')"
-          :disabled="isProcessing"
-        >
-          <i class="fas fa-plus"></i>
-          상품 추가
-        </button>
+    <!-- 필터 및 정렬 -->
+    <div class="list-controls" v-if="portfolioItems.length > 0">
+      <div class="filter-controls">
+        <select v-model="selectedCategory" class="category-filter">
+          <option value="">전체 카테고리</option>
+          <option
+            v-for="category in availableCategories"
+            :key="category"
+            :value="category"
+          >
+            {{ category }}
+          </option>
+        </select>
+
+        <select v-model="sortBy" class="sort-control">
+          <option value="amount-desc">금액 높은순</option>
+          <option value="amount-asc">금액 낮은순</option>
+          <option value="date-desc">최신순</option>
+          <option value="date-asc">오래된순</option>
+          <option value="name-asc">이름순</option>
+        </select>
+      </div>
+
+      <div class="search-control">
+        <div class="search-input-wrapper">
+          <i class="fas fa-search"></i>
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="상품명 또는 회사명 검색..."
+            class="search-input"
+          />
+          <button
+            v-if="searchQuery"
+            @click="searchQuery = ''"
+            class="clear-search"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- 상품 리스트 -->
-    <div class="products-list" v-if="portfolioItems.length > 0">
-      <template v-for="(item, index) in portfolioItems" :key="item.portfolioId">
-        <!-- 기본 상품 아이템 -->
+    <div
+      class="products-list"
+      v-if="filteredItems.length > 0"
+      :class="[viewMode]"
+    >
+      <template v-for="(item, index) in filteredItems" :key="item.portfolioId">
         <ProductItem
+          v-if="!isEditing(item)"
           :item="item"
           :index="index"
-          :totalItems="portfolioItems.length"
-          :isEditing="editingItem?.portfolioId === item.portfolioId"
+          :totalItems="filteredItems.length"
           :isProcessing="isProcessing"
+          :viewMode="viewMode"
           @start-edit="handleStartEdit"
+          @save-product="handleSaveProduct"
           @delete-product="handleDeleteProduct"
         />
-
-        <!-- 수정 폼 (조건부 렌더링) -->
         <ProductEditForm
-          v-if="editingItem?.portfolioId === item.portfolioId"
+          v-else
           :item="item"
           :editForm="editForm"
           :isProcessing="isProcessing"
@@ -55,6 +107,24 @@
           @cancel-edit="handleCancelEdit"
         />
       </template>
+    </div>
+
+    <!-- 검색 결과 없음 -->
+    <div
+      v-else-if="portfolioItems.length > 0 && filteredItems.length === 0"
+      class="no-results"
+    >
+      <div class="no-results-icon">
+        <i class="fas fa-search"></i>
+      </div>
+      <h6 class="no-results-title">검색 결과가 없습니다</h6>
+      <p class="no-results-description">
+        다른 검색어를 시도하거나 필터를 변경해보세요
+      </p>
+      <button class="btn-reset-filters" @click="resetFilters">
+        <i class="fas fa-sync-alt"></i>
+        필터 초기화
+      </button>
     </div>
 
     <!-- 빈 상태 -->
@@ -67,7 +137,7 @@
         첫 번째 투자 상품을 추가하여<br />
         포트폴리오 관리를 시작해보세요
       </p>
-      <button class="btn-add-first" @click="$emit('add-new-product')">
+      <button class="btn-add-first" @click="handleAddNewProduct">
         <i class="fas fa-plus"></i>
         첫 상품 추가하기
       </button>
@@ -76,7 +146,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import ProductItem from './ProductItem.vue';
 import ProductEditForm from './ProductEditForm.vue';
 
@@ -94,31 +164,114 @@ const props = defineProps({
     type: Object,
     default: () => ({ amount: 0, memo: '' }),
   },
-  showSummary: {
-    type: Boolean,
-    default: false,
-  },
 });
 
-// 이벤트 정의
+// 이벤트 정의 - 메인 템플릿과 동일하게 맞춤
 const emit = defineEmits([
   'start-edit',
   'save-edit',
   'cancel-edit',
   'delete-product',
   'add-new-product',
+  'refresh-portfolio',
 ]);
 
 // 반응형 데이터
 const isProcessing = ref(false);
+const isRefreshing = ref(false);
+const viewMode = ref('list'); // 'card' or 'list'
+const selectedCategory = ref('');
+const sortBy = ref('amount-desc');
+const searchQuery = ref('');
+
+// 편집 중인 아이템 확인
+const isEditing = (item) => {
+  return props.editingItem?.portfolioId === item.portfolioId;
+};
+
+// 사용 가능한 카테고리 목록
+const availableCategories = computed(() => {
+  const categories = [
+    ...new Set(
+      props.portfolioItems.map(
+        (item) => item.category || item.subcategoryName || '기타'
+      )
+    ),
+  ];
+  return categories.sort();
+});
+
+// 필터링 및 정렬된 아이템
+const filteredItems = computed(() => {
+  let items = [...props.portfolioItems];
+
+  // 카테고리 필터
+  if (selectedCategory.value) {
+    items = items.filter(
+      (item) =>
+        item.category === selectedCategory.value ||
+        item.subcategoryName === selectedCategory.value
+    );
+  }
+
+  // 검색 필터 - customProductName과 customCompanyName 사용
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase();
+    items = items.filter(
+      (item) =>
+        item.customProductName?.toLowerCase().includes(query) ||
+        item.customCompanyName?.toLowerCase().includes(query) ||
+        item.productName?.toLowerCase().includes(query) ||
+        item.companyName?.toLowerCase().includes(query)
+    );
+  }
+
+  // 정렬
+  items.sort((a, b) => {
+    switch (sortBy.value) {
+      case 'amount-desc':
+        return b.amount - a.amount;
+      case 'amount-asc':
+        return a.amount - b.amount;
+      case 'date-desc':
+        return new Date(b.joinDate) - new Date(a.joinDate);
+      case 'date-asc':
+        return new Date(a.joinDate) - new Date(b.joinDate);
+      case 'name-asc':
+        return (a.customProductName || a.productName || '').localeCompare(
+          b.customProductName || b.productName || ''
+        );
+      default:
+        return 0;
+    }
+  });
+
+  return items;
+});
+
+// 필터 초기화
+const resetFilters = () => {
+  selectedCategory.value = '';
+  sortBy.value = 'amount-desc';
+  searchQuery.value = '';
+};
 
 // 총 금액 포맷팅
 const formatTotalAmount = () => {
   const total = props.portfolioItems.reduce(
-    (sum, item) => sum + item.amount,
+    (sum, item) => sum + (item.amount || 0),
     0
   );
   return formatCurrency(total);
+};
+
+// 평균 금액 포맷팅
+const formatAverageAmount = () => {
+  if (props.portfolioItems.length === 0) return '0원';
+  const average =
+    props.portfolioItems.reduce((sum, item) => sum + (item.amount || 0), 0) /
+    props.portfolioItems.length;
+  return formatCurrency(Math.floor(average));
 };
 
 // 통화 포맷팅
@@ -150,41 +303,63 @@ const formatCurrency = (amount) => {
 };
 
 // 이벤트 핸들러들
-const handleStartEdit = (item) => {
-  isProcessing.value = true;
-  emit('start-edit', item);
-  setTimeout(() => {
-    isProcessing.value = false;
-  }, 300);
+const handleAddNewProduct = () => {
+  emit('add-new-product');
 };
 
-const handleSaveEdit = async (item) => {
-  isProcessing.value = true;
+const handleRefreshPortfolio = async () => {
+  isRefreshing.value = true;
   try {
-    emit('save-edit', item);
+    emit('refresh-portfolio');
+    // 새로고침 애니메이션을 위한 최소 시간
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   } finally {
+    isRefreshing.value = false;
+  }
+};
+
+const handleStartEdit = (item) => {
+  if (!isProcessing.value) {
+    emit('start-edit', item);
+  }
+};
+
+const handleSaveProduct = (updatedItem) => {
+  console.log('🔷 ProductList: save-product 이벤트 받음');
+  console.log('받은 데이터:', updatedItem);
+
+  if (!isProcessing.value) {
+    isProcessing.value = true;
+    emit('save-edit', updatedItem); // 메인 컴포넌트로 전달
+    console.log('🔷 ProductList: save-edit 이벤트 emit 완료');
+
+    // 처리 완료 후 상태 초기화
     setTimeout(() => {
       isProcessing.value = false;
-    }, 500);
+    }, 1000);
+  }
+};
+
+const handleSaveEdit = (item) => {
+  if (!isProcessing.value) {
+    isProcessing.value = true;
+    emit('save-edit', item);
+    // 메인에서 처리 완료 후 isProcessing을 false로 변경
+    setTimeout(() => {
+      isProcessing.value = false;
+    }, 1000);
   }
 };
 
 const handleCancelEdit = () => {
-  isProcessing.value = true;
-  emit('cancel-edit');
-  setTimeout(() => {
-    isProcessing.value = false;
-  }, 200);
+  if (!isProcessing.value) {
+    emit('cancel-edit');
+  }
 };
 
-const handleDeleteProduct = async (item) => {
-  isProcessing.value = true;
-  try {
+const handleDeleteProduct = (item) => {
+  if (!isProcessing.value) {
     emit('delete-product', item);
-  } finally {
-    setTimeout(() => {
-      isProcessing.value = false;
-    }, 1000);
   }
 };
 </script>
@@ -200,6 +375,7 @@ const handleDeleteProduct = async (item) => {
   backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   max-width: 26.875rem;
+
   width: 100%;
   margin: 0 auto;
 }
@@ -208,10 +384,16 @@ const handleDeleteProduct = async (item) => {
 .products-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
   border-bottom: 2px solid rgba(185, 187, 204, 0.2);
+}
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
 }
 
 .header-content {
@@ -243,12 +425,12 @@ const handleDeleteProduct = async (item) => {
   align-items: center;
   gap: 0.5rem;
   color: var(--color-sub);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 500;
 }
 
 .stats-item i {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   opacity: 0.8;
 }
 
@@ -262,7 +444,7 @@ const handleDeleteProduct = async (item) => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
+  padding: 0.4rem 0.75rem;
   background: var(--color-main);
   color: white;
   border: none;
@@ -284,13 +466,95 @@ const handleDeleteProduct = async (item) => {
   cursor: not-allowed;
 }
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* 리스트 컨트롤 */
+.list-controls {
+  flex-direction: column;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(185, 187, 204, 0.2);
+}
+
+.filter-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.category-filter,
+.sort-control {
+  padding: 0.4rem 0.75rem;
+  background: white;
+  border: 1px solid rgba(185, 187, 204, 0.3);
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--color-main);
+  width: 100%;
+  cursor: pointer;
+}
+
+.search-control {
+  flex: 1;
+  max-width: none;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input-wrapper i {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--color-sub);
+  font-size: 0.8rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.4rem 0.75rem 0.4rem 2rem;
+  background: white;
+  border: 1px solid rgba(185, 187, 204, 0.3);
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--color-main);
+}
+
+.search-input::placeholder {
+  color: var(--color-sub);
+  opacity: 0.8;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.4rem 2rem 0.4rem 2rem;
+  background: white;
+  border: 1px solid rgba(185, 187, 204, 0.3);
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--color-main);
+  box-sizing: border-box;
+}
+
+.clear-search {
+  position: absolute;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--color-sub);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 상품 리스트 */
@@ -309,7 +573,12 @@ const handleDeleteProduct = async (item) => {
   box-shadow: 0 8px 25px -5px rgba(45, 51, 107, 0.15);
 }
 
-/* 리스트 내부 아이템들 사이 구분선 */
+.products-list.card,
+.products-list.list {
+  display: flex;
+  flex-direction: column;
+}
+
 .products-list :deep(.product-item) {
   border-bottom: 1px solid rgba(185, 187, 204, 0.2);
   transition: all 0.3s ease;
@@ -323,16 +592,65 @@ const handleDeleteProduct = async (item) => {
   background: rgba(255, 255, 255, 0.8);
 }
 
-/* 수정 폼 스타일링 */
-.products-list :deep(.edit-form) {
+/* 검색 결과 없음 */
+.no-results {
+  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  border-radius: 1rem;
+  border: 2px dashed rgba(185, 187, 204, 0.4);
+  padding: 2rem;
+  text-align: center;
+}
+
+.no-results-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
   background: linear-gradient(
     135deg,
-    rgba(185, 187, 204, 0.1) 0%,
-    rgba(125, 129, 162, 0.1) 100%
+    var(--color-light) 0%,
+    var(--color-sub) 100%
   );
-  border-top: 1px solid rgba(185, 187, 204, 0.2);
-  border-bottom: 1px solid rgba(185, 187, 204, 0.2);
-  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.no-results-icon i {
+  font-size: 1.25rem;
+  color: white;
+}
+
+.no-results-title {
+  color: var(--color-main);
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.no-results-description {
+  color: var(--color-sub);
+  font-size: 0.85rem;
+  margin: 0 0 1rem 0;
+}
+
+.btn-reset-filters {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-sub);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-reset-filters:hover {
+  background: var(--color-main);
 }
 
 /* 빈 상태 */
@@ -404,23 +722,8 @@ const handleDeleteProduct = async (item) => {
   box-shadow: 0 4px 12px rgba(45, 51, 107, 0.2);
 }
 
-/* 로딩 상태 */
-.products-list.loading {
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-.products-list.loading::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 2rem;
-  height: 2rem;
-  border: 3px solid var(--color-light);
-  border-top: 3px solid var(--color-main);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  transform: translate(-50%, -50%);
+.btn-add-first:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(45, 51, 107, 0.3);
 }
 </style>

@@ -40,12 +40,28 @@
       :editingItem="editingItem"
       :editForm="editForm"
       :showSummary="true"
-      @add-new-product="addNewProduct"
+      @add-new-product="openAddModal"
       @refresh-portfolio="refreshPortfolio"
       @start-edit="startEdit"
       @save-edit="saveEdit"
       @cancel-edit="cancelEdit"
       @delete-product="deleteProduct"
+    />
+
+    <!-- 상품 추가 모달 -->
+    <ProductAddModal
+      :isVisible="showAddModal"
+      @close="closeAddModal"
+      @add-product="addNewProduct"
+    />
+
+    <!-- 삭제 확인 모달 -->
+    <DeleteConfirmModal
+      :isVisible="showDeleteModal"
+      :productName="productToDelete?.customProductName || '상품'"
+      :isProcessing="isDeleting"
+      @close="closeDeleteModal"
+      @confirm="confirmDelete"
     />
   </div>
 </template>
@@ -66,6 +82,8 @@ import PortfolioComparison from '../../components/mypage/portfolio/second/Portfo
 import PortfolioAllocation from '../../components/mypage/portfolio/third/PortfolioAllocation.vue';
 import PortfolioWMTI from '../../components/mypage/portfolio/fourth/PortfolioWMTI.vue';
 import ProductList from '../../components/mypage/portfolio/ProductList.vue';
+import ProductAddModal from '../../components/mypage/portfolio/ProductAddModal.vue';
+import DeleteConfirmModal from '../../components/mypage/portfolio/DeleteConfirmModal.vue';
 
 // -------------------- 상태 관리 --------------------
 const loading = ref(false);
@@ -81,7 +99,13 @@ const editForm = ref({
   memo: '',
 });
 
-// 사용자 나이대 (추후 API에서 받아올 예정)
+// 모달 상태
+const showAddModal = ref(false);
+const showDeleteModal = ref(false);
+const productToDelete = ref(null);
+const isDeleting = ref(false);
+
+// 사용자 나이대
 const userAgeGroup = ref('');
 
 // -------------------- API 호출 --------------------
@@ -105,7 +129,7 @@ const fetchPortfolioData = async () => {
     portfolioItems.value = itemsRes.data.body.data || [];
     summaryData.value = summaryRes.data.body.data || {};
 
-    // 나이대 정보 설정 - ageGroupStats 배열에서 첫 번째 항목의 ageGroup 사용
+    // 나이대 정보 설정
     const ageStat = summaryData.value?.comparisonSummary?.ageGroupStats?.[0];
     if (ageStat?.ageGroup) {
       userAgeGroup.value = `${ageStat.ageGroup}대`;
@@ -156,7 +180,6 @@ const recentProduct = computed(() => {
 });
 
 // -------------------- 비교 데이터 --------------------
-// subcategory 이름으로 비율을 찾는 함수 - JSON 구조에 맞게 수정
 const findRatioInSummary = (subcategoryName) => {
   for (const cat of processedSummary.value) {
     for (const sub of cat.subcategories || []) {
@@ -168,7 +191,6 @@ const findRatioInSummary = (subcategoryName) => {
   return 0;
 };
 
-// 카테고리 이름으로 비율을 찾는 함수 추가 (byAgeGroup은 카테고리 이름을 사용)
 const findCategoryRatioInSummary = (categoryName) => {
   const category = processedSummary.value.find(
     (cat) => cat.categoryName === categoryName
@@ -179,7 +201,6 @@ const findCategoryRatioInSummary = (categoryName) => {
 const ageComparisonChart = computed(() => {
   const group = summaryData.value?.comparisonSummary?.byAgeGroup || [];
   return group.map((item) => {
-    // 먼저 카테고리에서 찾고, 없으면 서브카테고리에서 찾기
     let my = findCategoryRatioInSummary(item.categoryName);
     if (my === 0) {
       my = findRatioInSummary(item.categoryName);
@@ -198,7 +219,6 @@ const ageComparisonChart = computed(() => {
 const assetRangeChart = computed(() => {
   const group = summaryData.value?.comparisonSummary?.byAmountGroup || [];
   return group.map((item) => {
-    // 먼저 카테고리에서 찾고, 없으면 서브카테고리에서 찾기
     let my = findCategoryRatioInSummary(item.categoryName);
     if (my === 0) {
       my = findRatioInSummary(item.categoryName);
@@ -263,6 +283,62 @@ const generateComparisonMessage = () => {
   }
 };
 
+// -------------------- 모달 관리 --------------------
+const openAddModal = () => {
+  showAddModal.value = true;
+};
+
+const closeAddModal = () => {
+  showAddModal.value = false;
+};
+
+const openDeleteModal = (item) => {
+  productToDelete.value = item;
+  showDeleteModal.value = true;
+};
+
+const closeDeleteModal = () => {
+  if (!isDeleting.value) {
+    showDeleteModal.value = false;
+    productToDelete.value = null;
+  }
+};
+
+// -------------------- 상품 추가 --------------------
+const addNewProduct = async (newProduct) => {
+  try {
+    const accessToken = localStorage.getItem('accessToken');
+
+    const response = await axios.post('/api/portfolio', newProduct, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (response.status === 200 || response.status === 201) {
+      closeAddModal();
+
+      // 성공 알림 (더 사용자 친화적으로)
+      const productName = newProduct.customProductName;
+
+      // 포트폴리오 데이터 새로고침
+      await fetchPortfolioData();
+    }
+  } catch (err) {
+    console.error('상품 추가 실패:', err);
+
+    // 에러 메시지 개선
+    let errorMessage = '상품 추가 중 오류가 발생했습니다.';
+    if (err.response?.status === 400) {
+      errorMessage = '입력 정보를 확인해주세요.';
+    } else if (err.response?.status === 401) {
+      errorMessage = '로그인이 필요합니다.';
+    } else if (err.response?.status === 403) {
+      errorMessage = '권한이 없습니다.';
+    }
+
+    alert(`❌ ${errorMessage} 다시 시도해주세요.`);
+  }
+};
+
 // -------------------- 상품 편집/삭제 --------------------
 const startEdit = (item) => {
   editingItem.value = item;
@@ -278,62 +354,120 @@ const cancelEdit = () => {
 };
 
 const saveEdit = async (item) => {
-  if (!editForm.value.amount || editForm.value.amount <= 0) {
+  console.log('🔶 saveEdit 호출됨:', item);
+
+  // item 파라미터에서 수정된 데이터 사용
+  if (!item.amount || item.amount <= 0) {
     alert('투자금액을 올바르게 입력해주세요.');
+    return;
+  }
+
+  // portfolioId 확인
+  if (!item.portfolioId) {
+    alert('상품 ID가 없어 수정할 수 없습니다.');
+    console.error('portfolioId 없음:', item);
     return;
   }
 
   try {
     const accessToken = localStorage.getItem('accessToken');
 
+    console.log('API 요청 데이터:', {
+      portfolioId: item.portfolioId,
+      amount: item.amount,
+      memo: item.memo,
+    });
+
     await axios.patch(
       `/api/portfolio/${item.portfolioId}`,
       {
-        amount: editForm.value.amount,
-        memo: editForm.value.memo,
+        // item에서 필요한 필드들 추출
+        amount: item.amount,
+        memo: item.memo || '',
+        // 추가 필드들도 포함 (ProductEditModal에서 모든 데이터를 보내므로)
+        customProductName: item.customProductName,
+        customCompanyName: item.customCompanyName,
+        category: item.category,
+        subcategory: item.subcategory,
+        interestRate: item.interestRate,
+        customRate: item.customRate,
+        expectedReturn: item.expectedReturn,
+        saveTrm: item.saveTrm,
+        joinDate: item.joinDate,
+        maturityDate: item.maturityDate,
+        estimatedInterest: item.estimatedInterest,
+        estimatedAfterTax: item.estimatedAfterTax,
       },
       {
         headers: { Authorization: `Bearer ${accessToken}` },
       }
     );
 
-    // 로컬 상태 업데이트
+    // 로컬 상태 업데이트 - item 데이터로 업데이트
     const idx = portfolioItems.value.findIndex(
       (p) => p.portfolioId === item.portfolioId
     );
+
+    console.log('업데이트할 인덱스:', idx);
+
     if (idx !== -1) {
-      portfolioItems.value[idx].amount = editForm.value.amount;
-      portfolioItems.value[idx].memo = editForm.value.memo;
+      // 전체 아이템 정보 업데이트
+      portfolioItems.value[idx] = { ...portfolioItems.value[idx], ...item };
+      console.log('로컬 상태 업데이트 완료');
     }
 
     cancelEdit();
-    alert('수정 완료!');
 
     // 전체 데이터 다시 불러오기 (요약 데이터 갱신을 위해)
     await fetchPortfolioData();
   } catch (err) {
-    alert('수정에 실패했습니다. 다시 시도해주세요.');
-    console.error('Edit error:', err);
+    console.error('수정 에러 상세:', {
+      status: err.response?.status,
+      statusText: err.response?.statusText,
+      data: err.response?.data,
+      message: err.message,
+    });
+
+    let errorMessage = '수정에 실패했습니다.';
+    if (err.response?.status === 400) {
+      errorMessage = '잘못된 요청입니다. 입력값을 확인해주세요.';
+    } else if (err.response?.status === 401) {
+      errorMessage = '인증이 만료되었습니다. 다시 로그인해주세요.';
+    } else if (err.response?.status === 404) {
+      errorMessage = '해당 상품을 찾을 수 없습니다.';
+    }
+
+    alert(`❌ ${errorMessage}`);
   }
 };
 
-const deleteProduct = async (item) => {
-  // JSON 데이터에서는 customProductName을 사용
-  const productName = item.customProductName || item.productName || '상품';
-  if (!confirm(`${productName}을 삭제할까요?`)) return;
+const deleteProduct = (item) => {
+  openDeleteModal(item);
+};
+
+const confirmDelete = async () => {
+  if (!productToDelete.value) return;
+
+  isDeleting.value = true;
 
   try {
     const accessToken = localStorage.getItem('accessToken');
 
-    await axios.delete(`/api/portfolio/${item.portfolioId}`, {
+    await axios.delete(`/api/portfolio/${productToDelete.value.portfolioId}`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
-    alert('삭제 완료');
+    const productName = productToDelete.value.customProductName || '상품';
+
+    closeDeleteModal();
+
+    // 포트폴리오 데이터 새로고침
     await fetchPortfolioData();
   } catch (err) {
-    alert('삭제에 실패했습니다. 다시 시도해주세요.');
+    alert('❌ 삭제에 실패했습니다. 다시 시도해주세요.');
     console.error('Delete error:', err);
+  } finally {
+    isDeleting.value = false;
   }
 };
 
@@ -342,13 +476,7 @@ const refreshPortfolio = async () => {
   await fetchPortfolioData();
 };
 
-const addNewProduct = () => {
-  alert('상품 추가 기능은 준비 중입니다.');
-  // TODO: 상품 추가 기능 구현
-};
-
 // -------------------- Watchers --------------------
-// 연령대 비교 차트 데이터가 변경될 때마다 비교 메시지 생성
 watch(
   ageComparisonChart,
   () => {

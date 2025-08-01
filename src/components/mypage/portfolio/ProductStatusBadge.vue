@@ -17,11 +17,9 @@ const props = defineProps({
   },
 });
 
-// 상품 상태 계산 - JSON 데이터 구조에 맞게 개선
 const productStatus = computed(() => {
   const today = new Date();
 
-  // 만기일 체크 (우선순위 1)
   if (props.item.maturityDate) {
     const maturityDate = new Date(props.item.maturityDate);
     const diffTime = maturityDate - today;
@@ -31,27 +29,26 @@ const productStatus = computed(() => {
       return {
         text: '만료',
         class: 'expired',
-        icon: 'bi bi-exclamation-circle',
+        icon: 'fas fa-exclamation-circle',
         priority: 1,
       };
     } else if (diffDays <= 7) {
       return {
         text: '만기임박',
         class: 'urgent',
-        icon: 'bi bi-clock-fill',
+        icon: 'fas fa-clock',
         priority: 2,
       };
     } else if (diffDays <= 30) {
       return {
         text: `만기 ${diffDays}일전`,
         class: 'warning',
-        icon: 'bi bi-exclamation-triangle-fill',
+        icon: 'fas fa-exclamation-triangle',
         priority: 3,
       };
     }
   }
 
-  // 가입일 체크 - 신규 상품 (우선순위 4)
   if (props.item.joinDate) {
     const joinDate = new Date(props.item.joinDate);
     const diffTime = today - joinDate;
@@ -61,25 +58,23 @@ const productStatus = computed(() => {
       return {
         text: '신규',
         class: 'new',
-        icon: 'bi bi-star-fill',
+        icon: 'fas fa-star',
         priority: 4,
       };
     } else if (diffDays <= 30) {
       return {
         text: '최근가입',
         class: 'recent',
-        icon: 'bi bi-bookmark-star-fill',
+        icon: 'fas fa-bookmark',
         priority: 5,
       };
     }
   }
 
-  // 수익률 기반 상태 체크 (우선순위 6-7)
   const interestRate = props.item.interestRate;
   const customRate = props.item.customRate;
   const expectedReturn = props.item.expectedReturn;
 
-  // 가장 높은 수익률 찾기
   const rates = [interestRate, customRate, expectedReturn].filter(
     (rate) => rate && rate > 0
   );
@@ -89,41 +84,23 @@ const productStatus = computed(() => {
     return {
       text: '초고수익',
       class: 'ultra-high-yield',
-      icon: 'bi bi-rocket-takeoff',
+      icon: 'fas fa-rocket',
       priority: 6,
     };
   } else if (maxRate >= 4.0) {
     return {
       text: '고수익',
       class: 'high-yield',
-      icon: 'bi bi-graph-up-arrow',
+      icon: 'fas fa-chart-line',
       priority: 7,
     };
   }
 
-  // 리스크 레벨 기반 상태 (우선순위 8-9)
-  if (props.item.riskLevel === 'HIGH') {
-    return {
-      text: '고위험',
-      class: 'high-risk',
-      icon: 'bi bi-shield-exclamation',
-      priority: 8,
-    };
-  } else if (props.item.riskLevel === 'LOW' && maxRate >= 2.0) {
-    return {
-      text: '안정적',
-      class: 'stable',
-      icon: 'bi bi-shield-check',
-      priority: 9,
-    };
-  }
-
-  // 카테고리별 특별 상태 (우선순위 10-12)
   if (props.item.category === '대출') {
     return {
       text: '대출상품',
       class: 'loan',
-      icon: 'bi bi-credit-card',
+      icon: 'fas fa-credit-card',
       priority: 10,
     };
   }
@@ -132,7 +109,7 @@ const productStatus = computed(() => {
     return {
       text: '종신보장',
       class: 'lifetime',
-      icon: 'bi bi-infinity',
+      icon: 'fas fa-infinity',
       priority: 11,
     };
   }
@@ -141,12 +118,11 @@ const productStatus = computed(() => {
     return {
       text: '대체투자',
       class: 'alternative',
-      icon: 'bi bi-building',
+      icon: 'fas fa-building',
       priority: 12,
     };
   }
 
-  // 적금/펀드 등 정기 상품의 경우 진행 상태 표시 (우선순위 13)
   if (props.item.saveTrm && props.item.joinDate && props.item.maturityDate) {
     const joinDate = new Date(props.item.joinDate);
     const maturityDate = new Date(props.item.maturityDate);
@@ -161,14 +137,14 @@ const productStatus = computed(() => {
       return {
         text: '만기근접',
         class: 'near-maturity',
-        icon: 'bi bi-hourglass-bottom',
+        icon: 'fas fa-hourglass-end',
         priority: 13,
       };
     } else if (progress >= 50) {
       return {
         text: '중간지점',
         class: 'midterm',
-        icon: 'bi bi-hourglass-split',
+        icon: 'fas fa-hourglass-half',
         priority: 14,
       };
     }
@@ -180,9 +156,6 @@ const productStatus = computed(() => {
 
 <style scoped>
 .product-status {
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
   z-index: 10;
 }
 
@@ -190,9 +163,9 @@ const productStatus = computed(() => {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.3rem 0.6rem;
+  padding: 0.3rem 0.5rem;
   border-radius: 0.5rem;
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   font-weight: 600;
   color: white;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
@@ -257,15 +230,6 @@ const productStatus = computed(() => {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 }
 
-/* 리스크 기반 상태 */
-.status-badge.high-risk {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-}
-
-.status-badge.stable {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-}
-
 /* 카테고리 기반 상태 */
 .status-badge.loan {
   background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
@@ -310,49 +274,6 @@ const productStatus = computed(() => {
   }
   100% {
     transform: translateX(100%) translateY(100%) rotate(45deg);
-  }
-}
-
-/* 반응형 */
-@media (max-width: 480px) {
-  .status-badge {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.65rem;
-  }
-
-  .status-badge i {
-    font-size: 0.6rem;
-  }
-}
-
-/* 접근성 */
-@media (prefers-reduced-motion: reduce) {
-  .status-badge.expired,
-  .status-badge.urgent {
-    animation: none;
-  }
-
-  .status-badge.new::before {
-    animation: none;
-  }
-
-  .status-badge:hover {
-    transform: none;
-  }
-}
-
-/* 고대비 모드 */
-@media (prefers-contrast: high) {
-  .status-badge {
-    border: 2px solid currentColor;
-    font-weight: 700;
-  }
-}
-
-/* 다크모드 대응 */
-@media (prefers-color-scheme: dark) {
-  .status-badge {
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   }
 }
 </style>
