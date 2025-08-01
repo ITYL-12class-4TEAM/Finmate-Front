@@ -174,7 +174,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 
 const props = defineProps({
   processedSummary: {
@@ -262,7 +262,42 @@ const collapseAll = () => {
   expandedCategories.value.clear();
 };
 
-// 초기 확장 상태 설정
+// 분산 수준 분석
+const getDiversificationLevel = () => {
+  const categoryCount = props.processedSummary.length;
+  const maxRatio = Math.max(...props.processedSummary.map((cat) => cat.ratio));
+
+  if (categoryCount >= 5 && maxRatio < 40) {
+    return { text: '매우 우수', class: 'excellent' };
+  } else if (categoryCount >= 4 && maxRatio < 50) {
+    return { text: '우수', class: 'good' };
+  } else if (categoryCount >= 3 && maxRatio < 60) {
+    return { text: '보통', class: 'average' };
+  } else if (categoryCount >= 2) {
+    return { text: '개선 필요', class: 'poor' };
+  } else {
+    return { text: '위험', class: 'dangerous' };
+  }
+};
+
+// 리스크 집중도 분석
+const getRiskConcentration = () => {
+  const maxRatio = Math.max(...props.processedSummary.map((cat) => cat.ratio));
+
+  if (maxRatio >= 70) {
+    return { text: '매우 높음', class: 'dangerous' };
+  } else if (maxRatio >= 50) {
+    return { text: '높음', class: 'poor' };
+  } else if (maxRatio >= 35) {
+    return { text: '보통', class: 'average' };
+  } else if (maxRatio >= 25) {
+    return { text: '낮음', class: 'good' };
+  } else {
+    return { text: '매우 낮음', class: 'excellent' };
+  }
+};
+
+// 초기 확장 상태 설정 (가장 높은 비중 카테고리만 확장)
 watch(
   () => props.processedSummary,
   (newData) => {
@@ -794,6 +829,74 @@ watch(
 
   .summary-grid {
     grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .summary-item {
+    padding: 0.5rem;
+  }
+
+  .breakdown-controls {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .control-button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .category-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .category-stats {
+    text-align: left;
+  }
+
+  .subcategory-ratio-bar {
+    margin-left: 0;
+    margin-top: 0.5rem;
+    max-width: none;
+  }
+
+  .concentration-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}
+
+/* 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+  .category-group,
+  .subcategory-item,
+  .control-button {
+    transition: none;
+  }
+
+  .subcategory-item {
+    animation: none;
+  }
+}
+
+/* 인쇄 스타일 */
+@media print {
+  .breakdown-controls {
+    display: none;
+  }
+
+  .category-group {
+    break-inside: avoid;
+  }
+
+  .subcategory-list {
+    max-height: none !important;
+    opacity: 1 !important;
   }
 }
 </style>
