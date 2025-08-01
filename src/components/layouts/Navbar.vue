@@ -49,9 +49,15 @@
 
           <!-- 사용자 메뉴 드롭다운 -->
           <div class="user-dropdown" :class="{ open: dropdownOpen }">
-            <p>홍길동님</p>
+            <p>
+              {{
+                authStore.userNickname ||
+                authStore.userInfo?.username ||
+                '사용자'
+              }}님
+            </p>
             <router-link to="/mypage">마이페이지 이동</router-link>
-            <button @click="logout">로그아웃</button>
+            <button @click="handleLogout">로그아웃</button>
           </div>
         </div>
       </div>
@@ -79,8 +85,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/useAuthStore';
 import DesktopNavbar from './DesktopNavbar.vue';
 import MobileMenu from './MobileMenu.vue';
+
+const router = useRouter();
+const authStore = useAuthStore();
 
 const isMobile = ref(false);
 const mobileOpen = ref(false);
@@ -95,9 +106,27 @@ onMounted(() => {
   window.addEventListener('resize', checkViewport);
 });
 
-function logout() {
-  alert('로그아웃 처리 예정');
-}
+// 로그아웃 처리 함수
+const handleLogout = async () => {
+  try {
+    console.log('로그아웃 시작...');
+
+    // Auth Store의 로그아웃 함수 호출
+    await authStore.logout();
+
+    console.log('로그아웃 완료');
+    alert('로그아웃되었습니다.');
+
+    // 드롭다운 닫기
+    dropdownOpen.value = false;
+
+    // 로그인 페이지로 이동
+    router.push('/login');
+  } catch (error) {
+    console.error('로그아웃 처리 중 오류:', error);
+    alert('로그아웃 처리 중 오류가 발생했습니다.');
+  }
+};
 
 function toggleDropdown() {
   dropdownOpen.value = !dropdownOpen.value;
@@ -175,5 +204,18 @@ function toggleDropdown() {
 
 .user-dropdown.open {
   display: flex;
+}
+
+.user-dropdown button {
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  padding: 4px 0;
+  color: var(--color-main);
+}
+
+.user-dropdown button:hover {
+  color: var(--color-accent);
 }
 </style>

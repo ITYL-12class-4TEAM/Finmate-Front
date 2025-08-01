@@ -24,17 +24,36 @@ const router = createRouter({
           name: 'login',
           component: () => import('../pages/login/LoginForm.vue'),
         }, // 로그인
-        //{ path: 'signup', name: 'signup', component: Signup }, // 회원가입
-        //{ path: 'find-id', name: 'forgot', component: FindId }, // 아이디 찾기
-        //{ path: 'find-password', name: 'reset', component: FindPassword }, // 비밀번호 찾기
+        {
+          path: 'signup',
+          name: 'signup',
+          component: () => import('../pages/login/SignUpForm.vue'),
+        }, // 회원가입
+        {
+          path: 'find-id',
+          name: 'findId',
+          component: () => import('../pages/login/FindIdForm.vue'),
+        }, // 아이디 찾기
+        {
+          path: 'find-password',
+          name: 'findPassword',
+          component: () => import('../pages/login/FindPasswordForm.vue'),
+        }, // 비밀번호 찾기
       ],
+    },
+
+    // OAuth2 리다이렉트 처리
+    {
+      path: '/auth/oauth2/redirect',
+      name: 'OAuth2Redirect',
+      component: () => import('../pages/auth/OAuth2Redirect.vue'),
     },
 
     // 마이페이지
     {
       path: '/mypage',
       name: 'MyPage',
-      component: () => import('../pages/mypage/MypageLayout.vue'), // 마이페이지 공통 레이아웃
+      component: () => import('../pages/mypage/MyPage.vue'), // 마이페이지 공통 레이아웃
 
       children: [
         {
@@ -170,7 +189,7 @@ const router = createRouter({
           name: 'ProductPension',
           component: () => import('../pages/products/ProductPension.vue'),
         }, // 연금
-        //{ path: 'fund', name: 'ProductFund', component: () => import('../pages/products/ProductFund.vue')}, // 펀드
+        //{ path: 'fund', name: 'ProductFund', component: () => import('../pages/products/ProductFund.vue')}, // 펀드q
         //{ path: 'loan', name: 'ProductLoan', component: () => import('../pages/products/ProductLoan.vue')}, // 대출
         //{ path: 'insurance', name: 'ProductInsurance', component: () => import('../pages/products/ProductInsurance.vue')}, // 보험
         {
@@ -208,12 +227,17 @@ const router = createRouter({
           path: 'survey',
           name: 'SurveyPage',
           component: () => import('../pages/wmti/SurveyPage.vue'),
+<<<<<<< HEAD
         }, // WMTI 성향 검사지
         {
           path: 'result',
           name: 'SurveyResult',
           component: () => import('../pages/wmti/SurveyResult.vue'),
         }, // WMTI 성향 결과지
+=======
+        }, // WMTI 성향 검사
+        //{ path: 'result', name: 'WMTIResult', component: () => import('../pages/Wmti/WMTIResult.vue')}, // WMTI 결과
+>>>>>>> e012eea51eddaa9484261d915083daaf66c08e2b
         //{ path: 'collection', name: 'WMTICollection', component: () => import('../pages/Wmti/WMTICollection.vue')}, // WMTI 컬렉션
       ],
     },
@@ -221,7 +245,8 @@ const router = createRouter({
     // 커뮤니티
     {
       path: '/community',
-      component: () => import('../layouts/CommunityLayout.vue'), // 레이아웃 컴포넌트
+      name: 'Community',
+      component: () => import('../pages/community/CommunityLayout.vue'),
       children: [
         {
           path: '',
