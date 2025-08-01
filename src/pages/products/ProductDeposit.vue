@@ -2,154 +2,47 @@
   <div>
     <!-- 검색 카테고리명 -->
     <h2 class="product-title">정기예금</h2>
-    <!-- 사용자에게 입력받을 값 -->
-    <form @submit.prevent="searchProducts">
-      <div class="form-group">
-        <label>예치 금액</label>
-        <input
-          type="text"
-          v-model="depositAmount"
-          class="form-control"
-          @input="formatAmount"
-        />
-        <span>원</span>
-      </div>
+    
+    <!-- 검색 폼 컴포넌트 -->
+    <DepositSearchForm
+      :deposit-amount="depositAmount"
+      :period="period"
+      :interest-type="interestType"
+      :join-way="joinWay"
+      @search="handleSearch"
+      @reset="handleReset"
+    />
 
-      <div class="form-group">
-        <label>기간(개월)</label>
-        <div class="radio-group">
-          <label><input type="radio" v-model="period" value="1" /> 1 </label>
-          <label><input type="radio" v-model="period" value="3" /> 3 </label>
-          <label><input type="radio" v-model="period" value="6" /> 6 </label>
-          <label><input type="radio" v-model="period" value="12" /> 12 </label>
-          <label><input type="radio" v-model="period" value="24" /> 24 </label>
-          <label><input type="radio" v-model="period" value="36" /> 36 </label>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>금리 유형</label>
-        <div class="radio-group">
-          <label
-            ><input type="radio" v-model="interestType" value="B" /> 전체</label
-          >
-          <label
-            ><input type="radio" v-model="interestType" value="S" /> 단리</label
-          >
-          <label
-            ><input type="radio" v-model="interestType" value="M" /> 복리</label
-          >
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>가입 방식</label>
-        <div class="radio-group">
-          <label
-            ><input type="radio" v-model="joinWay" value="all" /> 전체</label
-          >
-          <label
-            ><input type="radio" v-model="joinWay" value="online" />
-            온라인</label
-          >
-          <label
-            ><input type="radio" v-model="joinWay" value="offline" />
-            오프라인</label
-          >
-        </div>
-      </div>
-
-      <div class="button-group">
-        <button type="submit" class="search-btn">검색</button>
-        <button type="button" @click="resetForm" class="reset-btn">
-          <i class="fas fa-sync"></i>
-        </button>
-      </div>
-      <div class="checkbox-group">
-        <!-- 은행명이 엄청 많은데 다 넣을지 말지 결정해야됨 -->
-      </div>
-    </form>
-
-    <!-- 검색 결과 영역 -->
-    <div class="search-results">
-      <div v-if="loading" class="loading">로딩 중...</div>
-      <div v-else-if="error" class="error">{{ error }}</div>
-      <div v-else>
-        <div class="results-count">검색 결과: {{ totalCount }}개</div>
-
-        <!-- 상품 목록 -->
-        <div class="product-list">
-          <div
-            v-for="product in depositProducts"
-            :key="product.product_id || product.finPrdtCd"
-            class="product-card"
-            @click="goToProductDetail(product)"
-          >
-            <div class="product-header">
-              <div class="bank-name">
-                {{ product.kor_co_nm || product.korCoNm }}
-              </div>
-              <div class="product-name">
-                {{ product.product_name || product.finPrdtNm }}
-              </div>
-            </div>
-
-            <div class="product-details">
-              <div class="detail-row">
-                <span class="detail-label">기본 금리</span>
-                <span class="detail-value highlight">{{
-                  formatRate(product.intr_rate || product.intrRate)
-                }}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">우대 금리</span>
-                <span class="detail-value">{{
-                  formatRate(product.intr_rate2 || product.intrRate2)
-                }}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">가입 기간</span>
-                <span class="detail-value"
-                  >{{ product.save_trm || product.saveTrm }}개월</span
-                >
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 검색 결과가 없을 경우 -->
-        <div v-if="depositProducts.length === 0" class="no-results">
-          검색 조건에 맞는 상품이 없습니다.
-        </div>
-
-        <!-- 페이지네이션 -->
-        <Pagination
-          v-if="totalPages > 1"
-          :total-pages="totalPages"
-          :current-page="currentPage"
-          @page-change="goToPage"
-        />
-      </div>
-    </div>
+    <!-- 상품 목록 컴포넌트 -->
+    <DepositProductList
+      :products="depositProducts"
+      :loading="loading"
+      :error="error"
+      :total-count="totalCount"
+      :current-page="currentPage"
+      :page-size="pageSize"
+      @product-click="goToProductDetail"
+      @page-change="goToPage"
+    />
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { onMounted, ref, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import {
   getProductsAPI,
-  getProductsCategoriesAPI,
-  getProductsCompareAPI,
   getProductsFilterOptionsAPI,
 } from '@/api/product';
-import Pagination from './common/Pagination.vue';
+import DepositSearchForm from '../../components/products/deposit/DepositSearchForm.vue';
+import DepositProductList from '../../components/products/deposit/DepositProductList.vue';
 
 const router = useRouter();
+const route = useRoute();
 
 // 폼 입력 데이터
 const depositAmount = ref('100000');
-const period = ref('6'); // 기본값 6개월 (이미지 기준)
+const period = ref('6'); // 기본값 6개월
 const interestType = ref('B'); // 기본값 전체
 const joinWay = ref('all'); // 기본값 전체
 
@@ -160,25 +53,25 @@ const error = ref(null);
 const totalCount = ref(0);
 const currentPage = ref(1);
 const pageSize = ref(10);
-const totalPages = computed(() => Math.ceil(totalCount.value / pageSize.value));
 
-// 금액 포맷팅 함수
-const formatAmount = () => {
-  // 숫자만 추출
-  const numericValue = depositAmount.value.replace(/[^\d]/g, '');
-
-  // 숫자 포맷팅 (천 단위 콤마)
-  if (numericValue) {
-    depositAmount.value = new Intl.NumberFormat('ko-KR').format(numericValue);
-  } else {
-    depositAmount.value = '';
-  }
+// 검색 폼 이벤트 핸들러
+const handleSearch = (formData) => {
+  depositAmount.value = formData.depositAmount;
+  period.value = formData.period;
+  interestType.value = formData.interestType;
+  joinWay.value = formData.joinWay;
+  currentPage.value = 1; // 검색 시 첫 페이지로 초기화
+  searchProducts();
 };
 
-// 금리 포맷팅 함수
-const formatRate = (rate) => {
-  if (rate === null || rate === undefined) return '정보 없음';
-  return parseFloat(rate).toFixed(2) + '%';
+// 초기화 핸들러
+const handleReset = () => {
+  depositAmount.value = '100000';
+  period.value = '6';
+  interestType.value = 'B';
+  joinWay.value = 'all';
+  currentPage.value = 1;
+  searchProducts();
 };
 
 // 페이지 이동 함수
@@ -187,60 +80,112 @@ const goToPage = (page) => {
   searchProducts();
 };
 
-// 상품 검색 함수
-const searchProducts = async () => {
-  loading.value = true;
-  error.value = null;
-
+// API 호출 전용 함수 (실제 데이터 가져오기)
+const fetchProducts = async () => {
   try {
-    // 검색 파라미터 구성 (백엔드 API에서 기대하는 형식으로 변경)
+    // 검색 파라미터 구성
     const params = {
       category: 'deposit',
-      categoryId: 1, // 예금 카테고리
-      subcategoryId: 101, // 정기예금 서브카테고리
-      minAmount: depositAmount.value.replace(/,/g, ''),
+      categoryId: 1,
+      subcategoryId: 101,
+      minAmount: String(depositAmount.value).replace(/[^\d]/g, ''),
       saveTrm: period.value,
       page: currentPage.value,
       size: pageSize.value,
       sortBy: 'intrRate',
-      sortDirection: 'desc', // 무조건 소문자!!!!!
+      sortDirection: 'desc',
     };
 
-    // 금리 유형 필터 추가
+    // 금리 유형 필터 추가 (전체가 아닌 경우)
     if (interestType.value !== 'B') {
       params.intrRateType = interestType.value;
     }
 
-    // 가입 방식 필터 추가
+    // 가입 방식 필터 추가 (전체가 아닌 경우)
     if (joinWay.value !== 'all') {
       params.joinWay = joinWay.value;
     }
 
-    console.log('검색 파라미터:', params);
+    // 수치형 데이터 변환 확인
+    params.minAmount = parseInt(params.minAmount) || 0;
+    params.page = parseInt(params.page) || 1;
+    params.size = parseInt(params.size) || 10;
 
-    // API 호출 시 콘솔에 응답 로깅
+    console.log('API 호출 파라미터:', params);
+
+    // API 호출
     const response = await getProductsAPI(params);
     console.log('API 응답 (원본):', response);
 
-    // 응답 구조 확인 및 데이터 추출
+    // API 응답 처리 - 다양한 응답 구조 대응
     if (response && response.body && response.body.data) {
-      // API 응답 구조를 따라 올바른 경로에서 데이터 추출
+      console.log('API 응답 구조 타입 1:', response.body.data);
       const data = response.body.data;
-      depositProducts.value = data.products || [];
+      depositProducts.value = Array.isArray(data.products) ? data.products : [];
       totalCount.value = data.totalCount || 0;
     } else if (response && response.products) {
-      // 이미 추출된 데이터 형태로 온 경우
-      depositProducts.value = response.products || [];
+      console.log('API 응답 구조 타입 2:', response.products);
+      depositProducts.value = Array.isArray(response.products) ? response.products : [];
       totalCount.value = response.totalCount || 0;
+    } else if (response && Array.isArray(response)) {
+      console.log('API 응답 구조 타입 3 (배열):', response);
+      depositProducts.value = response;
+      totalCount.value = response.length;
     } else {
       console.warn('예상치 못한 API 응답 구조:', response);
       depositProducts.value = [];
       totalCount.value = 0;
     }
+    
+    return true;
+  } catch (err) {
+    console.error('상품 검색 API 호출 실패:', err);
+    throw err;
+  }
+};
+
+// 상품 검색 함수 (URL 업데이트 + API 호출)
+const searchProducts = async () => {
+  loading.value = true;
+  error.value = null;
+
+  try {
+    // URL 쿼리 파라미터 업데이트
+    const queryParams = {};
+    
+    // 기본값이 아닌 경우에만 URL에 포함
+    const amountWithoutCommas = depositAmount.value.replace(/,/g, '');
+    if (amountWithoutCommas !== '100000') {
+      queryParams.amount = amountWithoutCommas;
+    }
+    
+    if (period.value !== '6') {
+      queryParams.saveTrm = period.value;
+    }
+    
+    if (interestType.value !== 'B') {
+      queryParams.intrRateType = interestType.value;
+    }
+    
+    if (joinWay.value !== 'all') {
+      queryParams.joinWay = joinWay.value;
+    }
+    
+    if (currentPage.value > 1) {
+      queryParams.page = currentPage.value;
+    }
+
+    // URL 업데이트 (현재 경로 유지하면서 쿼리만 변경)
+    router.push({
+      query: queryParams
+    });
+
+    // API 호출하여 데이터 가져오기
+    await fetchProducts();
+    
   } catch (err) {
     console.error('상품 검색 실패:', err);
-    error.value =
-      '상품을 검색하는 중 오류가 발생했습니다. ' + (err.message || '');
+    error.value = '상품을 검색하는 중 오류가 발생했습니다. ' + (err.message || '');
     depositProducts.value = [];
     totalCount.value = 0;
   } finally {
@@ -248,28 +193,15 @@ const searchProducts = async () => {
   }
 };
 
-// 폼 초기화 함수
-const resetForm = () => {
-  depositAmount.value = '100000';
-  period.value = '6';
-  interestType.value = 'B';
-  joinWay.value = 'all';
-  currentPage.value = 1;
-  searchProducts(); // 초기화 후 검색 실행
-};
-
-// 상품 상세 페이지로 이동하는 함수 추가
+// 상품 상세 페이지로 이동하는 함수
 const goToProductDetail = (product) => {
-  // 상품 ID와 saveTrm 값 추출
-  const productId = product.productId;
+  const productId = product.productId || product.product_id;
   const saveTrm = product.save_trm || product.saveTrm;
 
-  // 쿼리 파라미터를 포함한 라우트로 이동
   router.push({
     path: `/products/deposit/${productId}`,
     query: {
       saveTrm: saveTrm,
-      // 필요하다면 다른 파라미터도 추가 가능
       intrRateType: product.intr_rate_type || product.intrRateType,
     },
   });
@@ -278,25 +210,95 @@ const goToProductDetail = (product) => {
 // 초기 데이터 로딩
 onMounted(async () => {
   try {
-    // 필터 옵션 먼저 로드
-    const filterOptions = await getProductsFilterOptionsAPI('deposit');
-    console.log('필터 옵션:', filterOptions);
-
-    // 필터 옵션이 있으면 초기값 설정
-    if (filterOptions && filterOptions.depositAmountOptions) {
-      depositAmount.value = String(
-        filterOptions.depositAmountOptions.defaultValue || '100000'
-      );
-      formatAmount(); // 금액 포맷팅 적용
+    // 로딩 상태 활성화
+    loading.value = true;
+    
+    // URL 쿼리 파라미터 확인
+    if (route.query.amount) {
+      depositAmount.value = route.query.amount;
+      // 숫자 포맷팅
+      depositAmount.value = new Intl.NumberFormat('ko-KR').format(depositAmount.value);
+    }
+    
+    if (route.query.saveTrm) {
+      period.value = route.query.saveTrm;
+    }
+    
+    if (route.query.intrRateType) {
+      interestType.value = route.query.intrRateType;
+    }
+    
+    if (route.query.joinWay) {
+      joinWay.value = route.query.joinWay;
+    }
+    
+    if (route.query.page) {
+      currentPage.value = parseInt(route.query.page) || 1;
     }
 
-    // 초기 검색 실행
-    searchProducts();
+    // 필터 옵션 로드 시도 (선택 사항)
+    try {
+      const filterOptions = await getProductsFilterOptionsAPI('deposit');
+      console.log('필터 옵션:', filterOptions);
+    } catch (optionErr) {
+      console.warn('필터 옵션 로드 실패, 기본값을 사용합니다:', optionErr);
+    }
+
+    // 초기 검색 실행 (URL 업데이트 없이 API 직접 호출)
+    await fetchProducts();
+    
   } catch (err) {
     console.error('초기 데이터 로딩 실패:', err);
-    error.value = '데이터를 불러오는 중 오류가 발생했습니다.';
+    error.value = '데이터를 불러오는 중 오류가 발생했습니다. ' + (err.message || '');
+    depositProducts.value = [];
+    totalCount.value = 0;
+  } finally {
+    loading.value = false;
   }
 });
+
+// URL 쿼리 변경 시 자동으로 검색 실행 (백버튼 등의 경우 대응)
+watch(() => route.query, (newQuery) => {
+  if (Object.keys(newQuery).length === 0) {
+    // 쿼리가 없어진 경우 (초기 상태로)
+    handleReset();
+    return;
+  }
+  
+  // 쿼리 변경 감지하여 현재 상태와 다른 경우에만 업데이트
+  let shouldReload = false;
+  
+  if (newQuery.amount && newQuery.amount !== depositAmount.value.replace(/,/g, '')) {
+    depositAmount.value = newQuery.amount;
+    depositAmount.value = new Intl.NumberFormat('ko-KR').format(depositAmount.value);
+    shouldReload = true;
+  }
+  
+  if (newQuery.saveTrm && newQuery.saveTrm !== period.value) {
+    period.value = newQuery.saveTrm;
+    shouldReload = true;
+  }
+  
+  if (newQuery.intrRateType && newQuery.intrRateType !== interestType.value) {
+    interestType.value = newQuery.intrRateType;
+    shouldReload = true;
+  }
+  
+  if (newQuery.joinWay && newQuery.joinWay !== joinWay.value) {
+    joinWay.value = newQuery.joinWay;
+    shouldReload = true;
+  }
+  
+  if (newQuery.page && parseInt(newQuery.page) !== currentPage.value) {
+    currentPage.value = parseInt(newQuery.page);
+    shouldReload = true;
+  }
+  
+  // 상태가 변경된 경우에만 API 다시 호출
+  if (shouldReload) {
+    fetchProducts();
+  }
+}, { deep: true });
 </script>
 
 <style>
@@ -304,196 +306,5 @@ onMounted(async () => {
   font-size: 24px;
   margin-bottom: 20px;
   color: #333;
-}
-
-.form-group {
-  margin-bottom: 15px;
-  display: flex;
-  align-items: center;
-}
-
-.form-group label {
-  width: 80px;
-  font-weight: 500;
-  color: #666;
-}
-
-.form-control {
-  flex: 1;
-  max-width: 200px;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  text-align: right;
-}
-
-.form-group span {
-  margin-left: 8px;
-  color: #666;
-}
-
-.radio-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.radio-group label {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  width: auto;
-  font-weight: normal;
-}
-
-.radio-group input[type='radio'] {
-  margin-right: 4px;
-}
-
-.button-group {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
-  margin-bottom: 30px;
-}
-
-.search-btn {
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.search-btn:hover {
-  background-color: #3e9142;
-}
-
-.reset-btn {
-  background-color: #f5f5f5;
-  border: 1px solid #ddd;
-  padding: 8px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.reset-btn:hover {
-  background-color: #e8e8e8;
-}
-
-.search-results {
-  margin-top: 20px;
-}
-
-.loading,
-.error,
-.no-results {
-  padding: 20px;
-  text-align: center;
-  background-color: #f9f9f9;
-  border-radius: 4px;
-  margin-bottom: 20px;
-}
-
-.error {
-  color: #e53935;
-  background-color: #ffebee;
-}
-
-.results-count {
-  font-size: 16px;
-  margin-bottom: 16px;
-  color: #666;
-}
-
-.product-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
-  margin-bottom: 30px;
-}
-
-.product-card {
-  background-color: white;
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
-  cursor: pointer;
-}
-
-.product-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.product-header {
-  margin-bottom: 12px;
-}
-
-.bank-name {
-  font-size: 13px;
-  color: #666;
-}
-
-.product-name {
-  font-size: 16px;
-  font-weight: 500;
-  color: #333;
-  margin-top: 4px;
-}
-
-.product-details {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.detail-label {
-  font-size: 13px;
-  color: #666;
-}
-
-.detail-value {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.highlight {
-  color: #e91e63;
-}
-
-.pagination {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 20px;
-}
-
-.pagination button {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #ddd;
-  background-color: white;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.pagination button.active {
-  background-color: #4caf50;
-  color: white;
-  border-color: #4caf50;
 }
 </style>

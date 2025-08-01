@@ -39,9 +39,7 @@
     <div v-else-if="product" class="product-container">
       <!-- 페이지 헤더 -->
       <div class="page-header">
-        <button class="back-btn" @click="goBack">
-          <span class="back-arrow">←</span> 목록으로
-        </button>
+        <BackButton title="목록으로"/>
         <h1 class="page-title">{{ getCategoryName() }} 상세 정보</h1>
       </div>
       <div>
@@ -117,8 +115,15 @@
 import { ref, computed, onMounted, inject } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getProductDetailAPI } from '@/api/product';
+import BackButton from '@/components/common/BackButton.vue'
+
+
 
 export default {
+  components:{
+    BackButton
+  },
+
   name: 'ProductDetail',
   setup() {
     const route = useRoute();
