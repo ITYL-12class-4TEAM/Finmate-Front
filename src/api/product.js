@@ -120,86 +120,18 @@ export const getProductsCompareAPI = async (productIds = []) => {
   }
 };
 
-/**
- * 카테고리별 필터 옵션 조회
- * @param {string} category - 상품 카테고리 (deposit, saving, pension 등)
- * @param {string} [subCategory] - 서브 카테고리 코드
- * @returns {Promise<Object>} 필터 옵션 정보
- */
-export const getProductsFilterOptionsAPI = async (
-  category = 'deposit',
-  subCategory
-) => {
+// api/product.js에 추가
+
+// 필터 옵션 API 호출 함수
+export const getProductsFilterOptionsAPI = async (category) => {
   try {
-    // 요청 파라미터 구성
-    const params = { category };
-    if (subCategory) {
-      params.subCategory = subCategory;
+    const response = await fetch(`/api/products/filter-options?category=${category}`);
+    if (!response.ok) {
+      throw new Error(`API 요청 실패: ${response.status}`);
     }
-
-    // API 호출
-    const response = await api.get('/api/products/filter-options', { params });
-
-    // 응답 로깅
-    console.log('필터 옵션 응답:', response);
-
-    // 데이터 추출 및 반환
-    if (response.data && response.data.body && response.data.body.data) {
-      return response.data.body.data;
-    } else {
-      console.warn('예상치 못한 API 응답 구조:', response.data);
-      // 기본 필터 옵션 반환
-      return {
-        productType: 'deposit',
-        categoryId: 1,
-        subcategoryId: 101,
-        subcategories: [
-          {
-            subcategory_id: 101,
-            name: '정기예금',
-            description: '일정 금액이 가입할 수 있는 예금',
-          },
-          {
-            subcategory_id: 102,
-            name: '자유적금',
-            description: '자유롭게 입출금 가능한 적금',
-          },
-          {
-            subcategory_id: 103,
-            name: '입출금통장',
-            description: '수시 입출 할수 있는 통장',
-          },
-          {
-            subcategory_id: 104,
-            name: '정기적금',
-            description: '매월 일정액을 적립하는 상품',
-          },
-        ],
-        interestTypes: [
-          { code: 'S', name: '단리' },
-          { code: 'M', name: '복리' },
-        ],
-        saveTerms: [1, 3, 6, 12, 24, 36],
-        joinMethods: ['인터넷', '모바일', '오프라인'],
-        banks: [
-          '국민은행',
-          '신한은행',
-          '하나은행',
-          '우리은행',
-          'IBK기업은행',
-          '농협은행',
-          'SC제일은행',
-          '씨티은행',
-        ],
-        depositAmountOptions: {
-          min: 10000,
-          max: 100000000,
-          defaultValue: 100000,
-        },
-      };
-    }
+    return await response.json();
   } catch (error) {
-    console.error('필터 옵션 조회 API 오류:', error);
+    console.error('필터 옵션 가져오기 실패:', error);
     throw error;
   }
 };
