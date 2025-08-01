@@ -1,8 +1,7 @@
 <template>
-  <div class="floating-menu">
+  <div class="floating-menu" :class="{ 'chat-open': isOpen }">
     <!-- 챗봇 창 -->
-    <ChatWindow v-if="isOpen" class="chat-window" />
-
+    <ChatWindow v-if="isOpen" class="chat-window" @close="closeChatBot" />
     <!-- 플로팅 버튼 -->
     <button class="chat-button" @click="toggleChat">
       <span v-if="!isOpen">
@@ -40,14 +39,39 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import ChatWindow from './ChatWindow.vue';
 
 const isOpen = ref(false);
+
 const toggleChat = () => {
   isOpen.value = !isOpen.value;
 };
+const closeChatBot = () => {
+  isOpen.value = false;
+};
+
+const handleClickOutside = (event) => {
+  if (!floatingMenu.value) return;
+  if (floatingMenu.value.contains(event.target)) return; // 내부 클릭 무시
+  isOpen.value = false; // 외부 클릭 시 닫기
+};
+
+function onClickOutside(event) {
+  const floatingMenu = document.querySelector('.floating-menu');
+  // floatingMenu 영역 안을 클릭했으면 무시
+  if (floatingMenu && !floatingMenu.contains(event.target)) {
+    isOpen.value = false;
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('click', onClickOutside);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('click', onClickOutside);
+});
 </script>
 
 <style scoped>
@@ -79,22 +103,65 @@ const toggleChat = () => {
 }
 
 .chat-window {
-  position: absolute;
-  bottom: 70px;
-  right: 0;
-  width: 320px;
-  height: 400px;
+  position: fixed;
+  bottom: 130px; /* 기존 70px에서 130px로 변경하여 버튼 위에 충분한 공간 확보 */
+  right: 2rem; /* 오른쪽에 여백 추가 */
+  width: 600px;
+  max-height: calc(
+    100vh - 180px
+  ); /* 최대 높이도 조정하여 화면을 벗어나지 않도록 */
   background: white;
   border-radius: 20px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   animation: fadeIn 0.3s ease;
 }
-
 @media (max-width: 768px) {
-  .chat-window {
-    width: 90vw;
-    right: -1rem;
+  .chat-window-inner {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    max-width: 500px; /* 최대 가로 폭 제한 */
+    margin: 0 auto; /* 중앙 정렬 */
+  }
+
+  .button-grid {
+    grid-template-columns: repeat(
+      4,
+      minmax(0, 1fr)
+    ); /* 칸 넓이 균일, 넘침 방지 */
+    gap: 0.15rem;
+    max-width: 100%;
+  }
+  .service-btn {
+    width: 24px !important;
+    height: 24px !important;
+    padding: 0.1rem 0.05rem !important;
+    font-size: 0.35rem !important;
+    max-width: 24px !important;
+    min-width: 24px !important;
+    margin: 0 auto !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-radius: 3px;
+    box-sizing: border-box;
+  }
+
+  .service-icon {
+    font-size: clamp(0.5rem, 2vw, 0.75rem);
+    margin-bottom: 0.1rem;
+  }
+
+  .member-features {
+    flex-direction: column;
+  }
+
+  .chat-title,
+  .chat-description {
+    font-size: 0.8rem;
   }
 }
 

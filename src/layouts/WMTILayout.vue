@@ -1,6 +1,5 @@
 <template>
-  <div>
-    <h1>WMTILayout</h1>
+  <div class = "layout-container">
     <router-view />
   </div>
 </template>

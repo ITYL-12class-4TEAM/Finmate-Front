@@ -82,7 +82,7 @@ export default {
         const wmtiCode = res.body.wmtiCode;
 
         this.$router.push({
-          path: '/survey/result',
+          path: '/wmti/result',
           query: { code: wmtiCode },
         });
       } catch (err) {
