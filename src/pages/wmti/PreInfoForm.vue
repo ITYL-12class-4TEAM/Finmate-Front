@@ -6,40 +6,34 @@
       <!-- 이름 -->
       <div class="form-group">
         <label>이름</label>
-        <input type="text" v-model="form.username" required />
+        <input v-model="form.username" type="text" required />
       </div>
 
       <!-- 나이 -->
       <div class="form-group">
         <label>나이</label>
-        <input type="number" v-model.number="form.age" min="0" required />
+        <input v-model.number="form.age" type="number" min="0" required />
       </div>
 
       <!-- 기혼 여부 -->
       <div class="form-group">
         <label>기혼 여부</label>
         <div class="radio-group">
-          <label
-            ><input type="radio" value="true" v-model="form.married" />
-            기혼</label
-          >
-          <label
-            ><input type="radio" value="false" v-model="form.married" />
-            미혼</label
-          >
+          <label><input v-model="form.married" type="radio" value="true" /> 기혼</label>
+          <label><input v-model="form.married" type="radio" value="false" /> 미혼</label>
         </div>
       </div>
 
       <!-- 월소득 -->
       <div class="form-group">
         <label>월소득 (원)</label>
-        <input type="number" v-model.number="form.monthlyIncome" required />
+        <input v-model.number="form.monthlyIncome" type="number" required />
       </div>
 
       <!-- 고정지출 -->
       <div class="form-group">
         <label>월 고정지출 (원)</label>
-        <input type="number" v-model.number="form.fixedCost" required />
+        <input v-model.number="form.fixedCost" type="number" required />
       </div>
 
       <!-- 투자기간 -->
@@ -47,7 +41,7 @@
         <label>투자 기간</label>
         <div class="radio-group">
           <label v-for="item in InvestmentPeriod" :key="item.value">
-            <input type="radio" :value="item.value" v-model="form.period" />
+            <input v-model="form.period" type="radio" :value="item.value" />
             {{ item.label }}
           </label>
         </div>
@@ -59,11 +53,7 @@
         <label>투자 목적</label>
         <div class="radio-group column">
           <label v-for="item in PurposeCategory" :key="item.value"
-            ><input
-              type="radio"
-              :value="item.value"
-              v-model="form.purposeCategory"
-            />
+            ><input v-model="form.purposeCategory" type="radio" :value="item.value" />
             {{ item.label }}
           </label>
         </div>
@@ -76,10 +66,7 @@
 
 <script>
 import { postPreinfoAPI } from '@/api/wmti';
-import {
-  InvestmentPeriodEnum,
-  PurposeCategoryEnum,
-} from '../../constants/wmtienums';
+import { InvestmentPeriodEnum, PurposeCategoryEnum } from '../../constants/wmtienums';
 import { getEnumLabel } from '../../constants/enumUtils';
 
 export default {
@@ -110,15 +97,8 @@ export default {
   },
   methods: {
     async handleSubmit() {
-      const {
-        username,
-        age,
-        married,
-        monthlyIncome,
-        fixedCost,
-        period,
-        purposeCategory,
-      } = this.form;
+      const { username, age, married, monthlyIncome, fixedCost, period, purposeCategory } =
+        this.form;
 
       // 이름 검사
       if (!username || username.length < 2) {
@@ -168,9 +148,7 @@ export default {
         married: this.form.married === 'true',
       };
 
-      finalData.platform = /Mobi|Android/i.test(navigator.userAgent)
-        ? 'mobile'
-        : 'web';
+      finalData.platform = /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'web';
       finalData.userAgent = navigator.userAgent;
       finalData.screenSize = `${window.innerWidth}x${window.innerHeight}`;
 

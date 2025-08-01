@@ -9,8 +9,8 @@
       <p class="note">*본 서비스는 고객님의 기본적인 정보를 입력받습니다.*</p>
       <p class="description">
         이는 고객님의 투자스타일, 투자성향, 투자여건을 정확하게 파악하기 위한 것으로,<br />
-        <strong>‘사용자 특화 금융상품 추천’</strong> 및 <strong>‘나의 WMTI 투자스타일은?’</strong> 등의 기능을 위해
-        설문에 응해주세요.
+        <strong>‘사용자 특화 금융상품 추천’</strong> 및
+        <strong>‘나의 WMTI 투자스타일은?’</strong> 등의 기능을 위해 설문에 응해주세요.
       </p>
     </section>
 
@@ -27,9 +27,7 @@
         <div class="step-icon">2</div>
         <span>나의 WMTI 검사하기</span>
       </div>
-      <button class="step-button" :disabled="!step2Enabled" @click="goToSurvey">
-        검사하기
-      </button>
+      <button class="step-button" :disabled="!step2Enabled" @click="goToSurvey">검사하기</button>
     </section>
   </div>
 </template>
@@ -49,7 +47,7 @@ export default {
     // 로컬스토리지 또는 글로벌 상태에서 사전정보 입력 여부 확인
     const preinfoDone = localStorage.getItem('preinfoSubmitted');
     this.step2Enabled = preinfoDone === 'true';
-    console.log("🔍 BasicSurvey mounted!");
+    console.log('🔍 BasicSurvey mounted!');
   },
   methods: {
     goToPreInfo() {

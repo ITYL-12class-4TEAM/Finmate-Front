@@ -3,21 +3,16 @@
   <div class="survey-page">
     <h1 class="title">나의 투자 성향 검사</h1>
 
-    <form
-      v-if="answers.length === questions.length"
-      @submit.prevent="handleSubmit"
-    >
+    <form v-if="answers.length === questions.length" @submit.prevent="handleSubmit">
       <WMTIQuestion
         v-for="(q, i) in questions"
         :key="q.id"
+        v-model:value="answers[i]"
         :question="q"
         :index="i"
-        v-model:value="answers[i]"
       />
 
-      <button class="submit-button" :disabled="!isAllAnswered" type="submit">
-        제출하기
-      </button>
+      <button class="submit-button" :disabled="!isAllAnswered" type="submit">제출하기</button>
     </form>
   </div>
 </template>
@@ -36,35 +31,35 @@ export default {
       answers: Array(20).fill(null), // 응답값
     };
   },
-  created() {
-  getWMTIQuestionsAPI()
-    .then((res) => {
-      const list = res.body.data;
-      this.questions = list;
-      this.answers = Array(list.length).fill(null);
-      console.log('✅ 질문 수:', list.length);
-    })
-    .catch((err) => {
-      console.error('설문 문항 로딩 실패:', err);
-    });
-},
-//   created() {
-//     axios
-//       .get('/api/wmti/questions')
-//       .then((res) => {
-//         const list = res.data.body.data;
-//         this.questions = list;
-//         this.answers = Array(list.length).fill(null);
-//         console.log('✅ 질문 수:', list.length);
-//       })
-//       .catch((err) => {
-//         console.error('설문 문항 로딩 실패:', err);
-//       });
-//   },
+  //   created() {
+  //     axios
+  //       .get('/api/wmti/questions')
+  //       .then((res) => {
+  //         const list = res.data.body.data;
+  //         this.questions = list;
+  //         this.answers = Array(list.length).fill(null);
+  //         console.log('✅ 질문 수:', list.length);
+  //       })
+  //       .catch((err) => {
+  //         console.error('설문 문항 로딩 실패:', err);
+  //       });
+  //   },
   computed: {
     isAllAnswered() {
       return this.answers.every((a) => a !== null);
     },
+  },
+  created() {
+    getWMTIQuestionsAPI()
+      .then((res) => {
+        const list = res.body.data;
+        this.questions = list;
+        this.answers = Array(list.length).fill(null);
+        console.log('✅ 질문 수:', list.length);
+      })
+      .catch((err) => {
+        console.error('설문 문항 로딩 실패:', err);
+      });
   },
   methods: {
     async handleSubmit() {
@@ -78,7 +73,7 @@ export default {
         console.log('📤 제출 payload:', payload); // ✅ 이 위치가 핵심
         //const res = await this.$axios.post('/api/wmti/submit', payload);
         //const wmtiCode = res.data.body.wmtiCode;
-        const res = await postwmtiAPI(payload);  // ✅ 공통 API 사용
+        const res = await postwmtiAPI(payload); // ✅ 공통 API 사용
         const wmtiCode = res.body.wmtiCode;
 
         this.$router.push({

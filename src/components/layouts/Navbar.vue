@@ -6,11 +6,7 @@
     </router-link>
 
     <DesktopNavbar v-if="!isMobile" />
-    <MobileMenu
-      v-if="isMobile"
-      :is-open="mobileOpen"
-      @close="mobileOpen = false"
-    />
+    <MobileMenu v-if="isMobile" :is-open="mobileOpen" @close="mobileOpen = false" />
 
     <div class="navbar__right">
       <!-- 알림/사용자 -->
