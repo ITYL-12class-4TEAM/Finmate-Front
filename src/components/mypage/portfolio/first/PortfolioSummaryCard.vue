@@ -4,6 +4,9 @@
       <div
         class="summary-item primary"
         @click="$emit('focus-metric', 'totalAmount')"
+        :tabindex="0"
+        role="button"
+        :aria-label="`총 자산 ${formatCurrency(totalAmount)}`"
       >
         <div class="summary-icon">
           <i class="bi bi-wallet2"></i>
@@ -19,6 +22,9 @@
       <div
         class="summary-item secondary"
         @click="$emit('focus-metric', 'portfolioCount')"
+        :tabindex="0"
+        role="button"
+        :aria-label="`보유 상품 ${portfolioCount}개`"
       >
         <div class="summary-icon">
           <i class="bi bi-collection"></i>
@@ -33,6 +39,9 @@
       <div
         class="summary-item tertiary"
         @click="$emit('focus-metric', 'categoryCount')"
+        :tabindex="0"
+        role="button"
+        :aria-label="`카테고리 ${categoryCount}개`"
       >
         <div class="summary-icon">
           <i class="bi bi-grid-3x3-gap"></i>
@@ -47,6 +56,9 @@
       <div
         class="summary-item quaternary"
         @click="$emit('focus-metric', 'averageAmount')"
+        :tabindex="0"
+        role="button"
+        :aria-label="`평균 투자액 ${formatCurrency(averageAmount)}`"
       >
         <div class="summary-icon">
           <i class="bi bi-bar-chart-line"></i>
@@ -104,7 +116,7 @@ const props = defineProps({
 // 이벤트 정의
 const emit = defineEmits(['focus-metric']);
 
-// 통화 포맷팅 (개선된 버전)
+// 통화 포맷팅 (한국 스타일에 최적화)
 const formatCurrency = (amount) => {
   if (!amount || amount === 0) return '0원';
 
@@ -139,50 +151,65 @@ const formatCurrency = (amount) => {
   return new Intl.NumberFormat('ko-KR').format(amount) + '원';
 };
 
-// 포트폴리오 인사이트
+// 포트폴리오 인사이트 - 실제 데이터에 맞게 조정
 const getPortfolioInsight = () => {
   if (props.portfolioCount === 0) return '상품 없음';
-  if (props.portfolioCount <= 2) return '소수 집중';
+  if (props.portfolioCount <= 2) return '집중 투자';
   if (props.portfolioCount <= 5) return '적정 분산';
-  if (props.portfolioCount <= 10) return '다양한 분산';
+  if (props.portfolioCount <= 7) return '다양한 분산';
+  if (props.portfolioCount <= 10) return '충분한 분산';
   return '많은 상품';
 };
 
-// 다양성 수준
+// 다양성 수준 - 실제 JSON 데이터의 카테고리 수에 맞게 조정
 const getDiversityLevel = () => {
   if (props.categoryCount === 0) return '분류 없음';
   if (props.categoryCount === 1) return '단일 유형';
   if (props.categoryCount === 2) return '기본 분산';
-  if (props.categoryCount >= 3) return '다양한 분산';
+  if (props.categoryCount === 3) return '적정 분산';
+  if (props.categoryCount === 4) return '좋은 분산';
+  if (props.categoryCount >= 5) return '매우 다양함';
   return '균형 잡힌';
 };
 
-// 평균 투자액 인사이트
+// 평균 투자액 인사이트 - 한국 실정에 맞게 조정
 const getAverageInsight = () => {
   if (props.averageAmount === 0) return '';
   if (props.averageAmount < 1000000) return '소액 투자';
-  if (props.averageAmount < 5000000) return '중간 규모';
-  if (props.averageAmount < 10000000) return '안정적 규모';
+  if (props.averageAmount < 3000000) return '기본 규모';
+  if (props.averageAmount < 10000000) return '중간 규모';
+  if (props.averageAmount < 50000000) return '안정적 규모';
   return '대규모 투자';
 };
 
-// 메인 인사이트
+// 메인 인사이트 - 더 구체적이고 실용적인 조언
 const getMainInsight = () => {
   const diversityScore = props.categoryCount;
   const avgAmount = props.averageAmount;
+  const totalAmount = props.totalAmount;
 
-  if (diversityScore >= 3 && avgAmount >= 5000000) {
-    return '균형 잡힌 포트폴리오를 구성하고 있습니다 👍';
-  } else if (diversityScore <= 1) {
-    return '투자 다양성을 높여보는 것을 고려해보세요 📈';
-  } else if (avgAmount < 1000000) {
-    return '꾸준한 투자로 자산을 늘려나가고 있네요 💪';
+  // 총 자산 규모별 다른 조언
+  if (totalAmount >= 50000000) {
+    if (diversityScore >= 4) {
+      return '훌륭한 자산 분산을 유지하고 있습니다 🎯';
+    } else {
+      return '자산 규모가 크니 분산 투자를 더 고려해보세요 📊';
+    }
+  } else if (totalAmount >= 10000000) {
+    if (diversityScore >= 3) {
+      return '균형 잡힌 포트폴리오를 구성하고 있습니다 👍';
+    } else {
+      return '투자 다양성을 조금 더 높여보는 것을 고려해보세요 📈';
+    }
   } else {
-    return '안정적인 투자 패턴을 보이고 있습니다 ✨';
+    if (diversityScore >= 2) {
+      return '꾸준한 투자로 좋은 기반을 다지고 있네요 💪';
+    } else {
+      return '단계적으로 투자 영역을 확장해나가보세요 🌱';
+    }
   }
 };
 </script>
-
 <style scoped>
 .summary-card {
   max-width: 26.875rem;
@@ -210,7 +237,7 @@ const getMainInsight = () => {
 
 .summary-item {
   text-align: center;
-  padding: 1rem 0.75rem;
+  padding: 0.5rem 0.75rem;
   background: rgba(255, 255, 255, 0.8);
   border-radius: 0.75rem;
   backdrop-filter: blur(5px);
@@ -385,35 +412,6 @@ const getMainInsight = () => {
   flex-shrink: 0;
 }
 
-/* 반응형 디자인 */
-@media (max-width: 480px) {
-  .summary-card {
-    padding: 0.75rem;
-    max-width: none;
-  }
-
-  .summary-grid {
-    gap: 0.5rem;
-  }
-
-  .summary-item {
-    padding: 0.75rem 0.5rem;
-    min-height: 90px;
-  }
-
-  .summary-icon i {
-    font-size: 1.25rem;
-  }
-
-  .summary-value {
-    font-size: 1rem;
-  }
-
-  .summary-label {
-    font-size: 0.75rem;
-  }
-}
-
 /* 로딩 상태 (옵션) */
 .summary-item.loading {
   opacity: 0.7;
@@ -442,21 +440,5 @@ const getMainInsight = () => {
 .summary-item:focus {
   outline: 2px solid var(--color-main);
   outline-offset: 2px;
-}
-
-/* 다크모드 대응 (옵션) */
-@media (prefers-color-scheme: dark) {
-  .summary-card {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  }
-
-  .summary-item {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-  }
-
-  .summary-item:hover {
-    background: rgba(255, 255, 255, 0.15);
-  }
 }
 </style>

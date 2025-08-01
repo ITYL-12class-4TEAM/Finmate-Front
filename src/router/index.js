@@ -42,7 +42,6 @@ const router = createRouter({
           name: 'Favorites',
           component: () => import('../pages/mypage/Favorites.vue'),
         }, // 즐겨찾기
-
         {
           path: 'recent-view',
           name: 'RecentView',
@@ -56,17 +55,39 @@ const router = createRouter({
 
         // 금융 성향 검사 결과
         {
-          path: 'wmti-result',
-          name: 'WMTIResult',
-          component: () => import('../pages/mypage/WMTIResult.vue'),
-        }, // WMTI 결과
-        {
           path: 'wmti-history',
           name: 'WMTIHistory',
           component: () => import('../pages/mypage/WMTIHistory.vue'),
         }, // WMTI 히스토리
 
+        {
+          path: 'wmti-result',
+          name: 'WMTIResult',
+          component: () => import('../pages/mypage/WMTIResult.vue'),
+        }, // WMTI 결과
+
         // 커뮤니티 활동
+        {
+          path: 'my-posts',
+          name: 'MyPosts',
+          component: () => import('../pages/mypage/MyPosts.vue'),
+        }, // 내 게시글
+        {
+          path: 'my-comments',
+          name: 'MyComments',
+          component: () => import('../pages/mypage/MyComments.vue'),
+        }, // 내 댓글
+        {
+          path: 'my-scrap',
+          name: 'MyScrap',
+          component: () => import('../pages/mypage/MyScrap.vue'),
+        }, // 내 스크랩
+        {
+          path: 'my-likes',
+          name: 'MyLikes',
+          component: () => import('../pages/mypage/MyLikes.vue'),
+        }, // 내 좋아요
+
         {
           path: 'my-posts',
           name: 'MyPosts',
@@ -105,6 +126,22 @@ const router = createRouter({
           name: 'settingsDelete',
           component: () => import('../pages/mypage/AccountDelete.vue'),
         },
+        {
+          path: 'settings',
+          name: 'settings',
+          component: () => import('../pages/mypage/Account.vue'),
+        },
+        {
+          path: 'settings/edit',
+          name: 'settingsEdit',
+          component: () => import('../pages/mypage/AccountEdit.vue'),
+        },
+        //회원탈퇴
+        {
+          path: 'settings/delete',
+          name: 'settingsDelete',
+          component: () => import('../pages/mypage/AccountDelete.vue'),
+        },
       ],
     },
 
@@ -113,8 +150,14 @@ const router = createRouter({
       path: '/products',
       name: 'Products',
       component: () => import('../pages/products/ProductsLayout.vue'), // 공통 레이아웃
+      path: '/products',
+      name: 'Products',
+      component: () => import('../pages/products/ProductsLayout.vue'), // 공통 레이아웃
       children: [
         {
+          path: 'deposit',
+          name: 'ProductDeposit',
+          component: () => import('../pages/products/ProductDeposit.vue'),
           path: 'deposit',
           name: 'ProductDeposit',
           component: () => import('../pages/products/ProductDeposit.vue'),
@@ -123,14 +166,17 @@ const router = createRouter({
           path: 'pension',
           name: 'ProductPension',
           component: () => import('../pages/products/ProductPension.vue'),
+          path: 'pension',
+          name: 'ProductPension',
+          component: () => import('../pages/products/ProductPension.vue'),
         }, // 연금
         //{ path: 'fund', name: 'ProductFund', component: () => import('../pages/products/ProductFund.vue')}, // 펀드
         //{ path: 'loan', name: 'ProductLoan', component: () => import('../pages/products/ProductLoan.vue')}, // 대출
         //{ path: 'insurance', name: 'ProductInsurance', component: () => import('../pages/products/ProductInsurance.vue')}, // 보험
         {
-          path: ":category/:id",
-          name: "ProductDetail",
-          component: () => import("../pages/products/ProductDetail.vue"),
+          path: ':category/:id',
+          name: 'ProductDetail',
+          component: () => import('../pages/products/ProductDetail.vue'),
         }, // 상세보기
       ],
     },
@@ -140,8 +186,14 @@ const router = createRouter({
       path: '/wmti',
       name: 'WMTI',
       component: () => import('../layouts/WMTILayout.vue'), // 선택
+      path: '/wmti',
+      name: 'WMTI',
+      component: () => import('../layouts/WMTILayout.vue'), // 선택
       children: [
         {
+          path: 'basic',
+          name: 'BasicSurvey',
+          component: () => import('../pages/wmti/BasicSurvey.vue'),
           path: 'basic',
           name: 'BasicSurvey',
           component: () => import('../pages/wmti/BasicSurvey.vue'),
@@ -152,8 +204,16 @@ const router = createRouter({
           component: () => import('../pages/wmti/PreInfoForm.vue'),
         },
         // 기본 성향 검사
-        { path: 'survey', name: 'SurveyPage', component: () => import('../pages/wmti/SurveyPage.vue')}, // WMTI 성향 검사지
-        { path: 'result', name: 'SurveyResult', component: () => import('../pages/wmti/SurveyResult.vue')}, // WMTI 성향 결과지
+        {
+          path: 'survey',
+          name: 'SurveyPage',
+          component: () => import('../pages/wmti/SurveyPage.vue'),
+        }, // WMTI 성향 검사지
+        {
+          path: 'result',
+          name: 'SurveyResult',
+          component: () => import('../pages/wmti/SurveyResult.vue'),
+        }, // WMTI 성향 결과지
         //{ path: 'collection', name: 'WMTICollection', component: () => import('../pages/Wmti/WMTICollection.vue')}, // WMTI 컬렉션
       ],
     },
@@ -186,12 +246,19 @@ const router = createRouter({
       ],
     },
     // { path: '/missions', name: 'Missions', component: () => import('../pages/Missions.vue') }, // 미션
-    { path: '/chatbot', name: 'Chatbot', component: () => import('../pages/Chatbot.vue') }, // 챗봇
+    {
+      path: '/chatbot',
+      name: 'Chatbot',
+      component: () => import('../pages/Chatbot.vue'),
+    }, // 챗봇
     // { path: '/terms', name: 'Terms', component: () => import('../pages/Terms.vue') }, // 이용약관
     // { path: '/privacy', name: 'Privacy', component: () => import('../pages/Privacy.vue') }, // 개인정보 처리방침
 
     /* 404 not found 페이지 */
     {
+      path: '/:paths(.*)*',
+      name: 'notFound',
+      component: () => import('../pages/NotFound/NotFound.vue'), // NotFound 컴포넌트
       path: '/:paths(.*)*',
       name: 'notFound',
       component: () => import('../pages/NotFound/NotFound.vue'), // NotFound 컴포넌트

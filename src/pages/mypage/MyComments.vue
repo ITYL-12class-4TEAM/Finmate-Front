@@ -1,6 +1,4 @@
 <template>
-  <PageHeader title="내 댓글" />
-
   <LoadingSpinner v-if="loading" />
 
   <ErrorAlert v-else-if="error" :message="error" />
@@ -49,7 +47,6 @@ import LoadingSpinner from '@/components/mypage/common/LoadingSpinner.vue';
 import ErrorAlert from '@/components/mypage/common/ErrorAlert.vue';
 import EmptyState from '@/components/mypage/mycomment/EmptyState.vue';
 import Pagination from '@/components/mypage/common/Pagination.vue';
-import PageHeader from '@/components/mypage/common/PageHeader.vue';
 
 import CommentedPostFilter from '@/components/mypage/mycomment/CommentPostFilter.vue';
 import CommentedPostSummary from '@/components/mypage/mycomment/CommentPostSummary.vue';

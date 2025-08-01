@@ -1,246 +1,256 @@
 <template>
-  <!-- 페이지 헤더 -->
+  <div class="delete-account">
+    <!-- 메인 카드 -->
+    <div class="delete-container">
+      <div class="delete-card">
+        <!-- 경고 메시지 -->
+        <div class="warning-section">
+          <div class="warning-header">
+            <div class="warning-content">
+              <h3 class="warning-title">⚠️ 중요한 안내사항</h3>
+              <p class="warning-desc">
+                계정 탈퇴는 <strong>되돌릴 수 없는</strong> 작업입니다. 아래
+                내용을 신중히 검토한 후 진행해주세요.
+              </p>
+            </div>
+          </div>
+        </div>
 
-  <!-- 메인 카드 -->
-  <div class="delete-container">
-    <div class="delete-card">
-      <!-- 경고 메시지 -->
-      <div class="warning-section">
-        <div class="warning-header">
-          <div class="warning-content">
-            <h3 class="warning-title">⚠️ 중요한 안내사항</h3>
-            <p class="warning-desc">
-              계정 탈퇴는 <strong>되돌릴 수 없는</strong> 작업입니다. 아래
-              내용을 신중히 검토한 후 진행해주세요.
+        <!-- 삭제될 데이터 목록 -->
+        <div class="deletion-info">
+          <div class="section-header">
+            <h4 class="section-title">
+              <i class="fas fa-database me-2"></i>
+              삭제될 데이터
+            </h4>
+          </div>
+
+          <div class="deletion-grid">
+            <div class="deletion-item">
+              <div class="deletion-icon personal">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="deletion-content">
+                <h6>개인정보</h6>
+                <ul>
+                  <li>프로필 정보</li>
+                  <li>계정 인증 정보</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="deletion-item">
+              <div class="deletion-icon activity">
+                <i class="fas fa-chart-line"></i>
+              </div>
+              <div class="deletion-content">
+                <h6>활동 기록</h6>
+                <ul>
+                  <li>작성한 게시글, 댓글</li>
+                  <li>좋아요, 공유 내역</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="deletion-item">
+              <div class="deletion-icon finance">
+                <i class="fas fa-chart-pie"></i>
+              </div>
+              <div class="deletion-content">
+                <h6>금융 데이터</h6>
+                <ul>
+                  <li>포트폴리오 및 투자 기록</li>
+                  <li>관심 종목 및 알림 설정</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="deletion-item">
+              <div class="deletion-icon saved">
+                <i class="fas fa-bookmark"></i>
+              </div>
+              <div class="deletion-content">
+                <h6>저장된 콘텐츠</h6>
+                <ul>
+                  <li>스크랩한 게시글</li>
+                  <li>즐겨찾기 목록</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 탈퇴 확인 폼 -->
+        <div class="confirmation-section" v-if="showConfirmation">
+          <div class="section-header">
+            <h4 class="section-title danger">
+              <i class="fas fa-exclamation-circle me-2"></i>
+              탈퇴 확인
+            </h4>
+          </div>
+
+          <div class="confirmation-form">
+            <!-- 이메일 확인 -->
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-envelope me-2"></i>
+                본인 확인을 위해 이메일을 입력해주세요
+              </label>
+              <div class="email-display">
+                <strong>입력해야 할 이메일:</strong> {{ userInfo.email }}
+              </div>
+              <input
+                v-model="confirmEmail"
+                type="email"
+                class="form-input"
+                placeholder="위의 이메일을 정확히 입력하세요"
+                :class="{ error: emailError }"
+                @keyup.enter="proceedToDelete"
+                @input="clearEmailError"
+              />
+              <div v-if="emailError" class="form-message error">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                {{ emailError }}
+              </div>
+            </div>
+
+            <!-- 탈퇴 사유 -->
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-comment me-2"></i>
+                탈퇴 사유를 선택해주세요 (선택사항)
+              </label>
+              <select v-model="deleteReason" class="form-select">
+                <option value="">사유를 선택하세요</option>
+                <option value="not-useful">서비스가 유용하지 않음</option>
+                <option value="privacy">개인정보 보호 우려</option>
+                <option value="too-complex">사용이 복잡함</option>
+                <option value="alternative">다른 서비스 이용</option>
+                <option value="temporary">일시적으로 사용 중단</option>
+                <option value="other">기타</option>
+              </select>
+            </div>
+
+            <!-- 추가 의견 -->
+            <div class="form-group" v-if="deleteReason === 'other'">
+              <label class="form-label">
+                <i class="fas fa-edit me-2"></i>
+                추가 의견
+              </label>
+              <textarea
+                v-model="additionalFeedback"
+                class="form-textarea"
+                placeholder="서비스 개선을 위한 의견을 남겨주세요"
+                rows="3"
+              ></textarea>
+            </div>
+
+            <!-- 최종 확인 체크박스 -->
+            <div class="final-check">
+              <label class="check-label">
+                <input
+                  v-model="finalConfirm"
+                  type="checkbox"
+                  class="check-input"
+                />
+                <span class="check-mark"></span>
+                <span class="check-text">
+                  위의 모든 내용을 확인했으며, 계정 탈퇴에 따른
+                  <strong>데이터 영구 삭제</strong>에 동의합니다.
+                </span>
+              </label>
+            </div>
+
+            <!-- 버튼 그룹 -->
+            <div class="form-actions">
+              <button
+                type="button"
+                class="action-btn secondary"
+                @click="cancelDeletion"
+                :disabled="processing"
+              >
+                <i class="fas fa-times me-2"></i>
+                취소
+              </button>
+              <button
+                type="button"
+                class="action-btn danger"
+                @click="proceedToDelete"
+                :disabled="!canProceed || processing"
+                :class="{ processing: processing }"
+              >
+                <i v-if="processing" class="fas fa-spinner fa-spin me-2"></i>
+                <i v-else class="fas fa-trash me-2"></i>
+                {{ processing ? '처리 중...' : '회원 탈퇴' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 탈퇴 시작 버튼 -->
+        <div class="start-deletion" v-if="!showConfirmation">
+          <div class="start-warning">
+            <p>
+              모든 내용을 확인하셨다면, 아래 버튼을 클릭하여 탈퇴 절차를
+              시작하세요.
             </p>
           </div>
-        </div>
-      </div>
-
-      <!-- 삭제될 데이터 목록 -->
-      <div class="deletion-info">
-        <div class="section-header">
-          <h4 class="section-title">삭제될 데이터</h4>
-        </div>
-
-        <div class="deletion-grid">
-          <div class="deletion-item">
-            <!-- 개인정보랑 아이콘 가로배열 -->
-
-            <span class="deletion-content">
-              <h6>개인정보</h6>
-              <ul>
-                <li>프로필 정보 (이름, 이메일, 전화번호)</li>
-                <li>계정 인증 정보</li>
-                <li>개인 설정 및 환경설정</li>
-              </ul>
-            </span>
-          </div>
-
-          <div class="deletion-item">
-            <div class="deletion-content">
-              <h6>활동 기록</h6>
-              <ul>
-                <li>작성한 게시글, 댓글</li>
-                <li>좋아요, 공유 내역</li>
-                <li>팔로우/팔로워 관계</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="deletion-item">
-            <div class="deletion-content">
-              <h6>금융 데이터</h6>
-              <ul>
-                <li>포트폴리오 및 투자 기록</li>
-                <li>관심 종목 및 알림 설정</li>
-                <li>거래 내역 및 분석 데이터</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="deletion-item">
-            <div class="deletion-content">
-              <h6>저장된 콘텐츠</h6>
-              <ul>
-                <li>스크랩한 게시글</li>
-                <li>즐겨찾기 목록</li>
-                <li>검색 기록</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 탈퇴 확인 폼 -->
-      <div class="confirmation-section" v-if="showConfirmation">
-        <div class="section-header">
-          <h4 class="section-title danger">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            탈퇴 확인
-          </h4>
-        </div>
-
-        <div class="confirmation-form">
-          <!-- 이메일 확인 -->
-          <div class="form-group">
-            <label class="form-label">
-              <i class="fas fa-envelope me-2"></i>
-              본인 확인을 위해 이메일을 입력해주세요
-            </label>
-            <div class="email-display">
-              <strong>입력해야 할 이메일:</strong> {{ userInfo.email }}
-            </div>
-            <input
-              v-model="confirmEmail"
-              type="email"
-              class="form-input"
-              placeholder="위의 이메일을 정확히 입력하세요"
-              :class="{ error: emailError }"
-              @keyup.enter="proceedToDelete"
-            />
-            <div v-if="emailError" class="form-message error">
-              <i class="fas fa-exclamation-triangle me-2"></i>
-              {{ emailError }}
-            </div>
-          </div>
-
-          <!-- 탈퇴 사유 -->
-          <div class="form-group">
-            <label class="form-label">
-              <i class="fas fa-comment me-2"></i>
-              탈퇴 사유를 선택해주세요 (선택사항)
-            </label>
-            <select v-model="deleteReason" class="form-select">
-              <option value="">사유를 선택하세요</option>
-              <option value="not-useful">서비스가 유용하지 않음</option>
-              <option value="privacy">개인정보 보호 우려</option>
-              <option value="too-complex">사용이 복잡함</option>
-              <option value="alternative">다른 서비스 이용</option>
-              <option value="temporary">일시적으로 사용 중단</option>
-              <option value="other">기타</option>
-            </select>
-          </div>
-
-          <!-- 추가 의견 -->
-          <div class="form-group" v-if="deleteReason === 'other'">
-            <label class="form-label">
-              <i class="fas fa-edit me-2"></i>
-              추가 의견
-            </label>
-            <textarea
-              v-model="additionalFeedback"
-              class="form-textarea"
-              placeholder="서비스 개선을 위한 의견을 남겨주세요"
-              rows="3"
-            ></textarea>
-          </div>
-
-          <!-- 최종 확인 체크박스 -->
-          <div class="final-check">
-            <label class="check-label">
-              <input
-                v-model="finalConfirm"
-                type="checkbox"
-                class="check-input"
-              />
-              <span class="check-mark"></span>
-              <span class="check-text">
-                위의 모든 내용을 확인했으며, 계정 탈퇴에 따른
-                <strong>데이터 영구 삭제</strong>에 동의합니다.
-              </span>
-            </label>
-          </div>
-
-          <!-- 버튼 그룹 -->
-          <div class="form-actions">
-            <button
-              type="button"
-              class="action-btn secondary"
-              @click="cancelDeletion"
-              :disabled="processing"
-            >
-              <i class="fas fa-times me-2"></i>
-              취소
-            </button>
+          <div class="start-actions">
             <button
               type="button"
               class="action-btn danger"
-              @click="proceedToDelete"
-              :disabled="!canProceed || processing"
-              :class="{ processing: processing }"
+              @click="startDeletion"
             >
-              <i v-if="processing" class="fas fa-spinner fa-spin me-2"></i>
-              <i v-else class="fas fa-trash me-2"></i>
-              {{ processing ? '처리 중...' : '계정 영구 삭제' }}
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              탈퇴 절차 시작
             </button>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- 탈퇴 시작 버튼 -->
-      <div class="start-deletion" v-if="!showConfirmation">
-        <div class="start-warning">
-          <p>
-            모든 내용을 확인하셨다면, 아래 버튼을 클릭하여 탈퇴 절차를
-            시작하세요.
-          </p>
-        </div>
-        <div class="start-actions">
-          <button
-            type="button"
-            class="action-btn danger"
-            @click="startDeletion"
-          >
+    <!-- 최종 확인 모달 -->
+    <div v-if="showFinalModal" class="modal-overlay" @click="closeFinalModal">
+      <div class="modal-card" @click.stop>
+        <div class="modal-header">
+          <div class="modal-title danger">
             <i class="fas fa-exclamation-triangle me-2"></i>
-            탈퇴 절차 시작
+            최종 확인
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="final-warning">
+            <div class="warning-icon-large">
+              <i class="fas fa-skull-crossbones"></i>
+            </div>
+            <h5>정말로 계정을 삭제하시겠습니까?</h5>
+            <p>
+              이 작업은 <strong>되돌릴 수 없으며</strong>, 모든 데이터가 즉시
+              영구 삭제됩니다.
+            </p>
+            <div class="countdown" v-if="countdown > 0">
+              {{ countdown }}초 후 확인 버튼이 활성화됩니다...
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="modal-btn secondary" @click="closeFinalModal">
+            <i class="fas fa-times me-2"></i>
+            취소
+          </button>
+          <button
+            class="modal-btn danger"
+            @click="confirmFinalDeletion"
+            :disabled="countdown > 0 || processing"
+            :class="{ processing: processing }"
+          >
+            <i v-if="processing" class="fas fa-spinner fa-spin me-2"></i>
+            <i v-else class="fas fa-trash me-2"></i>
+            {{ processing ? '삭제 중...' : '영구 삭제 확인' }}
           </button>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 최종 확인 모달 -->
-  <div v-if="showFinalModal" class="modal-overlay" @click="closeFinalModal">
-    <div class="modal-card" @click.stop>
-      <div class="modal-header">
-        <div class="modal-title danger">
-          <i class="fas fa-exclamation-triangle me-2"></i>
-          최종 확인
-        </div>
-      </div>
-
-      <div class="modal-body">
-        <div class="final-warning">
-          <div class="warning-icon-large">
-            <i class="fas fa-skull-crossbones"></i>
-          </div>
-          <h5>정말로 계정을 삭제하시겠습니까?</h5>
-          <p>
-            이 작업은 <strong>되돌릴 수 없으며</strong>, 모든 데이터가 즉시 영구
-            삭제됩니다.
-          </p>
-          <div class="countdown" v-if="countdown > 0">
-            {{ countdown }}초 후 확인 버튼이 활성화됩니다...
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button class="modal-btn secondary" @click="closeFinalModal">
-          <i class="fas fa-times me-2"></i>
-          취소
-        </button>
-        <button
-          class="modal-btn danger"
-          @click="confirmFinalDeletion"
-          :disabled="countdown > 0 || processing"
-          :class="{ processing: processing }"
-        >
-          <i v-if="processing" class="fas fa-spinner fa-spin me-2"></i>
-          <i v-else class="fas fa-trash me-2"></i>
-          {{ processing ? '삭제 중...' : '영구 삭제 확인' }}
-        </button>
       </div>
     </div>
   </div>
@@ -268,7 +278,6 @@ const finalConfirm = ref(false);
 
 // 에러 상태
 const emailError = ref('');
-const passwordError = ref('');
 
 // 사용자 정보
 const userInfo = ref({
@@ -281,14 +290,13 @@ let countdownTimer = null;
 
 // 계산된 속성
 const canProceed = computed(() => {
-  return (
-    confirmEmail.value &&
-    confirmPassword.value &&
-    finalConfirm.value &&
-    !emailError.value &&
-    !passwordError.value
-  );
+  return confirmEmail.value && finalConfirm.value && !emailError.value;
 });
+
+// 에러 클리어 함수들
+const clearEmailError = () => {
+  emailError.value = '';
+};
 
 // 탈퇴 절차 시작
 const startDeletion = () => {
@@ -311,19 +319,16 @@ const cancelDeletion = () => {
 // 폼 초기화
 const resetForm = () => {
   confirmEmail.value = '';
-  confirmPassword.value = '';
   deleteReason.value = '';
   additionalFeedback.value = '';
   finalConfirm.value = false;
   emailError.value = '';
-  passwordError.value = '';
 };
 
 // 탈퇴 진행
 const proceedToDelete = () => {
   // 유효성 검사 초기화
   emailError.value = '';
-  passwordError.value = '';
 
   // 이메일 확인
   if (!confirmEmail.value) {
@@ -336,18 +341,6 @@ const proceedToDelete = () => {
     userInfo.value.email.toLowerCase().trim()
   ) {
     emailError.value = '이메일이 일치하지 않습니다.';
-    return;
-  }
-
-  // 비밀번호 확인
-  if (!confirmPassword.value) {
-    passwordError.value = '비밀번호를 입력해주세요.';
-    return;
-  }
-
-  // 임시 비밀번호 검증 (실제로는 서버에서 검증)
-  if (confirmPassword.value !== 'test123!') {
-    passwordError.value = '비밀번호가 올바르지 않습니다.';
     return;
   }
 
@@ -432,43 +425,33 @@ onUnmounted(() => {
 
 <style scoped>
 .delete-account {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-  padding: 2rem 1rem;
+  min-height: 40vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 페이지 헤더 */
 .page-header {
   text-align: center;
   margin-bottom: 2rem;
-  position: relative;
 }
 
-.back-btn {
-  position: absolute;
-  left: 0;
-  top: 0;
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-main);
+  margin-bottom: 0.5rem;
+  font-family: 'Pretendard', sans-serif;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--color-sub);
-  border: 1px solid rgba(185, 187, 204, 0.3);
-  border-radius: 0.75rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
+  justify-content: center;
 }
 
-.back-btn:hover {
-  background: white;
-  color: var(--color-main);
-  border-color: rgba(185, 187, 204, 0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.page-subtitle {
+  color: var(--color-sub);
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0;
 }
 
 /* 메인 컨테이너 */
@@ -480,10 +463,18 @@ onUnmounted(() => {
 .delete-card {
   background: linear-gradient(135deg, var(--color-white) 0%, #fef7f7 100%);
   border-radius: 1rem;
-  padding: 2rem;
+  padding: 1rem;
+  border: 1px solid rgba(185, 187, 204, 0.3);
+  box-shadow: 0 4px 16px -2px rgba(45, 51, 107, 0.1);
   backdrop-filter: blur(10px);
   width: 100%;
   max-width: 800px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.delete-card:hover {
+  box-shadow: 0 8px 24px -4px rgba(45, 51, 107, 0.15);
+  border-color: rgba(185, 187, 204, 0.4);
 }
 
 /* 경고 섹션 */
@@ -495,8 +486,13 @@ onUnmounted(() => {
   );
   border: 2px solid rgba(245, 158, 11, 0.3);
   border-radius: 1rem;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.warning-section:hover {
+  border-color: rgba(245, 158, 11, 0.4);
 }
 
 .warning-header {
@@ -516,6 +512,12 @@ onUnmounted(() => {
   color: white;
   font-size: 1.25rem;
   flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.warning-section:hover .warning-icon {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
 }
 
 .warning-content {
@@ -524,14 +526,14 @@ onUnmounted(() => {
 
 .warning-title {
   color: var(--color-main);
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
 }
 
 .warning-desc {
   color: var(--color-sub);
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   margin: 0;
   line-height: 1.5;
 }
@@ -545,45 +547,71 @@ onUnmounted(() => {
 
 .section-title {
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--color-main);
   margin: 0;
   display: flex;
   align-items: center;
 }
 
+.section-title.danger {
+  color: #dc2626;
+}
+
 /* 삭제될 데이터 섹션 */
 .deletion-info {
   background: rgba(255, 255, 255, 0.8);
   border-radius: 1rem;
-  padding: 1.5rem;
+  padding: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.2);
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.deletion-info:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(185, 187, 204, 0.3);
 }
 
 .deletion-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
   gap: 1rem;
 }
 
 .deletion-item {
   background: rgba(255, 255, 255, 0.6);
   border-radius: 0.75rem;
-  padding: 1rem;
+  padding: 0.75rem;
   border: 1px solid rgba(220, 38, 38, 0.1);
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.deletion-item:hover {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(220, 38, 38, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1);
 }
 
 .deletion-icon {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-size: 1rem;
-  margin-bottom: 0.75rem;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.deletion-item:hover .deletion-icon {
+  transform: scale(1.05);
 }
 
 .deletion-icon.personal {
@@ -602,10 +630,14 @@ onUnmounted(() => {
   background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
 }
 
+.deletion-content {
+  flex: 1;
+}
+
 .deletion-content h6 {
   color: var(--color-main);
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 0.9rem;
+  font-weight: 600;
   margin: 0 0 0.5rem 0;
 }
 
@@ -619,7 +651,7 @@ onUnmounted(() => {
   position: relative;
   padding-left: 1rem;
   color: var(--color-sub);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   line-height: 1.4;
   margin-bottom: 0.25rem;
 }
@@ -643,12 +675,24 @@ onUnmounted(() => {
   border-radius: 1rem;
   padding: 1.5rem;
   margin-bottom: 2rem;
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .confirmation-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .form-group {
@@ -661,7 +705,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   color: var(--color-main);
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
@@ -670,7 +714,7 @@ onUnmounted(() => {
   background: rgba(185, 187, 204, 0.1);
   border: 1px solid rgba(185, 187, 204, 0.3);
   border-radius: 0.5rem;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--color-sub);
 }
 
@@ -678,18 +722,29 @@ onUnmounted(() => {
   color: var(--color-main);
 }
 
-.form-input {
+.form-input,
+.form-select,
+.form-textarea {
   padding: 0.875rem;
   border: 2px solid rgba(185, 187, 204, 0.3);
   border-radius: 0.75rem;
   font-size: 0.95rem;
   font-weight: 500;
   background: rgba(255, 255, 255, 0.8);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: 'Pretendard', sans-serif;
+  color: var(--color-main);
 }
 
-.form-input:focus {
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--color-sub);
+  opacity: 0.7;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
   outline: none;
   border-color: var(--color-main);
   box-shadow: 0 0 0 4px rgba(45, 51, 107, 0.1);
@@ -699,6 +754,11 @@ onUnmounted(() => {
 .form-input.error {
   border-color: #dc2626;
   box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
 }
 
 .password-input-wrapper {
@@ -724,48 +784,23 @@ onUnmounted(() => {
   background: rgba(185, 187, 204, 0.1);
 }
 
-.form-select {
-  padding: 0.875rem;
-  border: 2px solid rgba(185, 187, 204, 0.3);
-  border-radius: 0.75rem;
-  font-size: 0.95rem;
-  font-weight: 500;
-  background: rgba(255, 255, 255, 0.8);
-  transition: all 0.3s ease;
-  font-family: 'Pretendard', sans-serif;
-}
-
-.form-select:focus {
-  outline: none;
-  border-color: var(--color-main);
-  box-shadow: 0 0 0 4px rgba(45, 51, 107, 0.1);
-}
-
-.form-textarea {
-  padding: 0.875rem;
-  border: 2px solid rgba(185, 187, 204, 0.3);
-  border-radius: 0.75rem;
-  font-size: 0.95rem;
-  font-weight: 500;
-  background: rgba(255, 255, 255, 0.8);
-  transition: all 0.3s ease;
-  font-family: 'Pretendard', sans-serif;
-  resize: vertical;
-  min-height: 80px;
-}
-
-.form-textarea:focus {
-  outline: none;
-  border-color: var(--color-main);
-  box-shadow: 0 0 0 4px rgba(45, 51, 107, 0.1);
-  background: white;
-}
-
 .form-message {
   display: flex;
   align-items: center;
   font-size: 0.85rem;
   font-weight: 500;
+  animation: slideInMessage 0.3s ease-out;
+}
+
+@keyframes slideInMessage {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .form-message.error {
@@ -790,6 +825,11 @@ onUnmounted(() => {
   gap: 0.75rem;
   cursor: pointer;
   user-select: none;
+  transition: all 0.2s ease;
+}
+
+.check-label:hover {
+  opacity: 0.8;
 }
 
 .check-input {
@@ -805,12 +845,13 @@ onUnmounted(() => {
   position: relative;
   flex-shrink: 0;
   margin-top: 0.125rem;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .check-input:checked + .check-mark {
   background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
   border-color: #dc2626;
+  transform: scale(1.05);
 }
 
 .check-input:checked + .check-mark::before {
@@ -826,7 +867,7 @@ onUnmounted(() => {
 
 .check-text {
   color: var(--color-main);
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   line-height: 1.4;
 }
 
@@ -838,7 +879,7 @@ onUnmounted(() => {
 .form-actions,
 .start-actions {
   display: flex;
-  gap: 1rem;
+  gap: 0.5rem;
   justify-content: flex-end;
   margin-top: 1.5rem;
 }
@@ -849,12 +890,14 @@ onUnmounted(() => {
   gap: 0.5rem;
   padding: 0.5rem 1rem;
   border: none;
+  width: 100%;
   border-radius: 0.75rem;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: 'Pretendard', sans-serif;
+  min-height: 3rem;
 }
 
 .action-btn.secondary {
@@ -867,6 +910,7 @@ onUnmounted(() => {
   background: rgba(255, 255, 255, 0.95);
   color: var(--color-main);
   border-color: rgba(185, 187, 204, 0.5);
+  transform: translateY(-2px);
 }
 
 .action-btn.danger {
@@ -877,6 +921,15 @@ onUnmounted(() => {
 .action-btn.danger:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(220, 38, 38, 0.25);
+}
+
+.action-btn:active:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.action-btn:focus-visible {
+  outline: 2px solid var(--color-main);
+  outline-offset: 2px;
 }
 
 .action-btn:disabled {
@@ -893,13 +946,46 @@ onUnmounted(() => {
   );
 }
 
+.action-btn.processing::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
 /* 시작 섹션 */
 .start-deletion {
   background: rgba(255, 255, 255, 0.8);
   border-radius: 1rem;
-  padding: 1.5rem;
+  padding: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.2);
   text-align: center;
+  transition: all 0.3s ease;
+}
+
+.start-deletion:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(185, 187, 204, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.1);
 }
 
 .start-warning {
@@ -908,7 +994,7 @@ onUnmounted(() => {
 
 .start-warning p {
   color: var(--color-sub);
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   margin: 0;
   line-height: 1.5;
 }
@@ -926,18 +1012,42 @@ onUnmounted(() => {
   justify-content: center;
   z-index: 1000;
   padding: 1rem;
+  backdrop-filter: blur(4px);
+  animation: modalOverlayAppear 0.3s ease-out;
+}
+
+@keyframes modalOverlayAppear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-card {
-  background: white;
+  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
   border-radius: 1rem;
   width: 100%;
   max-width: 450px;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(185, 187, 204, 0.3);
+  animation: modalCardAppear 0.3s ease-out;
+}
+
+@keyframes modalCardAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .modal-header {
-  padding: 1.5rem;
+  padding: 1rem;
   border-bottom: 1px solid rgba(185, 187, 204, 0.2);
 }
 
@@ -954,7 +1064,7 @@ onUnmounted(() => {
 }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: 1rem;
 }
 
 .final-warning {
@@ -962,8 +1072,8 @@ onUnmounted(() => {
 }
 
 .warning-icon-large {
-  width: 4rem;
-  height: 4rem;
+  width: 3rem;
+  height: 3rem;
   border-radius: 50%;
   background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
   display: flex;
@@ -972,6 +1082,18 @@ onUnmounted(() => {
   color: white;
   font-size: 1.5rem;
   margin: 0 auto 1rem auto;
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
+  animation: warningPulse 2s infinite;
+}
+
+@keyframes warningPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 .final-warning h5 {
@@ -992,16 +1114,28 @@ onUnmounted(() => {
   color: #f59e0b;
   font-size: 0.9rem;
   font-weight: 600;
-  padding: 0.5rem;
+  padding: 0.75rem;
   background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
   border-radius: 0.5rem;
+  animation: countdownPulse 1s infinite;
+}
+
+@keyframes countdownPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 .modal-footer {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   justify-content: flex-end;
-  padding: 1rem 1.5rem;
+  padding: 1rem 1rem;
   border-top: 1px solid rgba(185, 187, 204, 0.2);
 }
 
@@ -1015,7 +1149,8 @@ onUnmounted(() => {
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 48px;
 }
 
 .modal-btn.secondary {
@@ -1027,6 +1162,7 @@ onUnmounted(() => {
 .modal-btn.secondary:hover {
   background: rgba(255, 255, 255, 0.95);
   color: var(--color-main);
+  transform: translateY(-1px);
 }
 
 .modal-btn.danger {
@@ -1051,65 +1187,62 @@ onUnmounted(() => {
     var(--color-sub) 0%,
     var(--color-light) 100%
   );
+  position: relative;
+  overflow: hidden;
 }
 
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-  .delete-account {
-    padding: 1rem;
-  }
-
-  .back-btn {
-    position: static;
-    margin-bottom: 1rem;
-    align-self: flex-start;
-  }
-
-  .page-header {
-    text-align: left;
-  }
-
-  .page-title {
-    font-size: 1.5rem;
-    justify-content: flex-start;
-  }
-
-  .delete-card {
-    padding: 1.5rem;
-  }
-
-  .deletion-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .alternatives-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .form-actions,
-  .start-actions {
-    flex-direction: column;
-  }
-
-  .warning-header {
-    flex-direction: column;
-    text-align: center;
-    gap: 1rem;
-  }
+/* 향상된 호버 효과 */
+.deletion-info:hover,
+.start-deletion:hover {
+  transform: translateY(-2px);
 }
 
-@media (max-width: 480px) {
-  .delete-card {
-    padding: 1rem;
-  }
+/* 커스텀 스크롤바 */
+.delete-account::-webkit-scrollbar {
+  width: 8px;
+}
 
-  .warning-section,
-  .confirmation-section {
-    padding: 1rem;
-  }
+.delete-account::-webkit-scrollbar-track {
+  background: rgba(185, 187, 204, 0.1);
+  border-radius: 4px;
+}
 
-  .modal-card {
-    margin: 1rem;
+.delete-account::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  border-radius: 4px;
+}
+
+.delete-account::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+}
+
+/* 폼 입력 상태 개선 */
+.form-input:hover:not(:focus):not(.error),
+.form-select:hover:not(:focus),
+.form-textarea:hover:not(:focus) {
+  border-color: rgba(45, 51, 107, 0.5);
+}
+
+/* 성공/에러 상태 아이콘 */
+.form-input.error {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23dc2626'%3e%3cpath d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z'/%3e%3cpath d='M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+}
+
+/* 로딩 상태 스피너 개선 */
+.fa-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>

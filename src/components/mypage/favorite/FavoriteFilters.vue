@@ -65,6 +65,7 @@
               <!-- <option value="interest-desc">금리 높은순</option>
               <option value="interest-asc">금리 낮은순</option> -->
               <option value="wishlist-desc">인기순</option>
+              <option value="date-desc">최신순</option>
             </select>
             <i class="fa-solid fa-chevron-down select-arrow"></i>
           </div>

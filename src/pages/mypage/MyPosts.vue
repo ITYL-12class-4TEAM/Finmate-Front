@@ -1,6 +1,4 @@
 <template>
-  <PageHeader title="내 게시글" />
-
   <LoadingSpinner v-if="loading" />
 
   <ErrorAlert v-else-if="error" :message="error" />

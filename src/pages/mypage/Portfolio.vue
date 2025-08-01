@@ -101,8 +101,11 @@ const fetchPortfolioData = async () => {
       }),
     ]);
 
+    // JSON 구조에 맞게 수정: body.data로 접근
     portfolioItems.value = itemsRes.data.body.data || [];
     summaryData.value = summaryRes.data.body.data || {};
+
+    // 나이대 정보 설정 - ageGroupStats 배열에서 첫 번째 항목의 ageGroup 사용
     const ageStat = summaryData.value?.comparisonSummary?.ageGroupStats?.[0];
     if (ageStat?.ageGroup) {
       userAgeGroup.value = `${ageStat.ageGroup}대`;
@@ -153,9 +156,10 @@ const recentProduct = computed(() => {
 });
 
 // -------------------- 비교 데이터 --------------------
+// subcategory 이름으로 비율을 찾는 함수 - JSON 구조에 맞게 수정
 const findRatioInSummary = (subcategoryName) => {
   for (const cat of processedSummary.value) {
-    for (const sub of cat.subcategories) {
+    for (const sub of cat.subcategories || []) {
       if (sub.subcategoryName === subcategoryName) {
         return sub.ratio;
       }
@@ -164,10 +168,23 @@ const findRatioInSummary = (subcategoryName) => {
   return 0;
 };
 
+// 카테고리 이름으로 비율을 찾는 함수 추가 (byAgeGroup은 카테고리 이름을 사용)
+const findCategoryRatioInSummary = (categoryName) => {
+  const category = processedSummary.value.find(
+    (cat) => cat.categoryName === categoryName
+  );
+  return category ? category.ratio : 0;
+};
+
 const ageComparisonChart = computed(() => {
   const group = summaryData.value?.comparisonSummary?.byAgeGroup || [];
   return group.map((item) => {
-    const my = findRatioInSummary(item.categoryName);
+    // 먼저 카테고리에서 찾고, 없으면 서브카테고리에서 찾기
+    let my = findCategoryRatioInSummary(item.categoryName);
+    if (my === 0) {
+      my = findRatioInSummary(item.categoryName);
+    }
+
     const average = item.averageRatio;
     return {
       name: item.categoryName,
@@ -181,7 +198,12 @@ const ageComparisonChart = computed(() => {
 const assetRangeChart = computed(() => {
   const group = summaryData.value?.comparisonSummary?.byAmountGroup || [];
   return group.map((item) => {
-    const my = findRatioInSummary(item.categoryName);
+    // 먼저 카테고리에서 찾고, 없으면 서브카테고리에서 찾기
+    let my = findCategoryRatioInSummary(item.categoryName);
+    if (my === 0) {
+      my = findRatioInSummary(item.categoryName);
+    }
+
     return {
       name: item.categoryName,
       my,
@@ -296,7 +318,9 @@ const saveEdit = async (item) => {
 };
 
 const deleteProduct = async (item) => {
-  if (!confirm(`${item.productName}을 삭제할까요?`)) return;
+  // JSON 데이터에서는 customProductName을 사용
+  const productName = item.customProductName || item.productName || '상품';
+  if (!confirm(`${productName}을 삭제할까요?`)) return;
 
   try {
     const accessToken = localStorage.getItem('accessToken');

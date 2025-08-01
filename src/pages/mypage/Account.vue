@@ -1,13 +1,5 @@
 <template>
   <div class="password-verify">
-    <!-- 페이지 헤더 -->
-    <div class="page-header">
-      <h2 class="page-title">본인 확인</h2>
-      <p class="page-subtitle">
-        회원정보 변경을 위해 현재 비밀번호를 입력해주세요
-      </p>
-    </div>
-
     <!-- 메인 카드 -->
     <div class="verify-container">
       <div class="verify-card">
@@ -211,7 +203,6 @@ const forgotPassword = () => {
 <style scoped>
 .password-verify {
   min-height: 40vh;
-  padding: 2rem 1rem;
   display: flex;
   flex-direction: column;
 }
@@ -248,22 +239,22 @@ const forgotPassword = () => {
 }
 
 .verify-card {
-  background: var(--color-white);
+  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
   border-radius: 1rem;
-  padding: 2rem;
+  padding: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
+  box-shadow: 0 2px 8px -2px rgba(45, 51, 107, 0.1);
   backdrop-filter: blur(10px);
   width: 100%;
   max-width: 480px;
   height: fit-content;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
 }
 
-/* 보안 섹션 */
-.security-section {
-  text-align: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 2px solid rgba(185, 187, 204, 0.2);
+.verify-card:hover {
+  border-color: rgba(185, 187, 204, 0.4);
+  box-shadow: 0 4px 12px -2px rgba(45, 51, 107, 0.15);
 }
 
 /* 사용자 정보 카드 */
@@ -277,6 +268,12 @@ const forgotPassword = () => {
   border: 1px solid rgba(185, 187, 204, 0.2);
   margin-bottom: 1.5rem;
   position: relative;
+  transition: all 0.3s ease;
+}
+
+.user-info-card:hover .user-avatar {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.2);
 }
 
 .user-avatar {
@@ -294,6 +291,7 @@ const forgotPassword = () => {
   color: white;
   font-size: 1.25rem;
   flex-shrink: 0;
+  transition: all 0.3s ease;
 }
 
 .user-details {
@@ -311,18 +309,6 @@ const forgotPassword = () => {
   font-size: 0.85rem;
   color: var(--color-sub);
   font-weight: 500;
-}
-
-.verified-badge {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  border-radius: 1rem;
-  font-size: 0.7rem;
-  font-weight: 600;
 }
 
 /* 폼 스타일 */
@@ -356,8 +342,14 @@ const forgotPassword = () => {
   font-size: 0.95rem;
   font-weight: 500;
   background: rgba(255, 255, 255, 0.8);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: 'Pretendard', sans-serif;
+  color: var(--color-main);
+}
+
+.form-input::placeholder {
+  color: var(--color-sub);
+  opacity: 0.7;
 }
 
 .form-input:focus {
@@ -365,6 +357,11 @@ const forgotPassword = () => {
   border-color: var(--color-main);
   box-shadow: 0 0 0 4px rgba(45, 51, 107, 0.1);
   background: white;
+}
+
+.form-input:focus-visible {
+  outline: 2px solid var(--color-main);
+  outline-offset: 2px;
 }
 
 .form-input.error {
@@ -375,6 +372,12 @@ const forgotPassword = () => {
 .form-input:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* 자동완성 스타일링 */
+.form-input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.9) inset;
+  -webkit-text-fill-color: var(--color-main);
 }
 
 .password-toggle {
@@ -396,6 +399,11 @@ const forgotPassword = () => {
   background: rgba(185, 187, 204, 0.1);
 }
 
+.password-toggle:focus-visible {
+  outline: 2px solid var(--color-main);
+  outline-offset: 2px;
+}
+
 .password-toggle:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -408,34 +416,52 @@ const forgotPassword = () => {
   font-size: 0.85rem;
   font-weight: 500;
   margin-top: 0.5rem;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* 확인 버튼 */
 .verify-btn {
   width: 100%;
-  padding: 1rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-main) 0%,
-    var(--color-sub) 100%
-  );
+  padding: 0.8rem;
+  background: var(--color-sub);
   color: white;
   border: none;
   border-radius: 0.75rem;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
-  margin-bottom: 1.5rem;
-  min-height: 56px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 1rem;
+  min-height: 3rem;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .verify-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
+  transform: translateY(-2px) translateZ(0);
   box-shadow: 0 8px 24px rgba(45, 51, 107, 0.2);
+  will-change: transform, box-shadow;
+}
+
+.verify-btn:active:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.verify-btn:focus-visible {
+  outline: 2px solid var(--color-main);
+  outline-offset: 2px;
 }
 
 .verify-btn:disabled {
@@ -445,17 +471,73 @@ const forgotPassword = () => {
 }
 
 .verify-btn.loading {
-  background: linear-gradient(
-    135deg,
-    var(--color-sub) 0%,
-    var(--color-light) 100%
-  );
+  background: var(--color-sub);
+}
+
+.verify-btn.loading .btn-content {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
 }
 
 .btn-content {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+/* 보안 안내 */
+.security-notice {
+  background: linear-gradient(
+    135deg,
+    rgba(45, 51, 107, 0.05) 0%,
+    rgba(125, 129, 162, 0.03) 100%
+  );
+  border: 1px solid rgba(45, 51, 107, 0.1);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.notice-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-main);
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.notice-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-sub);
+  line-height: 1.5;
+}
+
+.notice-list li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.notice-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--color-light);
+  font-weight: bold;
 }
 
 /* 하단 링크 */
@@ -474,22 +556,10 @@ const forgotPassword = () => {
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
   flex: 1;
   justify-content: center;
-}
-
-.link-btn.secondary {
-  background: rgba(255, 255, 255, 0.8);
-  color: var(--color-sub);
-  border: 1px solid rgba(185, 187, 204, 0.3);
-}
-
-.link-btn.secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.95);
-  color: var(--color-main);
-  border-color: rgba(185, 187, 204, 0.5);
 }
 
 .link-btn.primary {
@@ -509,6 +579,7 @@ const forgotPassword = () => {
     rgba(125, 129, 162, 0.3) 100%
   );
   border-color: rgba(185, 187, 204, 0.5);
+  transform: translateY(-1px);
 }
 
 .link-btn:disabled {
@@ -529,21 +600,36 @@ const forgotPassword = () => {
   justify-content: center;
   z-index: 1000;
   padding: 1rem;
+  backdrop-filter: blur(4px);
 }
 
 .modal-content {
-  background: white;
+  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
   border-radius: 1rem;
   padding: 2rem;
   text-align: center;
   max-width: 400px;
   width: 100%;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(185, 187, 204, 0.3);
+  transform: translateZ(0);
+  animation: modalAppear 0.3s ease-out;
+}
+
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .success-icon {
-  width: 4rem;
-  height: 4rem;
+  width: 3rem;
+  height: 3rem;
   border-radius: 50%;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   display: flex;
@@ -552,11 +638,13 @@ const forgotPassword = () => {
   margin: 0 auto 1rem;
   font-size: 1.5rem;
   color: white;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
 }
 
 .modal-content h3 {
   color: var(--color-main);
   margin-bottom: 1rem;
+  font-weight: 700;
 }
 
 .modal-content p {
@@ -567,77 +655,18 @@ const forgotPassword = () => {
 
 .modal-btn {
   width: 100%;
-  padding: 1rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-main) 0%,
-    var(--color-sub) 100%
-  );
+  padding: 0.75rem;
+  background: var(--color-sub);
   color: white;
   border: none;
   border-radius: 0.75rem;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .modal-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(45, 51, 107, 0.2);
-}
-
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-  .password-verify {
-    padding: 1rem;
-  }
-
-  .page-title {
-    font-size: 1.5rem;
-  }
-
-  .verify-card {
-    padding: 1.5rem;
-  }
-
-  .security-icon {
-    width: 3rem;
-    height: 3rem;
-  }
-
-  .security-icon i {
-    font-size: 1.25rem;
-  }
-
-  .user-avatar {
-    width: 2.5rem;
-    height: 2.5rem;
-    font-size: 1rem;
-  }
-
-  .bottom-links {
-    flex-direction: column;
-  }
-
-  .link-btn {
-    flex: none;
-  }
-}
-
-@media (max-width: 480px) {
-  .verify-card {
-    padding: 1rem;
-  }
-
-  .user-info-card {
-    flex-direction: column;
-    text-align: center;
-    gap: 0.75rem;
-  }
-
-  .verified-badge {
-    position: static;
-    align-self: center;
-  }
 }
 </style>
