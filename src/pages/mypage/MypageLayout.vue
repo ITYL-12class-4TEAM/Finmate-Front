@@ -82,7 +82,7 @@
             <ul class="menu-list">
               <li class="menu-item">
                 <router-link
-                  to="/mypage/wmti-result"
+                  to="/wmti/result"
                   class="menu-link"
                   exact-active-class="active"
                   @click="closeMobileMenu"

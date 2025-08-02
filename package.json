@@ -22,5 +22,14 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.0",
     "vite": "^5.2.0"
-  }
+  },
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "eslint.validate": [
+    "vue",
+    "javascript"
+  ],
+  "prettier.enable": true
 }

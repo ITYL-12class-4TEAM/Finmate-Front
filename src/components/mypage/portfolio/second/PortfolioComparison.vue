@@ -31,20 +31,6 @@ const props = defineProps({
     default: () => [],
   },
 
-  // 자산 규모별 비교 데이터
-  assetRangeChart: {
-    type: Array,
-    required: true,
-    default: () => [],
-  },
-
-  // 총 자산 금액
-  totalAmount: {
-    type: Number,
-    required: true,
-    default: 0,
-  },
-
   // 비교 분석 메시지
   comparisonMessage: {
     type: String,
