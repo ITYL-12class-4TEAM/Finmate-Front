@@ -6,7 +6,7 @@
         <AgeComparisonChart
           :userAgeGroup="userAgeGroup"
           :ageComparisonChart="ageComparisonChart"
-          :comparisonMessage="comparisonMessage"
+          :totalAmount="totalAmount"
         />
       </div>
     </div>
@@ -31,11 +31,10 @@ const props = defineProps({
     default: () => [],
   },
 
-  // 비교 분석 메시지
-  comparisonMessage: {
-    type: String,
+  totalAmount: {
+    type: Number,
     required: true,
-    default: '',
+    default: 0,
   },
 });
 </script>

@@ -22,9 +22,7 @@
         v-else-if="activeTab === 'comparison'"
         :userAgeGroup="userAgeGroup"
         :ageComparisonChart="ageComparisonChart"
-        :assetRangeChart="assetRangeChart"
         :totalAmount="totalAmount"
-        :comparisonMessage="comparisonMessage"
       />
 
       <PortfolioAllocation
@@ -32,7 +30,14 @@
         :processedSummary="processedSummary"
       />
 
-      <PortfolioWMTI v-else-if="activeTab === 'wmti'" :wmtiData="wmtiData" />
+      <!-- <PortfolioWMTI  v-else-if="activeTab === 'wmti'":wmtiData="wmtiData" /> -->
+      <PortfolioWMTI
+        v-else-if="activeTab === 'wmti'"
+        :myWMTI="'AILP'"
+        :sameWMTIUsers="2370"
+        :wmtiComparisonChart="wmtiComparisonChart"
+        :totalAmount="totalAmount"
+      />
     </div>
 
     <ProductList
@@ -92,7 +97,6 @@ const portfolioItems = ref([]);
 const summaryData = ref(null);
 
 const editingItem = ref(null);
-const comparisonMessage = ref('');
 const activeTab = ref('overview');
 const editForm = ref({
   amount: 0,
@@ -145,6 +149,7 @@ const fetchPortfolioData = async () => {
 };
 
 // -------------------- Computed Properties --------------------
+
 const processedSummary = computed(() => summaryData.value?.mySummary || []);
 
 const totalAmount = computed(() =>
@@ -216,72 +221,31 @@ const ageComparisonChart = computed(() => {
   });
 });
 
-const assetRangeChart = computed(() => {
-  const group = summaryData.value?.comparisonSummary?.byAmountGroup || [];
+// wmtiComparisonChart computed 수정
+const wmtiComparisonChart = computed(() => {
+  const group = summaryData.value?.comparisonSummary?.byWMTI || [];
+
+  if (!group.length) {
+    return [];
+  }
+
   return group.map((item) => {
-    let my = findCategoryRatioInSummary(item.categoryName);
+    const categoryName = item.categoryName || item.name || item.category;
+    const averageRatio = item.averageRatio || item.average || item.ratio || 0;
+    let my = findCategoryRatioInSummary(categoryName);
     if (my === 0) {
-      my = findRatioInSummary(item.categoryName);
+      my = findRatioInSummary(categoryName);
     }
 
-    return {
-      name: item.categoryName,
-      my,
-      average: item.averageRatio,
+    const result = {
+      name: categoryName,
+      my: Number(my) || 0,
+      average: Number(averageRatio) || 0,
+      difference: Math.round((my - averageRatio) * 10) / 10,
     };
+    return result;
   });
 });
-
-const wmtiData = computed(() => {
-  return summaryData.value?.comparisonSummary?.byWMTI || [];
-});
-
-// -------------------- 비교 메시지 생성 --------------------
-const generateComparisonMessage = () => {
-  const significant = ageComparisonChart.value.filter(
-    (c) => Math.abs(c.difference) >= 10
-  );
-
-  if (significant.length === 0) {
-    comparisonMessage.value = `${userAgeGroup.value} 또래와 비슷한 자산 분배를 하고 있네요 👍`;
-    return;
-  }
-
-  const highDeposit = significant.find(
-    (c) => c.name === '정기예금' && c.difference > 0
-  );
-  const highSavings = significant.find(
-    (c) => c.name === '자유적금' && c.difference > 0
-  );
-  const highPension = significant.find(
-    (c) => c.name === '연금저축' && c.difference > 0
-  );
-  const lowPension = significant.find(
-    (c) => c.name === '연금저축' && c.difference < 0
-  );
-
-  if (highDeposit && highSavings) {
-    comparisonMessage.value =
-      '💼 안정추구형 - 예금·적금 중심의 안전한 투자를 선호하시네요.';
-  } else if (highPension) {
-    comparisonMessage.value =
-      '🎯 미래계획형 - 연금을 일찍 준비한 현명한 투자자시네요!';
-  } else if (highDeposit && lowPension) {
-    comparisonMessage.value =
-      '🏦 현재중심형 - 현재 필요 자금을 우선시하는 성향이에요.';
-  } else if (highSavings) {
-    comparisonMessage.value =
-      '💰 목표달성형 - 적금 위주로 계획적인 재테크 중이시군요!';
-  } else if (lowPension) {
-    comparisonMessage.value =
-      '⚡ 적극투자형 - 연금보다 다른 자산에 더 집중하고 있어요.';
-  } else {
-    const most = significant.reduce((a, b) =>
-      Math.abs(a.difference) > Math.abs(b.difference) ? a : b
-    );
-    comparisonMessage.value = `📊 ${most.name} 집중형 - 독특한 분배 패턴을 보이고 있어요!`;
-  }
-};
 
 // -------------------- 모달 관리 --------------------
 const openAddModal = () => {
@@ -475,15 +439,6 @@ const confirmDelete = async () => {
 const refreshPortfolio = async () => {
   await fetchPortfolioData();
 };
-
-// -------------------- Watchers --------------------
-watch(
-  ageComparisonChart,
-  () => {
-    generateComparisonMessage();
-  },
-  { deep: true }
-);
 
 // -------------------- 생명주기 --------------------
 onMounted(() => {
