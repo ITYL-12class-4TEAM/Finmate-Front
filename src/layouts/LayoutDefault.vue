@@ -11,7 +11,7 @@
 
 <script setup>
 import Navbar from '@/components/layouts/Navbar.vue';
-import FloatingMenu from '@/components/common/FloatingMenu.vue';
+import FloatingMenu from '@/components/chat/FloatingMenu.vue';
 </script>
 
 <style scoped>
