@@ -5,7 +5,12 @@
     ref="floatingMenu"
   >
     <!-- 챗봇 창 -->
-    <ChatWindow v-if="isOpen" class="chat-window" @close="closeChatBot" />
+    <ChatWindow
+      v-if="isOpen"
+      class="chat-window"
+      ref="chatWindow"
+      @close="closeChatBot"
+    />
     <!-- 플로팅 버튼 -->
     <button class="chat-button" @click.stop="toggleChat">
       <span v-if="!isOpen">
@@ -43,11 +48,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import ChatWindow from './ChatWindow.vue';
 
 const isOpen = ref(false);
 const floatingMenu = ref(null);
+const chatWindow = ref(null);
 
 const toggleChat = () => {
   isOpen.value = !isOpen.value;
@@ -61,31 +67,35 @@ function onClickOutside(event) {
   // 챗봇이 열려있을 때만 외부 클릭 감지
   if (!isOpen.value) return;
 
-  // 클릭된 요소가 floating-menu나 chat-window 내부인지 확인
   const floatingMenuElement = floatingMenu.value;
-  const chatWindowElement = document.querySelector('.chat-window');
+  const chatWindowElement = chatWindow.value?.$el || chatWindow.value;
 
   if (!floatingMenuElement) return;
 
-  // floating-menu 내부 클릭이거나 chat-window 내부 클릭이면 무시
+  // floating-menu 내부 클릭인지 확인
   const isInsideFloatingMenu = floatingMenuElement.contains(event.target);
+
+  // chat-window 내부 클릭인지 확인
   const isInsideChatWindow =
     chatWindowElement && chatWindowElement.contains(event.target);
 
+  // 둘 다 아니면 챗봇 닫기
   if (!isInsideFloatingMenu && !isInsideChatWindow) {
     isOpen.value = false;
   }
 }
 
 onMounted(() => {
-  // 약간의 지연을 두어 버튼 클릭과 외부 클릭이 동시에 발생하지 않도록 함
-  setTimeout(() => {
-    window.addEventListener('click', onClickOutside);
-  }, 100);
+  // 약간의 지연을 두어 초기 렌더링 완료 후 이벤트 리스너 등록
+  nextTick(() => {
+    setTimeout(() => {
+      document.addEventListener('click', onClickOutside, true);
+    }, 100);
+  });
 });
 
 onBeforeUnmount(() => {
-  window.removeEventListener('click', onClickOutside);
+  document.removeEventListener('click', onClickOutside, true);
 });
 </script>
 
@@ -99,41 +109,62 @@ onBeforeUnmount(() => {
 
 /* 플로팅 챗봇 버튼 스타일 */
 .chat-button {
-  width: 56px;
-  height: 56px;
+  width: 3.5rem; /* 56px */
+  height: 3.5rem;
   border-radius: 50%;
   border: none;
   background-color: var(--color-main);
   color: white;
-  box-shadow: 0 4px 5px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.3s ease;
+  box-shadow: 0 0.25rem 0.3125rem rgba(0, 0, 0, 0.2); /* 4px 5px */
+  transition: all 0.3s ease;
   cursor: pointer;
+  position: relative;
+  z-index: 1001;
 }
 
 .chat-button svg {
-  width: 24px;
+  width: 1.5rem; /* 24px */
+  height: 1.5rem;
+  transition: transform 0.3s ease;
 }
 
 .chat-button:hover {
   background-color: var(--color-sub);
+  transform: scale(1.05);
+}
+
+.chat-button:hover svg {
+  transform: scale(1.1);
 }
 
 .chat-window {
   position: fixed;
-  bottom: 130px;
+  bottom: 6rem; /* 버튼 위에 위치 */
   right: 2rem;
-  width: 600px;
-  max-height: calc(100vh - 180px);
+  width: min(24rem, 90vw); /* 최대 폭 제한 */
+  height: auto;
+  max-height: calc(100dvh - 8rem); /* 디바이스 높이에 맞춰 조정 */
   background: white;
-  border-radius: 20px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  border-radius: 1.25rem;
+  box-shadow:
+    0 0.375rem 1.25rem rgba(0, 0, 0, 0.15),
+    0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  animation: fadeIn 0.3s ease;
+  animation: slideUp 0.3s ease;
+  z-index: 999;
+
+  display: flex;
+  flex-direction: column;
 }
 
+/* 모바일 반응형 */
 @media (max-width: 768px) {
+  .floating-menu {
+    bottom: 1rem;
+    right: 1rem;
+  }
+
   .chat-window {
-    position: fixed;
     top: 0;
     left: 0;
     right: 0;
@@ -143,27 +174,49 @@ onBeforeUnmount(() => {
     border-radius: 0;
     max-width: none;
     max-height: none;
-  }
-
-  .floating-menu {
-    bottom: 1rem;
-    right: 1rem;
+    animation: slideUpMobile 0.3s ease;
   }
 
   .chat-button {
-    width: 50px;
-    height: 50px;
+    width: 3.125rem; /* 50px */
+    height: 3.125rem;
+  }
+
+  .chat-button svg {
+    width: 1.25rem; /* 20px */
+    height: 1.25rem;
   }
 }
 
-@keyframes fadeIn {
+@keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(1rem) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideUpMobile {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* 챗봇이 열렸을 때 버튼 스타일 */
+.chat-open .chat-button {
+  background-color: var(--color-sub);
+  transform: rotate(90deg);
+}
+
+.chat-open .chat-button:hover {
+  background-color: #dc3545;
 }
 </style>
