@@ -36,7 +36,7 @@ export const getPostByIdAPI = async (postId, memberId) => {
     scraped: post.scraped,
     // attaches: post.attaches, // TODO: 배포 후 처리
     tags: [productTagMap[post.productTag]],
-    nickname: post.anonymous ? '익명' : '사용자', // TODO: 백엔드에서 닉네임 제공 시 교체
+    nickname: post.nickname,
     isMine: memberId ? post.memberId === memberId : false,
     authorImage: '/authorImg.jpg', // TODO: 백엔드 이미지 연결 시 교체
   };

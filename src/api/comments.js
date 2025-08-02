@@ -10,7 +10,7 @@ export const getCommentsByPostId = async (postId, currentUserId) => {
     postId: c.postId,
     content: c.content,
     createdAt: c.createdAt,
-    nickname: c.anonymous ? '익명' : c.nickname || `사용자${c.memberId}`, // TODO: 백 리팩터링 후 교체
+    nickname: c.nickname,
     isMine: c.memberId === currentUserId ? true : false,
     likeCount: c.likeCount,
     liked: c.liked,

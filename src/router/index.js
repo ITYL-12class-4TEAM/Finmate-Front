@@ -34,7 +34,7 @@ const router = createRouter({
     {
       path: '/mypage',
       name: 'MyPage',
-      component: () => import('../pages/mypage/MypageLayout.vue'), // 마이페이지 공통 레이아웃
+      component: () => import('../pages/mypage/MyPage.vue'), // 마이페이지 공통 레이아웃
 
       children: [
         {
