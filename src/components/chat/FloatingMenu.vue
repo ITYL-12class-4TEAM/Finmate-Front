@@ -12,7 +12,7 @@
       @close="closeChatBot"
     />
     <!-- 플로팅 버튼 -->
-    <button class="chat-button" @click.stop="toggleChat">
+    <button class="chat-button" @click.stop="toggleChat" v-show="!isOpen">
       <span v-if="!isOpen">
         <svg
           xmlns="http://www.w3.org/2000/svg"
