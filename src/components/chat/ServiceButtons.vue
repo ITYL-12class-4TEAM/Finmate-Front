@@ -1,0 +1,212 @@
+<template>
+  <!-- 서비스 기능 버튼들 -->
+  <div v-if="showServiceButtons" class="service-buttons">
+    <h3>
+      {{ isAuthenticated ? '서비스 기능' : '비회원도 이용 가능한 기능' }}
+    </h3>
+    <div class="button-grid">
+      <button
+        v-for="service in availableServices"
+        :key="`service-${service.id}`"
+        @click="handleServiceAction(service)"
+        class="service-btn"
+        type="button"
+      >
+        <span class="service-icon">{{ service.icon }}</span>
+        <span class="service-text">{{ service.text }}</span>
+      </button>
+    </div>
+
+    <!-- 로그인 안내 -->
+    <div v-if="!isAuthenticated" class="login-guide">
+      <p>🔐 <strong>로그인하면 추가로 이용할 수 있는 기능:</strong></p>
+      <div class="member-features">
+        <span
+          v-for="feature in memberOnlyFeatures"
+          :key="`feature-${feature.id}`"
+          class="feature-tag"
+        >
+          {{ feature.icon }} {{ feature.text }}
+        </span>
+      </div>
+      <button @click="navigateToLogin" class="login-btn">
+        로그인하러 가기
+      </button>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+// Props 정의
+const props = defineProps({
+  isAuthenticated: {
+    type: Boolean,
+    default: false,
+  },
+  availableServices: {
+    type: Array,
+    default: () => [],
+  },
+  memberOnlyFeatures: {
+    type: Array,
+    default: () => [],
+  },
+});
+
+// Emits 정의
+const emit = defineEmits(['service-action', 'navigate-to-login']);
+
+// 로컬 상태
+const showServiceButtons = ref(true);
+
+// 이벤트 핸들러
+const handleServiceAction = (service) => {
+  emit('service-action', service);
+};
+
+const navigateToLogin = () => {
+  emit('navigate-to-login');
+};
+</script>
+
+<style scoped>
+.service-buttons {
+  padding: 1rem;
+  border-top: 1px solid var(--color-bg-light);
+  border-bottom: 1px solid var(--color-bg-light);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.service-buttons h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.8rem;
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.button-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  justify-content: center; /* 버튼 그룹 전체 가운데 정렬 */
+}
+
+.service-btn {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.1rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-bg-light);
+  border: 1px solid var(--color-light);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  font-size: 0.65rem;
+  text-align: left;
+}
+
+.service-btn:hover {
+  background: var(--color-main);
+  color: var(--color-white);
+  border-color: var(--color-main);
+  transform: translateY(-2px);
+}
+
+.service-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.service-text {
+  flex: 1;
+  line-height: 1.3;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 로그인 안내 */
+.login-guide {
+  background: rgba(45, 51, 107, 0.05);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(45, 51, 107, 0.1);
+}
+
+.login-guide p {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.85rem;
+  color: var(--color-text);
+}
+
+.member-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.feature-tag {
+  background: rgba(45, 51, 107, 0.1);
+  color: var(--color-main);
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.login-btn {
+  background: var(--color-main);
+  color: var(--color-white);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.login-btn:hover {
+  background: var(--color-sub);
+  transform: translateY(-1px);
+}
+@media (max-width: 430px) {
+  .button-grid {
+    grid-template-columns: repeat(3, 1fr); /* 작은 글씨니까 3열 유지 */
+    gap: 0.4rem;
+  }
+
+  .service-btn {
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.55rem;
+    min-height: 2.5rem;
+    text-align: center;
+  }
+
+  .service-icon {
+    font-size: 0.9rem;
+  }
+
+  .service-text {
+    font-size: 0.55rem;
+    white-space: normal;
+    line-height: 1.2;
+    overflow: visible;
+    text-overflow: initial;
+  }
+}
+</style>
