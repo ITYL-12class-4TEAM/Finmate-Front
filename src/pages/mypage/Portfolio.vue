@@ -327,15 +327,25 @@ const closeAddModal = () => {
 };
 
 const openDeleteModal = (item) => {
+  if (showDeleteModal.value || !item) {
+    console.log('🚫 삭제 모달 이미 열려있거나 잘못된 아이템');
+    return;
+  }
+
   productToDelete.value = item;
   showDeleteModal.value = true;
+  console.log('✅ 삭제 모달 열림:', item.customProductName);
 };
 
 const closeDeleteModal = () => {
-  if (!isDeleting.value) {
-    showDeleteModal.value = false;
-    productToDelete.value = null;
+  if (isDeleting.value) {
+    console.log('🚫 삭제 진행 중이므로 모달 닫기 무시');
+    return;
   }
+
+  showDeleteModal.value = false;
+  productToDelete.value = null;
+  console.log('✅ 삭제 모달 닫힘');
 };
 
 // -------------------- 상품 추가 --------------------
@@ -476,13 +486,32 @@ const saveEdit = async (item) => {
 };
 
 const deleteProduct = (item) => {
+  if (showDeleteModal.value || isDeleting.value || !item) {
+    console.log('🚫 삭제 요청 무시 - 이미 처리 중 또는 잘못된 아이템:', {
+      showDeleteModal: showDeleteModal.value,
+      isDeleting: isDeleting.value,
+      item: !!item,
+    });
+    return;
+  }
+
+  if (productToDelete.value?.portfolioId === item.portfolioId) {
+    console.log('🚫 같은 상품에 대한 중복 삭제 요청 무시');
+    return;
+  }
+
+  console.log('🗑️ 삭제 모달 열기:', item.customProductName);
   openDeleteModal(item);
 };
 
 const confirmDelete = async () => {
-  if (!productToDelete.value) return;
+  if (!productToDelete.value || isDeleting.value) {
+    console.log('🚫 삭제 확인 무시 - 잘못된 상태');
+    return;
+  }
 
   isDeleting.value = true;
+  const productName = productToDelete.value.customProductName || '상품';
 
   try {
     const accessToken = localStorage.getItem('accessToken');
@@ -491,9 +520,11 @@ const confirmDelete = async () => {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
-    const productName = productToDelete.value.customProductName || '상품';
+    console.log('✅ 삭제 성공:', productName);
 
-    closeDeleteModal();
+    // 모달 닫기
+    showDeleteModal.value = false;
+    productToDelete.value = null;
 
     // 포트폴리오 데이터 새로고침
     await fetchPortfolioData();

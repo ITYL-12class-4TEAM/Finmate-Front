@@ -40,10 +40,6 @@ const props = defineProps({
 </script>
 
 <style scoped>
-.tab-pane {
-  min-height: 20rem;
-}
-
 .row {
   margin: 0;
 }

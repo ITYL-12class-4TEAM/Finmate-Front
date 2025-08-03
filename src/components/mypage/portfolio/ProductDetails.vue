@@ -175,14 +175,19 @@
               <span class="btn-text">수정</span>
             </button>
 
+            <!-- ProductDetails.vue 템플릿 -->
             <button
               @click="handleDelete"
               class="action-btn delete-btn"
               title="삭제"
-              :disabled="isProcessing"
+              :disabled="isProcessing || isDeleting"
             >
-              <i class="fas fa-trash"></i>
-              <span class="btn-text">삭제</span>
+              <i
+                :class="isDeleting ? 'fas fa-sync-alt spin' : 'fas fa-trash'"
+              ></i>
+              <span class="btn-text">{{
+                isDeleting ? '처리중...' : '삭제'
+              }}</span>
             </button>
           </div>
         </div>
@@ -220,6 +225,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close', 'start-edit', 'delete-product']);
+
+const isDeleting = ref(false);
 
 // 애니메이션 상태
 const isOpening = ref(false);
@@ -450,10 +457,25 @@ const handleEdit = () => {
   }
 };
 
-const handleDelete = () => {
-  if (!props.isProcessing) {
-    emit('delete-product', props.item);
+const handleDelete = (event) => {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
   }
+
+  if (props.isProcessing || isDeleting.value) {
+    console.log('🚫 삭제 요청 무시 - 이미 처리 중');
+    return;
+  }
+
+  console.log('🗑️ 삭제 요청 시작');
+  isDeleting.value = true;
+
+  emit('delete-product', props.item);
+
+  setTimeout(() => {
+    closeModal();
+  }, 100);
 };
 </script>
 
