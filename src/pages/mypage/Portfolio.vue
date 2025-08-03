@@ -196,6 +196,38 @@ const findRatioInSummary = (subcategoryName) => {
   return 0;
 };
 
+const subcategoryToMainCategory = {
+  정기예금: '예금',
+  자유예금: '예금',
+  기업예금: '예금',
+  CMA: '예금',
+  정기적금: '적금',
+  자유적금: '적금',
+  펀드적금: '적금',
+  연금적금: '적금',
+  종신보험: '보험',
+  정기보험: '보험',
+  연금보험: '보험',
+  변액보험: '보험',
+  연금저축: '연금',
+  개인연금: '연금',
+  IRP: '연금',
+  DC형: '연금',
+  국내주식: '주식',
+  해외주식: '주식',
+  ETF: '주식',
+  ETN: '주식',
+  신용대출: '대출',
+  담보대출: '대출',
+  전세자금대출: '대출',
+  주택담보대출: '대출',
+  부동산: '기타',
+  채권: '기타',
+  금: '기타',
+  암호화폐: '기타',
+  기타투자: '기타',
+};
+
 const findCategoryRatioInSummary = (categoryName) => {
   const category = processedSummary.value.find(
     (cat) => cat.categoryName === categoryName
@@ -205,45 +237,83 @@ const findCategoryRatioInSummary = (categoryName) => {
 
 const ageComparisonChart = computed(() => {
   const group = summaryData.value?.comparisonSummary?.byAgeGroup || [];
-  return group.map((item) => {
-    let my = findCategoryRatioInSummary(item.categoryName);
-    if (my === 0) {
-      my = findRatioInSummary(item.categoryName);
+
+  // 대 카테고리별로 그룹핑
+  const mainCategoryMap = new Map();
+
+  group.forEach((item) => {
+    const mainCategory =
+      subcategoryToMainCategory[item.categoryName] || item.categoryName;
+
+    if (mainCategoryMap.has(mainCategory)) {
+      // 이미 있으면 평균 비율을 합산 (또는 평균 계산)
+      const existing = mainCategoryMap.get(mainCategory);
+      existing.averageRatio += item.averageRatio;
+      existing.count += 1;
+    } else {
+      mainCategoryMap.set(mainCategory, {
+        categoryName: mainCategory,
+        averageRatio: item.averageRatio,
+        count: 1,
+      });
     }
-
-    const average = item.averageRatio;
-    return {
-      name: item.categoryName,
-      my,
-      average,
-      difference: Math.round((my - average) * 10) / 10,
-    };
   });
-});
+  return Array.from(mainCategoryMap.values()).map((item) => {
+    const categoryName = item.categoryName;
+    const averageRatio = item.averageRatio / item.count; // 평균 계산
 
-// wmtiComparisonChart computed 수정
-const wmtiComparisonChart = computed(() => {
-  const group = summaryData.value?.comparisonSummary?.byWMTI || [];
-
-  if (!group.length) {
-    return [];
-  }
-
-  return group.map((item) => {
-    const categoryName = item.categoryName || item.name || item.category;
-    const averageRatio = item.averageRatio || item.average || item.ratio || 0;
     let my = findCategoryRatioInSummary(categoryName);
     if (my === 0) {
       my = findRatioInSummary(categoryName);
     }
 
-    const result = {
+    return {
       name: categoryName,
-      my: Number(my) || 0,
-      average: Number(averageRatio) || 0,
+      my,
+      average: averageRatio,
       difference: Math.round((my - averageRatio) * 10) / 10,
     };
-    return result;
+  });
+});
+
+const wmtiComparisonChart = computed(() => {
+  const group = summaryData.value?.comparisonSummary?.byWMTI || [];
+
+  // 대 카테고리별로 그룹핑
+  const mainCategoryMap = new Map();
+
+  group.forEach((item) => {
+    const mainCategory =
+      subcategoryToMainCategory[item.categoryName] || item.categoryName;
+
+    if (mainCategoryMap.has(mainCategory)) {
+      // 이미 있으면 평균 비율을 합산 (또는 평균 계산)
+      const existing = mainCategoryMap.get(mainCategory);
+      existing.averageRatio += item.averageRatio;
+      existing.count += 1;
+    } else {
+      mainCategoryMap.set(mainCategory, {
+        categoryName: mainCategory,
+        averageRatio: item.averageRatio,
+        count: 1,
+      });
+    }
+  });
+  return Array.from(mainCategoryMap.values()).map((item) => {
+    const categoryName = item.categoryName;
+    const averageRatio = item.averageRatio / item.count; // 평균 계산
+
+    let my = findCategoryRatioInSummary(categoryName);
+    if (my === 0) {
+      my = findRatioInSummary(categoryName);
+    }
+
+    return {
+      name: categoryName,
+      my,
+      average: averageRatio,
+      difference: Math.round((my - averageRatio) * 10) / 10,
+    };
   });
 });
 

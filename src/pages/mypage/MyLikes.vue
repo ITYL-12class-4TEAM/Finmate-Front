@@ -41,7 +41,6 @@ import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import router from '@/router';
 
-import PageHeader from '@/components/mypage/common/PageHeader.vue';
 import LoadingSpinner from '@/components/mypage/common/LoadingSpinner.vue';
 import ErrorAlert from '@/components/mypage/common/ErrorAlert.vue';
 import EmptyState from '@/components/mypage/mylike/EmptyState.vue';
@@ -172,37 +171,10 @@ const viewPost = (post) => {
   router.push(`/community/${post.postId}`);
 };
 
-const removeLike = async (post) => {
-  if (!confirm(`"${post.title}"의 좋아요를 취소하시겠습니까?`)) return;
-
-  try {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    posts.value = posts.value.filter((p) => p.postId !== post.postId);
-    alert('좋아요가 취소되었습니다.');
-  } catch (err) {
-    alert('좋아요 취소에 실패했습니다.');
-    console.error('Remove like error:', err);
-  }
-};
-
 const changePage = (page) => {
   if (page >= 1 && page <= totalPages.value && page !== currentPage.value) {
     currentPage.value = page;
   }
-};
-
-const getCategoryName = (categoryTag) => {
-  const names = {
-    QUESTION: '질문',
-    RECOMMEND: '추천',
-    EXPERIENCE: '후기',
-    FREE: '자유',
-  };
-  return names[categoryTag] || categoryTag;
-};
-
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('ko-KR');
 };
 
 onMounted(() => {
