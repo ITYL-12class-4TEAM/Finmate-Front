@@ -9,6 +9,7 @@
       <ServiceButtons
         v-if="showServiceMenu && messages.length > 0"
         :availableServices="availableServices"
+        :memberOnlyFeatures="memberOnlyFeatures"
         :isAuthenticated="isAuthenticated"
         @service-action="$emit('service-action', $event)"
         @navigate-to-login="$emit('navigate-to-login')"
@@ -61,6 +62,7 @@ defineProps({
   isTyping: Boolean,
   showServiceMenu: Boolean,
   availableServices: Array,
+  memberOnlyFeatures: Array,
   isAuthenticated: Boolean,
 });
 
@@ -139,7 +141,7 @@ defineEmits([
   transform: none;
 }
 .service-menu-overlay {
-   width: 100%;
+  width: 100%;
   max-width: 480px; /* 필요에 따라 조절 */
   background: white;
   border-radius: 8px;
@@ -158,5 +160,4 @@ defineEmits([
   z-index: 110; /* 입력창 위, 서비스 메뉴보다 위 */
   gap: 0.5rem;
 }
-
 </style>

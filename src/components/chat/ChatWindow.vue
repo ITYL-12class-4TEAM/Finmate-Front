@@ -28,6 +28,7 @@
       :isTyping="isTyping"
       :showServiceMenu="showServiceMenu"
       :availableServices="getAvailableServices()"
+      :memberOnlyFeatures="memberOnlyFeatures"
       :isAuthenticated="isAuthenticated()"
       @update:inputMessage="inputMessage = $event"
       @send-message="sendMessage"
@@ -97,6 +98,7 @@ const setupAxiosInterceptors = () => {
         '/api/posts/hot',
         '/api/chat/',
         '/api/chatbot/message',
+        '/api/chatbot/session',
         '/api/auth/',
       ];
 
@@ -133,6 +135,9 @@ const messagesContainer = ref(null);
 const showQuickReplies = ref(true);
 const showServiceButtons = ref(true);
 const sessionId = ref(null);
+const sessionStatus = ref('idle'); // idle, creating, active, ending, error
+const sessionRetryCount = ref(0);
+const maxRetries = 3;
 const showServiceMenu = ref(false);
 
 const toggleServiceMenu = () => {
@@ -263,72 +268,230 @@ const addMessage = (
   });
 };
 
-// 세션 관리
 const createChatSession = async () => {
+  if (sessionStatus.value === 'creating' || sessionStatus.value === 'active') {
+    console.log('🔄 세션이 이미 생성 중이거나 활성 상태');
+    return sessionId.value;
+  }
+
+  sessionStatus.value = 'creating';
+  console.log('🚀 챗봇 세션 생성 시도 시작');
+
   try {
-    sessionId.value = `session_${Date.now()}_${Math.random()
+    // 기본 세션 ID 생성
+    const newSessionId = `session_${Date.now()}_${Math.random()
       .toString(36)
       .substr(2, 9)}`;
 
-    console.log('🚀 챗봇 세션 생성 시도:', sessionId.value);
+    console.log('📝 새 세션 ID 생성:', newSessionId);
 
+    // 서버에 세션 등록 시도 (인증 여부와 상관없이)
+    console.log('🔐 서버 세션 생성 요청 (비회원/회원 공통)');
+
+    const requestConfig = {
+      method: 'POST',
+      url: '/api/chatbot/session',
+      params: {
+        sessionId: newSessionId,
+      },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      timeout: 10000,
+      validateStatus: function (status) {
+        return status < 500; // 500 이상의 상태코드만 에러로 처리
+      },
+    };
+
+    // 인증된 사용자인 경우에만 토큰 추가
     if (isAuthenticated()) {
       const token = getAccessToken();
       if (token) {
-        await axios.post('/api/chatbot/session', null, {
-          params: { sessionId: sessionId.value },
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          timeout: 10000,
-        });
-        console.log('✅ 인증된 사용자 세션 생성 완료:', sessionId.value);
-      } else {
-        console.log('⚠️ 토큰 없음, 비회원 모드로 전환');
-        sessionId.value = `guest_session_${Date.now()}`;
+        requestConfig.headers.Authorization = `Bearer ${token}`;
+        console.log('✅ 인증된 사용자 - Authorization 헤더 추가');
       }
     } else {
-      console.log('✅ 비회원 로컬 세션 생성됨:', sessionId.value);
+      console.log('👤 비인증 사용자 - 토큰 없이 세션 생성 요청');
+    }
+
+    const response = await axios(requestConfig);
+
+    console.log('📨 서버 세션 생성 응답:', {
+      status: response.status,
+      data: response.data,
+    });
+
+    // 응답 상태 확인
+    if (response.status === 200 || response.status === 201) {
+      const responseData = response.data;
+
+      // 응답 데이터 구조 확인
+      if (
+        responseData?.header?.status === 'OK' ||
+        responseData?.status === 'success' ||
+        responseData?.success === true
+      ) {
+        sessionId.value = newSessionId;
+        sessionStatus.value = 'active';
+        sessionRetryCount.value = 0;
+
+        console.log('✅ 서버 세션 생성 성공:', sessionId.value);
+        return sessionId.value;
+      } else {
+        // 서버에서 실패 응답을 받은 경우 로컬 세션으로 폴백
+        const errorMessage =
+          responseData?.header?.message ||
+          responseData?.message ||
+          '서버 세션 생성 실패';
+        console.warn(
+          '⚠️ 서버 세션 생성 실패, 로컬 세션으로 폴백:',
+          errorMessage
+        );
+        return await createLocalSession(newSessionId);
+      }
+    } else if (response.status === 401 || response.status === 403) {
+      // 인증 실패 - 로컬 세션으로 폴백
+      console.warn('🔓 인증 실패 - 로컬 세션으로 전환');
+      return await createLocalSession(newSessionId);
+    } else {
+      console.warn('⚠️ 서버 응답 오류, 로컬 세션으로 폴백:', response.status);
+      return await createLocalSession(newSessionId);
     }
   } catch (error) {
     console.error('❌ 세션 생성 실패:', error);
-    sessionId.value = `fallback_session_${Date.now()}`;
-    console.log('🔄 폴백 세션 생성됨:', sessionId.value);
+    sessionStatus.value = 'error';
+
+    // 재시도 로직
+    if (sessionRetryCount.value < maxRetries) {
+      sessionRetryCount.value++;
+      console.log(
+        `🔄 세션 생성 재시도 (${sessionRetryCount.value}/${maxRetries})`
+      );
+
+      // 1초 대기 후 재시도
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      return await createChatSession();
+    } else {
+      // 최대 재시도 횟수 초과 - 폴백 세션 생성
+      console.warn('⚠️ 최대 재시도 횟수 초과 - 폴백 세션 생성');
+      const fallbackSessionId = `fallback_${Date.now()}_${Math.random()
+        .toString(36)
+        .substr(2, 6)}`;
+      return await createLocalSession(fallbackSessionId);
+    }
   }
 };
 
+const createLocalSession = async (sessionIdToUse) => {
+  try {
+    const localSessionId =
+      sessionIdToUse ||
+      `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    sessionId.value = localSessionId;
+    sessionStatus.value = 'active';
+    sessionRetryCount.value = 0;
+
+    console.log('✅ 로컬 세션 생성 완료:', sessionId.value);
+    return sessionId.value;
+  } catch (error) {
+    console.error('❌ 로컬 세션 생성 실패:', error);
+    sessionStatus.value = 'error';
+    throw error;
+  }
+};
 const endChatSession = async () => {
-  if (!sessionId.value) return;
+  if (!sessionId.value || sessionStatus.value === 'ending') {
+    console.log('🔍 종료할 세션이 없거나 이미 종료 중');
+    return;
+  }
+
+  const currentSessionId = sessionId.value;
+  sessionStatus.value = 'ending';
+
+  console.log('🔚 챗봇 세션 종료 시작:', currentSessionId);
 
   try {
-    console.log('🔚 챗봇 세션 종료 시도:', sessionId.value);
-
-    if (
+    // 서버 세션인 경우에만 서버에 종료 요청
+    const isServerSession =
       isAuthenticated() &&
-      !sessionId.value.startsWith('guest_') &&
-      !sessionId.value.startsWith('fallback_')
-    ) {
+      !currentSessionId.startsWith('local_') &&
+      !currentSessionId.startsWith('fallback_') &&
+      !currentSessionId.startsWith('guest_');
+
+    if (isServerSession) {
       const token = getAccessToken();
+
       if (token) {
-        await axios.delete('/api/chatbot/session', {
-          params: { sessionId: sessionId.value },
+        console.log('🔐 서버 세션 종료 요청');
+
+        const requestConfig = {
+          method: 'DELETE',
+          url: '/api/chatbot/session',
+          params: {
+            sessionId: currentSessionId,
+          },
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
           timeout: 5000,
-        });
-        console.log('✅ 서버 세션 종료 완료:', sessionId.value);
+          validateStatus: function (status) {
+            return status < 500; // 500 이상만 에러로 처리
+          },
+        };
+
+        try {
+          const response = await axios(requestConfig);
+
+          if (response.status === 200 || response.status === 204) {
+            console.log('✅ 서버 세션 종료 성공');
+          } else {
+            console.warn(`⚠️ 서버 세션 종료 응답: ${response.status}`);
+          }
+        } catch (deleteError) {
+          console.warn(
+            '⚠️ 서버 세션 종료 요청 실패 (무시):',
+            deleteError.message
+          );
+          // 세션 종료 실패는 치명적이지 않으므로 무시
+        }
       }
     } else {
-      console.log('✅ 로컬 세션 종료됨:', sessionId.value);
+      console.log('✅ 로컬 세션 종료');
     }
   } catch (error) {
-    console.error('❌ 세션 종료 실패:', error);
+    console.warn('⚠️ 세션 종료 중 오류 (무시):', error);
   } finally {
+    // 항상 로컬 상태 정리
     sessionId.value = null;
+    sessionStatus.value = 'idle';
+    sessionRetryCount.value = 0;
+    console.log('🧹 세션 상태 정리 완료');
   }
+};
+
+const isSessionReady = () => {
+  return sessionStatus.value === 'active' && sessionId.value !== null;
+};
+
+// 세션 대기 함수
+const waitForSession = async (maxWaitTime = 10000) => {
+  const startTime = Date.now();
+
+  while (!isSessionReady() && Date.now() - startTime < maxWaitTime) {
+    if (sessionStatus.value === 'error') {
+      throw new Error('세션 생성 실패');
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  if (!isSessionReady()) {
+    throw new Error('세션 생성 시간 초과');
+  }
+
+  return sessionId.value;
 };
 
 // 닫기 핸들러
@@ -397,6 +560,7 @@ const fetchApiData = async (apiUrl) => {
       '/api/posts/hot',
       '/api/chat/',
       '/api/chatbot/message',
+      '/api/chatbot/session',
     ];
 
     const isPublicEndpoint = publicEndpoints.some((endpoint) =>
@@ -647,74 +811,121 @@ const sendMessageToGPT = async (message) => {
   try {
     console.log('🤖 ChatGPT API 요청 시작:', message);
 
-    if (!sessionId.value) {
+    // 세션이 준비되지 않았으면 생성하고 대기
+    if (!isSessionReady()) {
+      console.log('📝 세션이 준비되지 않음 - 세션 생성 시작');
       await createChatSession();
+      await waitForSession(); // 세션이 준비될 때까지 대기
     }
 
+    const currentSessionId = sessionId.value;
+    console.log('📤 사용 중인 세션 ID:', currentSessionId);
+
     const requestParams = {
-      sessionId: sessionId.value,
+      sessionId: currentSessionId,
       userMessage: message,
     };
 
     const requestConfig = {
-      timeout: 30000,
+      method: 'POST',
+      url: '/api/chatbot/message',
       params: requestParams,
       headers: {
         'Content-Type': 'application/json',
       },
+      timeout: 30000,
+      validateStatus: function (status) {
+        return status < 500;
+      },
     };
 
+    // 인증된 사용자인 경우에만 토큰 추가 (비회원은 토큰 없이 요청)
     if (isAuthenticated()) {
       const token = getAccessToken();
       if (token) {
         requestConfig.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-
-    const response = await axios.post(
-      '/api/chatbot/message',
-      null,
-      requestConfig
-    );
-
-    let botResponse = '';
-    if (response.data?.header?.status === 'OK') {
-      const responseData = response.data.body?.data || response.data.body;
-      if (typeof responseData === 'string') {
-        try {
-          const parsed = JSON.parse(responseData);
-          botResponse = typeof parsed === 'string' ? parsed : responseData;
-        } catch {
-          botResponse = responseData;
-        }
-      } else {
-        botResponse = responseData || '응답을 받았지만 내용이 없습니다.';
+        console.log('✅ 인증된 사용자 - Authorization 헤더 추가');
       }
     } else {
-      const errorMessage =
-        response.data?.header?.message || '알 수 없는 오류가 발생했습니다.';
-      botResponse = `죄송합니다. ${errorMessage}`;
+      console.log('👤 비인증 사용자 - 토큰 없이 ChatGPT API 요청');
     }
 
-    return botResponse;
+    const response = await axios(requestConfig);
+
+    console.log('📨 ChatGPT API 응답:', {
+      status: response.status,
+      sessionId: currentSessionId,
+    });
+
+    // 응답 처리
+    if (response.status === 200) {
+      const responseData = response.data;
+
+      if (responseData?.header?.status === 'OK') {
+        let botResponse = responseData.body?.data || responseData.body;
+
+        // 문자열 응답 처리
+        if (typeof botResponse === 'string') {
+          try {
+            const parsed = JSON.parse(botResponse);
+            botResponse =
+              typeof parsed === 'string' ? parsed : JSON.stringify(parsed);
+          } catch {
+            // JSON 파싱 실패시 원본 사용
+          }
+        } else if (typeof botResponse === 'object') {
+          botResponse =
+            botResponse.message ||
+            botResponse.content ||
+            JSON.stringify(botResponse);
+        }
+
+        return botResponse || '응답을 받았지만 내용이 없습니다.';
+      } else {
+        const errorMessage =
+          responseData?.header?.message || '알 수 없는 오류가 발생했습니다.';
+        return `죄송합니다. ${errorMessage}`;
+      }
+    } else {
+      throw new Error(`API 응답 오류: ${response.status}`);
+    }
   } catch (error) {
     console.error('❌ ChatGPT API 호출 실패:', error);
 
+    // 세션 관련 오류인 경우 세션 재생성 시도
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      console.log('🔄 인증 오류 - 세션 재생성 시도');
+      sessionId.value = null;
+      sessionStatus.value = 'idle';
+
+      try {
+        await createChatSession();
+        // 재귀 호출로 메시지 재전송 (최대 1회)
+        if (sessionRetryCount.value === 0) {
+          sessionRetryCount.value = 1;
+          return await sendMessageToGPT(message);
+        }
+      } catch (retryError) {
+        console.error('세션 재생성 실패:', retryError);
+      }
+    }
+
+    // 에러 메시지 반환
     if (error.response) {
       const status = error.response.status;
       switch (status) {
         case 400:
           return '요청 형식이 올바르지 않습니다. 다시 시도해주세요.';
         case 401:
-          return '일시적인 인증 문제가 발생했습니다. 다시 시도해주세요.';
+          return '인증에 문제가 있습니다. 일부 기능은 로그인이 필요할 수 있습니다.';
         case 403:
-          return '접근 권한이 없습니다.';
+          return '접근 권한이 없습니다. 일부 기능은 로그인이 필요할 수 있습니다.';
         case 429:
           return '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.';
         case 500:
           return '서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
         default:
-          return '서버 오류가 발생했습니다.';
+          return `서버 오류가 발생했습니다. (${status})`;
       }
     } else if (error.request) {
       return '네트워크 연결을 확인해주세요.';
@@ -762,6 +973,7 @@ const sendMessage = async () => {
   isTyping.value = true;
 
   try {
+    // 금융 키워드 체크
     const financeKeywords = [
       '비교',
       '요약',
@@ -796,10 +1008,23 @@ const sendMessage = async () => {
       }
     }
 
+    // ChatGPT 메시지 전송
     const botResponse = await sendMessageToGPT(message);
+
+    // 응답 대기 시간 추가
     await new Promise((resolve) => setTimeout(resolve, 500));
+
     isTyping.value = false;
-    addMessage(botResponse, 'bot');
+
+    // 빈 응답 체크
+    if (!botResponse || botResponse.trim() === '') {
+      addMessage(
+        '죄송합니다. 응답을 생성하지 못했습니다. 다시 시도해주세요.',
+        'bot'
+      );
+    } else {
+      addMessage(botResponse, 'bot');
+    }
   } catch (error) {
     console.error('❌ 메시지 전송 실패:', error);
     isTyping.value = false;
@@ -810,48 +1035,38 @@ const sendMessage = async () => {
   }
 };
 
-// 빠른 답변 전송
-const sendQuickReply = async (reply) => {
-  addMessage(reply.text, 'user');
-  showQuickReplies.value = false;
-  showServiceButtons.value = false;
-
-  isTyping.value = true;
-
-  try {
-    const botResponse = await sendMessageToGPT(reply.text);
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    isTyping.value = false;
-    addMessage(botResponse, 'bot');
-  } catch (error) {
-    console.error('❌ 빠른 답변 처리 실패:', error);
-    isTyping.value = false;
-    addMessage(reply.response, 'bot');
-  }
-};
-
 // ChatGPT 연결 확인
 const checkChatGPTConnection = async () => {
   try {
-    await sendMessageToGPT('안녕하세요');
-    console.log('✅ ChatGPT 연결 확인됨');
-    return true;
+    console.log('🔍 ChatGPT 연결 확인 중...');
+
+    // 간단한 테스트 메시지로 연결 확인
+    const testResponse = await sendMessageToGPT('연결 테스트');
+
+    if (testResponse && testResponse.trim() !== '') {
+      console.log('✅ ChatGPT 연결 확인됨');
+      return true;
+    } else {
+      console.warn('⚠️ ChatGPT 응답이 비어있음');
+      return false;
+    }
   } catch (error) {
     console.error('❌ ChatGPT 연결 실패:', error);
     return false;
   }
 };
 
-// 컴포넌트 라이프사이클
 onMounted(async () => {
   console.log('🚀 ChatWindow 마운트됨');
   setupAxiosInterceptors();
   setupRouterGuard();
-  await createChatSession();
 
-  const isConnected = await checkChatGPTConnection();
-  if (!isConnected) {
-    console.warn('⚠️ ChatGPT 연결 실패 - 기본 응답으로 동작');
+  try {
+    await createChatSession();
+    const id = await waitForSession();
+    console.log('✅ 초기 세션 생성 완료:', id);
+  } catch (error) {
+    console.error('❌ 초기 세션 생성 실패:', error);
   }
 });
 
@@ -859,6 +1074,15 @@ onUnmounted(async () => {
   console.log('🔄 ChatWindow 언마운트됨');
   await endChatSession();
   removeRouterGuard();
+});
+
+defineExpose({
+  sessionId,
+  sessionStatus,
+  isSessionReady,
+  createChatSession,
+  endChatSession,
+  sendMessageToGPT,
 });
 </script>
 

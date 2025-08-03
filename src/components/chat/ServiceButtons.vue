@@ -4,17 +4,19 @@
     <h3>
       {{ isAuthenticated ? '서비스 기능' : '비회원도 이용 가능한 기능' }}
     </h3>
-    <div class="button-grid">
-      <button
-        v-for="service in availableServices"
-        :key="`service-${service.id}`"
-        @click="handleServiceAction(service)"
-        class="service-btn"
-        type="button"
-      >
-        <span class="service-icon">{{ service.icon }}</span>
-        <span class="service-text">{{ service.text }}</span>
-      </button>
+    <div class="button-container">
+      <div class="button-grid">
+        <button
+          v-for="service in availableServices"
+          :key="`service-${service.id}`"
+          @click="handleServiceAction(service)"
+          class="service-btn"
+          type="button"
+        >
+          <span class="service-icon">{{ service.icon }}</span>
+          <span class="service-text">{{ service.text }}</span>
+        </button>
+      </div>
     </div>
 
     <!-- 로그인 안내 -->
@@ -86,6 +88,13 @@ const navigateToLogin = () => {
   font-size: 0.8rem;
   color: var(--color-text);
   font-weight: 600;
+  text-align: center;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  padding: 0 1rem; /* 양옆 여백 추가 */
 }
 
 .button-grid {
@@ -93,7 +102,8 @@ const navigateToLogin = () => {
   grid-template-columns: repeat(3, 1fr);
   gap: 0.5rem;
   margin-bottom: 1rem;
-  justify-content: center; /* 버튼 그룹 전체 가운데 정렬 */
+  max-width: 100%;
+  width: 100%;
 }
 
 .service-btn {
@@ -101,8 +111,8 @@ const navigateToLogin = () => {
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  gap: 0.1rem;
-  padding: 0.5rem 0.75rem;
+  gap: 0.3rem;
+  padding: 0.5rem 0.6rem;
   background: var(--color-bg-light);
   border: 1px solid var(--color-light);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
@@ -111,6 +121,7 @@ const navigateToLogin = () => {
   transition: transform 0.2s ease;
   font-size: 0.65rem;
   text-align: left;
+  min-width: 0; /* flex 아이템이 줄어들 수 있도록 */
 }
 
 .service-btn:hover {
@@ -132,6 +143,7 @@ const navigateToLogin = () => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0; /* 텍스트가 줄어들 수 있도록 */
 }
 
 /* 로그인 안내 */
@@ -140,6 +152,7 @@ const navigateToLogin = () => {
   padding: 1rem;
   border-radius: 8px;
   border: 1px solid rgba(45, 51, 107, 0.1);
+  margin: 0 1rem; /* 양옆 여백 추가 */
 }
 
 .login-guide p {
@@ -153,6 +166,7 @@ const navigateToLogin = () => {
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 1rem;
+  justify-content: center;
 }
 
 .feature-tag {
@@ -162,6 +176,10 @@ const navigateToLogin = () => {
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px; /* 최대 너비 제한 */
 }
 
 .login-btn {
@@ -181,9 +199,14 @@ const navigateToLogin = () => {
   background: var(--color-sub);
   transform: translateY(-1px);
 }
+
 @media (max-width: 430px) {
+  .button-container {
+    padding: 0 0.5rem; /* 모바일에서 여백 조정 */
+  }
+
   .button-grid {
-    grid-template-columns: repeat(3, 1fr); /* 작은 글씨니까 3열 유지 */
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.4rem;
   }
 
@@ -191,7 +214,7 @@ const navigateToLogin = () => {
     justify-content: center;
     flex-direction: column;
     gap: 0.2rem;
-    padding: 0.4rem 0.5rem;
+    padding: 0.4rem 0.3rem;
     font-size: 0.55rem;
     min-height: 2.5rem;
     text-align: center;
@@ -203,10 +226,21 @@ const navigateToLogin = () => {
 
   .service-text {
     font-size: 0.55rem;
-    white-space: normal;
+    white-space: nowrap;
     line-height: 1.2;
-    overflow: visible;
-    text-overflow: initial;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .login-guide {
+    margin: 0 0.5rem; /* 모바일에서 여백 조정 */
+  }
+
+  .feature-tag {
+    font-size: 0.7rem;
+    max-width: 120px; /* 모바일에서 최대 너비 조정 */
   }
 }
 </style>
