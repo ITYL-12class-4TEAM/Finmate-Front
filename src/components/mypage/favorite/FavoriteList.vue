@@ -17,7 +17,13 @@
 
     <!-- 즐겨찾기 목록 -->
     <div v-else class="list-container">
-      <TransitionGroup name="favorite-item" tag="div" class="items-grid" appear>
+      <TransitionGroup
+        name="favorite-item"
+        tag="div"
+        class="items-grid"
+        appear
+        @click="handleSelect"
+      >
         <FavoriteItem
           v-for="(favorite, index) in favorites"
           :key="favorite.productId"
@@ -54,17 +60,7 @@ const emit = defineEmits([
 ]);
 
 const handleSelect = (productId, isSelected) => {
-  console.log('Handle select called:', productId, isSelected); // 디버깅
-  let newSelected = [...props.selectedFavorites];
-
-  if (isSelected) {
-    newSelected.push(productId);
-  } else {
-    newSelected = newSelected.filter((id) => id !== productId);
-  }
-
-  console.log('New selected:', newSelected); // 디버깅
-  emit('update:selectedFavorites', newSelected);
+  
 };
 </script>
 

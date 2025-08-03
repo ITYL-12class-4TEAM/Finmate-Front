@@ -6,7 +6,7 @@
         v-for="post in posts"
         :key="`scrap-${post.postId}`"
         :post="post"
-        @view-post="$emit('view-post', $event)"
+        @view="$emit('view-post', $event)"
       />
     </div>
   </div>

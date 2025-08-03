@@ -6,7 +6,7 @@
         v-for="post in posts"
         :key="`${post.postId}-${post.myCommentId}`"
         :post="post"
-        @view-post="$emit('view-post', $event)"
+        @view="$emit('view-post', $event)"
         @view-comment="$emit('view-comment', $event)"
         @like="(postId) => refreshPost(postId)"
         @comment="(postId) => refreshPost(postId)"

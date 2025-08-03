@@ -39,6 +39,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
+import router from '@/router';
 
 import PageHeader from '@/components/mypage/common/PageHeader.vue';
 import LoadingSpinner from '@/components/mypage/common/LoadingSpinner.vue';
@@ -168,13 +169,7 @@ const filterAndSortPosts = () => {
 };
 
 const viewPost = (post) => {
-  alert(
-    `"${post.title}" 상세보기\n\n작성자: ${post.authorName}\n카테고리: ${
-      getCategoryName(post.categoryTag) || '없음'
-    }\n작성일: ${formatDate(post.postCreatedAt)}\n좋아요일: ${formatDate(
-      post.likeCreatedAt
-    )}\n총 좋아요: ${post.likeCount}개\n댓글: ${post.commentCount}개`
-  );
+  router.push(`/community/${post.postId}`);
 };
 
 const removeLike = async (post) => {

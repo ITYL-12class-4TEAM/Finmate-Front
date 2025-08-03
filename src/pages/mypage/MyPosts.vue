@@ -37,6 +37,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
+import router from '@/router';
 
 import PageHeader from '@/components/mypage/common/PageHeader.vue';
 import LoadingSpinner from '@/components/mypage/common/LoadingSpinner.vue';
@@ -172,7 +173,7 @@ const filterAndSortPosts = () => {
 };
 
 const viewPost = (post) => {
-  alert(`"${post.title}" 상세보기`);
+  router.push(`/community/${post.postId}`);
 };
 
 const changePage = (page) => {

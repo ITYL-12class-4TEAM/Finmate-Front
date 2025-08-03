@@ -43,6 +43,7 @@
 <script setup>
 import axios from 'axios';
 import { ref, onMounted, computed } from 'vue';
+import router from '@/router';
 import LoadingSpinner from '@/components/mypage/common/LoadingSpinner.vue';
 import ErrorAlert from '@/components/mypage/common/ErrorAlert.vue';
 import EmptyState from '@/components/mypage/mycomment/EmptyState.vue';
@@ -212,7 +213,7 @@ const filterAndSortPosts = () => {
 };
 
 const viewPost = (post) => {
-  alert(`"${post.title}" 상세보기`);
+  router.push(`/community/${post.postId}`);
 };
 
 const changePage = (page) => {

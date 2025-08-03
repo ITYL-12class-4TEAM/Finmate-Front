@@ -1,5 +1,5 @@
 <template>
-  <div class="like-item">
+  <div class="like-item" @click="$emit('view', post)">
     <!-- 게시판 뱃지 -->
     <div class="like-badge">
       <PostBadge :type="'board'" :value="post.boardType" />
@@ -43,7 +43,7 @@ defineProps({
   },
 });
 
-defineEmits(['view-post']);
+defineEmits(['view', 'view-comment']);
 
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('ko-KR');

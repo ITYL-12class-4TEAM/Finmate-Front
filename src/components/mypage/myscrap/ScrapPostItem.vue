@@ -1,5 +1,5 @@
 <template>
-  <div class="scrap-item">
+  <div class="scrap-item" @click="$emit('view', post)">
     <!-- 게시판 뱃지 -->
     <div class="scrap-badge">
       <PostBadge :type="'board'" :value="post.boardType" />
@@ -45,7 +45,7 @@ defineProps({
   },
 });
 
-defineEmits(['view-post']);
+defineEmits(['view']);
 
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('ko-KR');

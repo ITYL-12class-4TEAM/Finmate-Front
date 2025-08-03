@@ -41,7 +41,7 @@ defineProps({
   },
 });
 
-defineEmits(['view']);
+defineEmits(['view', 'view-comment']);
 
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('ko-KR');
