@@ -28,15 +28,10 @@
     </EmptyState>
 
     <div v-else>
-      <FavoritesSummary
-        :count="filteredFavorites.length"
-        :selectedCount="selectedFavorites.length"
-        @delete-selected="deleteSelected"
-      />
+      <FavoritesSummary :count="filteredFavorites.length" />
 
       <FavoritesList
         :favorites="paginatedFavorites"
-        v-model:selectedFavorites="selectedFavorites"
         @remove-favorite="removeFavorite"
         @view-detail="viewDetail"
       />
@@ -53,10 +48,10 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
+
+import { wishlistAPI } from '@/api/favorite';
 
 // 공통 컴포넌트
-import PageHeader from '@/components/mypage/common/PageHeader.vue';
 import LoadingSpinner from '@/components/mypage/common/LoadingSpinner.vue';
 import ErrorAlert from '@/components/mypage/common/ErrorAlert.vue';
 import EmptyState from '@/components/mypage/favorite/EmptyState.vue';
@@ -75,9 +70,7 @@ const itemsPerPage = 12;
 const searchQuery = ref('');
 const selectedType = ref('');
 const sortBy = ref('name-asc');
-const selectedFavorites = ref([]);
 
-// subcategoryName을 대분류로 매핑하는 함수
 const getCategoryFromSubcategory = (subcategoryName) => {
   if (!subcategoryName) return '';
 
@@ -95,9 +88,7 @@ const getCategoryFromSubcategory = (subcategoryName) => {
   return categoryMapping[subcategoryName] || subcategoryName;
 };
 
-// 필터링된 즐겨찾기 목록
 const filteredFavorites = computed(() => {
-  // favorites.value가 배열인지 확인
   if (!Array.isArray(favorites.value)) {
     console.warn('favorites.value is not an array:', favorites.value);
     return [];
@@ -105,7 +96,6 @@ const filteredFavorites = computed(() => {
 
   let filtered = [...favorites.value];
 
-  // 검색 필터
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
     filtered = filtered.filter(
@@ -115,7 +105,6 @@ const filteredFavorites = computed(() => {
     );
   }
 
-  // 카테고리 필터 (subcategoryName 기준)
   if (selectedType.value) {
     filtered = filtered.filter(
       (favorite) =>
@@ -124,7 +113,6 @@ const filteredFavorites = computed(() => {
     );
   }
 
-  // 정렬
   switch (sortBy.value) {
     case 'interest-desc':
       filtered.sort((a, b) => {
@@ -151,7 +139,6 @@ const filteredFavorites = computed(() => {
   return filtered;
 });
 
-// 페이지네이션 계산
 const totalPages = computed(() => {
   return Math.ceil(filteredFavorites.value.length / itemsPerPage);
 });
@@ -167,59 +154,20 @@ const fetchFavorites = async () => {
   error.value = '';
 
   try {
-    const accessToken = localStorage.getItem('accessToken');
+    const response = await wishlistAPI.getList();
 
-    if (!accessToken) {
-      error.value = '로그인이 필요합니다.';
-      loading.value = false;
-      return;
-    }
+    console.log('API 응답:', response);
+    console.log('응답 타입:', typeof response);
 
-    console.log('토큰:', accessToken);
-
-    const response = await axios.get('/api/wishlist', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-
-    console.log('API 응답:', response.data);
-    console.log('응답 타입:', typeof response.data);
-    console.log('배열인가?', Array.isArray(response.data));
-
-    // API 응답이 배열인지 확인
-    if (Array.isArray(response.data)) {
+    // API 응답 구조에 따른 데이터 추출
+    if (response.body && Array.isArray(response.body.data)) {
+      favorites.value = response.body.data;
+    } else if (Array.isArray(response.data)) {
       favorites.value = response.data;
-    } else if (response.data && Array.isArray(response.data.data)) {
-      // 응답이 { data: [...] } 형태인 경우
-      favorites.value = response.data.data;
-    } else if (response.data && Array.isArray(response.data.items)) {
-      // 응답이 { items: [...] } 형태인 경우
-      favorites.value = response.data.items;
-    } else if (
-      response.data &&
-      response.data.body &&
-      Array.isArray(response.data.body)
-    ) {
-      // 응답이 { header: {...}, body: [...] } 형태인 경우
-      favorites.value = response.data.body;
-    } else if (
-      response.data &&
-      response.data.body &&
-      Array.isArray(response.data.body.data)
-    ) {
-      // 응답이 { header: {...}, body: { data: [...] } } 형태인 경우
-      favorites.value = response.data.body.data;
-    } else if (
-      response.data &&
-      response.data.body &&
-      Array.isArray(response.data.body.items)
-    ) {
-      // 응답이 { header: {...}, body: { items: [...] } } 형태인 경우
-      favorites.value = response.data.body.items;
+    } else if (Array.isArray(response)) {
+      favorites.value = response;
     } else {
-      console.warn('예상하지 못한 API 응답 구조:', response.data);
-      console.log('body 내용:', response.data.body);
+      console.warn('예상하지 못한 API 응답 구조:', response);
       favorites.value = [];
     }
 
@@ -227,28 +175,17 @@ const fetchFavorites = async () => {
   } catch (err) {
     error.value = '즐겨찾기를 불러오는데 실패했습니다.';
     console.error('Favorites fetch error:', err);
-    console.error('Error response:', err.response?.data);
     favorites.value = []; // 에러 시에도 배열로 초기화
   } finally {
     loading.value = false;
   }
 };
 
-const filterAndSortFavorites = () => {
-  currentPage.value = 1; // 필터 변경 시 첫 페이지로 이동
-};
-
 const removeFavorite = async (favorite) => {
   if (!confirm('즐겨찾기에서 삭제하시겠습니까?')) return;
 
   try {
-    const accessToken = localStorage.getItem('accessToken');
-
-    await axios.delete(`/api/wishlist/${favorite.productId}`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    await wishlistAPI.remove(favorite.productId);
 
     // 배열인지 확인 후 필터링
     if (Array.isArray(favorites.value)) {
@@ -256,48 +193,14 @@ const removeFavorite = async (favorite) => {
         (f) => f.productId !== favorite.productId
       );
     }
-
-    alert('즐겨찾기에서 삭제되었습니다.');
   } catch (err) {
-    alert('즐겨찾기 삭제에 실패했습니다.');
+    error.value = '즐겨찾기 삭제에 실패했습니다.';
     console.error('Remove favorite error:', err);
   }
 };
 
-const deleteSelected = async () => {
-  if (selectedFavorites.value.length === 0) return;
-  if (
-    !confirm(
-      `선택한 ${selectedFavorites.value.length}개 상품을 즐겨찾기에서 삭제하시겠습니까?`
-    )
-  )
-    return;
-
-  try {
-    const accessToken = localStorage.getItem('accessToken');
-
-    // 선택된 상품들을 병렬로 삭제
-    await Promise.all(
-      selectedFavorites.value.map((productId) =>
-        axios.delete(`/api/wishlist/${productId}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        })
-      )
-    );
-
-    // UI에서 삭제된 상품들 제거 (배열인지 확인)
-    if (Array.isArray(favorites.value)) {
-      favorites.value = favorites.value.filter(
-        (f) => !selectedFavorites.value.includes(f.productId)
-      );
-    }
-
-    selectedFavorites.value = [];
-    alert('선택한 상품들이 즐겨찾기에서 삭제되었습니다.');
-  } catch (err) {
-    alert('일부 상품 삭제에 실패했습니다.');
-    console.error('Delete selected error:', err);
-  }
+const filterAndSortFavorites = () => {
+  currentPage.value = 1; // 필터 변경 시 첫 페이지로 이동
 };
 
 const changePage = (page) => {

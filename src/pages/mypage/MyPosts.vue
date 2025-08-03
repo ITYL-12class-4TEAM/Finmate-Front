@@ -36,10 +36,8 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
 import router from '@/router';
 
-import PageHeader from '@/components/mypage/common/PageHeader.vue';
 import LoadingSpinner from '@/components/mypage/common/LoadingSpinner.vue';
 import Pagination from '@/components/mypage/common/Pagination.vue';
 import ErrorAlert from '@/components/mypage/common/ErrorAlert.vue';
@@ -47,6 +45,7 @@ import PostFilter from '@/components/mypage/mypost/PostFilter.vue';
 import EmptyState from '@/components/mypage/mypost/EmptyState.vue';
 import PostActions from '@/components/mypage/mypost/PostAction.vue';
 import PostList from '@/components/mypage/mypost/PostList.vue';
+import { postsAPI } from '@/api/posts';
 
 const loading = ref(false);
 const error = ref('');
@@ -107,13 +106,8 @@ const fetchPosts = async () => {
   error.value = '';
 
   try {
-    const accessToken = localStorage.getItem('accessToken');
-    const response = await axios.get('/api/posts/my', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    const apiData = response.data.body?.data || response.data;
+    const response = await postsAPI.getMyPosts();
+    const apiData = response.body?.data || response.data;
 
     posts.value = apiData.map((post) => ({
       postId: post.postId,
@@ -139,11 +133,7 @@ const fetchPosts = async () => {
 // 개별 게시글 정보 최신화
 const refreshPost = async (postId) => {
   try {
-    const accessToken = localStorage.getItem('accessToken');
-
-    const res = await axios.get(`/api/posts/${postId}`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+    const res = await postsAPI.getPost(postId);
 
     const updated = res.data.body?.data;
     const index = posts.value.findIndex((p) => p.postId === postId);

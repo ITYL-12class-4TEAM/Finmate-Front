@@ -72,11 +72,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
-import axios from 'axios';
+import { ref, onMounted, computed } from 'vue';
 
 // 공통 컴포넌트
-import PageHeader from '../../components/mypage/common/pageHeader.vue';
 import LoadingSpinner from '../../components/mypage/common/LoadingSpinner.vue';
 import ErrorAlert from '../../components/mypage/common/ErrorAlert.vue';
 
@@ -89,6 +87,7 @@ import PortfolioWMTI from '../../components/mypage/portfolio/fourth/PortfolioWMT
 import ProductList from '../../components/mypage/portfolio/ProductList.vue';
 import ProductAddModal from '../../components/mypage/portfolio/ProductAddModal.vue';
 import DeleteConfirmModal from '../../components/mypage/portfolio/DeleteConfirmModal.vue';
+import { portfolioAPI } from '@/api/portfolio';
 
 // -------------------- 상태 관리 --------------------
 const loading = ref(false);
@@ -118,20 +117,14 @@ const fetchPortfolioData = async () => {
   error.value = '';
 
   try {
-    const accessToken = localStorage.getItem('accessToken');
-
     const [itemsRes, summaryRes] = await Promise.all([
-      axios.get('/api/portfolio', {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }),
-      axios.get('/api/portfolio/summary', {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }),
+      portfolioAPI.getPortfolio(),
+      portfolioAPI.getPortfolioSummary(),
     ]);
 
     // JSON 구조에 맞게 수정: body.data로 접근
-    portfolioItems.value = itemsRes.data.body.data || [];
-    summaryData.value = summaryRes.data.body.data || {};
+    portfolioItems.value = itemsRes.body.data || [];
+    summaryData.value = summaryRes.body.data || {};
 
     // 나이대 정보 설정
     const ageStat = summaryData.value?.comparisonSummary?.ageGroupStats?.[0];
@@ -351,11 +344,7 @@ const closeDeleteModal = () => {
 // -------------------- 상품 추가 --------------------
 const addNewProduct = async (newProduct) => {
   try {
-    const accessToken = localStorage.getItem('accessToken');
-
-    const response = await axios.post('/api/portfolio', newProduct, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+    const response = await portfolioAPI.addPortfolio(newProduct);
 
     if (response.status === 200 || response.status === 201) {
       closeAddModal();
@@ -414,38 +403,24 @@ const saveEdit = async (item) => {
   }
 
   try {
-    const accessToken = localStorage.getItem('accessToken');
-
-    console.log('API 요청 데이터:', {
-      portfolioId: item.portfolioId,
+    await portfolioAPI.updatePortfolio(item.portfolioId, {
+      // item에서 필요한 필드들 추출
       amount: item.amount,
-      memo: item.memo,
+      memo: item.memo || '',
+      // 추가 필드들도 포함 (ProductEditModal에서 모든 데이터를 보내므로)
+      customProductName: item.customProductName,
+      customCompanyName: item.customCompanyName,
+      category: item.category,
+      subcategory: item.subcategory,
+      interestRate: item.interestRate,
+      customRate: item.customRate,
+      expectedReturn: item.expectedReturn,
+      saveTrm: item.saveTrm,
+      joinDate: item.joinDate,
+      maturityDate: item.maturityDate,
+      estimatedInterest: item.estimatedInterest,
+      estimatedAfterTax: item.estimatedAfterTax,
     });
-
-    await axios.patch(
-      `/api/portfolio/${item.portfolioId}`,
-      {
-        // item에서 필요한 필드들 추출
-        amount: item.amount,
-        memo: item.memo || '',
-        // 추가 필드들도 포함 (ProductEditModal에서 모든 데이터를 보내므로)
-        customProductName: item.customProductName,
-        customCompanyName: item.customCompanyName,
-        category: item.category,
-        subcategory: item.subcategory,
-        interestRate: item.interestRate,
-        customRate: item.customRate,
-        expectedReturn: item.expectedReturn,
-        saveTrm: item.saveTrm,
-        joinDate: item.joinDate,
-        maturityDate: item.maturityDate,
-        estimatedInterest: item.estimatedInterest,
-        estimatedAfterTax: item.estimatedAfterTax,
-      },
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }
-    );
 
     // 로컬 상태 업데이트 - item 데이터로 업데이트
     const idx = portfolioItems.value.findIndex(
@@ -514,11 +489,7 @@ const confirmDelete = async () => {
   const productName = productToDelete.value.customProductName || '상품';
 
   try {
-    const accessToken = localStorage.getItem('accessToken');
-
-    await axios.delete(`/api/portfolio/${productToDelete.value.portfolioId}`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+    await portfolioAPI.deletePortfolio(productToDelete.value.portfolioId);
 
     console.log('✅ 삭제 성공:', productName);
 

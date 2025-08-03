@@ -53,13 +53,6 @@ const router = createRouter({
           name: 'Portfolio',
           component: () => import('../pages/mypage/Portfolio.vue'),
         }, // 포트폴리오
-
-        // 금융 성향 검사 결과
-        {
-          path: 'wmti-result',
-          name: 'WMTIResult',
-          component: () => import('../pages/mypage/WMTIResult.vue'),
-        }, // WMTI 결과
         {
           path: 'wmti-history',
           name: 'WMTIHistory',

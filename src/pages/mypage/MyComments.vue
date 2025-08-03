@@ -41,7 +41,6 @@
 </template>
 
 <script setup>
-import axios from 'axios';
 import { ref, onMounted, computed } from 'vue';
 import router from '@/router';
 import LoadingSpinner from '@/components/mypage/common/LoadingSpinner.vue';
@@ -52,6 +51,7 @@ import Pagination from '@/components/mypage/common/Pagination.vue';
 import CommentedPostFilter from '@/components/mypage/mycomment/CommentPostFilter.vue';
 import CommentedPostSummary from '@/components/mypage/mycomment/CommentPostSummary.vue';
 import CommentedPostList from '@/components/mypage/mycomment/CommentPostList.vue';
+import { postsAPI } from '@/api/posts';
 
 const loading = ref(false);
 const error = ref('');
@@ -120,21 +120,14 @@ const fetchPosts = async () => {
   error.value = '';
 
   try {
-    const accessToken = localStorage.getItem('accessToken');
+    const response = await postsAPI.getMyComments();
 
-    const response = await axios.get('/api/comments/my', {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-
-    const commentList = response.data.body?.data || [];
+    const commentList = response.body?.data || [];
 
     // 각 댓글에 대해 게시글 정보를 가져오기
     const postPromises = commentList.map(async (comment) => {
-      const postRes = await axios.get(`/api/posts/${comment.postId}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-
-      const post = postRes.data.body.data;
+      const postRes = await postsAPI.getPost(comment.postId);
+      const post = postRes.body.data;
 
       return {
         postId: post.postId,
@@ -176,11 +169,7 @@ const fetchPosts = async () => {
 // 개별 게시글 정보 최신화
 const refreshPost = async (postId) => {
   try {
-    const accessToken = localStorage.getItem('accessToken');
-
-    const res = await axios.get(`/api/posts/${postId}`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+    const res = await postsAPI.getPost(postId);
 
     const updated = res.data.body?.data;
 

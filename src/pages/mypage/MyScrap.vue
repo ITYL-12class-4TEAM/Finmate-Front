@@ -40,10 +40,8 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
 import router from '@/router';
 
-import PageHeader from '@/components/mypage/common/PageHeader.vue';
 import LoadingSpinner from '@/components/mypage/common/LoadingSpinner.vue';
 import ErrorAlert from '@/components/mypage/common/ErrorAlert.vue';
 import EmptyState from '@/components/mypage/myscrap/EmptyState.vue';
@@ -51,6 +49,7 @@ import Pagination from '@/components/mypage/common/Pagination.vue';
 import ScrappedPostFilter from '@/components/mypage/myscrap/ScrapPostFilter.vue';
 import ScrappedPostActions from '@/components/mypage/myscrap/ScrapPostAction.vue';
 import ScrappedPostList from '@/components/mypage/myscrap/ScrapPostList.vue';
+import { postsAPI } from '@/api/posts';
 
 const loading = ref(false);
 const error = ref('');
@@ -68,12 +67,6 @@ const toDate = (input) => {
     return new Date(year, month - 1, day, hour, minute, second);
   }
   return new Date(input);
-};
-
-// 날짜 → 표시용 문자열
-const formatDate = (date) => {
-  const d = toDate(date);
-  return d.toLocaleDateString('ko-KR');
 };
 
 const filteredPosts = computed(() => {
@@ -132,20 +125,12 @@ const fetchPosts = async () => {
   error.value = '';
 
   try {
-    const accessToken = localStorage.getItem('accessToken');
+    const response = await postsAPI.getMyScraps();
 
-    const response = await axios.get('/api/scraps/my', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-
-    const apiData = response.data.body?.data || response.data;
+    const apiData = response.body?.data || response.data;
     const postPromises = apiData.map(async (item) => {
-      const postRes = await axios.get(`/api/posts/${item.postId}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      const post = postRes.data.body.data;
+      const postRes = await postsAPI.getPost(item.postId);
+      const post = postRes.body.data;
 
       return {
         postId: post.postId,

@@ -38,7 +38,6 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
 import router from '@/router';
 
 import LoadingSpinner from '@/components/mypage/common/LoadingSpinner.vue';
@@ -48,6 +47,7 @@ import Pagination from '@/components/mypage/common/Pagination.vue';
 import LikedPostFilter from '@/components/mypage/mylike/LikePostFilter.vue';
 import LikedPostActions from '@/components/mypage/mylike/LikePostActions.vue';
 import LikedPostList from '@/components/mypage/mylike/LikePostList.vue';
+import { postsAPI } from '@/api/posts';
 
 const loading = ref(false);
 const error = ref('');
@@ -119,20 +119,13 @@ const fetchPosts = async () => {
   error.value = '';
 
   try {
-    const accessToken = localStorage.getItem('accessToken');
-    const response = await axios.get('/api/post-like/me', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    const response = await postsAPI.getMyLikes();
 
-    const apiData = response.data.body?.data || response.data;
+    const apiData = response.body?.data || response.data;
 
     const postPromises = apiData.map(async (item) => {
-      const postRes = await axios.get(`/api/posts/${item.postId}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      const post = postRes.data.body.data;
+      const postRes = await postsAPI.getPost(item.postId);
+      const post = postRes.body.data;
 
       return {
         postId: post.postId,

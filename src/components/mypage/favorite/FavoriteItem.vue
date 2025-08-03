@@ -1,15 +1,7 @@
 <template>
-  <div
-    class="favorite-item"
-    :class="{
-      selected: isSelected,
-      'hover-effect': !isSelected,
-    }"
-  >
+  <div class="favorite-item">
     <ProductItemHeader
       :favorite="favorite"
-      :isSelected="isSelected"
-      @select="handleHeaderSelect"
       @remove-favorite="$emit('remove-favorite', favorite)"
     />
 
@@ -30,23 +22,9 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-  isSelected: {
-    type: Boolean,
-    default: false,
-  },
 });
 
-const emit = defineEmits(['select', 'remove-favorite']);
-
-const handleHeaderSelect = (isSelected) => {
-  console.log(
-    'Header select received:',
-    isSelected,
-    'ProductId:',
-    props.favorite.productId
-  ); // 디버깅
-  emit('select', props.favorite.productId, isSelected);
-};
+const emit = defineEmits(['remove-favorite']);
 </script>
 
 <style scoped>

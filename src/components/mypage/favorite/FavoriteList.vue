@@ -17,20 +17,12 @@
 
     <!-- 즐겨찾기 목록 -->
     <div v-else class="list-container">
-      <TransitionGroup
-        name="favorite-item"
-        tag="div"
-        class="items-grid"
-        appear
-        @click="handleSelect"
-      >
+      <TransitionGroup name="favorite-item" tag="div" class="items-grid" appear>
         <FavoriteItem
           v-for="(favorite, index) in favorites"
           :key="favorite.productId"
           :favorite="favorite"
-          :isSelected="selectedFavorites.includes(favorite.productId)"
           :style="{ 'animation-delay': `${index * 50}ms` }"
-          @select="handleSelect"
           @remove-favorite="$emit('remove-favorite', $event)"
           class="favorite-item-wrapper"
         />
@@ -47,21 +39,9 @@ const props = defineProps({
     type: Array,
     required: true,
   },
-  selectedFavorites: {
-    type: Array,
-    required: true,
-  },
 });
 
-const emit = defineEmits([
-  'update:selectedFavorites',
-  'remove-favorite',
-  'explore-products',
-]);
-
-const handleSelect = (productId, isSelected) => {
-  
-};
+const emit = defineEmits(['remove-favorite', 'explore-products']);
 </script>
 
 <style scoped>

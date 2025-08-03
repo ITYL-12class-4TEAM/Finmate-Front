@@ -32,13 +32,12 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
 
 // 공통 컴포넌트
-import PageHeader from '../../components/mypage/common/pageHeader.vue';
 import LoadingSpinner from '../../components/mypage/common/LoadingSpinner.vue';
 import ErrorAlert from '../../components/mypage/common/ErrorAlert.vue';
 import Pagination from '../../components/mypage/common/Pagination.vue';
+import { recentViewAPI } from '@/api/recentView';
 
 // 최근 본 상품 전용 컴포넌트
 import RecentViewSummary from '../../components/mypage/recentview/RecentViewSummary.vue';
@@ -75,56 +74,14 @@ const fetchRecentProducts = async () => {
   error.value = '';
 
   try {
-    const accessToken = localStorage.getItem('accessToken');
+    const response = await recentViewAPI.getRecentView();
 
-    if (!accessToken) {
-      error.value = '로그인이 필요합니다.';
-      loading.value = false;
-      return;
-    }
-
-    console.log('토큰:', accessToken);
-
-    const response = await axios.get('/api/recent-viewed', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-
-    console.log('API 응답:', response.data);
-    console.log('응답 타입:', typeof response.data);
-    console.log('배열인가?', Array.isArray(response.data));
-
-    // API 응답 구조에 따른 데이터 추출
-    if (Array.isArray(response.data)) {
-      recentProducts.value = response.data;
-    } else if (response.data && Array.isArray(response.data.data)) {
-      // 응답이 { data: [...] } 형태인 경우
-      recentProducts.value = response.data.data;
-    } else if (response.data && Array.isArray(response.data.items)) {
-      // 응답이 { items: [...] } 형태인 경우
-      recentProducts.value = response.data.items;
-    } else if (
-      response.data &&
-      response.data.body &&
-      Array.isArray(response.data.body)
-    ) {
-      // 응답이 { header: {...}, body: [...] } 형태인 경우
-      recentProducts.value = response.data.body;
-    } else if (
+    if (
       response.data &&
       response.data.body &&
       Array.isArray(response.data.body.data)
     ) {
-      // 응답이 { header: {...}, body: { data: [...] } } 형태인 경우
       recentProducts.value = response.data.body.data;
-    } else if (
-      response.data &&
-      response.data.body &&
-      Array.isArray(response.data.body.items)
-    ) {
-      // 응답이 { header: {...}, body: { items: [...] } } 형태인 경우
-      recentProducts.value = response.data.body.items;
     } else {
       console.warn('예상하지 못한 API 응답 구조:', response.data);
       if (response.data && response.data.body) {
@@ -148,11 +105,7 @@ const removeFromHistory = async (productId) => {
   if (!confirm('이 상품을 최근 본 상품에서 삭제하시겠습니까?')) return;
 
   try {
-    const accessToken = localStorage.getItem('accessToken');
-
-    await axios.delete(`/api/recent-viewed/${productId}`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+    await recentViewAPI.deleteRecentView(productId);
 
     // 배열인지 확인 후 필터링
     if (Array.isArray(recentProducts.value)) {
@@ -165,8 +118,6 @@ const removeFromHistory = async (productId) => {
     if (paginatedProducts.value.length === 0 && currentPage.value > 1) {
       currentPage.value = currentPage.value - 1;
     }
-
-    alert('상품이 삭제되었습니다.');
   } catch (err) {
     alert('상품 삭제에 실패했습니다.');
     console.error('Remove from history error:', err);
@@ -181,13 +132,9 @@ const deleteSelected = async () => {
     return;
 
   try {
-    const accessToken = localStorage.getItem('accessToken');
-
     await Promise.all(
       selectedRecent.value.map((productId) =>
-        axios.delete(`/api/recent-viewed/${productId}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        })
+        recentViewAPI.deleteRecentView(productId)
       )
     );
 
@@ -199,7 +146,6 @@ const deleteSelected = async () => {
     }
 
     selectedRecent.value = [];
-    alert('선택한 상품들이 삭제되었습니다.');
   } catch (err) {
     alert('일부 상품 삭제에 실패했습니다.');
     console.error('Delete selected error:', err);
@@ -210,11 +156,7 @@ const clearAllHistory = async () => {
   if (!confirm('모든 최근 본 상품을 삭제하시겠습니까?')) return;
 
   try {
-    const accessToken = localStorage.getItem('accessToken');
-
-    await axios.delete('/api/recent-viewed/all', {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+    await recentViewAPI.deleteAllRecentView();
 
     recentProducts.value = [];
     currentPage.value = 1;
