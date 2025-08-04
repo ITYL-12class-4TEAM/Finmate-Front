@@ -90,6 +90,11 @@ const router = createRouter({
           name: "ProductDetail",
           component: () => import("../pages/products/ProductDetail.vue"),
         }, // 상세보기
+        {
+          path: "compare",
+          name: "ProductCompare",
+          component: () => import("../pages/products/ProductCompare.vue"),
+        },
       ],
     },
 
