@@ -95,31 +95,31 @@ export const getProductsCategoriesAPI = async () => {
  }
 };
 
-/**
-* 상품 비교
-* @param {Array<string|number>} productIds - 비교할 상품 ID 목록
-* @returns {Promise<Object>} 상품 비교 결과
-*/
-export const getProductsCompareAPI = async (productIds = []) => {
- try {
-   // 쿼리 파라미터 구성
-   const params = {
-     ids: Array.isArray(productIds) ? productIds.join(',') : productIds,
-   };
+// /**
+// * 상품 비교
+// * @param {Array<string|number>} productIds - 비교할 상품 ID 목록
+// * @returns {Promise<Object>} 상품 비교 결과
+// */
+// export const getProductsCompareAPI = async (productIds = []) => {
+//  try {
+//    // 쿼리 파라미터 구성
+//    const params = {
+//      ids: Array.isArray(productIds) ? productIds.join(',') : productIds,
+//    };
 
-   const response = await api.get('/api/products/compare', { params });
+//    const response = await api.get('/api/products/compare', { params });
 
-   if (response.data && response.data.body && response.data.body.data) {
-     return response.data.body.data;
-   } else {
-     console.warn('예상치 못한 API 응답 구조:', response.data);
-     return { products: [] };
-   }
- } catch (error) {
-   console.error('상품 비교 API 오류:', error);
-   throw error;
- }
-};
+//    if (response.data && response.data.body && response.data.body.data) {
+//      return response.data.body.data;
+//    } else {
+//      console.warn('예상치 못한 API 응답 구조:', response.data);
+//      return { products: [] };
+//    }
+//  } catch (error) {
+//    console.error('상품 비교 API 오류:', error);
+//    throw error;
+//  }
+// };
 
 // 필터 옵션 API 호출 함수
 export const getProductsFilterOptionsAPI = async (category) => {
@@ -136,23 +136,77 @@ export const getProductsFilterOptionsAPI = async (category) => {
 };
 
 /**
-* 상품 비교 API (새로 추가)
-* @param {Array<string|number>} productIds - 비교할 상품 ID 목록
-* @param {string} productType - 상품 유형 (deposit, pension 등)
-* @param {string} optionId - 옵션 ID (선택사항)
-* @returns {Promise<Object>} - 비교 결과
-*/
-export const compareProductsAPI = async (productIds, productType, optionId = null) => {
- try {
-   // 백엔드 API 함수 호출
-   const response = await getProductsCompareAPI(productIds);
-   
-   // API 응답 로그
-   console.log('비교 API 응답:', response);
-   
-   return response;
- } catch (error) {
-   console.error('상품 비교 API 오류:', error);
-   throw error;
- }
+ * 상품 비교 API 
+ * @param {Array<string|number>} productIds - 비교할 상품 ID 목록
+ * @param {string} productType - 상품 유형 (deposit, pension 등)
+ * @param {string} optionId - 옵션 ID (선택사항)
+ * @returns {Promise<Object>} - 비교 결과
+ */
+export const compareProductsAPI = async (productIds, productType = 'deposit', optionId = null) => {
+  try {
+    // URL 직접 구성 (파라미터 문제를 확실히 해결하기 위해)
+    let url = '/api/products/compare?';
+    
+    // productIds를 개별 파라미터로 변환
+    if (Array.isArray(productIds) && productIds.length > 0) {
+      productIds.forEach(id => {
+        url += `productIds=${encodeURIComponent(id)}&`;
+      });
+    } else if (productIds) {
+      url += `productIds=${encodeURIComponent(productIds)}&`;
+    }
+    
+    // productType 추가
+    url += `productType=${encodeURIComponent(productType)}`;
+    
+    // optionId 추가 (있는 경우)
+    if (optionId) {
+      url += `&optionId=${encodeURIComponent(optionId)}`;
+    }
+    
+    console.log('비교 API 요청 URL:', url);
+    
+    // API 호출
+    const response = await api.get(url);
+    
+    console.log('비교 API 응답:', response);
+    
+    // 데이터 추출 및 반환
+    if (response.data) {
+      const data = response.data;
+
+      // 응답 구조가 body.data 형태인 경우
+      if (data.body && data.body.data) {
+        return data.body.data;
+      }
+
+      // 응답 구조가 body 형태인 경우
+      if (data.body) {
+        return data.body;
+      }
+
+      // 응답이 data 자체인 경우
+      if (data.data) {
+        return data.data;
+      }
+
+      // 그 외의 경우 응답 전체 반환
+      return data;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('상품 비교 API 오류:', error);
+    
+    // 오류 상세 정보 로깅
+    if (error.response) {
+      console.error('API 응답 오류 상세:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data
+      });
+    }
+    
+    throw error;
+  }
 };

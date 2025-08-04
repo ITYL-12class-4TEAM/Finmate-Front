@@ -29,7 +29,7 @@
       <!-- 상품 목록 -->
       <div class="product-list">
         <div
-          v-for="product in products"
+          v-for="product in filteredProducts"
           :key="product.product_id || product.finPrdtCd"
           class="product-card"
           @click="onProductClick(product)"
@@ -88,6 +88,10 @@ const props = defineProps({
     type: Array,
     required: true,
   },
+  depositAmount: {
+    type: String,
+    default: '100000',
+  },
   loading: {
     type: Boolean,
     default: false,
@@ -112,6 +116,32 @@ const props = defineProps({
     type: String,
     default: 'intrRate'
   },
+});
+
+// 필터링된 상품 리스트
+const filteredProducts = computed(() => {
+  // 사용자가 입력한 금액 (콤마 제거 후 숫자로)
+  const userAmount = Number(props.depositAmount.replace(/,/g, ''));
+  console.log('depositAmount prop:', props.depositAmount);
+  console.log('userAmount:', userAmount);
+
+  // 금액 미입력 시 전체
+  if (!userAmount) return props.products;
+
+  return props.products.filter(product => {
+    // API/DB에서 내려오는 필드명에 맞게 수정!
+    // 예시: minDepositAmount, maxDepositAmount 또는 min_amount, max_amount 등
+    const min = Number(product.minDepositAmount || product.min_amount || 0);
+    // null/빈값 방지: max 없으면 무제한
+    const max =
+      Number(product.maxDepositAmount || product.max_amount) ||
+      Number.MAX_SAFE_INTEGER;
+
+      console.log(`user: ${userAmount}, min: ${min}, max: ${max}`);
+
+
+    return userAmount >= min && userAmount <= max;
+  });
 });
 
 // 이벤트 정의

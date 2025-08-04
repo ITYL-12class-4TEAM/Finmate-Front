@@ -78,6 +78,11 @@ const router = createRouter({
           component: () => import("../pages/products/ProductDeposit.vue"),
         }, // 예금
         {
+          path: "saving",
+          name: "ProductSaving",
+          component: () => import("../pages/products/ProductSaving.vue"),
+        }, // 적금
+        {
           path: "pension",
           name: "ProductPension",
           component: () => import("../pages/products/ProductPension.vue"),

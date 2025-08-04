@@ -7,7 +7,7 @@
         <div class="feature-content">
           <div class="feature-label">최소 가입금액</div>
           <div class="feature-value">
-            {{ formatCurrency(product.productDetail?.min_deposit) }}
+            {{ formatCurrency(product.productDetail?.minDepositAmount) }}
           </div>
         </div>
       </div>
@@ -16,7 +16,7 @@
         <div class="feature-content">
           <div class="feature-label">최대 가입금액</div>
           <div class="feature-value">
-            {{ formatCurrency(product.productDetail?.max_limit) }}
+            {{ formatCurrency(product.productDetail?.maxDepositAmount) }}
           </div>
         </div>
       </div>
@@ -55,7 +55,7 @@
         <div class="feature-icon">🔄</div>
         <div class="feature-content">
           <div class="feature-label">가입 방법</div>
-          <div class="feature-value">{{ product.join_way || "제한 없음" }}</div>
+          <div class="feature-value">{{ product.productDetail?.join_way || "제한 없음" }}</div>
         </div>
       </div>
     </div>

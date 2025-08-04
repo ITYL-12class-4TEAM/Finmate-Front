@@ -21,6 +21,7 @@
     <!-- 상품 목록 컴포넌트 -->
     <DepositProductList
       :products="depositProducts"
+      :deposit-amount="depositAmount"
       :loading="loading"
       :error="error"
       :total-count="totalCount"
@@ -175,7 +176,7 @@ const fetchProducts = async () => {
       category: 'deposit',
       categoryId: 1,
       subcategoryId: 101,
-      minAmount: String(depositAmount.value).replace(/[^\d]/g, ''),
+      amount: String(depositAmount.value).replace(/[^\d]/g, ''),
       saveTrm: period.value,
       page: currentPage.value,
       size: pageSize.value,
@@ -199,7 +200,7 @@ const fetchProducts = async () => {
     }
 
     // 수치형 데이터 변환 확인
-    params.minAmount = parseInt(params.minAmount) || 0;
+    params.amount = parseInt(params.minAmount) || 0;
     params.page = parseInt(params.page) || 1;
     params.size = parseInt(params.size) || 10;
 

@@ -40,8 +40,36 @@
         :formatDate="formatDate"
       />
 
-      <!-- 우대 조건 섹션 -->
-      <PreferentialConditions :conditions="parsedPreferentialConditions" />
+      <!-- 가입 대상 섹션 (추가) -->
+      <div v-if="product.productDetail?.join_member" class="info-section">
+        <h3 class="section-title">가입 대상</h3>
+        <div class="info-content">
+          {{ product.productDetail.join_member }}
+        </div>
+      </div>
+
+      <!-- 우대 조건 섹션 (수정) -->
+      <div v-if="product.productDetail?.spcl_cnd || parsedPreferentialConditions.length > 0" class="info-section">
+        <h3 class="section-title">우대 조건</h3>
+        <div class="info-content">
+          <!-- API에서 직접 제공하는 우대조건이 있으면 표시 -->
+          <p v-if="product.productDetail?.spcl_cnd">{{ product.productDetail.spcl_cnd }}</p>
+          <!-- 기존 파싱된 우대조건도 함께 표시 -->
+          <ul v-if="parsedPreferentialConditions.length > 0" class="conditions-list">
+            <li v-for="(condition, idx) in parsedPreferentialConditions" :key="idx">
+              {{ condition }}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 비고 섹션 (추가) -->
+      <div v-if="product.productDetail?.etc_note" class="info-section">
+        <h3 class="section-title">비고</h3>
+        <div class="info-content">
+          {{ product.productDetail.etc_note }}
+        </div>
+      </div>
 
       <!-- 액션 섹션 -->
       <ActionButtons
@@ -89,382 +117,352 @@
     />
   </div>
 </template>
-<script>
-import { ref, computed, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { getProductDetailAPI } from "@/api/product";
-import BackButton from "@/components/common/BackButton.vue";
-import ProductInfoCard from "@/components/products/ProductInfoCard.vue";
-import ProductRateInfo from "@/components/products/ProductRateInfo.vue";
-import ProductFeatures from "@/components/products/ProductFeatures.vue";
-import PreferentialConditions from "@/components/products/PreferentialConditions.vue";
-import FinancialTermModal from "@/components/products/FinancialTermModal.vue";
-import ActionButtons from "@/components/products/ActionButtons.vue";
-import CompareFloatingBar from "@/components/products/CompareFloatingBar.vue";
-import useCompareList from "@/composables/useCompareList";
 
-export default {
-  name: "ProductDetailPage",
-  components: {
-    BackButton,
-    ProductInfoCard,
-    ProductRateInfo,
-    ProductFeatures,
-    PreferentialConditions,
-    FinancialTermModal,
-    ActionButtons,
-    CompareFloatingBar,
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { getProductDetailAPI } from '@/api/product';
+import BackButton from '@/components/common/BackButton.vue';
+import ProductInfoCard from '@/components/products/ProductInfoCard.vue';
+import ProductRateInfo from '@/components/products/ProductRateInfo.vue';
+import ProductFeatures from '@/components/products/ProductFeatures.vue';
+import PreferentialConditions from '@/components/products/PreferentialConditions.vue';
+import FinancialTermModal from '@/components/products/FinancialTermModal.vue';
+import ActionButtons from '@/components/products/ActionButtons.vue';
+import CompareFloatingBar from '@/components/products/CompareFloatingBar.vue';
+import useCompareList from '@/composables/useCompareList';
+
+const route = useRoute();
+const router = useRouter();
+
+// 상태 관리
+const product = ref(null);
+const loading = ref(true);
+const error = ref(null);
+const showModal = ref(false);
+const selectedTerm = ref({ name: '', description: '' });
+
+// 비교함 기능 (컴포저블 사용)
+const { compareList, addToCompareList, isInCompareList } = useCompareList();
+
+// 금융 용어 데이터
+const financialTerms = [
+  {
+    name: '복리',
+    preview: '원금뿐만 아니라 이자에도 이자가 붙는 계산법으로...',
   },
-  setup() {
-    const route = useRoute();
-    const router = useRouter();
-
-    // 상태 관리
-    const product = ref(null);
-    const loading = ref(true);
-    const error = ref(null);
-    const showModal = ref(false);
-    const selectedTerm = ref({ name: "", description: "" });
-
-    // 비교함 기능 (컴포저블 사용)
-    const { compareList, addToCompareList, isInCompareList } = useCompareList();
-
-    // 금융 용어 데이터
-    const financialTerms = [
-      {
-        name: "복리",
-        preview: "원금뿐만 아니라 이자에도 이자가 붙는 계산법으로...",
-      },
-      {
-        name: "단리",
-        preview: "원금에 대해서만 이자가 발생하는 계산법으로...",
-      },
-      {
-        name: "세금우대",
-        preview: "일반과세보다 낮은 세율이 적용되는 금융상품...",
-      },
-    ];
-
-    // 상품 정보 로드
-    const loadProductDetail = async () => {
-      try {
-        loading.value = true;
-        error.value = null;
-
-        const category = route.params.category;
-        const productId = route.params.id;
-        const saveTrm = route.query.saveTrm;
-
-        console.log(
-          `상품 상세 정보 로드: 카테고리=${category}, ID=${productId}, saveTrm=${saveTrm}`
-        );
-
-        const response = await getProductDetailAPI(category, productId, {
-          saveTrm,
-        });
-
-        if (response) {
-          product.value = response;
-          product.value.is_digital_only =
-            product.value.join_way === "online" ||
-            product.value.join_way === "인터넷";
-        } else {
-          error.value = "상품 정보를 찾을 수 없습니다.";
-        }
-      } catch (err) {
-        console.error("상품 상세 정보 로드 오류:", err);
-        error.value = "상품 정보를 불러오는 중 오류가 발생했습니다.";
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    // 우대 조건 파싱
-    const parsedPreferentialConditions = computed(() => {
-      if (!product.value || !product.value.preferential_conditions) {
-        return [];
-      }
-
-      const conditions = product.value.preferential_conditions.split(/\n|\r\n/);
-      const parsedConditions = [];
-
-      for (const condition of conditions) {
-        if (condition.trim() === "") continue;
-
-        const cleanCondition = condition
-          .replace(/^\d+[\.\)]\s*|\-\s*|\*\s*/, "")
-          .trim();
-
-        if (cleanCondition) {
-          parsedConditions.push(cleanCondition);
-        }
-      }
-
-      return parsedConditions;
-    });
-
-    // 비교함에 추가 핸들러
-    const handleAddToCompare = () => {
-      if (!product.value || !selectedOption.value) {
-        alert("상품 정보가 없어 비교함에 추가할 수 없습니다.");
-        return;
-      }
-
-      // 로컬 스토리지 디버깅 출력
-      console.log(
-        "현재 로컬 스토리지:",
-        localStorage.getItem("finmate_compare_list")
-      );
-
-      console.log("비교함 추가 전 상품/옵션 정보:", {
-        product: product.value,
-        selectedOption: selectedOption.value,
-        category: route.params.category,
-      });
-
-      const result = addToCompareList(
-        product.value,
-        selectedOption.value,
-        route.params.category
-      );
-
-      alert(result.message);
-
-      // 결과 확인을 위해 로컬 스토리지 다시 출력
-      console.log(
-        "추가 후 로컬 스토리지:",
-        localStorage.getItem("finmate_compare_list")
-      );
-    };
-
-    // 비교함으로 이동
-    const goToCompare = () => {
-      router.push("/products/compare");
-    };
-
-    // 상품 유형 체크 함수
-    const isDepositProduct = () => {
-      return route.params.category === "deposit";
-    };
-
-    const isPensionProduct = () => {
-      return route.params.category === "pension";
-    };
-
-    // 카테고리 이름 가져오기
-    const getCategoryName = () => {
-      const category = route.params.category;
-
-      switch (category) {
-        case "deposit":
-          return "정기예금";
-        case "pension":
-          return "연금저축";
-        case "saving":
-          return "적금";
-        default:
-          return "금융상품";
-      }
-    };
-
-    // 금리 유형 이름 가져오기
-    const getInterestTypeName = () => {
-      if (!product.value) return "";
-
-      const interestTypeCode = product.value.intr_rate_type;
-
-      if (interestTypeCode === "S") {
-        return "단리";
-      } else if (interestTypeCode === "M") {
-        return "복리";
-      } else {
-        return "기본금리";
-      }
-    };
-
-    // 은행 로고 URL 가져오기
-    const getBankLogo = () => {
-      if (!product.value || !product.value.kor_co_nm) return null;
-
-      const bankLogos = {
-        국민은행: "/bank-logos/kb.png",
-        신한은행: "/bank-logos/shinhan.png",
-        우리은행: "/bank-logos/woori.png",
-        하나은행: "/bank-logos/hana.png",
-        농협은행: "/bank-logos/nh.png",
-        기업은행: "/bank-logos/ibk.png",
-      };
-
-      return bankLogos[product.value.kor_co_nm] || null;
-    };
-
-    // 은행 이니셜 가져오기 (로고가 없을 경우)
-    const getBankInitial = () => {
-      if (!product.value || !product.value.kor_co_nm) return "";
-      return product.value.kor_co_nm.charAt(0);
-    };
-
-    // 금융용어 상세 보기
-    const showTermDetail = (termName) => {
-      const termData = {
-        복리: {
-          name: "복리",
-          description:
-            '복리는 원금뿐만 아니라 이자에도 이자가 붙는 계산법입니다. 장기 투자 시 단리보다 더 많은 수익을 얻을 수 있습니다. 복리는 이자가 원금에 더해져 다음 기간에는 이 합계액에 대해 이자가 계산되는 방식으로, "이자의 이자"라고도 불립니다.',
-        },
-        단리: {
-          name: "단리",
-          description:
-            "단리는 원금에 대해서만 이자가 발생하는 계산법입니다. 즉, 이자는 원금에만 적용되고 이전에 발생한 이자에는 적용되지 않습니다. 단리 계산은 복리 계산보다 단순하지만, 장기 투자 시 복리보다 수익이 적을 수 있습니다.",
-        },
-        세금우대: {
-          name: "세금우대",
-          description:
-            "세금우대는 일반과세보다 낮은 세율이 적용되는 금융상품을 말합니다. 일반적으로 이자소득에 대해 15.4%(소득세 14%, 지방소득세 1.4%)의 세금이 부과되지만, 세금우대 상품은 이보다 낮은 9.5%(소득세 8.7%, 지방소득세 0.8%)의 세율이 적용됩니다. 주로 장기 저축을 장려하기 위한 정책으로 활용됩니다.",
-        },
-      };
-
-      selectedTerm.value = termData[termName] || {
-        name: termName,
-        description: "해당 용어에 대한 설명이 준비되지 않았습니다.",
-      };
-
-      showModal.value = true;
-    };
-
-    // 상품 가입하기
-    const joinProduct = () => {
-      if (!product.value) return;
-      const joinUrl = product.value.external_link || getBankWebsite();
-      window.open(joinUrl, "_blank");
-    };
-
-    // 은행 웹사이트 URL 가져오기
-    const getBankWebsite = () => {
-      if (!product.value || !product.value.kor_co_nm) return "#";
-
-      const bankWebsites = {
-        국민은행: "https://www.kbstar.com",
-        신한은행: "https://www.shinhan.com",
-        우리은행: "https://www.wooribank.com",
-        하나은행: "https://www.kebhana.com",
-        농협은행: "https://banking.nonghyup.com",
-        기업은행: "https://www.ibk.co.kr",
-      };
-
-      return (
-        bankWebsites[product.value.kor_co_nm] ||
-        `https://www.google.com/search?q=${encodeURIComponent(
-          product.value.kor_co_nm
-        )}`
-      );
-    };
-
-    // 목록으로 돌아가기
-    const goBack = () => {
-      router.back();
-    };
-
-    // 날짜 포맷팅 (YYYYMMDD → YYYY.MM.DD)
-    const formatDate = (dateStr) => {
-      if (!dateStr) return "";
-
-      if (typeof dateStr === "string") {
-        if (/^\d{8}$/.test(dateStr)) {
-          return `${dateStr.substring(0, 4)}.${dateStr.substring(
-            4,
-            6
-          )}.${dateStr.substring(6, 8)}`;
-        }
-
-        if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
-          return dateStr.substring(0, 10).replace(/-/g, ".");
-        }
-      }
-
-      if (dateStr instanceof Date) {
-        const year = dateStr.getFullYear();
-        const month = String(dateStr.getMonth() + 1).padStart(2, "0");
-        const day = String(dateStr.getDate()).padStart(2, "0");
-        return `${year}.${month}.${day}`;
-      }
-
-      return dateStr;
-    };
-
-    // 금액 포맷팅
-    const formatCurrency = (value) => {
-      if (value === null || value === undefined) return "회사가 정보 안 줌 ㅠ";
-      return new Intl.NumberFormat("ko-KR").format(value) + "원";
-    };
-
-    // 금리 포맷팅
-    const formatRate = (rate) => {
-      if (rate === null || rate === undefined) return "정보 없음";
-      return parseFloat(rate).toFixed(2) + "%";
-    };
-
-    // 선택된 옵션 계산
-    const selectedOption = computed(() => {
-      if (!product.value || !product.value.productDetail) {
-        return null;
-      }
-
-      const options = product.value.productDetail.options;
-
-      if (!options || !Array.isArray(options)) {
-        return null;
-      }
-
-      const saveTrm = route.query.saveTrm;
-
-      return (
-        options.find(
-          (opt) => String(opt.save_trm || opt.saveTrm) === String(saveTrm)
-        ) || options[0]
-      );
-    });
-
-    // 컴포넌트 마운트 시 데이터 로드
-    onMounted(() => {
-      loadProductDetail();
-    });
-
-    return {
-      product,
-      loading,
-      error,
-      showModal,
-      selectedTerm,
-      selectedOption,
-      compareList,
-      financialTerms,
-      parsedPreferentialConditions,
-      isDepositProduct,
-      isPensionProduct,
-      getCategoryName,
-      getInterestTypeName,
-      getBankLogo,
-      getBankInitial,
-      showTermDetail,
-      handleAddToCompare,
-      isInCompareList,
-      goToCompare,
-      joinProduct,
-      goBack,
-      formatDate,
-      formatCurrency,
-      formatRate,
-    };
+  {
+    name: '단리',
+    preview: '원금에 대해서만 이자가 발생하는 계산법으로...',
   },
+  {
+    name: '세금우대',
+    preview: '일반과세보다 낮은 세율이 적용되는 금융상품...',
+  },
+];
+
+// 상품 정보 로드
+const loadProductDetail = async () => {
+  try {
+    loading.value = true;
+    error.value = null;
+
+    const category = route.params.category;
+    const productId = route.params.id;
+    const saveTrm = route.query.saveTrm;
+
+    console.log(
+      `상품 상세 정보 로드: 카테고리=${category}, ID=${productId}, saveTrm=${saveTrm}`
+    );
+
+    const response = await getProductDetailAPI(category, productId, {
+      saveTrm,
+    });
+
+    if (response) {
+      product.value = response;
+      product.value.is_digital_only =
+        product.value.join_way === 'online' ||
+        product.value.join_way === '인터넷';
+      
+      // API 응답 구조 확인 (디버깅용)
+      console.log('상품 상세 정보:', response);
+      console.log('productDetail 정보:', response.productDetail);
+    } else {
+      error.value = '상품 정보를 찾을 수 없습니다.';
+    }
+  } catch (err) {
+    console.error('상품 상세 정보 로드 오류:', err);
+    error.value = '상품 정보를 불러오는 중 오류가 발생했습니다.';
+  } finally {
+    loading.value = false;
+  }
 };
+
+// 우대 조건 파싱
+const parsedPreferentialConditions = computed(() => {
+  if (!product.value || !product.value.preferential_conditions) {
+    return [];
+  }
+
+  const conditions = product.value.preferential_conditions.split(/\n|\r\n/);
+  const parsedConditions = [];
+
+  for (const condition of conditions) {
+    if (condition.trim() === '') continue;
+
+    const cleanCondition = condition
+      .replace(/^\d+[\.\)]\s*|\-\s*|\*\s*/, '')
+      .trim();
+
+    if (cleanCondition) {
+      parsedConditions.push(cleanCondition);
+    }
+  }
+
+  return parsedConditions;
+});
+
+// 비교함에 추가 핸들러
+const handleAddToCompare = () => {
+  if (!product.value || !selectedOption.value) {
+    alert('상품 정보가 없어 비교함에 추가할 수 없습니다.');
+    return;
+  }
+
+  // 로컬 스토리지 디버깅 출력
+  console.log(
+    '현재 로컬 스토리지:',
+    localStorage.getItem('finmate_compare_list')
+  );
+
+  console.log('비교함 추가 전 상품/옵션 정보:', {
+    product: product.value,
+    selectedOption: selectedOption.value,
+    category: route.params.category,
+  });
+
+  const result = addToCompareList(
+    product.value,
+    selectedOption.value,
+    route.params.category
+  );
+
+  alert(result.message);
+
+  // 결과 확인을 위해 로컬 스토리지 다시 출력
+  console.log(
+    '추가 후 로컬 스토리지:',
+    localStorage.getItem('finmate_compare_list')
+  );
+};
+
+// 비교 페이지로 이동
+const goToCompare = () => {
+  router.push({
+    path: '/products/compare',
+    query: {
+      // compareList에 있는 상품 ID들을 쿼리 파라미터로 전달
+      productIds: compareList.value.map((item) => item.productId),
+    },
+  });
+};
+
+// 상품 유형 체크 함수
+const isDepositProduct = () => {
+  return route.params.category === 'deposit';
+};
+
+const isPensionProduct = () => {
+  return route.params.category === 'pension';
+};
+
+// 카테고리 이름 가져오기
+const getCategoryName = () => {
+  const category = route.params.category;
+
+  switch (category) {
+    case 'deposit':
+      return '정기예금';
+    case 'pension':
+      return '연금저축';
+    case 'saving':
+      return '적금';
+    default:
+      return '금융상품';
+  }
+};
+
+// 금리 유형 이름 가져오기
+const getInterestTypeName = () => {
+  if (!product.value) return '';
+
+  const interestTypeCode = product.value.intr_rate_type;
+
+  if (interestTypeCode === 'S') {
+    return '단리';
+  } else if (interestTypeCode === 'M') {
+    return '복리';
+  } else {
+    return '기본금리';
+  }
+};
+
+// 은행 로고 URL 가져오기
+const getBankLogo = () => {
+  if (!product.value || !product.value.kor_co_nm) return null;
+
+  const bankLogos = {
+    국민은행: '/bank-logos/kb.png',
+    신한은행: '/bank-logos/shinhan.png',
+    우리은행: '/bank-logos/woori.png',
+    하나은행: '/bank-logos/hana.png',
+    농협은행: '/bank-logos/nh.png',
+    기업은행: '/bank-logos/ibk.png',
+  };
+
+  return bankLogos[product.value.kor_co_nm] || null;
+};
+
+// 은행 이니셜 가져오기 (로고가 없을 경우)
+const getBankInitial = () => {
+  if (!product.value || !product.value.kor_co_nm) return '';
+  return product.value.kor_co_nm.charAt(0);
+};
+
+// 금융용어 상세 보기
+const showTermDetail = (termName) => {
+  const termData = {
+    복리: {
+      name: '복리',
+      description:
+        '복리는 원금뿐만 아니라 이자에도 이자가 붙는 계산법입니다. 장기 투자 시 단리보다 더 많은 수익을 얻을 수 있습니다. 복리는 이자가 원금에 더해져 다음 기간에는 이 합계액에 대해 이자가 계산되는 방식으로, "이자의 이자"라고도 불립니다.',
+    },
+    단리: {
+      name: '단리',
+      description:
+        '단리는 원금에 대해서만 이자가 발생하는 계산법입니다. 즉, 이자는 원금에만 적용되고 이전에 발생한 이자에는 적용되지 않습니다. 단리 계산은 복리 계산보다 단순하지만, 장기 투자 시 복리보다 수익이 적을 수 있습니다.',
+    },
+    세금우대: {
+      name: '세금우대',
+      description:
+        '세금우대는 일반과세보다 낮은 세율이 적용되는 금융상품을 말합니다. 일반적으로 이자소득에 대해 15.4%(소득세 14%, 지방소득세 1.4%)의 세금이 부과되지만, 세금우대 상품은 이보다 낮은 9.5%(소득세 8.7%, 지방소득세 0.8%)의 세율이 적용됩니다. 주로 장기 저축을 장려하기 위한 정책으로 활용됩니다.',
+    },
+  };
+
+  selectedTerm.value = termData[termName] || {
+    name: termName,
+    description: '해당 용어에 대한 설명이 준비되지 않았습니다.',
+  };
+
+  showModal.value = true;
+};
+
+// 상품 가입하기
+const joinProduct = () => {
+  if (!product.value) return;
+  const joinUrl = product.value.external_link || getBankWebsite();
+  window.open(joinUrl, '_blank');
+};
+
+// 은행 웹사이트 URL 가져오기
+const getBankWebsite = () => {
+  if (!product.value || !product.value.kor_co_nm) return '#';
+
+  const bankWebsites = {
+    국민은행: 'https://www.kbstar.com',
+    신한은행: 'https://www.shinhan.com',
+    우리은행: 'https://www.wooribank.com',
+    하나은행: 'https://www.kebhana.com',
+    농협은행: 'https://banking.nonghyup.com',
+    기업은행: 'https://www.ibk.co.kr',
+  };
+
+  return (
+    bankWebsites[product.value.kor_co_nm] ||
+    `https://www.google.com/search?q=${encodeURIComponent(
+      product.value.kor_co_nm
+    )}`
+  );
+};
+
+// 목록으로 돌아가기
+const goBack = () => {
+  router.back();
+};
+
+// 날짜 포맷팅 (YYYYMMDD → YYYY.MM.DD)
+const formatDate = (dateStr) => {
+  if (!dateStr) return '';
+
+  if (typeof dateStr === 'string') {
+    if (/^\d{8}$/.test(dateStr)) {
+      return `${dateStr.substring(0, 4)}.${dateStr.substring(
+        4,
+        6
+      )}.${dateStr.substring(6, 8)}`;
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
+      return dateStr.substring(0, 10).replace(/-/g, '.');
+    }
+  }
+
+  if (dateStr instanceof Date) {
+    const year = dateStr.getFullYear();
+    const month = String(dateStr.getMonth() + 1).padStart(2, '0');
+    const day = String(dateStr.getDate()).padStart(2, '0');
+    return `${year}.${month}.${day}`;
+  }
+
+  return dateStr;
+};
+
+// 금액 포맷팅
+const formatCurrency = (value) => {
+  if (value === null || value === undefined) return '홈페이지 직접 참고';
+  return new Intl.NumberFormat('ko-KR').format(value) + '원';
+};
+
+// 금리 포맷팅
+const formatRate = (rate) => {
+  if (rate === null || rate === undefined) return '정보 없음';
+  return parseFloat(rate).toFixed(2) + '%';
+};
+
+// 선택된 옵션 계산
+const selectedOption = computed(() => {
+  if (!product.value || !product.value.productDetail) {
+    return null;
+  }
+
+  const options = product.value.productDetail.options;
+
+  if (!options || !Array.isArray(options)) {
+    return null;
+  }
+
+  const saveTrm = route.query.saveTrm;
+
+  return (
+    options.find(
+      (opt) => String(opt.save_trm || opt.saveTrm) === String(saveTrm)
+    ) || options[0]
+  );
+});
+
+// 컴포넌트 마운트 시 데이터 로드
+onMounted(() => {
+  loadProductDetail();
+});
 </script>
+
 <style scoped>
 .product-detail-page {
   max-width: 375px;
   margin: 0 auto;
   padding: 1rem;
-  font-family: "Noto Sans KR", sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   color: var(--color-text);
   padding-bottom: 4rem; /* CompareFloatingBar 영역 확보 */
 }
@@ -538,15 +536,40 @@ export default {
   flex: 1;
 }
 
-/* 금융용어 섹션 */
-.financial-terms-section {
-  margin-top: 2rem;
+/* 정보 섹션 (새로 추가) */
+.info-section {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  margin-bottom: 1rem;
 }
 
 .section-title {
   font-size: 1.125rem;
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.75rem 0;
   color: var(--color-main);
+  font-weight: 600;
+}
+
+.info-content {
+  font-size: 0.875rem;
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+.conditions-list {
+  padding-left: 1.25rem;
+  margin: 0.5rem 0;
+}
+
+.conditions-list li {
+  margin-bottom: 0.375rem;
+}
+
+/* 금융용어 섹션 */
+.financial-terms-section {
+  margin-top: 2rem;
 }
 
 .terms-list {
