@@ -1,0 +1,58 @@
+export const popularProducts = [
+  {
+    id: 1,
+    bankImage: "/images/kb.png",
+    category: "정기예금",
+    name: "KB국민 정기예금",
+    rate: "3.2%",
+  },
+  {
+    id: 2,
+    bankImage: "/images/shinhan.png",
+    category: "정기적금",
+    name: "신한 적금 플러스",
+    rate: "4.1%",
+  },
+  {
+    id: 3,
+    bankImage: "/images/kb.png",
+    category: "정기예금",
+    name: "KB국민 정기예금",
+    rate: "3.2%",
+  },
+  {
+    id: 4,
+    bankImage: "/images/shinhan.png",
+    category: "정기적금",
+    name: "신한 적금 플러스",
+    rate: "4.1%",
+  },
+  {
+    id: 5,
+    bankImage: "/images/kb.png",
+    category: "정기예금",
+    name: "KB국민 정기예금",
+    rate: "3.2%",
+  },
+  {
+    id: 6,
+    bankImage: "/images/shinhan.png",
+    category: "정기적금",
+    name: "신한 적금 플러스",
+    rate: "4.1%",
+  },
+  {
+    id: 7,
+    bankImage: "/images/kb.png",
+    category: "정기예금",
+    name: "KB국민 정기예금",
+    rate: "3.2%",
+  },
+  {
+    id: 8,
+    bankImage: "/images/shinhan.png",
+    category: "정기적금",
+    name: "신한 적금 플러스",
+    rate: "4.1%",
+  },
+];
