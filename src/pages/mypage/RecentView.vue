@@ -17,7 +17,6 @@
       v-model:selectedRecent="selectedRecent"
       @click-recent="clickRecent"
       @remove-from-history="removeFromHistory"
-      @view-detail="viewProductDetail"
     />
 
     <Pagination

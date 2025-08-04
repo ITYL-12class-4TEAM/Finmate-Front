@@ -33,7 +33,6 @@
           @select="handleSelect"
           @click-recent="$emit('click-recent', $event)"
           @remove-from-history="$emit('remove-from-history', $event)"
-          @view-detail="$emit('view-detail', $event)"
           class="recent-item-wrapper"
         />
       </TransitionGroup>
@@ -62,7 +61,6 @@ const props = defineProps({
 const emit = defineEmits([
   'update:selectedRecent',
   'remove-from-history',
-  'view-detail',
   'explore-products',
   'click-recent',
 ]);

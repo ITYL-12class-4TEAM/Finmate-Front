@@ -153,26 +153,28 @@ const router = createRouter({
     // 커뮤니티
     {
       path: '/community',
-      name: 'Community',
-      component: () => import('../pages/community/CommunityLayout.vue'),
+      component: () => import('../layouts/CommunityLayout.vue'), // 레이아웃 컴포넌트
       children: [
-        /*
         {
-          path: 'new',
-          name: 'CommunityNewPost',
-          component: () => import('../pages/community/CommunityNewPost.vue'),
-        }, // 새 게시글
+          path: '',
+          name: 'CommunityList',
+          component: () => import('../pages/community/CommunityList.vue'),
+        },
+        {
+          path: 'write',
+          name: 'CommunityWrite',
+          component: () => import('../pages/community/CommunityWrite.vue'),
+        },
         {
           path: ':id',
-          name: 'CommunityPost',
-          component: () => import('../pages/community/CommunityPost.vue'),
-        }, // 게시글
+          name: 'CommunityDetail',
+          component: () => import('../pages/community/CommunityDetail.vue'),
+        },
         {
           path: ':id/edit',
           name: 'CommunityEdit',
           component: () => import('../pages/community/CommunityEdit.vue'),
-        }, // 게시글 수정
-        */
+        },
       ],
     },
     // { path: '/missions', name: 'Missions', component: () => import('../pages/Missions.vue') }, // 미션

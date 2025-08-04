@@ -36,7 +36,7 @@ import Pagination from '@/components/mypage/common/Pagination.vue';
 import LikedPostFilter from '@/components/mypage/mylike/LikePostFilter.vue';
 import LikedPostActions from '@/components/mypage/mylike/LikePostActions.vue';
 import LikedPostList from '@/components/mypage/mylike/LikePostList.vue';
-import { postsAPI } from '@/api/posts';
+import { postsAPI } from '@/api/mypost';
 
 const loading = ref(false);
 const error = ref('');

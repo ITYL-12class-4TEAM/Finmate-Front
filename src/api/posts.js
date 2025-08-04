@@ -1,34 +1,67 @@
-// api/posts.js - 마이페이지 게시판 관련 API
 import api from './index';
+import { productTagMap } from '@/constants/tags';
 
-export const postsAPI = {
-  // 내가 작성한 게시글 조회
-  getMyPosts: async () => {
-    const res = await api.get('/api/posts/my');
-    return res.data;
-  },
+// 게시글 목록 조회
+export const getPostsAPI = async (boardId) => {
+  const res = await api.get(`/api/posts/board/${boardId}`);
+  const posts = res.data.body.data;
 
-  // 게시글 상세 조회
-  getPost: async (postId) => {
-    const res = await api.get(`/api/posts/${postId}`);
-    return res.data;
-  },
-
-  // 내가 스크랩한 게시글 조회
-  getMyScraps: async () => {
-    const res = await api.get('/api/scraps/my');
-    return res.data;
-  },
-
-  // 내가 작성한 댓글 조회
-  getMyComments: async () => {
-    const res = await api.get('/api/comments/my');
-    return res.data;
-  },
-
-  // 내가 좋아요한 게시글 조회
-  getMyLikes: async () => {
-    const res = await api.get('/api/post-like/me');
-    return res.data;
-  },
+  return posts.map((post) => ({
+    id: post.postId,
+    title: post.title,
+    content: post.content,
+    createdAt: post.createdAt,
+    likes: post.likeCount,
+    comments: post.commentCount,
+    tendency: 'APWC', // 임의 값 (백엔드 리팩터링 전)
+    productType: productTagMap[post.productTag],
+  }));
 };
+
+// 게시글 상세 조회
+export const getPostByIdAPI = async (postId, memberId) => {
+  const res = await api.get(`/api/posts/${postId}`);
+  const post = res.data.body.data;
+
+  return {
+    id: post.postId,
+    boardId: post.boardId,
+    title: post.title,
+    content: post.content,
+    createdAt: post.createdAt,
+    likes: post.likeCount,
+    scraps: post.scrapCount,
+    isAnonymous: post.anonymous,
+    liked: post.liked,
+    scraped: post.scraped,
+    // attaches: post.attaches, // TODO: 배포 후 처리
+    tags: [productTagMap[post.productTag]],
+    nickname: post.nickname,
+    isMine: memberId ? post.memberId === memberId : false,
+    authorImage: '/authorImg.jpg', // TODO: 백엔드 이미지 연결 시 교체
+  };
+};
+
+// 게시글 등록
+export const createPostAPI = async (postData) => {
+  const res = await api.post('/api/posts', postData);
+  return res.data.body.data;
+};
+
+// 게시글 수정
+export const updatePostAPI = async (postId, postData) => {
+  const res = await api.put(`/api/posts/${postId}`, postData);
+  return res.data.body.data;
+};
+
+// 게시글 삭제
+export const deletePostAPI = async (postId) => {
+  const res = await api.delete(`/api/posts/${postId}`);
+  return res.data;
+};
+
+// 첨부파일 삭제 TODO: 배포 후 처리
+// export const deleteFileAPI = async (no) => {
+//   const res = await api.delete(`/api/posts/attachment/${no}`);
+//   return res.data;
+// };

@@ -40,7 +40,7 @@ import Pagination from '@/components/mypage/common/Pagination.vue';
 import CommentedPostFilter from '@/components/mypage/mycomment/CommentPostFilter.vue';
 import CommentedPostSummary from '@/components/mypage/mycomment/CommentPostSummary.vue';
 import CommentedPostList from '@/components/mypage/mycomment/CommentPostList.vue';
-import { postsAPI } from '@/api/posts';
+import { postsAPI } from '@/api/mypost';
 
 const loading = ref(false);
 const error = ref('');

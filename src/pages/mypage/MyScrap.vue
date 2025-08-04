@@ -38,7 +38,7 @@ import Pagination from '@/components/mypage/common/Pagination.vue';
 import ScrappedPostFilter from '@/components/mypage/myscrap/ScrapPostFilter.vue';
 import ScrappedPostActions from '@/components/mypage/myscrap/ScrapPostAction.vue';
 import ScrappedPostList from '@/components/mypage/myscrap/ScrapPostList.vue';
-import { postsAPI } from '@/api/posts';
+import { postsAPI } from '@/api/mypost';
 
 const loading = ref(false);
 const error = ref('');

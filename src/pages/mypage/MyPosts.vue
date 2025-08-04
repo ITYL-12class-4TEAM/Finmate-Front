@@ -34,7 +34,7 @@ import ErrorAlert from '@/components/mypage/common/ErrorAlert.vue';
 import PostFilter from '@/components/mypage/mypost/PostFilter.vue';
 import PostActions from '@/components/mypage/mypost/PostAction.vue';
 import PostList from '@/components/mypage/mypost/PostList.vue';
-import { postsAPI } from '@/api/posts';
+import { postsAPI } from '@/api/mypost';
 
 const loading = ref(false);
 const error = ref('');
