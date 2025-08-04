@@ -13,34 +13,34 @@
 </template>
 
 <script setup>
-import { reactive, provide, Teleport } from 'vue';
-import Toast from './Toast.vue';
+import { reactive, provide, Teleport } from "vue";
+import Toast from "./Toast.vue";
 
 const toasts = reactive([]);
 
-function showToast(message, type = 'info') {
+function showToast(message, type = "info") {
   const id = Date.now() + Math.random();
-  console.log('🔥 toasts push:', { id, message, type });
 
   toasts.push({ id, message, type });
 
   setTimeout(() => {
     const index = toasts.findIndex((t) => t.id === id);
     if (index !== -1) toasts.splice(index, 1);
-  }, 3000);
+  }, 2000);
 }
 
-provide('showToast', showToast);
+provide("showToast", showToast);
 </script>
 
 <style scoped>
 .toast-container {
   position: fixed;
-  top: 1rem;
-  right: 1rem;
-  z-index: 9999;
+  width: 100%;
+  top: 5rem;
+  z-index: 999;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  gap: 0.5rem;
+  pointer-events: none;
 }
 </style>

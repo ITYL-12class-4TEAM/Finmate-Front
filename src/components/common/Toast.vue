@@ -1,6 +1,6 @@
 <template>
   <div class="toast" :class="type">
-    <p>🔥 {{ message || '메시지가 없습니다' }}</p>
+    {{ message }}
   </div>
 </template>
 
@@ -12,39 +12,43 @@ const props = defineProps({
   },
   type: {
     type: String,
-    default: 'info',
+    default: "info",
   },
 });
-
-console.log('✅ Toast 렌더링:', props.message, props.type);
 </script>
 
 <style scoped>
 .toast {
-  padding: 0.75rem 1.2rem;
-  border-radius: 6px;
-  margin-top: 0.5rem;
-  color: white;
-  font-weight: 500;
-  background-color: #4a4a4a;
+  position: relative;
+  display: block;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  z-index: 999;
+  pointer-events: auto;
   animation: fadeInOut 3s forwards;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .toast.success {
-  background-color: #28a745;
+  background-color: #b2e5bf;
+  color: #1e5631;
 }
 
 .toast.error {
-  background-color: #dc3545;
+  background-color: #f8c9c9;
+  color: #912222;
 }
 
 .toast.warning {
-  background-color: #dcc335;
+  background-color: #fff3b0;
+  color: #8a6d00;
 }
 
 .toast.info {
-  background-color: #17a2b8;
+  background-color: #cce5ff;
+  color: #004085;
 }
 
 @keyframes fadeInOut {
