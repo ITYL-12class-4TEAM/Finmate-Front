@@ -19,11 +19,11 @@ const modalState = inject('modalState');
 const modalHandlers = inject('modalHandlers');
 
 const onCancel = () => {
-  modalHandlers.resolve(false); // false = 취소
+  modalHandlers.resolve?.(false); // false = 취소
 };
 
 const onConfirm = () => {
-  modalHandlers.resolve(true); // true = 확인
+  modalHandlers.resolve?.(true); // true = 확인
 };
 </script>
 
