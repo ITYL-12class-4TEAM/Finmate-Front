@@ -7,8 +7,7 @@
         {{ myWMTI }} 동료들과 비교
       </h5>
       <small class="stats-subtitle">
-        동일 투자성향({{ myWMTI }}) 투자자
-        {{ sameWMTIUsers?.toLocaleString() ?? 0 }}명과 자산 배분 비교
+        동일 투자성향({{ myWMTI }}) 투자자들과의 자산 배분 비교
       </small>
     </div>
 
@@ -18,71 +17,6 @@
         v-if="myWMTI !== '' && wmtiComparisonChart.length > 0"
         class="comparison-chart"
       >
-        <!-- 데스크톱/태블릿용 전체 목록 -->
-        <div class="comparison-list desktop-list">
-          <div
-            v-for="category in wmtiComparisonChart"
-            :key="category.name"
-            class="comparison-item"
-          >
-            <div class="comparison-header">
-              <span class="category-name">{{ category.name }}</span>
-              <span class="difference-indicator">
-                <small
-                  :class="[
-                    'difference-text',
-                    (category.difference ?? 0) >= 0 ? 'positive' : 'negative',
-                  ]"
-                >
-                  <i
-                    :class="
-                      (category.difference ?? 0) >= 0
-                        ? 'bi bi-arrow-up'
-                        : 'bi bi-arrow-down'
-                    "
-                    class="me-1"
-                  ></i>
-                  {{ Math.abs(category.difference ?? 0).toFixed(1) }}%
-                  {{ (category.difference ?? 0) >= 0 ? '높음' : '낮음' }}
-                </small>
-              </span>
-            </div>
-            <div class="progress-comparison">
-              <!-- 내 비율 -->
-              <div class="progress-wrapper">
-                <div class="progress my-progress">
-                  <div
-                    class="progress-bar my-bar"
-                    :style="{ width: Math.min(category.my ?? 0, 100) + '%' }"
-                    :title="`나의 비율: ${(category.my ?? 0).toFixed(1)}%`"
-                  ></div>
-                </div>
-                <span class="progress-label">
-                  <span class="badge my-value"
-                    >나: {{ (category.my ?? 0).toFixed(1) }}%</span
-                  >
-                </span>
-              </div>
-              <!-- 평균 비율 -->
-              <div class="progress-wrapper">
-                <div class="progress avg-progress">
-                  <div
-                    class="progress-bar avg-bar"
-                    :style="{
-                      width: Math.min(category.average ?? 0, 100) + '%',
-                    }"
-                    :title="`동료 평균: ${(category.average ?? 0).toFixed(1)}%`"
-                  ></div>
-                </div>
-                <span class="progress-label">
-                  <span class="badge avg-value">
-                    평균: {{ (category.average ?? 0).toFixed(1) }}%
-                  </span>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
         <!-- 모바일용 탭 형태 -->
         <div class="comparison-tabs mobile-only">
           <div class="tab-buttons">
@@ -238,7 +172,7 @@ const toggleTab = (index) => {
 .stats-card {
   background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
   border-radius: 1rem;
-  padding: 1.5rem;
+  padding: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
   box-shadow: 0 4px 6px -1px rgba(45, 51, 107, 0.1),
     0 2px 4px -1px rgba(45, 51, 107, 0.06);
@@ -273,48 +207,7 @@ const toggleTab = (index) => {
 .stats-content {
   padding: 0;
 }
-.desktop-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-.comparison-item {
-  padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 0.75rem;
-  border: 1px solid rgba(185, 187, 204, 0.2);
-  backdrop-filter: blur(5px);
-  transition: all 0.3s ease;
-}
-.comparison-item:hover {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(185, 187, 204, 0.4);
-  transform: translateY(-1px);
-}
-.comparison-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
-.category-name {
-  font-weight: 600;
-  color: var(--color-main);
-  font-size: 0.95rem;
-}
-.progress-comparison {
-  margin-bottom: 0.5rem;
-  margin-top: 0.5rem;
-}
-.progress-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.5rem;
-}
-.progress-wrapper:last-child {
-  margin-bottom: 0;
-}
+
 .progress {
   flex: 1;
   height: 10px;
@@ -323,29 +216,7 @@ const toggleTab = (index) => {
   overflow: hidden;
   position: relative;
 }
-.progress-label {
-  font-size: 0.75rem;
-  color: var(--color-sub);
-  font-weight: 500;
-  min-width: 80px;
-  text-align: right;
-}
-.badge {
-  padding: 0.35rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  border: none;
-  white-space: nowrap;
-}
-.my-value {
-  background: var(--color-main);
-  color: white;
-}
-.avg-value {
-  background: var(--color-sub);
-  color: white;
-}
+
 .my-bar {
   background: linear-gradient(
     90deg,
@@ -366,25 +237,9 @@ const toggleTab = (index) => {
   transition: width 1s ease-out 0.2s;
   height: 100%;
 }
-.difference-text {
-  font-weight: 600;
-  font-size: 0.8rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.5rem;
-  display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
-}
-.difference-text.positive {
-  color: #059669;
-  background: rgba(5, 150, 105, 0.1);
-}
-.difference-text.negative {
-  color: #dc2626;
-  background: rgba(220, 38, 38, 0.1);
-}
+
 .mobile-only {
-  display: none;
+  display: display;
 }
 .tab-buttons {
   display: grid;

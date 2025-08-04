@@ -16,72 +16,6 @@
         v-if="userAgeGroup !== '선택 안함' && ageComparisonChart.length > 0"
         class="comparison-chart"
       >
-        <!-- 데스크톱/태블릿용 전체 목록 -->
-        <div class="comparison-list desktop-list">
-          <div
-            v-for="category in ageComparisonChart"
-            :key="category.name"
-            class="comparison-item"
-          >
-            <div class="comparison-header">
-              <span class="category-name">{{ category.name }}</span>
-              <span class="difference-indicator">
-                <small
-                  :class="[
-                    'difference-text',
-                    category.difference >= 0 ? 'positive' : 'negative',
-                  ]"
-                >
-                  <i
-                    :class="
-                      category.difference >= 0
-                        ? 'bi bi-arrow-up'
-                        : 'bi bi-arrow-down'
-                    "
-                    class="me-1"
-                  ></i>
-                  {{ Math.abs(category.difference).toFixed(1) }}%
-                  {{ category.difference >= 0 ? '높음' : '낮음' }}
-                </small>
-              </span>
-            </div>
-
-            <div class="progress-comparison">
-              <!-- 내 비율 -->
-              <div class="progress-wrapper">
-                <div class="progress my-progress">
-                  <div
-                    class="progress-bar my-bar"
-                    :style="{ width: Math.min(category.my, 100) + '%' }"
-                    :title="`나의 비율: ${category.my}%`"
-                  ></div>
-                </div>
-                <span class="progress-label">
-                  <span class="badge my-value"
-                    >나: {{ category.my.toFixed(1) }}%</span
-                  >
-                </span>
-              </div>
-
-              <!-- 평균 비율 -->
-              <div class="progress-wrapper">
-                <div class="progress avg-progress">
-                  <div
-                    class="progress-bar avg-bar"
-                    :style="{ width: Math.min(category.average, 100) + '%' }"
-                    :title="`평균 비율: ${category.average}%`"
-                  ></div>
-                </div>
-                <span class="progress-label">
-                  <span class="badge avg-value">
-                    평균: {{ category.average.toFixed(1) }}%
-                  </span>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <!-- 모바일용 탭 형태 -->
         <div class="comparison-tabs mobile-only">
           <div class="tab-buttons">
@@ -280,57 +214,6 @@ const toggleTab = (index) => {
   padding: 0;
 }
 
-/* 데스크톱 버전 */
-.desktop-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.comparison-item {
-  padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 0.75rem;
-  border: 1px solid rgba(185, 187, 204, 0.2);
-  backdrop-filter: blur(5px);
-  transition: all 0.3s ease;
-}
-
-.comparison-item:hover {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(185, 187, 204, 0.4);
-  transform: translateY(-1px);
-}
-
-.comparison-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
-
-.category-name {
-  font-weight: 600;
-  color: var(--color-main);
-  font-size: 0.95rem;
-}
-
-.progress-comparison {
-  margin-bottom: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.progress-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.5rem;
-}
-
-.progress-wrapper:last-child {
-  margin-bottom: 0;
-}
-
 .progress {
   flex: 1;
   height: 10px;
@@ -338,33 +221,6 @@ const toggleTab = (index) => {
   border-radius: 1rem;
   overflow: hidden;
   position: relative;
-}
-
-.progress-label {
-  font-size: 0.75rem;
-  color: var(--color-sub);
-  font-weight: 500;
-  min-width: 80px;
-  text-align: right;
-}
-
-.badge {
-  padding: 0.35rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  border: none;
-  white-space: nowrap;
-}
-
-.my-value {
-  background: var(--color-main);
-  color: white;
-}
-
-.avg-value {
-  background: var(--color-sub);
-  color: white;
 }
 
 .my-bar {
@@ -389,29 +245,8 @@ const toggleTab = (index) => {
   height: 100%;
 }
 
-.difference-text {
-  font-weight: 600;
-  font-size: 0.8rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.5rem;
-  display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
-}
-
-.difference-text.positive {
-  color: #059669;
-  background: rgba(5, 150, 105, 0.1);
-}
-
-.difference-text.negative {
-  color: #dc2626;
-  background: rgba(220, 38, 38, 0.1);
-}
-
-/* 모바일 탭 버전 */
 .mobile-only {
-  display: none;
+  display: display;
 }
 
 .tab-buttons {
@@ -700,29 +535,5 @@ const toggleTab = (index) => {
   color: var(--color-main);
   font-size: 0.85rem;
   font-weight: 600;
-}
-
-/* 반응형 처리 */
-@media (max-width: 768px) {
-  .desktop-list {
-    display: none;
-  }
-
-  .mobile-only {
-    display: block;
-  }
-
-  .stats-card {
-    padding: 1rem;
-  }
-
-  .additional-stats {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
-
-  .empty-comparison {
-    padding: 1.5rem 1rem;
-  }
 }
 </style>

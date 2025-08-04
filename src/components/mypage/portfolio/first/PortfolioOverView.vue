@@ -210,22 +210,54 @@ const loadChartJS = async () => {
     document.head.appendChild(script);
   });
 };
+let isCreatingChart = false;
 
 // 개요 차트 생성
 const createOverviewChart = async () => {
-  if (!overviewPieChart.value || props.processedSummary.length === 0) return;
+  // 이미 차트를 생성 중이면 중단
+  if (isCreatingChart) {
+    return;
+  }
 
+  if (!overviewPieChart.value || props.processedSummary.length === 0) {
+    console.log('차트 생성 조건 불만족:', {
+      hasCanvas: !!overviewPieChart.value,
+      dataLength: props.processedSummary.length,
+    });
+    return;
+  }
+
+  // 차트 생성 시작 플래그 설정
+  isCreatingChart = true;
   isChartLoading.value = true;
 
   try {
+    // 기존 차트 완전히 파괴
     if (overviewChartInstance) {
       overviewChartInstance.destroy();
       overviewChartInstance = null;
     }
 
+    // Chart.js가 canvas를 완전히 해제할 때까지 잠시 대기
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Chart.js 로드 확인
     await loadChartJS();
 
+    // canvas 요소가 여전히 존재하는지 확인
+    if (!overviewPieChart.value) {
+      return;
+    }
+
     const ctx = overviewPieChart.value.getContext('2d');
+
+    // canvas 상태 초기화
+    ctx.clearRect(
+      0,
+      0,
+      overviewPieChart.value.width,
+      overviewPieChart.value.height
+    );
 
     const gradients = props.processedSummary.map((item) => {
       const gradient = ctx.createLinearGradient(0, 0, 0, 200);
@@ -261,7 +293,7 @@ const createOverviewChart = async () => {
             display: true,
             position: 'bottom',
             labels: {
-              padding: 15,
+              padding: 10,
               font: {
                 size: 11,
                 family:
@@ -302,9 +334,15 @@ const createOverviewChart = async () => {
       },
     });
   } catch (error) {
-    console.error('개요 차트 생성 실패:', error);
+    // 에러 발생 시에도 차트 인스턴스 정리
+    if (overviewChartInstance) {
+      overviewChartInstance.destroy();
+      overviewChartInstance = null;
+    }
   } finally {
     isChartLoading.value = false;
+    // 차트 생성 완료 플래그 해제
+    isCreatingChart = false;
   }
 };
 
@@ -316,30 +354,58 @@ const handleMetricFocus = (metric) => {
 // 컴포넌트 정리
 const cleanup = () => {
   if (overviewChartInstance) {
-    overviewChartInstance.destroy();
-    overviewChartInstance = null;
+    try {
+      overviewChartInstance.destroy();
+    } catch (error) {
+    } finally {
+      overviewChartInstance = null;
+    }
   }
 };
+
+let chartUpdateTimeout = null;
 
 // 데이터 변경 감지
 watch(
   () => props.processedSummary,
   (newData) => {
+    // 기존 타이머 취소
+    if (chartUpdateTimeout) {
+      clearTimeout(chartUpdateTimeout);
+    }
+
     if (newData && newData.length > 0) {
-      nextTick(() => {
-        setTimeout(createOverviewChart, 100);
-      });
+      // 300ms 디바운싱으로 불필요한 차트 재생성 방지 (시간 증가)
+      chartUpdateTimeout = setTimeout(() => {
+        nextTick(() => {
+          createOverviewChart();
+        });
+      }, 300);
+    } else {
+      // 데이터가 없으면 차트 정리
+      cleanup();
     }
   },
-  { deep: true }
+  { deep: true, immediate: false }
 );
 
-// 생명주기 훅
+// 생명주기 훅 - 수정된 버전
 onMounted(() => {
-  setTimeout(createOverviewChart, 200);
+  // 초기 데이터가 있으면 차트 생성
+  if (props.processedSummary && props.processedSummary.length > 0) {
+    setTimeout(createOverviewChart, 200);
+  }
 });
+onBeforeUnmount(() => {
+  // 타이머 정리
+  if (chartUpdateTimeout) {
+    clearTimeout(chartUpdateTimeout);
+    chartUpdateTimeout = null;
+  }
 
-onBeforeUnmount(cleanup);
+  // 차트 정리
+  cleanup();
+});
 </script>
 
 <style scoped>

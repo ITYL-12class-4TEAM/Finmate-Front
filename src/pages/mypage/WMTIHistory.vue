@@ -352,7 +352,6 @@ onMounted(() => {
 .wmti-history {
   max-width: 26.875rem;
   margin: 0 auto;
-  padding: 1rem;
   min-height: 100vh;
   background: var(--color-bg);
 }
@@ -360,7 +359,7 @@ onMounted(() => {
 /* Header */
 .header {
   background: var(--color-white);
-  padding: 1.25rem;
+  padding: 0.5rem 0.75rem;
   border-radius: 0.75rem;
   text-align: center;
 }

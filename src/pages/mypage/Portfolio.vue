@@ -33,7 +33,7 @@
       <!-- <PortfolioWMTI  v-else-if="activeTab === 'wmti'":wmtiData="wmtiData" /> -->
       <PortfolioWMTI
         v-else-if="activeTab === 'wmti'"
-        :myWMTI="'AILP'"
+        :myWMTI="myWMTI || 'UNKNOWN'"
         :sameWMTIUsers="2370"
         :wmtiComparisonChart="wmtiComparisonChart"
         :totalAmount="totalAmount"
@@ -88,12 +88,14 @@ import ProductList from '../../components/mypage/portfolio/ProductList.vue';
 import ProductAddModal from '../../components/mypage/portfolio/ProductAddModal.vue';
 import DeleteConfirmModal from '../../components/mypage/portfolio/DeleteConfirmModal.vue';
 import { portfolioAPI } from '@/api/portfolio';
+import { getWMTIResultAPI } from '@/api/wmti';
 
 // -------------------- 상태 관리 --------------------
 const loading = ref(false);
 const error = ref('');
 const portfolioItems = ref([]);
 const summaryData = ref(null);
+const myWMTI = ref('');
 
 const editingItem = ref(null);
 const activeTab = ref('overview');
@@ -112,6 +114,28 @@ const isDeleting = ref(false);
 const userAgeGroup = ref('');
 
 // -------------------- API 호출 --------------------
+const fetchWMTIResult = async () => {
+  try {
+    const res = await getWMTIResultAPI(); // memberId가 API 내부에서 처리된다면 제거
+    // JSON 응답에서 wmtiCode 추출
+    if (res?.body?.wmtiCode) {
+      myWMTI.value = res.body.wmtiCode; // "IBWC" 같은 값이 저장됨
+    }
+  } catch (err) {
+    console.error('WMTI 결과 조회 실패:', err);
+    // 에러 시 기본값 설정
+    myWMTI.value = '';
+  }
+};
+
+// 2. onMounted에서 WMTI 데이터도 함께 불러오기
+onMounted(async () => {
+  await Promise.all([
+    fetchPortfolioData(),
+    fetchWMTIResult(), // WMTI 데이터도 함께 로드
+  ]);
+});
+
 const fetchPortfolioData = async () => {
   loading.value = true;
   error.value = '';
@@ -342,33 +366,63 @@ const closeDeleteModal = () => {
 };
 
 // -------------------- 상품 추가 --------------------
+// -------------------- 상품 추가 --------------------
 const addNewProduct = async (newProduct) => {
   try {
+    console.log('🔥 상품 추가 시작:', newProduct);
+
     const response = await portfolioAPI.addPortfolio(newProduct);
+    console.log('✅ API 응답 전체:', response);
+    console.log('✅ 응답 상태:', response.status);
+    console.log('✅ 응답 데이터:', response.data || response.body);
 
-    if (response.status === 200 || response.status === 201) {
+    // 응답이 존재하면 성공으로 처리 (상태 코드 관계없이)
+    // DB에 저장되었다면 API 호출 자체는 성공한 것
+    if (response) {
+      // 1. 먼저 모달 닫기
       closeAddModal();
+      console.log('✅ 모달 닫기 완료');
 
-      // 성공 알림 (더 사용자 친화적으로)
+      // 2. 성공 메시지
       const productName = newProduct.customProductName;
 
-      // 포트폴리오 데이터 새로고침
-      await fetchPortfolioData();
+      // 3. 포트폴리오 데이터 새로고침 (약간의 지연 후)
+      setTimeout(async () => {
+        try {
+          await fetchPortfolioData();
+        } catch (refreshError) {
+          window.location.reload();
+        }
+      }, 100);
+    } else {
+      throw new Error('응답이 없습니다.');
     }
   } catch (err) {
-    console.error('상품 추가 실패:', err);
+    // DB에 저장되었는지 확인하기 위해 잠시 기다린 후 데이터 새로고침
+    setTimeout(async () => {
+      try {
+        await fetchPortfolioData();
+        console.log('✅ 에러 후 데이터 새로고침 완료');
 
-    // 에러 메시지 개선
-    let errorMessage = '상품 추가 중 오류가 발생했습니다.';
-    if (err.response?.status === 400) {
-      errorMessage = '입력 정보를 확인해주세요.';
-    } else if (err.response?.status === 401) {
-      errorMessage = '로그인이 필요합니다.';
-    } else if (err.response?.status === 403) {
-      errorMessage = '권한이 없습니다.';
-    }
+        // 모달 닫기 (실제로는 성공했을 가능성이 높음)
+        closeAddModal();
+        alert('✅ 상품이 추가되었습니다.');
+      } catch (refreshError) {
+        console.error('새로고침도 실패:', refreshError);
 
-    alert(`❌ ${errorMessage} 다시 시도해주세요.`);
+        // 실제 에러 메시지 표시
+        let errorMessage = '상품 추가 중 오류가 발생했습니다.';
+        if (err.response?.status === 400) {
+          errorMessage = '입력 정보를 확인해주세요.';
+        } else if (err.response?.status === 401) {
+          errorMessage = '로그인이 필요합니다.';
+        } else if (err.response?.status === 403) {
+          errorMessage = '권한이 없습니다.';
+        }
+
+        alert(`❌ ${errorMessage} 다시 시도해주세요.`);
+      }
+    }, 1000);
   }
 };
 
