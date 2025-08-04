@@ -16,7 +16,7 @@
 
     <div class="item-controls">
       <button
-        @click="$emit('remove-favorite')"
+        @click.stop="$emit('remove-favorite')"
         class="favorite-btn"
         title="즐겨찾기 해제"
       >
