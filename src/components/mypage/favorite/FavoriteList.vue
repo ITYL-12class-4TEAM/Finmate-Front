@@ -23,6 +23,7 @@
           :key="favorite.productId"
           :favorite="favorite"
           :style="{ 'animation-delay': `${index * 50}ms` }"
+          @click="() => $emit('click-favorite', favorite)"
           @remove-favorite="$emit('remove-favorite', $event)"
           class="favorite-item-wrapper"
         />
@@ -77,7 +78,11 @@ const emit = defineEmits(['remove-favorite', 'explore-products']);
   justify-content: center;
   text-align: center;
   padding: 3rem 2rem;
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
   border-radius: 1.5rem;
   border: 2px dashed rgba(185, 187, 204, 0.4);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -85,7 +90,11 @@ const emit = defineEmits(['remove-favorite', 'explore-products']);
 
 .empty-state:hover {
   border-color: rgba(185, 187, 204, 0.6);
-  background: linear-gradient(135deg, #f8f9fc 0%, #f1f3f8 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
 }
 
 .empty-icon {
@@ -128,7 +137,6 @@ const emit = defineEmits(['remove-favorite', 'explore-products']);
   font-weight: 700;
   color: var(--color-main);
   margin-bottom: 0.75rem;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .empty-description {
@@ -155,14 +163,17 @@ const emit = defineEmits(['remove-favorite', 'explore-products']);
   border-radius: 2rem;
   font-size: 0.875rem;
   font-weight: 600;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 12px rgba(45, 51, 107, 0.2);
 }
 
 .explore-btn:hover {
-  background: linear-gradient(135deg, #1e2555 0%, #6b6f8a 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-main) 0%,
+    var(--color-sub) 100%
+  );
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(45, 51, 107, 0.3);
 }

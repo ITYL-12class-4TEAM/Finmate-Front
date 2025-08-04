@@ -50,7 +50,11 @@ const formatCount = (count) => {
 .favorites-summary {
   margin-bottom: 1.5rem;
   padding: 0.5rem 0.75rem;
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
   border-radius: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
   box-shadow: 0 2px 8px -2px rgba(45, 51, 107, 0.1);
@@ -80,7 +84,6 @@ const formatCount = (count) => {
   font-size: 0.875rem;
   color: var(--color-sub);
   font-weight: 500;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .count-text strong {
@@ -129,7 +132,7 @@ const formatCount = (count) => {
 
 /* 접근성 */
 .delete-btn:focus {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--color-white);
   outline-offset: 2px;
 }
 </style>

@@ -124,7 +124,6 @@ const formatViewTime = (viewedAt) => {
   margin: 0;
   color: var(--color-main);
   line-height: 1.4;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   transition: color 0.2s ease;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -144,7 +143,6 @@ const formatViewTime = (viewedAt) => {
   font-size: 0.8rem;
   color: var(--color-sub);
   font-weight: 500;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   opacity: 0.9;
   line-height: 1.3;
   flex: 1;
@@ -157,7 +155,7 @@ const formatViewTime = (viewedAt) => {
 
 /* 호버 시 제목 색상 변화 */
 .recent-view-info:hover .product-name {
-  color: #1e2555;
+  color: var(--color-main);
 }
 
 /* 반응형 디자인 */
@@ -206,7 +204,12 @@ const formatViewTime = (viewedAt) => {
 /* 로딩 상태 애니메이션 */
 .recent-view-info.loading .product-name,
 .recent-view-info.loading .company-name {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-light) 25%,
+    var(--color-light) 50%,
+    var(--color-bg-light) 75%
+  );
   background-size: 200% 100%;
   animation: loading 1.5s infinite;
   border-radius: 4px;

@@ -96,13 +96,16 @@ const getProductTypeBadge = (type) => {
   font-weight: 600;
   padding: 0.375rem 0.75rem;
   border-radius: 1rem;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   transition: all 0.2s ease;
 }
 
 /* 카테고리별 배지 스타일 */
 .badge-deposit {
-  background: linear-gradient(135deg, var(--color-main) 0%, #3d4785 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-main) 0%,
+    var(--color-sub) 100%
+  );
   color: white;
 }
 
@@ -140,7 +143,6 @@ const getProductTypeBadge = (type) => {
   color: var(--color-sub);
   font-size: 0.8rem;
   font-weight: 500;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   opacity: 0.8;
 }
 

@@ -166,7 +166,11 @@ const getAverageInsight = () => {
 .summary-card {
   max-width: 26.875rem;
   width: 100%;
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
   border-radius: 1rem;
   padding: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
@@ -249,11 +253,19 @@ const getAverageInsight = () => {
 }
 
 .summary-item.tertiary::before {
-  background: linear-gradient(90deg, var(--color-light) 0%, #9ca0b8 100%);
+  background: linear-gradient(
+    90deg,
+    var(--color-light) 0%,
+    var(--color-sub) 100%
+  );
 }
 
 .summary-item.quaternary::before {
-  background: linear-gradient(90deg, #9ca0b8 0%, var(--color-sub) 100%);
+  background: linear-gradient(
+    90deg,
+    var(--color-sub) 0%,
+    var(--color-light) 100%
+  );
 }
 
 .summary-icon {
@@ -284,7 +296,7 @@ const getAverageInsight = () => {
 }
 
 .summary-item.quaternary .summary-icon i {
-  color: #9ca0b8;
+  color: var(--color-sub);
 }
 
 .summary-label {
@@ -293,7 +305,6 @@ const getAverageInsight = () => {
   font-weight: 500;
   margin-bottom: 0.5rem;
   display: block;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .summary-value {
@@ -301,7 +312,6 @@ const getAverageInsight = () => {
   font-weight: 700;
   margin: 0 0 0.25rem 0;
   color: var(--color-main);
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   line-height: 1.2;
 }
 
@@ -323,7 +333,12 @@ const getAverageInsight = () => {
 }
 
 .summary-item.loading .summary-value {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-light) 25%,
+    var(--color-light) 50%,
+    var(--color-bg-light) 75%
+  );
   background-size: 200% 100%;
   animation: loading 1.5s infinite;
   border-radius: 4px;

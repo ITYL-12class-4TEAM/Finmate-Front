@@ -262,7 +262,6 @@ const toggleTab = (index) => {
   font-size: 1.2rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   display: flex;
   align-items: center;
 }
@@ -380,7 +379,11 @@ const toggleTab = (index) => {
 }
 
 .avg-bar {
-  background: linear-gradient(90deg, var(--color-light) 0%, #9ca0b8 100%);
+  background: linear-gradient(
+    90deg,
+    var(--color-light) 0%,
+    var(--color-sub) 100%
+  );
   border-radius: 1rem;
   transition: width 1s ease-out 0.2s;
   height: 100%;
@@ -720,33 +723,6 @@ const toggleTab = (index) => {
 
   .empty-comparison {
     padding: 1.5rem 1rem;
-  }
-}
-
-/* 접근성 개선 */
-@media (prefers-reduced-motion: reduce) {
-  .my-bar,
-  .avg-bar,
-  .comparison-item,
-  .tab-button,
-  .tab-content,
-  .tab-panel {
-    transition: none;
-    animation: none;
-  }
-}
-
-@media (prefers-contrast: high) {
-  .difference-text.positive,
-  .tab-difference.positive {
-    background: #059669;
-    color: white;
-  }
-
-  .difference-text.negative,
-  .tab-difference.negative {
-    background: #dc2626;
-    color: white;
   }
 }
 </style>

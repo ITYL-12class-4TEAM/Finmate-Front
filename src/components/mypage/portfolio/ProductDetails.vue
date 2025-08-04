@@ -499,7 +499,11 @@ const handleDelete = (event) => {
 
 /* 모달 컨테이너 */
 .modal-container {
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
   border-radius: 1rem;
   max-width: 600px;
   width: 100%;
@@ -532,7 +536,6 @@ const handleDelete = (event) => {
   font-weight: 700;
   color: var(--color-main);
   margin: 0 0 0.5rem 0;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .modal-subtitle {
@@ -607,7 +610,6 @@ const handleDelete = (event) => {
   font-weight: 700;
   color: #059669;
   margin-bottom: 0.25rem;
-  font-family: 'Pretendard', sans-serif;
 }
 
 .amount-ratio {
@@ -816,7 +818,6 @@ const handleDelete = (event) => {
   gap: 0.5rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Pretendard', sans-serif;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 

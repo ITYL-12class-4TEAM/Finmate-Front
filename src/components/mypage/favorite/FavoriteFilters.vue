@@ -66,7 +66,6 @@
               <option value="interest-asc">금리 낮은순</option> -->
               <option value="wishlist-desc">인기순</option>
               <option value="date-desc">최신순</option>
-    
             </select>
             <i class="fa-solid fa-chevron-down select-arrow"></i>
           </div>
@@ -144,7 +143,11 @@ const clearAllFilters = () => {
 }
 
 .filter-container {
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
   border-radius: 1rem;
   padding: 1.25rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
@@ -185,7 +188,6 @@ const clearAllFilters = () => {
   border: 1px solid rgba(185, 187, 204, 0.4);
   border-radius: 0.75rem;
   background: rgba(255, 255, 255, 0.8);
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   color: var(--color-main);
 }
@@ -249,7 +251,6 @@ const clearAllFilters = () => {
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--color-main);
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .filter-label i {
@@ -269,7 +270,6 @@ const clearAllFilters = () => {
   border: 1px solid rgba(185, 187, 204, 0.4);
   border-radius: 0.75rem;
   background: rgba(255, 255, 255, 0.8);
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   color: var(--color-main);

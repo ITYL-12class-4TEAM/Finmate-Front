@@ -11,17 +11,7 @@
       @filter="filterAndSortPosts"
     />
 
-    <EmptyState
-      v-if="filteredPosts.length === 0"
-      :hasFilters="!!(searchQuery || selectedBoard)"
-      :icon="'bi-chat-text'"
-      :emptyText="'댓글을 작성한 게시글이 없습니다'"
-      :emptySubtext="'커뮤니티에 참여해보세요.'"
-      :noResultText="'검색 결과가 없습니다'"
-      :noResultSubtext="'다른 검색어나 필터를 시도해보세요.'"
-    />
-
-    <div v-else>
+    <div>
       <CommentedPostSummary :count="filteredPosts.length" />
 
       <CommentedPostList
@@ -45,7 +35,6 @@ import { ref, onMounted, computed } from 'vue';
 import router from '@/router';
 import LoadingSpinner from '@/components/mypage/common/LoadingSpinner.vue';
 import ErrorAlert from '@/components/mypage/common/ErrorAlert.vue';
-import EmptyState from '@/components/mypage/mycomment/EmptyState.vue';
 import Pagination from '@/components/mypage/common/Pagination.vue';
 
 import CommentedPostFilter from '@/components/mypage/mycomment/CommentPostFilter.vue';

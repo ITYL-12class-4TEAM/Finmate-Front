@@ -88,7 +88,11 @@ const indicatorStyle = computed(() => {
 
 .nav-container {
   position: relative;
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
   border-radius: 1rem;
   padding: 0.375rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
@@ -126,7 +130,6 @@ const indicatorStyle = computed(() => {
   flex-direction: column;
   align-items: center;
   gap: 0.25rem;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .nav-tabs .nav-link i {

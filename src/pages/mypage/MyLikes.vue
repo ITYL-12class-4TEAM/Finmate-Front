@@ -11,17 +11,7 @@
       @filter="filterAndSortPosts"
     />
 
-    <EmptyState
-      v-if="filteredPosts.length === 0"
-      :hasFilters="!!(searchQuery || selectedBoard)"
-      :icon="'bi-heart'"
-      :emptyText="'좋아요를 누른 게시글이 없습니다'"
-      :emptySubtext="'마음에 드는 게시글에 좋아요를 눌러보세요.'"
-      :noResultText="'검색 결과가 없습니다'"
-      :noResultSubtext="'다른 검색어나 필터를 시도해보세요.'"
-    />
-
-    <div v-else>
+    <div>
       <LikedPostActions :filteredCount="filteredPosts.length" />
 
       <LikedPostList :posts="paginatedPosts" @view-post="viewPost" />
@@ -42,7 +32,6 @@ import router from '@/router';
 
 import LoadingSpinner from '@/components/mypage/common/LoadingSpinner.vue';
 import ErrorAlert from '@/components/mypage/common/ErrorAlert.vue';
-import EmptyState from '@/components/mypage/mylike/EmptyState.vue';
 import Pagination from '@/components/mypage/common/Pagination.vue';
 import LikedPostFilter from '@/components/mypage/mylike/LikePostFilter.vue';
 import LikedPostActions from '@/components/mypage/mylike/LikePostActions.vue';

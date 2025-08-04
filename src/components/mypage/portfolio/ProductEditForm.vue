@@ -604,7 +604,11 @@ watch(
 
 /* 모달 컨테이너 */
 .modal-container {
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
   border-radius: 1rem;
   max-width: 26.875rem;
 
@@ -638,7 +642,6 @@ watch(
   font-weight: 700;
   color: var(--color-main);
   margin: 0 0 0.5rem 0;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -740,7 +743,6 @@ watch(
   border: 1px solid rgba(185, 187, 204, 0.3);
   border-radius: 0.5rem;
   font-size: 0.9rem;
-  font-family: 'Pretendard', sans-serif;
   background: rgba(255, 255, 255, 0.95);
   transition: all 0.3s ease;
   min-width: 0;
@@ -875,7 +877,6 @@ watch(
   gap: 0.2rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Pretendard', sans-serif;
   min-width: 5rem;
   justify-content: center;
 }

@@ -441,7 +441,6 @@ onUnmounted(() => {
   font-weight: 700;
   color: var(--color-main);
   margin-bottom: 0.5rem;
-  font-family: 'Pretendard', sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -461,7 +460,11 @@ onUnmounted(() => {
 }
 
 .delete-card {
-  background: linear-gradient(135deg, var(--color-white) 0%, #fef7f7 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
   border-radius: 1rem;
   padding: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
@@ -732,7 +735,6 @@ onUnmounted(() => {
   font-weight: 500;
   background: rgba(255, 255, 255, 0.8);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-family: 'Pretendard', sans-serif;
   color: var(--color-main);
 }
 
@@ -896,7 +898,6 @@ onUnmounted(() => {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-family: 'Pretendard', sans-serif;
   min-height: 3rem;
 }
 
@@ -1026,7 +1027,11 @@ onUnmounted(() => {
 }
 
 .modal-card {
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
   border-radius: 1rem;
   width: 100%;
   max-width: 450px;

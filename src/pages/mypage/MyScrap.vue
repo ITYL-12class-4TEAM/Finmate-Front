@@ -13,17 +13,7 @@
       @filter="filterAndSortPosts"
     />
 
-    <EmptyState
-      v-if="filteredPosts.length === 0"
-      :hasFilters="!!(searchQuery || selectedBoard)"
-      :icon="'bi-bookmark'"
-      :emptyText="'스크랩한 게시글이 없습니다'"
-      :emptySubtext="'마음에 드는 게시글을 스크랩해보세요.'"
-      :noResultText="'검색 결과가 없습니다'"
-      :noResultSubtext="'다른 검색어나 필터를 시도해보세요.'"
-    />
-
-    <div v-else>
+    <div>
       <ScrappedPostActions :filteredCount="filteredPosts.length" />
 
       <ScrappedPostList :posts="paginatedPosts" @view-post="viewPost" />
@@ -44,7 +34,6 @@ import router from '@/router';
 
 import LoadingSpinner from '@/components/mypage/common/LoadingSpinner.vue';
 import ErrorAlert from '@/components/mypage/common/ErrorAlert.vue';
-import EmptyState from '@/components/mypage/myscrap/EmptyState.vue';
 import Pagination from '@/components/mypage/common/Pagination.vue';
 import ScrappedPostFilter from '@/components/mypage/myscrap/ScrapPostFilter.vue';
 import ScrappedPostActions from '@/components/mypage/myscrap/ScrapPostAction.vue';
@@ -139,7 +128,6 @@ const fetchPosts = async () => {
         authorName: post.anonymous ? '익명' : `사용자 ${post.memberId}`,
         postCreatedAt: convertDateArrayToISOString(post.createdAt),
         boardType: post.boardId === 1 ? 'FREE' : 'HOT',
-        categoryTag: post.categoryTag,
         isAnonymous: post.anonymous,
         likeCount: post.likeCount,
         commentCount: post.commentCount,
@@ -177,16 +165,6 @@ const changePage = (page) => {
   }
 };
 
-const getCategoryName = (categoryTag) => {
-  const names = {
-    QUESTION: '질문',
-    RECOMMEND: '추천',
-    EXPERIENCE: '후기',
-    FREE: '자유',
-  };
-  return names[categoryTag] || categoryTag;
-};
-
 onMounted(() => {
   fetchPosts();
 });
@@ -202,11 +180,5 @@ onMounted(() => {
   border-radius: 0.75rem;
   padding: 2rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-@media (max-width: 992px) {
-  .content-area {
-    padding: 1rem;
-  }
 }
 </style>

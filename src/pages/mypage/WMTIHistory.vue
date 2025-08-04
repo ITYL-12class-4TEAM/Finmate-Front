@@ -349,14 +349,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-:root {
-  --color-main: #2d336b;
-  --color-sub: #7d81a2;
-  --color-light: #b9bbcc;
-  --color-bg: #eeeef3;
-  --color-white: #ffffff;
-}
-
 .wmti-history {
   max-width: 26.875rem;
   margin: 0 auto;

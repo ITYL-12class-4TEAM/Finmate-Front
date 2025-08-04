@@ -62,7 +62,6 @@ const formatCount = (count) => {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.8125rem;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .meta-content i {

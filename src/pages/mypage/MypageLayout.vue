@@ -316,7 +316,7 @@ onUnmounted(() => {
 
 <style scoped>
 .mypage-container {
-  max-width: 26.875rem;
+  max-width: 430px;
   margin: 0 auto;
   position: relative;
   min-height: 100vh;
@@ -341,7 +341,6 @@ onUnmounted(() => {
   z-index: 999; /* 드롭다운보다 높게 */
   cursor: pointer;
   transition: box-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .header-bar:hover {
@@ -400,7 +399,11 @@ onUnmounted(() => {
   width: 100%;
   max-width: 26.875rem;
   max-height: calc(100vh - 6rem);
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
   padding: 1.5rem 1.25rem 2rem;
   overflow-y: auto;
   transition: transform 0.3s;
@@ -433,7 +436,6 @@ onUnmounted(() => {
   padding: 0.5rem 0.75rem;
   background: rgba(45, 51, 107, 0.05);
   border-radius: 0.5rem;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .section-title i {
@@ -465,7 +467,6 @@ onUnmounted(() => {
   border: 1px solid rgba(185, 187, 204, 0.2);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 500;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   position: relative;
   overflow: hidden;
 }
@@ -581,7 +582,11 @@ onUnmounted(() => {
 }
 
 .scroll-top-btn:hover {
-  background: linear-gradient(135deg, #1e2555 0%, #6b6f8a 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-main) 0%,
+    var(--color-sub) 100%
+  );
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(45, 51, 107, 0.3);
 }

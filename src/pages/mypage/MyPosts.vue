@@ -11,17 +11,7 @@
       @filter="filterAndSortPosts"
     />
 
-    <EmptyState
-      v-if="filteredPosts.length === 0"
-      :hasFilters="!!(searchQuery || selectedBoard)"
-      :icon="'bi-file-text'"
-      :emptyText="'작성한 게시글이 없습니다'"
-      :emptySubtext="'커뮤니티에 참여해보세요.'"
-      :noResultText="'검색 결과가 없습니다'"
-      :noResultSubtext="'다른 검색어나 필터를 시도해보세요.'"
-    />
-
-    <div v-else>
+    <div>
       <PostActions :filteredCount="filteredPosts.length" />
       <PostList :posts="paginatedPosts" @view-post="viewPost" />
       <Pagination
@@ -42,7 +32,6 @@ import LoadingSpinner from '@/components/mypage/common/LoadingSpinner.vue';
 import Pagination from '@/components/mypage/common/Pagination.vue';
 import ErrorAlert from '@/components/mypage/common/ErrorAlert.vue';
 import PostFilter from '@/components/mypage/mypost/PostFilter.vue';
-import EmptyState from '@/components/mypage/mypost/EmptyState.vue';
 import PostActions from '@/components/mypage/mypost/PostAction.vue';
 import PostList from '@/components/mypage/mypost/PostList.vue';
 import { postsAPI } from '@/api/posts';
@@ -115,7 +104,6 @@ const fetchPosts = async () => {
       content: post.content,
       boardType:
         post.boardId === 1 ? 'FREE' : post.boardId === 2 ? 'HOT' : 'NOTICE',
-      categoryTag: post.categoryTag,
       isAnonymous: post.anonymous,
       likeCount: post.likeCount,
       commentCount: post.commentCount,

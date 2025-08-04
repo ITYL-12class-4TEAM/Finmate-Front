@@ -144,7 +144,11 @@ watch(
 }
 
 .modal-container {
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
   border-radius: 1rem;
   box-shadow: 0 20px 60px rgba(220, 38, 38, 0.2);
   max-width: 450px;
@@ -265,7 +269,6 @@ watch(
   gap: 0.5rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Pretendard', sans-serif;
   min-width: 100px;
   justify-content: center;
 }
@@ -278,14 +281,14 @@ watch(
 
 .cancel-btn {
   background: var(--color-light);
-  color: white;
+  color: var(--color-white);
   border: 2px solid transparent;
 }
 
 .cancel-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
-  border-color: #4b5563;
+  border-color: var(--color-light);
 }
 
 .delete-btn {

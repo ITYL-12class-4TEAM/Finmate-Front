@@ -67,7 +67,6 @@ const truncateText = (text, length) => {
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .post-item:hover {
@@ -103,10 +102,6 @@ const truncateText = (text, length) => {
   align-items: center;
   gap: 0.5rem;
   transition: color 0.2s ease;
-}
-
-.post-item:hover .post-title {
-  color: #1e2347;
 }
 
 .anonymous-icon {

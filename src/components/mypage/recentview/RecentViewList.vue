@@ -31,6 +31,7 @@
           :isFavorite="favoriteProductIds.has(product.productId)"
           :style="{ 'animation-delay': `${index * 50}ms` }"
           @select="handleSelect"
+          @click-recent="$emit('click-recent', $event)"
           @remove-from-history="$emit('remove-from-history', $event)"
           @view-detail="$emit('view-detail', $event)"
           class="recent-item-wrapper"
@@ -63,6 +64,7 @@ const emit = defineEmits([
   'remove-from-history',
   'view-detail',
   'explore-products',
+  'click-recent',
 ]);
 
 const handleSelect = (productId, isSelected) => {
@@ -106,7 +108,11 @@ const handleSelect = (productId, isSelected) => {
   justify-content: center;
   text-align: center;
   padding: 3rem 2rem;
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
   border-radius: 1.5rem;
   border: 2px dashed rgba(185, 187, 204, 0.4);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -114,7 +120,11 @@ const handleSelect = (productId, isSelected) => {
 
 .empty-state:hover {
   border-color: rgba(185, 187, 204, 0.6);
-  background: linear-gradient(135deg, #f8f9fc 0%, #f1f3f8 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-light) 0%,
+    var(--color-light) 100%
+  );
 }
 
 .empty-icon {
@@ -157,7 +167,6 @@ const handleSelect = (productId, isSelected) => {
   font-weight: 700;
   color: var(--color-main);
   margin-bottom: 0.75rem;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .empty-description {
@@ -184,14 +193,17 @@ const handleSelect = (productId, isSelected) => {
   border-radius: 2rem;
   font-size: 0.875rem;
   font-weight: 600;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 12px rgba(45, 51, 107, 0.2);
 }
 
 .explore-btn:hover {
-  background: linear-gradient(135deg, #1e2555 0%, #6b6f8a 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-main) 0%,
+    var(--color-sub) 100%
+  );
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(45, 51, 107, 0.3);
 }
@@ -279,61 +291,6 @@ const handleSelect = (productId, isSelected) => {
 
   .empty-state {
     padding: 1.5rem 1rem;
-  }
-}
-
-/* 다크모드 대응 */
-@media (prefers-color-scheme: dark) {
-  .products-container {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    border-color: rgba(255, 255, 255, 0.2);
-  }
-
-  .products-container:hover {
-    background: linear-gradient(135deg, #16213e 0%, #0f1729 100%);
-    border-color: rgba(255, 255, 255, 0.3);
-  }
-
-  .empty-state {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    border-color: rgba(255, 255, 255, 0.2);
-  }
-
-  .empty-state:hover {
-    background: linear-gradient(135deg, #16213e 0%, #0f1729 100%);
-    border-color: rgba(255, 255, 255, 0.3);
-  }
-
-  .empty-title {
-    color: #e2e8f0;
-  }
-
-  .empty-description {
-    color: #94a3b8;
-  }
-
-  .empty-icon {
-    background: linear-gradient(
-      135deg,
-      rgba(45, 51, 107, 0.2) 0%,
-      rgba(45, 51, 107, 0.1) 100%
-    );
-  }
-
-  .empty-icon i {
-    color: rgba(226, 232, 240, 0.6);
-  }
-
-  .empty-state:hover .empty-icon {
-    background: linear-gradient(
-      135deg,
-      rgba(45, 51, 107, 0.3) 0%,
-      rgba(45, 51, 107, 0.15) 100%
-    );
-  }
-
-  .empty-state:hover .empty-icon i {
-    color: rgba(226, 232, 240, 0.8);
   }
 }
 

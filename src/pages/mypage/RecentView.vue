@@ -3,8 +3,6 @@
 
   <ErrorAlert v-else-if="error" :message="error" />
 
-  <div v-else></div>
-
   <div v-else>
     <RecentViewSummary
       :count="recentProducts.length"
@@ -17,6 +15,7 @@
       :products="paginatedProducts"
       :favoriteProductIds="favoriteProductIds"
       v-model:selectedRecent="selectedRecent"
+      @click-recent="clickRecent"
       @remove-from-history="removeFromHistory"
       @view-detail="viewProductDetail"
     />
@@ -32,6 +31,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import router from '@/router';
 
 // 공통 컴포넌트
 import LoadingSpinner from '../../components/mypage/common/LoadingSpinner.vue';
@@ -67,6 +67,28 @@ const paginatedProducts = computed(() => {
   const end = start + itemsPerPage;
   return recentProducts.value.slice(start, end);
 });
+
+const clickRecent = (recent) => {
+  const subcategory = recent.subcategoryName;
+  const productId = recent.productId;
+  const saveTrm = recent.saveTrm;
+  const intrRateType = recent.intrRateType;
+  const rsrvValue = recent.rstvValue;
+
+  let routePath = '';
+
+  if (subcategory === '정기예금') {
+    routePath = `/products/deposit/${productId}?saveTrm=${saveTrm}&intrRateType=${intrRateType}`;
+  } else if (subcategory === '자유적금') {
+    routePath = `/products/saving/${productId}?saveTrm=${saveTrm}&intrRateType=${intrRateType}&rsrvType=${rsrvValue}`;
+  } else if (subcategory === '연금저축') {
+    routePath = `/products/pension/${productId}?saveTrm=${saveTrm}&intrRateType=${intrRateType}`;
+  } else {
+    routePath = `/products/unknown/${productId}`;
+  }
+
+  router.push(routePath);
+};
 
 // 최근 본 상품 가져오기
 const fetchRecentProducts = async () => {

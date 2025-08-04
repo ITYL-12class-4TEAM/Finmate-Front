@@ -11,27 +11,12 @@
       @filter="filterAndSortFavorites"
     />
 
-    <EmptyState
-      v-if="filteredFavorites.length === 0"
-      :hasFilters="!!(searchQuery || selectedType)"
-      :icon="'bi-star'"
-      :emptyText="'즐겨찾기한 상품이 없습니다'"
-      :emptySubtext="'관심 있는 금융 상품을 즐겨찾기에 추가해보세요.'"
-      :noResultText="'검색 결과가 없습니다'"
-      :noResultSubtext="'다른 검색어나 필터를 시도해보세요.'"
-    >
-      <template #action>
-        <router-link to="/products" class="btn btn-primary">
-          <i class="bi bi-search me-2"></i>상품 둘러보기
-        </router-link>
-      </template>
-    </EmptyState>
-
-    <div v-else>
+    <div>
       <FavoritesSummary :count="filteredFavorites.length" />
 
       <FavoritesList
         :favorites="paginatedFavorites"
+        @click-favorite="clickFavorite"
         @remove-favorite="removeFavorite"
         @view-detail="viewDetail"
       />
@@ -48,13 +33,12 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-
+import router from '@/router';
 import { wishlistAPI } from '@/api/favorite';
 
 // 공통 컴포넌트
 import LoadingSpinner from '@/components/mypage/common/LoadingSpinner.vue';
 import ErrorAlert from '@/components/mypage/common/ErrorAlert.vue';
-import EmptyState from '@/components/mypage/favorite/EmptyState.vue';
 import Pagination from '@/components/mypage/common/Pagination.vue';
 
 // 즐겨찾기 전용 컴포넌트
@@ -86,6 +70,28 @@ const getCategoryFromSubcategory = (subcategoryName) => {
   };
 
   return categoryMapping[subcategoryName] || subcategoryName;
+};
+
+const clickFavorite = (favorite) => {
+  const subcategory = favorite.subcategoryName;
+  const productId = favorite.productId;
+  const saveTrm = favorite.saveTrm;
+  const intrRateType = favorite.intrRateType;
+  const rsrvValue = favorite.rstvValue;
+
+  let routePath = '';
+
+  if (subcategory === '정기예금') {
+    routePath = `/products/deposit/${productId}?saveTrm=${saveTrm}&intrRateType=${intrRateType}`;
+  } else if (subcategory === '자유적금') {
+    routePath = `/products/saving/${productId}?saveTrm=${saveTrm}&intrRateType=${intrRateType}&rsrvType=${rsrvValue}`;
+  } else if (subcategory === '연금저축') {
+    routePath = `/products/pension/${productId}?saveTrm=${saveTrm}&intrRateType=${intrRateType}`;
+  } else {
+    routePath = `/products/unknown/${productId}`;
+  }
+
+  router.push(routePath);
 };
 
 const filteredFavorites = computed(() => {

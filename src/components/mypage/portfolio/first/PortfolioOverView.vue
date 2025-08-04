@@ -351,7 +351,11 @@ onBeforeUnmount(cleanup);
 }
 
 .stats-card {
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
   border-radius: 1rem;
   padding: 1rem;
   box-shadow: 0 4px 6px -1px rgba(45, 51, 107, 0.1),
@@ -380,7 +384,6 @@ onBeforeUnmount(cleanup);
   font-size: 1.1rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   display: flex;
   align-items: center;
 }
@@ -420,7 +423,6 @@ onBeforeUnmount(cleanup);
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--color-main);
-  font-family: 'Pretendard', sans-serif;
 }
 
 .total-label {

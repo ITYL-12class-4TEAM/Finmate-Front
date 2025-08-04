@@ -366,7 +366,6 @@ const handleDelete = () => {
   color: var(--color-main);
   margin-bottom: 0.4rem;
   line-height: 1.4;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -410,7 +409,6 @@ const handleDelete = () => {
   font-weight: 700;
   color: #059669;
   margin-bottom: 0.25rem;
-  font-family: 'Pretendard', sans-serif;
 }
 
 .amount-ratio {

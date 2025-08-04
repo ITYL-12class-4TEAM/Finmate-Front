@@ -44,8 +44,6 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-
 const props = defineProps({
   count: {
     type: Number,
@@ -98,7 +96,11 @@ const handleClearAll = () => emit('delete-all');
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0.75rem;
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
   border-radius: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
   box-shadow: 0 2px 8px -2px rgba(45, 51, 107, 0.1);
@@ -129,7 +131,6 @@ const handleClearAll = () => emit('delete-all');
   font-size: 0.875rem;
   color: var(--color-sub);
   font-weight: 500;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .count-text strong {
@@ -159,7 +160,6 @@ const handleClearAll = () => emit('delete-all');
   border-radius: 1.5rem;
   font-size: 0.6rem;
   font-weight: 500;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   animation: slideInRight 0.3s ease;
 }
 
@@ -188,7 +188,6 @@ const handleClearAll = () => emit('delete-all');
   border-radius: 0.75rem;
   font-size: 0.6rem;
   font-weight: 500;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;

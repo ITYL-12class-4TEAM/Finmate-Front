@@ -35,8 +35,6 @@ const emit = defineEmits(['remove-favorite']);
   border: 1px solid rgba(185, 187, 204, 0.3);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 0.875rem;
-  line-height: 1.4;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(10px);
@@ -45,7 +43,11 @@ const emit = defineEmits(['remove-favorite']);
 
 /* 선택되지 않은 상태에서의 호버 효과 */
 .favorite-item.hover-effect:hover {
-  background: linear-gradient(135deg, var(--color-white) 0%, #f1f3f8 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
   border-color: rgba(185, 187, 204, 0.5);
   transform: translateY(-2px);
   box-shadow: 0 8px 25px -5px rgba(45, 51, 107, 0.15);

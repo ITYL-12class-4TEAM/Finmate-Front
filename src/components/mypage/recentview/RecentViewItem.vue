@@ -39,7 +39,12 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['select', 'remove-from-history', 'view-detail']);
+const emit = defineEmits([
+  'select',
+  'remove-from-history',
+  'view-detail',
+  'click-recent',
+]);
 
 const handleSelect = (isSelected) => {
   emit('select', props.product.productId, isSelected);
@@ -47,20 +52,23 @@ const handleSelect = (isSelected) => {
 
 const handleCardClick = () => {
   console.log('카드 클릭됨:', props.product);
-  emit('view-detail', props.product);
+  emit('click-recent', props.product); // ✅ 이 줄 추가
 };
 </script>
 
 <style scoped>
 .recent-view-item {
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
   border-radius: 1rem;
   padding: 0.5rem 0.75rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 0.875rem;
   line-height: 1.4;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(10px);

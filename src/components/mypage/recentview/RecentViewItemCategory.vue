@@ -104,7 +104,6 @@ const getProductTypeBadge = (type) => {
   font-weight: 600;
   padding: 0.375rem 0.75rem;
   border-radius: 1rem;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   transition: all 0.2s ease;
 }
 
@@ -148,7 +147,6 @@ const getProductTypeBadge = (type) => {
   color: var(--color-sub);
   font-size: 0.8rem;
   font-weight: 500;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   opacity: 0.8;
 }
 

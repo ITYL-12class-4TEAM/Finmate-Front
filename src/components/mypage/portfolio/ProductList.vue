@@ -366,7 +366,11 @@ const handleDeleteProduct = (item) => {
 
 <style scoped>
 .products-section {
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
   border-radius: 0.875rem;
   padding: 1.25rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
@@ -405,7 +409,6 @@ const handleDeleteProduct = (item) => {
   font-size: 1rem;
   font-weight: 700;
   margin: 0 0 0.75rem 0;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   display: flex;
   align-items: center;
 }
@@ -559,7 +562,11 @@ const handleDeleteProduct = (item) => {
 
 /* 상품 리스트 */
 .products-list {
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
   border-radius: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
   box-shadow: 0 4px 6px -1px rgba(45, 51, 107, 0.1),
@@ -594,7 +601,11 @@ const handleDeleteProduct = (item) => {
 
 /* 검색 결과 없음 */
 .no-results {
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
   border-radius: 1rem;
   border: 2px dashed rgba(185, 187, 204, 0.4);
   padding: 2rem;
@@ -655,7 +666,11 @@ const handleDeleteProduct = (item) => {
 
 /* 빈 상태 */
 .empty-state {
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-white) 0%,
+    var(--color-bg-light) 100%
+  );
   border-radius: 1rem;
   border: 2px dashed rgba(185, 187, 204, 0.4);
   padding: 3rem 2rem;
@@ -665,7 +680,11 @@ const handleDeleteProduct = (item) => {
 
 .empty-state:hover {
   border-color: rgba(185, 187, 204, 0.6);
-  background: linear-gradient(135deg, #f8f9fc 0%, #f0f4f8 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-light) 0%,
+    var(--color-light) 100%
+  );
 }
 
 .empty-icon {
