@@ -72,8 +72,6 @@
 </template>
 
 <script>
-// import logo from '../../assets/images/logo.png';
-
 export default {
   name: 'BasicSurvey',
   data() {

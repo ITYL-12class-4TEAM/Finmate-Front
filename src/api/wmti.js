@@ -17,13 +17,6 @@ export const postwmtiAPI = async (info) => {
   return res.data;
 };
 
-//wmti 설문결과 호출
-// export const getWMTIResultAPI = async (memberId) => {
-//   const res = await api.get('/api/wmti/result',{
-//     params: {memberId},
-//   });
-//   return res.data;
-// }
 // 📁 src/api/wmti.js
 export const getWMTIResultAPI = async (memberId) => {
   const res = await api.get(`/api/wmti/result/${memberId}`);
