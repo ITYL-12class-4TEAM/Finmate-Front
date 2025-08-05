@@ -115,6 +115,7 @@ function toggleDropdown() {
   font-weight: 600;
   font-size: 14px;
   color: var(--color-main);
+  z-index: 1000;
 }
 
 .navbar__logo img {
