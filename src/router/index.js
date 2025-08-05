@@ -139,8 +139,16 @@ const router = createRouter({
           component: () => import('../pages/wmti/PreInfoForm.vue'),
         },
         // 기본 성향 검사
-        { path: 'survey', name: 'SurveyPage', component: () => import('../pages/wmti/SurveyPage.vue')}, // WMTI 성향 검사지
-        { path: 'result', name: 'SurveyResult', component: () => import('../pages/wmti/SurveyResult.vue')}, // WMTI 성향 결과지
+        {
+          path: 'survey',
+          name: 'SurveyPage',
+          component: () => import('../pages/wmti/SurveyPage.vue'),
+        }, // WMTI 성향 검사지
+        {
+          path: 'result',
+          name: 'SurveyResult',
+          component: () => import('../pages/wmti/SurveyResult.vue'),
+        }, // WMTI 성향 결과지
         //{ path: 'collection', name: 'WMTICollection', component: () => import('../pages/Wmti/WMTICollection.vue')}, // WMTI 컬렉션
       ],
     },

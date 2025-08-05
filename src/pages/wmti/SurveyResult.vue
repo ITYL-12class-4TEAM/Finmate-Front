@@ -16,27 +16,19 @@
       <div class="type-summary">
         <div class="type-item">
           <span class="type-label">투자자 유형</span>
-          <span class="type-value" :class="getResultTypeClass(resultType)">{{
-            resultType
+          <span class="type-value" :class="getResultTypeClass(resultType)">{{ resultType }}</span>
+          <span class="type-description" :class="getResultTypeTextClass(resultType)">{{
+            getResultTypeLabel(resultType)
           }}</span>
-          <span
-            class="type-description"
-            :class="getResultTypeTextClass(resultType)"
-            >{{ getResultTypeLabel(resultType) }}</span
-          >
         </div>
         <div class="type-item">
           <span class="type-label">리스크 수용도</span>
-          <span
-            class="type-value"
-            :class="getRiskPreferenceClass(riskPreference)"
-            >{{ riskPreference }}</span
-          >
-          <span
-            class="type-description"
-            :class="getRiskPreferenceTextClass(riskPreference)"
-            >{{ getRiskPreferenceLabel(riskPreference) }}</span
-          >
+          <span class="type-value" :class="getRiskPreferenceClass(riskPreference)">{{
+            riskPreference
+          }}</span>
+          <span class="type-description" :class="getRiskPreferenceTextClass(riskPreference)">{{
+            getRiskPreferenceLabel(riskPreference)
+          }}</span>
         </div>
       </div>
     </div>
@@ -52,24 +44,13 @@
       <div class="tags-section">
         <h4 class="subsection-title">🏷️ 성향 키워드</h4>
         <div class="tags-marquee">
-          <div
-            class="tags-track"
-            v-if="analysis.tag && analysis.tag.length > 0"
-          >
+          <div v-if="analysis.tag && analysis.tag.length > 0" class="tags-track">
             <!-- 첫 번째 세트 -->
-            <div
-              class="tag-item"
-              v-for="(tag, index) in analysis.tag"
-              :key="'first-' + index"
-            >
+            <div v-for="(tag, index) in analysis.tag" :key="'first-' + index" class="tag-item">
               #{{ tag }}
             </div>
             <!-- 두 번째 세트 (무한 반복용) -->
-            <div
-              class="tag-item"
-              v-for="(tag, index) in analysis.tag"
-              :key="'second-' + index"
-            >
+            <div v-for="(tag, index) in analysis.tag" :key="'second-' + index" class="tag-item">
               #{{ tag }}
             </div>
           </div>
@@ -207,10 +188,10 @@
 
     <!-- 테마 포트폴리오 섹션 (미래 구현) -->
     <ThemePortfolio
-      :wmtiCode="wmtiCode"
-      :resultType="resultType"
-      :riskPreference="riskPreference"
-      :userName="userName"
+      :wmti-code="wmtiCode"
+      :result-type="resultType"
+      :risk-preference="riskPreference"
+      :user-name="userName"
     />
 
     <!-- 액션 버튼 -->
@@ -247,7 +228,8 @@ import ThemePortfolio from '@/components/wmti/ThemePortfolio.vue';
 export default {
   name: 'SurveyResult',
   components: {
-    BackButton, ThemePortfolio,
+    BackButton,
+    ThemePortfolio,
   },
   data() {
     return {
@@ -326,7 +308,7 @@ export default {
 
       //this.analysis = data.analysis?.[data.wmtiCode] || {};
       this.createdAt = [...data.createdAt] || [];
-      
+
       await this.fetchAnalysis(this.wmtiCode);
     },
     async fetchAnalysis(wmtiCode) {
@@ -350,7 +332,7 @@ export default {
       this.$router.push('/wmti/list');
     },
     goToHistory() {
-      this.$router.push('/mypage/history');
+      this.$router.push('/mypage/wmti-history');
     },
     getResultTypeLabel(resultType) {
       const labels = {
@@ -419,12 +401,12 @@ export default {
   max-width: 23.438rem; /* 375px */
   margin: 0 auto;
   padding: 1rem;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(
-    135deg,
-    var(--color-bg-light) 0%,
-    rgba(238, 238, 243, 0.5) 100%
-  );
+  font-family:
+    'Pretendard',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  background: linear-gradient(135deg, var(--color-bg-light) 0%, rgba(238, 238, 243, 0.5) 100%);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -435,11 +417,7 @@ export default {
 .result-header {
   text-align: center;
   padding: 1.5rem 0;
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    rgba(248, 249, 252, 0.8) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.8) 100%);
   border-radius: 1rem;
   box-shadow: 0 4px 20px rgba(45, 51, 107, 0.08);
 }
@@ -626,11 +604,7 @@ export default {
 
 /* 분석 카드 */
 .analysis-card {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    rgba(248, 249, 252, 0.8) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.8) 100%);
   border-radius: 1rem;
   padding: 1.25rem;
   box-shadow: 0 4px 20px rgba(45, 51, 107, 0.08);
@@ -659,11 +633,7 @@ export default {
 .tags-section {
   margin-bottom: 1.25rem;
   overflow: hidden;
-  background: linear-gradient(
-    135deg,
-    rgba(45, 51, 107, 0.02),
-    rgba(125, 129, 162, 0.01)
-  );
+  background: linear-gradient(135deg, rgba(45, 51, 107, 0.02), rgba(125, 129, 162, 0.01));
   border-radius: 0.875rem;
   padding: 0.875rem 0;
   position: relative;
@@ -708,11 +678,7 @@ export default {
 }
 
 .tag-item {
-  background: linear-gradient(
-    135deg,
-    rgba(45, 51, 107, 0.08),
-    rgba(125, 129, 162, 0.05)
-  );
+  background: linear-gradient(135deg, rgba(45, 51, 107, 0.08), rgba(125, 129, 162, 0.05));
   color: var(--color-main);
   padding: 0.4rem 0.75rem;
   border-radius: 1rem;
@@ -726,11 +692,7 @@ export default {
 }
 
 .tag-item:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(45, 51, 107, 0.12),
-    rgba(125, 129, 162, 0.08)
-  );
+  background: linear-gradient(135deg, rgba(45, 51, 107, 0.12), rgba(125, 129, 162, 0.08));
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(45, 51, 107, 0.15);
 }
@@ -763,11 +725,7 @@ export default {
 
 .analysis-title {
   color: #e67e22;
-  background: linear-gradient(
-    135deg,
-    rgba(230, 126, 34, 0.1),
-    rgba(230, 126, 34, 0.05)
-  );
+  background: linear-gradient(135deg, rgba(230, 126, 34, 0.1), rgba(230, 126, 34, 0.05));
   padding: 0.4rem 0.625rem;
   border-radius: 0.625rem;
   border-left: 3px solid #e67e22;
@@ -775,11 +733,7 @@ export default {
 
 .score-title {
   color: #27ae60;
-  background: linear-gradient(
-    135deg,
-    rgba(39, 174, 96, 0.1),
-    rgba(39, 174, 96, 0.05)
-  );
+  background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(39, 174, 96, 0.05));
   padding: 0.4rem 0.625rem;
   border-radius: 0.625rem;
   border-left: 3px solid #27ae60;
@@ -787,11 +741,7 @@ export default {
 
 .action-title {
   color: #8e44ad;
-  background: linear-gradient(
-    135deg,
-    rgba(142, 68, 173, 0.1),
-    rgba(142, 68, 173, 0.05)
-  );
+  background: linear-gradient(135deg, rgba(142, 68, 173, 0.1), rgba(142, 68, 173, 0.05));
   padding: 0.4rem 0.625rem;
   border-radius: 0.625rem;
   border-left: 3px solid #8e44ad;
@@ -801,11 +751,7 @@ export default {
 
 .portfolio-title {
   color: #2c3e50;
-  background: linear-gradient(
-    135deg,
-    rgba(44, 62, 80, 0.1),
-    rgba(44, 62, 80, 0.05)
-  );
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(44, 62, 80, 0.05));
   padding: 0.4rem 0.625rem;
   border-radius: 0.625rem;
   border-left: 3px solid #2c3e50;
@@ -824,11 +770,7 @@ export default {
 
 /* 점수 카드 */
 .score-card {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    rgba(248, 249, 252, 0.8) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.8) 100%);
   border-radius: 1rem;
   padding: 1.25rem;
   box-shadow: 0 4px 20px rgba(45, 51, 107, 0.08);
@@ -979,11 +921,7 @@ export default {
 
 /* 테마 포트폴리오 섹션 */
 .thema-portfolio-section {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    rgba(248, 249, 252, 0.8) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.8) 100%);
   border-radius: 1rem;
   padding: 1.25rem;
   box-shadow: 0 4px 20px rgba(45, 51, 107, 0.08);
@@ -991,11 +929,7 @@ export default {
 }
 
 .portfolio-placeholder {
-  background: linear-gradient(
-    135deg,
-    rgba(44, 62, 80, 0.05),
-    rgba(44, 62, 80, 0.02)
-  );
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.05), rgba(44, 62, 80, 0.02));
   border: 2px dashed rgba(44, 62, 80, 0.2);
   border-radius: 0.875rem;
   padding: 2rem 1rem;

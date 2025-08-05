@@ -1,7 +1,6 @@
 <template>
   <div class="survey-main">
-    <header class="header">
-    </header>
+    <header class="header"></header>
 
     <section class="intro">
       <h1>투자 성향 분석 서비스</h1>
@@ -9,18 +8,18 @@
       <p class="description">
         이는 고객님의 투자스타일, 투자성향, 투자여건을 <br />
         정확하게 파악하기 위한 것으로, <br />
-        <strong>'사용자 특화 금융상품 추천'</strong> 및 <strong>'나의 WMTI 투자스타일은?'</strong> 등의 기능을 위해
-        설문에 응해주세요.
+        <strong>'사용자 특화 금융상품 추천'</strong> 및
+        <strong>'나의 WMTI 투자스타일은?'</strong> 등의 기능을 위해 설문에 응해주세요.
       </p>
     </section>
 
     <!-- Step 1: 사전정보 입력 -->
     <section class="step-card">
       <div class="step-header">
-        <div class="step-icon completed" v-if="step1Completed">✓</div>
-        <div class="step-icon" v-else>1</div>
+        <div v-if="step1Completed" class="step-icon completed">✓</div>
+        <div v-else class="step-icon">1</div>
         <span>개인정보 / 투자목적</span>
-        <div class="status-badge completed" v-if="step1Completed">완료</div>
+        <div v-if="step1Completed" class="status-badge completed">완료</div>
       </div>
       <button class="step-button" @click="goToPreInfo">
         {{ step1Completed ? '다시 입력하기' : '시작하기' }}
@@ -30,13 +29,17 @@
     <!-- 화살표 -->
     <div class="arrow-container">
       <div class="arrow-down" :class="{ active: step1Completed }">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+          stroke="currentColor"
+        >
           <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
         </svg>
       </div>
-      <div class="arrow-text" v-if="!step1Completed">
-        먼저 사전정보를 입력해주세요
-      </div>
+      <div v-if="!step1Completed" class="arrow-text">먼저 사전정보를 입력해주세요</div>
     </div>
 
     <!-- Step 2: WMTI 검사 -->
@@ -44,26 +47,26 @@
       <div class="step-header">
         <div class="step-icon" :class="{ disabled: !step2Enabled }">2</div>
         <span>나의 WMTI 검사하기</span>
-        <div class="status-badge disabled" v-if="!step2Enabled">대기중</div>
+        <div v-if="!step2Enabled" class="status-badge disabled">대기중</div>
       </div>
-      <button 
-        class="step-button" 
-        :disabled="!step2Enabled" 
-        @click="goToSurvey"
+      <button
+        class="step-button"
+        :disabled="!step2Enabled"
         :class="{ disabled: !step2Enabled }"
+        @click="goToSurvey"
       >
         {{ step2Enabled ? '검사하기' : '기본정보 입력 후 이용 가능' }}
       </button>
     </section>
 
     <!-- 디버깅 정보 (개발용) -->
-    <div class="debug-info" v-if="showDebug">
+    <div v-if="showDebug" class="debug-info">
       <h3>🔍 디버깅 정보</h3>
       <p>localStorage preinfoSubmitted: {{ debugInfo.localStorage }}</p>
       <p>step1Completed: {{ debugInfo.step1Completed }}</p>
       <p>step2Enabled: {{ debugInfo.step2Enabled }}</p>
-      <button @click="clearPreinfo" class="debug-button">localStorage 초기화</button>
-      <button @click="setPreinfo" class="debug-button">localStorage 설정</button>
+      <button class="debug-button" @click="clearPreinfo">localStorage 초기화</button>
+      <button class="debug-button" @click="setPreinfo">localStorage 설정</button>
     </div>
   </div>
 </template>
@@ -92,7 +95,7 @@ export default {
   },
   created() {
     this.checkPreinfoStatus();
-    console.log("🔍 BasicSurvey mounted!");
+    console.log('🔍 BasicSurvey mounted!');
   },
   methods: {
     checkPreinfoStatus() {
@@ -100,11 +103,11 @@ export default {
       const preinfoDone = localStorage.getItem('preinfoSubmitted');
       this.step1Completed = preinfoDone === 'true';
       this.step2Enabled = preinfoDone === 'true';
-      
+
       console.log('✅ Preinfo Status Check:', {
         localStorage: preinfoDone,
         step1Completed: this.step1Completed,
-        step2Enabled: this.step2Enabled
+        step2Enabled: this.step2Enabled,
       });
     },
     goToPreInfo() {
@@ -137,7 +140,11 @@ export default {
   max-width: 375px; /* iPhone 기준으로 변경 */
   margin: 0 auto;
   padding: 1.5rem 1rem;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    'Pretendard',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
 }
 
 .header {
@@ -169,11 +176,7 @@ export default {
 }
 
 .step-card {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    rgba(248, 249, 252, 0.8) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.8) 100%);
   border: 2px solid rgba(45, 51, 107, 0.1);
   border-radius: 1rem;
   box-shadow: 0 4px 12px rgba(45, 51, 107, 0.08);
@@ -213,11 +216,11 @@ export default {
 }
 
 .step-icon.completed {
-  background: linear-gradient(135deg, #27AE60, #2ECC71);
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
 }
 
 .step-icon.disabled {
-  background: linear-gradient(135deg, #95A5A6, #BDC3C7);
+  background: linear-gradient(135deg, #95a5a6, #bdc3c7);
 }
 
 .status-badge {
@@ -230,12 +233,12 @@ export default {
 
 .status-badge.completed {
   background: rgba(39, 174, 96, 0.1);
-  color: #27AE60;
+  color: #27ae60;
 }
 
 .status-badge.disabled {
   background: rgba(149, 165, 166, 0.1);
-  color: #95A5A6;
+  color: #95a5a6;
 }
 
 .step-button {
@@ -259,7 +262,7 @@ export default {
 
 .step-button:disabled,
 .step-button.disabled {
-  background: linear-gradient(135deg, #95A5A6, #BDC3C7);
+  background: linear-gradient(135deg, #95a5a6, #bdc3c7);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -295,7 +298,7 @@ export default {
 .arrow-down svg {
   width: 1.25rem;
   height: 1.25rem;
-  color: #95A5A6;
+  color: #95a5a6;
 }
 
 .arrow-down.active svg {
@@ -312,7 +315,7 @@ export default {
 /* 디버깅 정보 스타일 */
 .debug-info {
   background: rgba(231, 76, 60, 0.1);
-  border: 1px solid #E74C3C;
+  border: 1px solid #e74c3c;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-top: 2rem;
@@ -321,11 +324,11 @@ export default {
 
 .debug-info h3 {
   margin: 0 0 0.5rem 0;
-  color: #E74C3C;
+  color: #e74c3c;
 }
 
 .debug-button {
-  background: #E74C3C;
+  background: #e74c3c;
   color: white;
   border: none;
   padding: 0.375rem 0.75rem;
@@ -337,7 +340,11 @@ export default {
 }
 
 @keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     transform: translateY(0);
   }
   40% {

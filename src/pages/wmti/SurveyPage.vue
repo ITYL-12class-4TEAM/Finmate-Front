@@ -1,13 +1,13 @@
 <template>
   <div class="survey-page">
     <!-- 뒤로가기 버튼 -->
-    <BackButton title="WMTI 검사" to="/wmti/basic"/>
+    <BackButton title="WMTI 검사" to="/wmti/basic" />
 
     <!-- 헤더 섹션 -->
     <div class="survey-header">
       <h1 class="main-title">나의 투자 성향 검사</h1>
       <h2 class="sub-title">WMTI 설문지</h2>
-      
+
       <!-- 진행률 표시 -->
       <div class="progress-section">
         <div class="progress-bar">
@@ -24,40 +24,44 @@
       <div class="instruction-content">
         <div class="instruction-icon">💡</div>
         <div class="instruction-text">
-          <p><strong>총 {{ questions.length }}개의 문항</strong>으로 구성되어 있습니다.</p>
-          <p>질문을 자세히 읽으시고, <strong>5개의 선택지 중</strong><br>
-          고객님과 가장 가깝다고 생각하는 답변을 선택해주세요.</p>
+          <p>
+            <strong>총 {{ questions.length }}개의 문항</strong>으로 구성되어 있습니다.
+          </p>
+          <p>
+            질문을 자세히 읽으시고, <strong>5개의 선택지 중</strong><br />
+            고객님과 가장 가깝다고 생각하는 답변을 선택해주세요.
+          </p>
         </div>
       </div>
     </div>
 
     <!-- 설문 문항들 -->
-    <form v-if="questions.length > 0" @submit.prevent="handleSubmit" class="survey-form">
+    <form v-if="questions.length > 0" class="survey-form" @submit.prevent="handleSubmit">
       <div class="questions-container">
         <WMTIQuestion
           v-for="(question, index) in questions"
           :key="question.id"
+          v-model:value="answers[index]"
           :question="question"
           :index="index"
-          v-model:value="answers[index]"
         />
       </div>
 
       <!-- 제출 버튼 -->
       <div class="submit-section">
-        <div class="completion-status" v-if="!isAllAnswered">
+        <div v-if="!isAllAnswered" class="completion-status">
           <i class="fa-solid fa-exclamation-circle"></i>
           아직 {{ questions.length - answeredCount }}개 문항이 남았습니다
         </div>
-        <div class="completion-status completed" v-else>
+        <div v-else class="completion-status completed">
           <i class="fa-solid fa-check-circle"></i>
           모든 문항이 완료되었습니다!
         </div>
-        
-        <button 
-          class="submit-button" 
-          :class="{ 'ready': isAllAnswered }"
-          :disabled="!isAllAnswered" 
+
+        <button
+          class="submit-button"
+          :class="{ ready: isAllAnswered }"
+          :disabled="!isAllAnswered"
           type="submit"
         >
           <i class="fa-solid fa-paper-plane"></i>
@@ -81,7 +85,7 @@ import BackButton from '@/components/common/BackButton.vue';
 
 export default {
   name: 'SurveyPage',
-  components: { 
+  components: {
     WMTIQuestion,
     BackButton,
   },
@@ -96,7 +100,7 @@ export default {
       return this.answers.length > 0 && this.answers.every((a) => a !== null);
     },
     answeredCount() {
-      return this.answers.filter(a => a !== null).length;
+      return this.answers.filter((a) => a !== null).length;
     },
     progressPercentage() {
       if (this.questions.length === 0) return 0;
@@ -128,7 +132,7 @@ export default {
       try {
         const payload = { answers: this.answers };
         console.log('📤 제출 payload:', payload);
-        
+
         const res = await postwmtiAPI(payload);
         const wmtiCode = res.body.wmtiCode;
 
@@ -151,12 +155,12 @@ export default {
   max-width: 375px;
   margin: 0 auto;
   padding: 1rem;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(
-    135deg,
-    var(--color-bg-light) 0%,
-    rgba(238, 238, 243, 0.5) 100%
-  );
+  font-family:
+    'Pretendard',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  background: linear-gradient(135deg, var(--color-bg-light) 0%, rgba(238, 238, 243, 0.5) 100%);
   min-height: 100vh;
 }
 
@@ -164,11 +168,7 @@ export default {
 .survey-header {
   text-align: center;
   margin-bottom: 1.5rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    rgba(248, 249, 252, 0.8) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.8) 100%);
   border-radius: 1rem;
   padding: 1.5rem 1rem;
   box-shadow: 0 4px 20px rgba(45, 51, 107, 0.08);
@@ -290,11 +290,11 @@ export default {
   margin-bottom: 1rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #E67E22;
+  color: #e67e22;
 }
 
 .completion-status.completed {
-  color: #27AE60;
+  color: #27ae60;
 }
 
 .completion-status i {
@@ -315,7 +315,7 @@ export default {
   justify-content: center;
   gap: 0.5rem;
   font-family: inherit;
-  background: linear-gradient(135deg, #95A5A6, #BDC3C7);
+  background: linear-gradient(135deg, #95a5a6, #bdc3c7);
   color: var(--color-white);
 }
 
@@ -355,8 +355,12 @@ export default {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-container p {

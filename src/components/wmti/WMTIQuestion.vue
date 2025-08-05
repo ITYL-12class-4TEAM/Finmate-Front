@@ -1,12 +1,12 @@
 <template>
-  <div class="question-container" :class="{ 'answered': value !== null }">
+  <div class="question-container" :class="{ answered: value !== null }">
     <!-- 질문 헤더 -->
     <div class="question-header">
       <div class="question-number">
         <span class="q-label">Q</span>
         <span class="q-index">{{ index + 1 }}</span>
       </div>
-      <div class="completion-badge" v-if="value !== null">
+      <div v-if="value !== null" class="completion-badge">
         <i class="fa-solid fa-check"></i>
       </div>
     </div>
@@ -32,13 +32,13 @@
 
       <!-- 5점 척도 선택지 -->
       <div class="radio-group">
-        <label 
-          v-for="score in 5" 
-          :key="score" 
-          class="radio-option" 
-          :class="{ 
-            'selected': score === value,
-            'hover-effect': score !== value 
+        <label
+          v-for="score in 5"
+          :key="score"
+          class="radio-option"
+          :class="{
+            selected: score === value,
+            'hover-effect': score !== value,
           }"
         >
           <input
@@ -46,14 +46,14 @@
             :name="'question-' + index"
             :value="score"
             :checked="score === value"
-            @change="$emit('update:value', Number(score))"
             class="radio-input"
+            @change="$emit('update:value', Number(score))"
           />
           <div class="option-circle">
-            <div class="option-inner" v-if="score === value">
+            <div v-if="score === value" class="option-inner">
               <i class="fa-solid fa-check"></i>
             </div>
-            <div class="option-number" v-else>{{ score }}</div>
+            <div v-else class="option-number">{{ score }}</div>
           </div>
           <div class="option-label">{{ score }}</div>
         </label>
@@ -61,7 +61,7 @@
     </div>
 
     <!-- 진행 표시선 -->
-    <div class="progress-indicator" v-if="value !== null">
+    <div v-if="value !== null" class="progress-indicator">
       <div class="progress-line"></div>
     </div>
   </div>
@@ -93,11 +93,7 @@ export default {
 <style scoped>
 /* 메인 컨테이너 */
 .question-container {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    rgba(248, 249, 252, 0.9) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.9) 100%);
   border: 2px solid rgba(185, 187, 204, 0.15);
   border-radius: 1.25rem;
   padding: 1.5rem;
@@ -159,7 +155,7 @@ export default {
 }
 
 .completion-badge {
-  background: linear-gradient(135deg, #27AE60, #2ECC71);
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
   color: var(--color-white);
   width: 1.75rem;
   height: 1.75rem;
@@ -274,18 +270,21 @@ export default {
 
 /* 크기 차등 적용 */
 .radio-option:nth-child(1) .option-circle,  /* 1점 */
-.radio-option:nth-child(5) .option-circle { /* 5점 */
+.radio-option:nth-child(5) .option-circle {
+  /* 5점 */
   width: 3.25rem;
   height: 3.25rem;
 }
 
 .radio-option:nth-child(2) .option-circle,  /* 2점 */
-.radio-option:nth-child(4) .option-circle { /* 4점 */
+.radio-option:nth-child(4) .option-circle {
+  /* 4점 */
   width: 2.875rem;
   height: 2.875rem;
 }
 
-.radio-option:nth-child(3) .option-circle { /* 3점 (중간) */
+.radio-option:nth-child(3) .option-circle {
+  /* 3점 (중간) */
   width: 2.5rem;
   height: 2.5rem;
 }
@@ -318,16 +317,19 @@ export default {
 
 /* 숫자 크기도 원형에 맞춰 차등 적용 */
 .radio-option:nth-child(1) .option-number,  /* 1점 */
-.radio-option:nth-child(5) .option-number { /* 5점 */
+.radio-option:nth-child(5) .option-number {
+  /* 5점 */
   font-size: 1.25rem;
 }
 
 .radio-option:nth-child(2) .option-number,  /* 2점 */
-.radio-option:nth-child(4) .option-number { /* 4점 */
+.radio-option:nth-child(4) .option-number {
+  /* 4점 */
   font-size: 1.125rem;
 }
 
-.radio-option:nth-child(3) .option-number { /* 3점 (중간) */
+.radio-option:nth-child(3) .option-number {
+  /* 3점 (중간) */
   font-size: 1rem;
 }
 
@@ -417,44 +419,50 @@ export default {
   .question-container {
     padding: 1.25rem;
   }
-  
+
   .question-text {
     font-size: 1rem;
   }
-  
+
   /* 모바일에서 크기 조정 */
   .radio-option:nth-child(1) .option-circle,  /* 1점 */
-  .radio-option:nth-child(5) .option-circle { /* 5점 */
+  .radio-option:nth-child(5) .option-circle {
+    /* 5점 */
     width: 3rem;
     height: 3rem;
   }
 
   .radio-option:nth-child(2) .option-circle,  /* 2점 */
-  .radio-option:nth-child(4) .option-circle { /* 4점 */
+  .radio-option:nth-child(4) .option-circle {
+    /* 4점 */
     width: 2.75rem;
     height: 2.75rem;
   }
 
-  .radio-option:nth-child(3) .option-circle { /* 3점 (중간) */
+  .radio-option:nth-child(3) .option-circle {
+    /* 3점 (중간) */
     width: 2.25rem;
     height: 2.25rem;
   }
-  
+
   /* 모바일에서 숫자 크기 조정 */
   .radio-option:nth-child(1) .option-number,  /* 1점 */
-  .radio-option:nth-child(5) .option-number { /* 5점 */
+  .radio-option:nth-child(5) .option-number {
+    /* 5점 */
     font-size: 1.125rem;
   }
 
   .radio-option:nth-child(2) .option-number,  /* 2점 */
-  .radio-option:nth-child(4) .option-number { /* 4점 */
+  .radio-option:nth-child(4) .option-number {
+    /* 4점 */
     font-size: 1rem;
   }
 
-  .radio-option:nth-child(3) .option-number { /* 3점 (중간) */
+  .radio-option:nth-child(3) .option-number {
+    /* 3점 (중간) */
     font-size: 0.875rem;
   }
-  
+
   .radio-group {
     gap: 0.25rem;
   }
