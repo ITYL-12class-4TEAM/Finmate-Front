@@ -3,7 +3,7 @@ import api from './index';
 export const memberAPI = {
   getMyInfo: async () => {
     try {
-      const response = await api.get('/member/me');
+      const response = await api.get('/api/member/me');
       const result = response.data;
 
       return {
@@ -23,9 +23,7 @@ export const memberAPI = {
 
       return {
         success: false,
-        message:
-          statusMessages[error.response?.status] ||
-          '네트워크 오류가 발생했습니다.',
+        message: statusMessages[error.response?.status] || '네트워크 오류가 발생했습니다.',
         data: null,
       };
     }
