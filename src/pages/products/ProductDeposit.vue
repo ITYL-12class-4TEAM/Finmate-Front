@@ -160,25 +160,11 @@ const goToPage = (page) => {
 // API 호출 전용 함수 (실제 데이터 가져오기)
 const fetchProducts = async () => {
   try {
-    // 선택된 은행이 없는 경우 빈 결과 반환
-    if (
-      !selectedBankApiCodes.value ||
-      selectedBankApiCodes.value.length === 0
-    ) {
-      console.log('선택된 은행이 없어 상품을 표시하지 않습니다.');
-      depositProducts.value = [];
-      if (depositProducts.value?.length > 0) {
-        console.log('- 첫 번째 상품:', depositProducts.value[0]);
-      }
-      totalCount.value = 0;
-      return true;
-    }
-
-    // 검색 파라미터 구성
+    // 검색 파라미터 구성 - 기본 파라미터는 객체로 유지
     const params = {
       category: 'deposit',
       categoryId: 1,
-      subCategoryId: 101,
+      subCategoryId: 101, // 적금은 102, 정기예금은 101
       depositAmount: String(depositAmount.value).replace(/[^\d]/g, ''),
       saveTrm: period.value,
       page: currentPage.value,
@@ -187,30 +173,49 @@ const fetchProducts = async () => {
       sortDirection: 'desc',
     };
 
-    // 금리 유형 필터 추가 (전체가 아닌 경우)
-    if (interestType.value !== 'B') {
-      params.intrRateType = interestType.value;
-    }
-
-    // 가입 방식 필터 추가 (전체가 아닌 경우)
-    if (joinWay.value !== 'all') {
-      params.joinWay = joinWay.value;
-    }
-
-    // 은행 필터 추가
-    if (selectedBankApiCodes.value && selectedBankApiCodes.value.length > 0) {
-      params.banks = selectedBankApiCodes.value.join(',');
-    }
-
     // 수치형 데이터 변환 확인
     params.depositAmount = parseInt(params.depositAmount) || 0;
     params.page = parseInt(params.page) || 1;
     params.size = parseInt(params.size) || 10;
 
-    console.log('API 호출 파라미터:', params);
+    // URLSearchParams 객체 생성
+    const searchParams = new URLSearchParams();
 
-    // API 호출
-    const response = await getProductsAPI(params);
+    // 기본 파라미터 추가
+    Object.entries(params).forEach(([key, value]) => {
+      searchParams.append(key, value);
+    });
+
+    // 금리 유형 필터 추가 (전체가 아닌 경우)
+    if (interestType.value !== 'B') {
+      searchParams.append('intrRateType', interestType.value);
+    }
+
+    // 가입 방식 필터 추가 (전체가 아닌 경우)
+    if (joinWay.value !== 'all') {
+      if (Array.isArray(joinWay.value) && joinWay.value.length > 0) {
+        // 각 항목을 별도의 joinWay 파라미터로 추가
+        joinWay.value.forEach((way) => {
+          searchParams.append('joinWay', way);
+        });
+        console.log('가입 방식 필터링:', joinWay.value);
+      } else if (typeof joinWay.value === 'string' && joinWay.value !== 'all') {
+        // 단일 문자열인 경우 하나의 파라미터로 추가
+        searchParams.append('joinWay', joinWay.value);
+      }
+    }
+
+    // 은행 필터 추가
+    if (selectedBankApiCodes.value && selectedBankApiCodes.value.length > 0) {
+      selectedBankApiCodes.value.forEach((bank) => {
+        searchParams.append('banks', bank);
+      });
+    }
+
+    console.log('API 호출 파라미터:', searchParams.toString());
+
+    // API 호출 - 수정된 방식으로 호출 (getProductsAPI 함수가 URLSearchParams를 지원하는지 확인 필요)
+    const response = await getProductsAPI(searchParams);
     console.log('API 응답 (원본):', response);
 
     // API 응답 처리
@@ -256,8 +261,13 @@ const searchProducts = async () => {
       queryParams.intrRateType = interestType.value;
     }
 
+    // joinWay 배열 처리 - banks와 동일한 방식으로 처리
     if (joinWay.value !== 'all') {
-      queryParams.joinWay = joinWay.value;
+      if (Array.isArray(joinWay.value) && joinWay.value.length > 0) {
+        queryParams.joinWay = joinWay.value.join(',');
+      } else if (typeof joinWay.value === 'string' && joinWay.value !== 'all') {
+        queryParams.joinWay = joinWay.value;
+      }
     }
 
     if (sortBy.value != 'intrRate') {
@@ -419,9 +429,19 @@ watch(
       shouldReload = true;
     }
 
-    if (newQuery.joinWay && newQuery.joinWay !== joinWay.value) {
-      joinWay.value = newQuery.joinWay;
-      shouldReload = true;
+    // joinWay URL 파라미터 처리 - banks와 유사하게 처리
+    if (newQuery.joinWay) {
+      const joinWayFromUrl = newQuery.joinWay.split(',');
+      // 배열인 경우와 문자열인 경우 모두 고려
+      const currentJoinWay = Array.isArray(joinWay.value) 
+        ? joinWay.value.join(',') 
+        : joinWay.value;
+      
+      if (newQuery.joinWay !== currentJoinWay) {
+        // 쉼표 구분 문자열을 배열로 변환하여 저장
+        joinWay.value = joinWayFromUrl;
+        shouldReload = true;
+      }
     }
 
     if (newQuery.sortBy && newQuery.sortBy !== sortBy.value) {

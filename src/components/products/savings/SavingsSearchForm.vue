@@ -49,18 +49,31 @@
 
     <div class="form-group">
       <label>가입 방식</label>
-      <div class="radio-group">
+      <div class="checkbox-group">
+        <!-- 전체 선택 체크박스 -->
+        <label class="checkbox-option">
+          <input
+            type="checkbox"
+            v-model="selectAllJoinWays"
+            @change="toggleAllJoinWays"
+          />
+          <span>전체</span>
+        </label>
+
+        <!-- 개별 가입 방식 체크박스 -->
         <label
-          ><input type="radio" v-model="localJoinWay" value="all" /> 전체</label
+          class="checkbox-option"
+          v-for="way in availableJoinWays"
+          :key="way"
         >
-        <label
-          ><input type="radio" v-model="localJoinWay" value="online" />
-          온라인</label
-        >
-        <label
-          ><input type="radio" v-model="localJoinWay" value="offline" />
-          오프라인</label
-        >
+          <input
+            type="checkbox"
+            v-model="selectedJoinWays"
+            :value="way"
+            @change="updateSelectAllState"
+          />
+          <span>{{ way }}</span>
+        </label>
       </div>
     </div>
 
@@ -110,7 +123,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import BankSelectModal from '../deposit/BankSelectModal.vue';
 
 // 부모로부터 받은 프롭스
@@ -128,7 +141,7 @@ const props = defineProps({
     default: 'B',
   },
   joinWay: {
-    type: String,
+    type: [String, Array],
     default: 'all',
   },
   banks: {
@@ -148,11 +161,51 @@ const emit = defineEmits(['search', 'reset']);
 const localDepositAmount = ref(props.depositAmount);
 const localPeriod = ref(props.period);
 const localInterestType = ref(props.interestType);
-const localJoinWay = ref(props.joinWay);
 const selectedBanks = ref({
   uiCodes: props.selectedBanks.uiCodes || [],
   apiCodes: props.selectedBanks.apiCodes || [],
 });
+
+// 가입 방식 관련 상태
+const availableJoinWays = ref(['영업점', '인터넷', '스마트폰', '전화']);
+const selectedJoinWays = ref([]);
+const selectAllJoinWays = ref(false);
+
+// 초기 가입 방식 설정
+onMounted(() => {
+  if (props.joinWay === 'all') {
+    // 전체 선택
+    selectedJoinWays.value = [...availableJoinWays.value];
+    selectAllJoinWays.value = true;
+  } else if (Array.isArray(props.joinWay)) {
+    // 배열로 전달된 경우
+    selectedJoinWays.value = [...props.joinWay];
+    updateSelectAllState();
+  } else if (props.joinWay && props.joinWay !== 'all') {
+    // 단일 문자열로 전달된 경우
+    selectedJoinWays.value = [props.joinWay];
+    selectAllJoinWays.value = false;
+  } else {
+    // 기본값: 전체 선택
+    selectedJoinWays.value = [...availableJoinWays.value];
+    selectAllJoinWays.value = true;
+  }
+});
+
+// 전체 선택/해제 토글 함수
+const toggleAllJoinWays = () => {
+  if (selectAllJoinWays.value) {
+    selectedJoinWays.value = [...availableJoinWays.value];
+  } else {
+    selectedJoinWays.value = [];
+  }
+};
+
+// 개별 선택 시 전체 선택 상태 업데이트
+const updateSelectAllState = () => {
+  selectAllJoinWays.value =
+    selectedJoinWays.value.length === availableJoinWays.value.length;
+};
 
 // 모달 표시 상태
 const showBankModal = ref(false);
@@ -177,24 +230,37 @@ watch(
     localDepositAmount.value = newVal;
   }
 );
+
 watch(
   () => props.period,
   (newVal) => {
     localPeriod.value = newVal;
   }
 );
+
 watch(
   () => props.interestType,
   (newVal) => {
     localInterestType.value = newVal;
   }
 );
+
 watch(
   () => props.joinWay,
   (newVal) => {
-    localJoinWay.value = newVal;
+    if (newVal === 'all') {
+      selectedJoinWays.value = [...availableJoinWays.value];
+      selectAllJoinWays.value = true;
+    } else if (Array.isArray(newVal)) {
+      selectedJoinWays.value = [...newVal];
+      updateSelectAllState();
+    } else if (newVal && newVal !== 'all') {
+      selectedJoinWays.value = [newVal];
+      selectAllJoinWays.value = false;
+    }
   }
 );
+
 watch(
   () => props.selectedBanks,
   (newVal) => {
@@ -240,7 +306,8 @@ const onSearch = () => {
     depositAmount: localDepositAmount.value,
     period: localPeriod.value,
     interestType: localInterestType.value,
-    joinWay: localJoinWay.value,
+    // 가입 방식: 전체 선택이면 'all', 아니면 선택된 배열
+    joinWay: selectAllJoinWays.value ? 'all' : selectedJoinWays.value,
     selectedBanks: selectedBanks.value,
   });
 };
@@ -250,7 +317,10 @@ const onReset = () => {
   localDepositAmount.value = '100000';
   localPeriod.value = '6';
   localInterestType.value = 'B';
-  localJoinWay.value = 'all';
+
+  // 가입 방식 초기화 (모두 선택)
+  selectedJoinWays.value = [...availableJoinWays.value];
+  selectAllJoinWays.value = true;
 
   // 은행 선택 초기화: 저축은행을 제외한 모든 은행
   const regularBanks = props.banks.filter(
@@ -335,5 +405,22 @@ const onReset = () => {
   padding: 0.75rem;
   font-size: 1rem;
   cursor: pointer;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.checkbox-option {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.checkbox-option input {
+  margin-right: 0.375rem;
 }
 </style>
