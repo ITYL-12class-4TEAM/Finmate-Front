@@ -14,14 +14,14 @@
 import ProductItemHeader from './ProductItemHeader.vue';
 import ProductItemInfo from './ProductItemInfo.vue';
 
-const props = defineProps({
+defineProps({
   favorite: {
     type: Object,
     required: true,
   },
 });
 
-const emit = defineEmits(['remove-favorite']);
+defineEmits(['remove-favorite']);
 </script>
 
 <style scoped>

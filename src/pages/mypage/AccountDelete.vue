@@ -243,21 +243,21 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onUnmounted, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useToast } from '@/composables/useToast';
+const { showToast } = useToast();
 
 const router = useRouter();
 
 // 반응형 데이터
 const showConfirmation = ref(false);
 const showFinalModal = ref(false);
-const showPassword = ref(false);
 const processing = ref(false);
 const countdown = ref(0);
 
 // 폼 데이터
 const confirmEmail = ref('');
-const confirmPassword = ref('');
 const deleteReason = ref('');
 const additionalFeedback = ref('');
 const finalConfirm = ref(false);
@@ -329,7 +329,7 @@ const proceedToDelete = () => {
 
   // 최종 확인 체크
   if (!finalConfirm.value) {
-    alert('탈퇴 동의 사항을 확인해주세요.');
+    showToast('탈퇴 동의 사항을 확인해주세요.');
     return;
   }
 
@@ -370,39 +370,33 @@ const confirmFinalDeletion = async () => {
     // 탈퇴 처리 완료
     closeFinalModal();
 
-    alert(
-      `계정 탈퇴가 완료되었습니다.\n\n그동안 서비스를 이용해주셔서 감사했습니다.\n메인 페이지로 이동합니다.`
-    );
-
     // 로컬 스토리지 정리
     localStorage.clear();
 
-    // 메인 페이지로 이동
-    router.push('/');
+    goToMain();
+    showToast('계정 탈퇴가 완료되었습니다.\n메인 페이지로 이동합니다.', 'success');
   } catch (error) {
-    alert('탈퇴 처리 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.');
+    showToast('탈퇴 처리 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.', 'error');
     console.error('Account deletion error:', error);
   } finally {
     processing.value = false;
   }
 };
 
-// 컴포넌트 마운트
-onMounted(() => {
-  // 비밀번호 인증 확인
-  const verified = localStorage.getItem('passwordVerified');
-  if (!verified) {
-    alert('비밀번호 확인이 필요합니다.');
-    router.push('/mypage/verify-password');
-    return;
-  }
-});
+// 탈퇴 완료 후 메인 페이지로 이동
+const goToMain = () => {
+  router.push('/');
+};
 
 // 컴포넌트 언마운트
 onUnmounted(() => {
   if (countdownTimer) {
     clearInterval(countdownTimer);
   }
+});
+
+onMounted(() => {
+  console.log('AccountDelete mounted');
 });
 </script>
 
@@ -445,7 +439,7 @@ onUnmounted(() => {
 .delete-card {
   background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
-  padding: 1rem;
+  padding: 0.5rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
   box-shadow: 0 4px 16px -2px rgba(45, 51, 107, 0.1);
   backdrop-filter: blur(10px);

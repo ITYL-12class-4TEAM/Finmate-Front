@@ -251,6 +251,10 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { useModal } from '@/composables/useModal';
+import { useToast } from '@/composables/useToast';
+const { showModal } = useModal();
+const { showToast } = useToast();
 
 const props = defineProps({
   isVisible: {
@@ -465,10 +469,12 @@ const handleSubmit = async () => {
     };
 
     emit('add-product', newProduct);
+    showToast('저장되었습니다!', 'success');
 
     // 성공 시 폼 초기화하고 모달 닫기
     resetForm();
   } catch (error) {
+    showToast('저장에 실패했습니다.', 'error');
     console.error('상품 추가 실패:', error);
   } finally {
     isProcessing.value = false;
