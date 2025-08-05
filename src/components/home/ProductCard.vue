@@ -40,7 +40,6 @@ const goToProductDetail = () => {
 <style scoped>
 .card {
   width: 10rem;
-  height: 9rem;
   background: var(--color-white);
   border: 1px solid var(--color-light);
   border-radius: 0.6rem;
@@ -55,18 +54,30 @@ const goToProductDetail = () => {
   font-size: 0.8rem;
   color: gray;
   margin-bottom: 0.2rem;
+  height: 2.2rem;
 }
 
 .name {
-  height: 3rem;
   font-size: 0.9rem;
   font-weight: 600;
   margin: 0.4rem 0;
+  height: 2.2rem;
+}
+
+.bank,
+.name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  line-height: 1.1rem;
 }
 
 .rate {
   font-size: 0.85rem;
   color: var(--color-sub);
-  margin-top: 0.2rem;
+  margin: 0.2rem 0;
 }
 </style>

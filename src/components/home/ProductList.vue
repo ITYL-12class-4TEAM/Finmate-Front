@@ -1,6 +1,6 @@
 <template>
   <section class="product-list">
-    <h2 class="title">인기 관심상품</h2>
+    <h2 class="title">인기 금융상품</h2>
 
     <div v-for="category in products" :key="category.subcategoryId" class="category-block">
       <h3 class="category-title">{{ category.subcategoryName }}</h3>
