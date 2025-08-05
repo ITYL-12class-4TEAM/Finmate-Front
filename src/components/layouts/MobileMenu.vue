@@ -12,11 +12,7 @@
           width="24"
           height="24"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M6 18 18 6M6 6l12 12"
-          />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
         </svg>
       </button>
     </div>
@@ -40,29 +36,19 @@
               width="24"
               height="24"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="m19.5 8.25-7.5 7.5-7.5-7.5"
-              />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
             </svg>
           </span>
         </div>
         <ul v-show="openIndex === 0" class="submenu">
           <li>
-            <router-link to="/products/deposit" @click="$emit('close')"
-              >예금</router-link
-            >
+            <router-link to="/products/deposit" @click="$emit('close')">예금</router-link>
           </li>
           <li>
-            <router-link to="/products/savings" @click="$emit('close')"
-              >적금</router-link
-            >
+            <router-link to="/products/savings" @click="$emit('close')">적금</router-link>
           </li>
           <li>
-            <router-link to="/products/pension" @click="$emit('close')"
-              >연금 저축</router-link
-            >
+            <router-link to="/products/pension" @click="$emit('close')">연금 저축</router-link>
           </li>
         </ul>
       </li>
@@ -80,19 +66,13 @@
               width="24"
               height="24"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="m19.5 8.25-7.5 7.5-7.5-7.5"
-              />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
             </svg>
           </span>
         </div>
         <ul v-show="openIndex === 1" class="submenu">
           <li>
-            <router-link to="/wmti/basic" @click="$emit('close')"
-              >투자 성향 진단</router-link
-            >
+            <router-link to="/wmti/basic" @click="$emit('close')">투자 성향 진단</router-link>
           </li>
           <li>
             <router-link to="/wmti/result" @click="$emit('close')"
@@ -100,9 +80,7 @@
             >
           </li>
           <li>
-            <router-link to="/wmti/types" @click="$emit('close')"
-              >다른 WMTI 유형 보기</router-link
-            >
+            <router-link to="/wmti/types" @click="$emit('close')">다른 WMTI 유형 보기</router-link>
           </li>
         </ul>
       </li>
