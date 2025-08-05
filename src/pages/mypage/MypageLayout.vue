@@ -211,9 +211,6 @@
       <main class="content" :class="{ 'menu-active': showMobileMenu }">
         <router-view />
       </main>
-
-      <!-- 스크롤 탑 버튼 -->
-      
     </div>
   </div>
 </template>
@@ -274,8 +271,6 @@ const handleScroll = () => {
 
   lastScrollY.value = currentScrollY;
 };
-
-
 
 const toggleMobileMenu = () => {
   showMobileMenu.value = !showMobileMenu.value;
@@ -537,6 +532,4 @@ onUnmounted(() => {
   transform: scale(0.98);
   pointer-events: none;
 }
-
-
 </style>

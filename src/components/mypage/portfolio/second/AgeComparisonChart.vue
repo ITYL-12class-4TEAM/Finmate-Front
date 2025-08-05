@@ -114,7 +114,7 @@
 <script setup>
 import { ref } from 'vue';
 
-const props = defineProps({
+defineProps({
   // 사용자 나이대
   userAgeGroup: {
     type: String,

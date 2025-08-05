@@ -111,6 +111,8 @@ const isDeleting = ref(false);
 
 // 사용자 나이대
 const userAgeGroup = ref('');
+
+// TODO: 회원 아이디 받아오기
 const memberId = ref(1);
 // -------------------- API 호출 --------------------
 const fetchWMTIResult = async () => {
@@ -374,9 +376,6 @@ const addNewProduct = async (newProduct) => {
       // 1. 먼저 모달 닫기
       closeAddModal();
       console.log('✅ 모달 닫기 완료');
-
-      // 2. 성공 메시지
-      const productName = newProduct.customProductName;
 
       // 3. 포트폴리오 데이터 새로고침 (약간의 지연 후)
       setTimeout(async () => {

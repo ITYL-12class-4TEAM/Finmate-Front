@@ -200,7 +200,7 @@ const viewMyComment = (post) => {
   // 댓글 ID를 쿼리 파라미터로 전달
   router.push({
     path: `/community/${post.postId}`,
-    query: { commentId: post.myCommentId }
+    query: { commentId: post.myCommentId },
   });
 };
 
@@ -208,10 +208,6 @@ const changePage = (page) => {
   if (page >= 1 && page <= totalPages.value && page !== currentPage.value) {
     currentPage.value = page;
   }
-};
-
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('ko-KR');
 };
 
 onMounted(() => {

@@ -3,9 +3,7 @@
     <!-- Header -->
     <div class="header">
       <h1>검사 히스토리</h1>
-      <p v-if="historyList.length > 0">
-        총 {{ historyList.length }}건의 검사 기록
-      </p>
+      <p v-if="historyList.length > 0">총 {{ historyList.length }}건의 검사 기록</p>
     </div>
 
     <!-- Loading -->
@@ -19,16 +17,12 @@
       <i class="fas fa-clipboard-check"></i>
       <h3>아직 검사 기록이 없습니다</h3>
       <p>금융 성향 검사를 받아보세요</p>
-      <button @click="goToWMTI" class="btn-primary">검사 받기</button>
+      <button class="btn-primary" @click="goToWMTI">검사 받기</button>
     </div>
 
     <!-- History List -->
     <div v-else class="history-list">
-      <div
-        v-for="history in historyList"
-        :key="history.id"
-        class="history-card"
-      >
+      <div v-for="history in historyList" :key="history.id" class="history-card">
         <!-- Card Header -->
         <div class="card-header" @click="toggleDetails(history.id)">
           <div class="card-title">
@@ -41,11 +35,7 @@
             <span class="date">{{ formatDate(history.createdAt) }}</span>
             <i
               class="fas expand-icon"
-              :class="
-                expandedItems.includes(history.id)
-                  ? 'fa-chevron-up'
-                  : 'fa-chevron-down'
-              "
+              :class="expandedItems.includes(history.id) ? 'fa-chevron-up' : 'fa-chevron-down'"
             ></i>
           </div>
         </div>
@@ -56,16 +46,13 @@
         </div>
 
         <!-- Details (Expandable) -->
-        <div
-          class="card-details"
-          :class="{ expanded: expandedItems.includes(history.id) }"
-        >
+        <div class="card-details" :class="{ expanded: expandedItems.includes(history.id) }">
           <!-- WMTI Code Breakdown -->
           <div class="wmti-breakdown">
             <h4 class="breakdown-title">WMTI 코드 분석</h4>
             <div class="wmti-code-display">
-              <div 
-                v-for="(letter, index) in history.wmtiCode.split('')" 
+              <div
+                v-for="(letter, index) in history.wmtiCode.split('')"
                 :key="index"
                 class="wmti-letter-card"
               >
@@ -73,13 +60,17 @@
                   <span class="letter">{{ letter }}</span>
                 </div>
                 <div class="score-section">
-                  <div class="score-value">{{ getScoreByLetter(history.originalData, letter) }}</div>
+                  <div class="score-value">
+                    {{ getScoreByLetter(history.originalData, letter) }}
+                  </div>
                   <div class="score-bar">
                     <div
                       class="score-fill"
                       :style="{
                         width: getScoreByLetter(history.originalData, letter) + '%',
-                        backgroundColor: getScoreColor(getScoreByLetter(history.originalData, letter)),
+                        backgroundColor: getScoreColor(
+                          getScoreByLetter(history.originalData, letter)
+                        ),
                       }"
                     ></div>
                   </div>
@@ -90,8 +81,6 @@
         </div>
       </div>
     </div>
-
-    
   </div>
 </template>
 
@@ -100,12 +89,6 @@ import { ref, onMounted } from 'vue';
 import { getWMTIHistoryAPI } from '@/api/wmti';
 import router from '@/router';
 // Props
-const props = defineProps({
-  memberId: {
-    type: [String, Number],
-    required: true
-  }
-});
 
 // State
 const loading = ref(false);
@@ -113,36 +96,17 @@ const historyList = ref([]);
 const loadingMessage = ref('데이터를 불러오는 중...');
 const expandedItems = ref([]);
 
+//TODO: 회원 아이디 받아오기
 const memberId = ref(1);
+
 // API 호출 함수
 const fetchHistoryData = async () => {
   loading.value = true;
-  loadingMessage.value = '히스토리 데이터를 불러오는 중...';
-
   try {
-    const result = await getWMTIHistoryAPI(memberId.value);
-    
-    if (result.data.header.status === 'OK') {
-      historyList.value = result.data.body.data.map((item) => ({
-        id: item.historyId,
-        type: item.resultType,
-        typeName: getResultTypeName(item.resultType),
-        description: getRiskPreferenceDescription(item.riskPreference),
-        riskLevel: calculateRiskLevel(item),
-        returnExpectation: calculateReturnExpectation(item),
-        score: calculateTotalScore(item),
-        createdAt: formatCreatedAtArray(item.createdAt),
-        wmtiCode: item.wmtiCode,
-        originalData: item,
-      }));
-
-      // 최신순으로 정렬 (이미 API에서 정렬되어 올 가능성이 높지만 안전장치)
-      historyList.value.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    } else {
-      console.error('API 오류:', result.header.message);
-    }
-  } catch (err) {
-    console.error('❌ 히스토리 데이터 로드 실패:', err);
+    historyList.value = await getWMTIHistoryAPI(memberId.value);
+    historyList.value.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  } catch (e) {
+    console.error('히스토리 불러오기 실패:', e);
   } finally {
     loading.value = false;
   }
@@ -155,90 +119,6 @@ const toggleDetails = (historyId) => {
   } else {
     expandedItems.value.push(historyId);
   }
-};
-
-// Utility Functions
-const formatCreatedAtArray = (createdAtArray) => {
-  if (Array.isArray(createdAtArray) && createdAtArray.length >= 5) {
-    const [year, month, day, hour, minute, second = 0] = createdAtArray;
-    return new Date(year, month - 1, day, hour, minute, second).toISOString();
-  }
-  return new Date().toISOString();
-};
-
-const getResultTypeName = (resultType) => {
-  const types = {
-  'AGGRESSIVE'  : "고수익 지향형",
-  'ACTIVE' : "적극적 설계형",
-  'BALANCED' : "균형잡힌 실속형",
-  'PASSIVE' : "소극적 관리형",
-  };
-  return types[resultType] || resultType;
-};
-
-const getRiskPreferenceDescription = (riskPreference) => {
-  const descriptions = {
-   'STABILITY' : "원금 보전을 최우선으로 하며 낮은 수익률이라도 안정적인 투자를 추구하는 성향",
-  'STABILITY_ORIENTED' : "위험을 최소화하고 예측 가능한 수익을 선호하며 보수적인 투자를 지향하는 성향",
-  'RISK_NEUTRAL' : "적정 수준의 위험을 감수하여 균형 잡힌 수익을 추구하는 중립적 투자 성향",
-  'ACTIVELY' : "적극적인 자산 배분을 통해 시장 기회를 포착하고 능동적인 투자 전략을 선호하는 성향",
-  'AGGRESSIVE' : "높은 위험을 감수하더라도 시장 평균을 뛰어넘는 고수익 달성을 목표로 하는 성향",
-  };
-  return descriptions[riskPreference] || riskPreference;
-};
-
-const calculateRiskLevel = (item) => {
-  // 실제 API 데이터 구조에 맞게 위험도 계산
-  const aggressiveScore = (item.ascore + item.pscore) / 2;
-  const conservativeScore = item.lscore; // lscore를 보수적 지표로 사용
-  const riskLevel = (aggressiveScore - conservativeScore + 100) / 20;
-  return Math.max(1, Math.min(10, Math.round(riskLevel)));
-};
-
-const calculateReturnExpectation = (item) => {
-  const riskLevel = calculateRiskLevel(item);
-  return Math.round(riskLevel * 1.2 + 2);
-};
-
-const calculateTotalScore = (item) => {
-  return item.ascore + item.lscore + item.mscore + item.pscore;
-};
-
-const getDetailedScoresWithInfo = (originalData) => {
-  return {
-    A: { score: originalData.ascore, name: 'Aggressive' },
-    L: { score: originalData.lscore, name: 'Liquidity' },
-    M: { score: originalData.mscore, name: 'Market' },
-    P: { score: originalData.pscore, name: 'Profit' },
-  };
-};
-
-const getAllScoresWithInfo = (originalData) => {
-  // 원하는 순서로 배열하세요
-  return {
-    A: { score: originalData.ascore, name: 'Aggressive' },
-    P: { score: originalData.pscore, name: 'Profit' },
-    M: { score: originalData.mscore, name: 'Market' },
-    L: { score: originalData.lscore, name: 'Liquidity' },
-    I: { score: originalData.iscore, name: 'Investment' },
-    W: { score: originalData.wscore, name: 'Wealth' },
-    B: { score: originalData.bscore, name: 'Balanced' },
-    C: { score: originalData.cscore, name: 'Conservative' },
-  };
-};
-
-const getLetterName = (letter) => {
-  const names = {
-    A: 'Aggressive',
-    B: 'Balanced', 
-    C: 'Conservative',
-    I: 'Investment',
-    L: 'Liquidity',
-    M: 'Market',
-    P: 'Profit',
-    W: 'Wealth',
-  };
-  return names[letter] || letter;
 };
 
 const getScoreByLetter = (originalData, letter) => {
@@ -273,7 +153,6 @@ const formatDate = (date) => {
     day: 'numeric',
   });
 };
-
 
 const goToWMTI = () => {
   router.push('/wmti/basic');
