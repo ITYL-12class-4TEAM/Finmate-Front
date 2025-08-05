@@ -24,10 +24,29 @@ const router = createRouter({
           name: 'login',
           component: () => import('../pages/login/LoginForm.vue'),
         }, // 로그인
-        //{ path: 'signup', name: 'signup', component: Signup }, // 회원가입
-        //{ path: 'find-id', name: 'forgot', component: FindId }, // 아이디 찾기
-        //{ path: 'find-password', name: 'reset', component: FindPassword }, // 비밀번호 찾기
+        {
+          path: 'signup',
+          name: 'signup',
+          component: () => import('../pages/login/SignUpForm.vue'),
+        }, // 회원가입
+        {
+          path: 'find-id',
+          name: 'findId',
+          component: () => import('../pages/login/FindIdForm.vue'),
+        }, // 아이디 찾기
+        {
+          path: 'find-password',
+          name: 'findPassword',
+          component: () => import('../pages/login/FindPasswordForm.vue'),
+        }, // 비밀번호 찾기
       ],
+    },
+
+    // OAuth2 리다이렉트 처리
+    {
+      path: '/auth/oauth2/redirect',
+      name: 'OAuth2Redirect',
+      component: () => import('../pages/auth/OAuth2Redirect.vue'),
     },
 
     // 마이페이지
@@ -116,7 +135,7 @@ const router = createRouter({
           name: 'ProductPension',
           component: () => import('../pages/products/ProductPension.vue'),
         }, // 연금
-        //{ path: 'fund', name: 'ProductFund', component: () => import('../pages/products/ProductFund.vue')}, // 펀드
+        //{ path: 'fund', name: 'ProductFund', component: () => import('../pages/products/ProductFund.vue')}, // 펀드q
         //{ path: 'loan', name: 'ProductLoan', component: () => import('../pages/products/ProductLoan.vue')}, // 대출
         //{ path: 'insurance', name: 'ProductInsurance', component: () => import('../pages/products/ProductInsurance.vue')}, // 보험
       ],

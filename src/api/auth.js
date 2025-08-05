@@ -1,0 +1,260 @@
+import api from './index';
+
+export const authAPI = {
+  // 로그인
+  login: async (email, password) => {
+    try {
+      const response = await api.post('/auth/login', {
+        email,
+        password,
+      });
+
+      const result = response.data;
+
+      if (result.header?.status === 'OK' || result.accessToken) {
+        return {
+          success: true,
+          message: '로그인 성공',
+          data: result,
+        };
+      } else {
+        return {
+          success: false,
+          message: result.header?.message || '로그인에 실패했습니다.',
+          data: null,
+        };
+      }
+    } catch (error) {
+      console.error('로그인 API 오류:', error);
+
+      let errorMessage = '로그인에 실패했습니다.';
+
+      if (error.response?.data?.header?.message) {
+        errorMessage = error.response.data.header.message;
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.status === 401) {
+        errorMessage = '이메일 또는 비밀번호가 올바르지 않습니다.';
+      } else if (error.response?.status >= 500) {
+        errorMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+      }
+
+      return {
+        success: false,
+        message: errorMessage,
+        data: null,
+      };
+    }
+  },
+
+  // 로그아웃
+  logout: async () => {
+    try {
+      const response = await api.post('/auth/logout');
+      return {
+        success: true,
+        message: '로그아웃 되었습니다.',
+        data: response.data,
+      };
+    } catch (error) {
+      console.error('로그아웃 오류:', error);
+      return {
+        success: true,
+        message: '로그아웃 되었습니다.',
+        data: null,
+      };
+    }
+  },
+
+  // 아이디 찾기
+  findId: async (name, phoneNumber) => {
+    try {
+      const response = await api.post('/auth/find-id', {
+        name,
+        phoneNumber,
+      });
+
+      const result = response.data;
+
+      if (result.header.status === 'OK') {
+        return {
+          success: true,
+          message: result.header.message,
+          data: result.body?.data || null,
+        };
+      } else {
+        return {
+          success: false,
+          message: result.header.message,
+          data: null,
+        };
+      }
+    } catch (error) {
+      console.error('아이디 찾기 API 오류:', error);
+
+      let errorMessage = '입력하신 정보와 일치하는 아이디를 찾을 수 없습니다.';
+
+      if (error.response?.data?.header?.message) {
+        errorMessage = error.response.data.header.message;
+      }
+
+      return {
+        success: false,
+        message: errorMessage,
+        data: null,
+      };
+    }
+  },
+
+  // 비밀번호 찾기
+  findPassword: async (name, phoneNumber) => {
+    try {
+      const response = await api.post('/auth/find-password', {
+        name,
+        phoneNumber,
+      });
+
+      const result = response.data;
+
+      if (result.header.status === 'OK') {
+        return {
+          success: true,
+          message: result.header.message,
+          data: result.body?.data || null,
+        };
+      } else {
+        return {
+          success: false,
+          message: result.header.message,
+          data: null,
+        };
+      }
+    } catch (error) {
+      console.error('비밀번호 찾기 API 오류:', error);
+
+      let errorMessage = '입력하신 정보와 일치하는 계정을 찾을 수 없습니다.';
+
+      if (error.response?.data?.header?.message) {
+        errorMessage = error.response.data.header.message;
+      }
+
+      return {
+        success: false,
+        message: errorMessage,
+        data: null,
+      };
+    }
+  },
+
+  // 비밀번호 재설정
+  resetPassword: async (newPassword, newPasswordCheck, username) => {
+    try {
+      const response = await api.post('/auth/reset-password', {
+        newPassword,
+        newPasswordCheck,
+        username,
+      });
+
+      const result = response.data;
+      if (result.header.status === 'OK') {
+        return {
+          success: true,
+          message: result.header.message,
+          data: result.body?.data || null,
+        };
+      } else {
+        return {
+          success: false,
+          message: result.header.message,
+          data: null,
+        };
+      }
+    } catch (error) {
+      console.error('비밀번호 재설정 API 오류:', error);
+
+      let errorMessage = '비밀번호 변경에 실패했습니다.';
+
+      if (error.response?.data?.header?.message) {
+        errorMessage = error.response.data.header.message;
+      }
+
+      return {
+        success: false,
+        message: errorMessage,
+        data: null,
+      };
+    }
+  },
+  signup: async (signupData) => {
+    try {
+      const response = await api.post('/signup', signupData);
+
+      const result = response.data;
+      if (result.header?.status === 'CREATED') {
+        return {
+          success: true,
+          message: result.header.message || '회원가입이 완료되었습니다.',
+          data: result.body?.data || null,
+        };
+      } else {
+        return {
+          success: false,
+          message: result.header?.message || '회원가입에 실패했습니다.',
+          data: null,
+        };
+      }
+    } catch (error) {
+      console.error('회원가입 API 오류:', error);
+
+      let errorMessage = '회원가입 중 오류가 발생했습니다.';
+      if (error.response?.data?.header?.message) {
+        errorMessage = error.response.data.header.message;
+      } else if (error.response?.status === 409) {
+        errorMessage = '이미 가입된 이메일입니다.';
+      } else if (error.response?.status >= 500) {
+        errorMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+      }
+
+      return {
+        success: false,
+        message: errorMessage,
+        data: null,
+      };
+    }
+  },
+
+  //소셜 회원가입
+  socialSignup: async (signupData) => {
+    try {
+      const response = await api.post('/signup/social', signupData);
+
+      const result = response.data;
+      if (result.header?.status === 'CREATED') {
+        return {
+          success: true,
+          message: result.header.message || '소셜 회원가입이 완료되었습니다.',
+          data: result.body?.data || null,
+        };
+      } else {
+        return {
+          success: false,
+          message: result.header?.message || '소셜 회원가입에 실패했습니다.',
+          data: null,
+        };
+      }
+    } catch (error) {
+      console.error('소셜 회원가입 API 오류:', error);
+
+      let errorMessage = '소셜 회원가입 중 오류가 발생했습니다.';
+      if (error.response?.data?.header?.message) {
+        errorMessage = error.response.data.header.message;
+      }
+
+      return {
+        success: false,
+        message: errorMessage,
+        data: null,
+      };
+    }
+  },
+};
