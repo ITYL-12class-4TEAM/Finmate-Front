@@ -60,37 +60,38 @@
           class="card-details"
           :class="{ expanded: expandedItems.includes(history.id) }"
         >
-          <!-- Score Grid -->
-          <div class="score-grid">
-            <div
-              v-for="(scoreData, key) in getDetailedScoresWithInfo(history.originalData)"
-              :key="key"
-              class="score-item"
-            >
-              <div class="score-letter">{{ key }}</div>
-              <div class="score-name">{{ scoreData.name }}</div>
-              <div class="score-value">{{ scoreData.score }}</div>
-              <div class="score-bar">
-                <div
-                  class="score-fill"
-                  :style="{
-                    width: scoreData.score + '%',
-                    backgroundColor: getScoreColor(scoreData.score),
-                  }"
-                ></div>
+          <!-- WMTI Code Breakdown -->
+          <div class="wmti-breakdown">
+            <h4 class="breakdown-title">WMTI 코드 분석</h4>
+            <div class="wmti-code-display">
+              <div 
+                v-for="(letter, index) in history.wmtiCode.split('')" 
+                :key="index"
+                class="wmti-letter-card"
+              >
+                <div class="letter-header">
+                  <span class="letter">{{ letter }}</span>
+                </div>
+                <div class="score-section">
+                  <div class="score-value">{{ getScoreByLetter(history.originalData, letter) }}</div>
+                  <div class="score-bar">
+                    <div
+                      class="score-fill"
+                      :style="{
+                        width: getScoreByLetter(history.originalData, letter) + '%',
+                        backgroundColor: getScoreColor(getScoreByLetter(history.originalData, letter)),
+                      }"
+                    ></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-
-
         </div>
       </div>
     </div>
 
-    <!-- FAB -->
-    <button class="fab" @click="goToWMTI">
-      <i class="fas fa-plus"></i>
-    </button>
+    
   </div>
 </template>
 
@@ -98,17 +99,21 @@
 import { ref, onMounted } from 'vue';
 import { getWMTIHistoryAPI } from '@/api/wmti';
 import router from '@/router';
+// Props
+const props = defineProps({
+  memberId: {
+    type: [String, Number],
+    required: true
+  }
+});
 
-
-
+// State
 const loading = ref(false);
 const historyList = ref([]);
 const loadingMessage = ref('데이터를 불러오는 중...');
 const expandedItems = ref([]);
 
-
 const memberId = ref(1);
-
 // API 호출 함수
 const fetchHistoryData = async () => {
   loading.value = true;
@@ -116,6 +121,7 @@ const fetchHistoryData = async () => {
 
   try {
     const result = await getWMTIHistoryAPI(memberId.value);
+    
     if (result.data.header.status === 'OK') {
       historyList.value = result.data.body.data.map((item) => ({
         id: item.historyId,
@@ -162,21 +168,21 @@ const formatCreatedAtArray = (createdAtArray) => {
 
 const getResultTypeName = (resultType) => {
   const types = {
-    'AGGRESSIVE': '고수익 지향형',
-    'ACTIVE': '적극적 설계형',
-    'BALANCED': '균형잡힌 실속형',
-    'PASSIVE': '소극적 관리형',
+  'AGGRESSIVE'  : "고수익 지향형",
+  'ACTIVE' : "적극적 설계형",
+  'BALANCED' : "균형잡힌 실속형",
+  'PASSIVE' : "소극적 관리형",
   };
   return types[resultType] || resultType;
 };
 
 const getRiskPreferenceDescription = (riskPreference) => {
   const descriptions = {
-    'STABILITY': '원금 보전을 최우선으로 하며 낮은 수익률이라도 안정적인 투자를 추구하는 성향',
-    'STABILITY_ORIENTED': '위험을 최소화하고 예측 가능한 수익을 선호하며 보수적인 투자를 지향하는 성향',
-    'RISK_NEUTRAL': '적정 수준의 위험을 감수하여 균형 잡힌 수익을 추구하는 중립적 투자 성향',
-    'ACTIVELY': '적극적인 자산 배분을 통해 시장 기회를 포착하고 능동적인 투자 전략을 선호하는 성향',
-    'AGGRESSIVE': '높은 위험을 감수하더라도 시장 평균을 뛰어넘는 고수익 달성을 목표로 하는 성향',
+   'STABILITY' : "원금 보전을 최우선으로 하며 낮은 수익률이라도 안정적인 투자를 추구하는 성향",
+  'STABILITY_ORIENTED' : "위험을 최소화하고 예측 가능한 수익을 선호하며 보수적인 투자를 지향하는 성향",
+  'RISK_NEUTRAL' : "적정 수준의 위험을 감수하여 균형 잡힌 수익을 추구하는 중립적 투자 성향",
+  'ACTIVELY' : "적극적인 자산 배분을 통해 시장 기회를 포착하고 능동적인 투자 전략을 선호하는 성향",
+  'AGGRESSIVE' : "높은 위험을 감수하더라도 시장 평균을 뛰어넘는 고수익 달성을 목표로 하는 성향",
   };
   return descriptions[riskPreference] || riskPreference;
 };
@@ -207,11 +213,53 @@ const getDetailedScoresWithInfo = (originalData) => {
   };
 };
 
+const getAllScoresWithInfo = (originalData) => {
+  // 원하는 순서로 배열하세요
+  return {
+    A: { score: originalData.ascore, name: 'Aggressive' },
+    P: { score: originalData.pscore, name: 'Profit' },
+    M: { score: originalData.mscore, name: 'Market' },
+    L: { score: originalData.lscore, name: 'Liquidity' },
+    I: { score: originalData.iscore, name: 'Investment' },
+    W: { score: originalData.wscore, name: 'Wealth' },
+    B: { score: originalData.bscore, name: 'Balanced' },
+    C: { score: originalData.cscore, name: 'Conservative' },
+  };
+};
+
+const getLetterName = (letter) => {
+  const names = {
+    A: 'Aggressive',
+    B: 'Balanced', 
+    C: 'Conservative',
+    I: 'Investment',
+    L: 'Liquidity',
+    M: 'Market',
+    P: 'Profit',
+    W: 'Wealth',
+  };
+  return names[letter] || letter;
+};
+
+const getScoreByLetter = (originalData, letter) => {
+  const scoreMap = {
+    A: originalData.ascore,
+    B: originalData.bscore,
+    C: originalData.cscore,
+    I: originalData.iscore,
+    L: originalData.lscore,
+    M: originalData.mscore,
+    P: originalData.pscore,
+    W: originalData.wscore,
+  };
+  return scoreMap[letter] || 0;
+};
+
 const getScoreColor = (score) => {
-  if (score >= 80) return '#198754';
-  if (score >= 60) return '#ffc107';
-  if (score >= 40) return '#fd7e14';
-  return '#dc3545';
+  if (score >= 80) return 'var(--color-main)';
+  if (score >= 60) return 'var(--color-sub)';
+  if (score >= 40) return 'var(--color-light)';
+  return 'var(--color-)';
 };
 
 const getBadgeClass = (type) => {
@@ -226,21 +274,9 @@ const formatDate = (date) => {
   });
 };
 
-// Actions
-const viewResult = (history) => {
-  alert(
-    `🔍 ${history.wmtiCode} 결과 상세보기\n\n투자성향: ${history.typeName}\n위험도: ${history.riskLevel}/10\n기대수익: ${history.returnExpectation}%`
-  );
-};
-
-const downloadResult = (history) => {
-  alert(
-    `📄 ${history.wmtiCode} 결과 다운로드\n\n실제 구현에서는 PDF 파일을 다운로드합니다.`
-  );
-};
 
 const goToWMTI = () => {
-  alert('🧭 WMTI 검사 페이지로 이동합니다!');
+  router.push('/wmti/basic');
 };
 
 // Lifecycle
@@ -251,16 +287,19 @@ onMounted(() => {
 
 <style scoped>
 .wmti-history {
+  width: 100%;
   max-width: 26.875rem;
   margin: 0 auto;
   min-height: 100vh;
   background: var(--color-bg);
+  padding: 0.5rem;
+  box-sizing: border-box;
 }
 
 /* Header */
 .header {
   background: var(--color-white);
-  padding: 0.5rem 0.75rem;
+  padding: 1rem;
   border-radius: 0.75rem;
   text-align: center;
 }
@@ -269,7 +308,7 @@ onMounted(() => {
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--color-main);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .header p {
@@ -424,62 +463,103 @@ onMounted(() => {
 }
 
 .card-details.expanded {
-  max-height: 31.25rem;
+  max-height: 50rem;
 }
 
-.score-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
-  padding: 0.75rem;
+/* WMTI Breakdown */
+.wmti-breakdown {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--color-bg);
 }
 
-.score-item {
-  text-align: center;
-  padding: 0.75rem;
-  background: var(--color-bg);
-  border-radius: 0.5rem;
-}
-
-.score-letter {
-  font-weight: 700;
+.breakdown-title {
+  font-size: 0.9rem;
+  font-weight: 600;
   color: var(--color-main);
-  font-size: 1rem;
-  margin-bottom: 0.25rem;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
-.score-name {
-  font-size: 0.7rem;
-  color: var(--color-sub);
-  text-transform: uppercase;
+.wmti-code-display {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.wmti-letter-card {
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
+  border: 1px solid var(--color-main);
+  border-radius: 0.75rem;
+  padding: 0.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.wmti-letter-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--color-main);
+}
+
+.letter-header {
   margin-bottom: 0.5rem;
 }
 
-.score-value {
+.letter {
+  display: block;
+  font-size: 1rem;
+  text-align: center;
+  font-weight: 700;
+  color: var(--color-main);
+  margin-bottom: 0.25rem;
+}
+
+.score-section .score-value {
+  font-size: 1rem;
   font-weight: 600;
   color: var(--color-main);
   margin-bottom: 0.5rem;
 }
 
-.score-bar {
-  height: 0.25rem;
+.score-section .score-bar {
+  height: 0.3rem;
   background: rgba(185, 187, 204, 0.3);
-  border-radius: 0.125rem;
+  border-radius: 0.15rem;
   overflow: hidden;
 }
 
-.score-fill {
+.score-section .score-fill {
   height: 100%;
-  border-radius: 0.125rem;
-  transition: width 0.3s ease;
+  border-radius: 0.15rem;
+  transition: width 0.5s ease;
 }
 
+/* Buttons */
+.btn-primary {
+  background: var(--color-main);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: var(--color-sub);
+}
 
 /* FAB */
 .fab {
   position: fixed;
   bottom: 1.5rem;
-  right: calc(50% - 13.4375rem + 1.5rem);
+  right: 50%;
+  transform: translateX(50%);
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 50%;
@@ -489,10 +569,6 @@ onMounted(() => {
   font-size: 1.2rem;
   cursor: pointer;
   box-shadow: 0 0.25rem 0.75rem rgba(45, 51, 107, 0.3);
-}
-
-.fab:hover {
-  background: var(--color-sub);
-  transform: scale(1.05);
+  z-index: 1000;
 }
 </style>

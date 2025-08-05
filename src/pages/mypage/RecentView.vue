@@ -31,6 +31,10 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import router from '@/router';
+import { useModal } from '@/composables/useModal';
+import { useToast } from '@/composables/useToast';
+const { showModal } = useModal();
+const { showToast } = useToast();
 
 // 공통 컴포넌트
 import LoadingSpinner from '../../components/mypage/common/LoadingSpinner.vue';
@@ -79,7 +83,7 @@ const clickRecent = (recent) => {
   if (subcategory === '정기예금') {
     routePath = `/products/deposit/${productId}?saveTrm=${saveTrm}&intrRateType=${intrRateType}`;
   } else if (subcategory === '자유적금') {
-    routePath = `/products/saving/${productId}?saveTrm=${saveTrm}&intrRateType=${intrRateType}&rsrvType=${rsrvValue}`;
+    routePath = `/products/savings/${productId}?saveTrm=${saveTrm}&intrRateType=${intrRateType}&rsrvType=${rsrvValue}`;
   } else if (subcategory === '연금저축') {
     routePath = `/products/pension/${productId}?saveTrm=${saveTrm}&intrRateType=${intrRateType}`;
   } else {
@@ -141,14 +145,17 @@ const removeFromHistory = async (productId) => {
 
 const deleteSelected = async () => {
   if (selectedRecent.value.length === 0) return;
-  if (!confirm(`선택한 ${selectedRecent.value.length}개 상품을 삭제하시겠습니까?`)) return;
+
+  const confirmed = await showModal(
+    `선택한 ${selectedRecent.value.length}개 상품을 삭제하시겠습니까?`
+  );
+  if (!confirmed) return;
 
   try {
     await Promise.all(
       selectedRecent.value.map((productId) => recentViewAPI.deleteRecentView(productId))
     );
 
-    // 배열인지 확인 후 필터링
     if (Array.isArray(recentProducts.value)) {
       recentProducts.value = recentProducts.value.filter(
         (p) => !selectedRecent.value.includes(p.productId)
@@ -156,23 +163,30 @@ const deleteSelected = async () => {
     }
 
     selectedRecent.value = [];
+    showToast('삭제되었습니다!', 'success');
+
+    // 페이지에 상품이 없으면 이전 페이지로 이동
+    if (paginatedProducts.value.length === 0 && currentPage.value > 1) {
+      currentPage.value -= 1;
+    }
   } catch (err) {
-    alert('일부 상품 삭제에 실패했습니다.');
+    showToast('일부 삭제에 실패했습니다.', 'error');
     console.error('Delete selected error:', err);
   }
 };
 
 const clearAllHistory = async () => {
-  if (!confirm('모든 최근 본 상품을 삭제하시겠습니까?')) return;
+  const confirmed = await showModal(`모든 최근 본 상품을 삭제하시겠습니까?`);
+  if (!confirmed) return;
 
   try {
     await recentViewAPI.deleteAllRecentView();
 
     recentProducts.value = [];
     currentPage.value = 1;
-    alert('모든 최근 본 상품이 삭제되었습니다.');
+    showToast('모든 최근 본 상품이 삭제되었습니다.', 'success');
   } catch (err) {
-    alert('전체 삭제에 실패했습니다.');
+    showToast('전체 삭제에 실패했습니다.', 'error');
     console.error('Clear all history error:', err);
   }
 };

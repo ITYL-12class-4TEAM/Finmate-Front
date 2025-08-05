@@ -7,7 +7,7 @@
       </div>
       <h4 class="empty-title">최근 조회한 상품이 없습니다</h4>
       <p class="empty-description">금융상품을 조회하면 여기에 기록이 남습니다</p>
-      <button class="explore-btn" @click="$emit('explore-products')">
+      <button class="explore-btn" @click="exploreProducts">
         <i class="fa-solid fa-search"></i>
         상품 둘러보기
       </button>
@@ -35,6 +35,7 @@
 
 <script setup>
 import RecentViewItem from './RecentViewItem.vue';
+import router from '@/router';
 
 const props = defineProps({
   products: {
@@ -68,6 +69,10 @@ const handleSelect = (productId, isSelected) => {
   }
 
   emit('update:selectedRecent', newSelected);
+};
+
+const exploreProducts = () => {
+  router.push('/products/deposit');
 };
 </script>
 
