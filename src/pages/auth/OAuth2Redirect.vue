@@ -11,6 +11,7 @@
 import { onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { authAPI } from '@/api/auth';
 
 const router = useRouter();
 const route = useRoute();
@@ -23,63 +24,79 @@ onMounted(async () => {
 
     const urlParams = new URLSearchParams(window.location.search);
 
-    // 서버에서 보내는 파라미터 이름에 맞게 수정
-    const token = urlParams.get('token'); // 서버에서 'token'으로 보냄
-    const refreshToken = urlParams.get('refreshToken');
-    const isNewMember = urlParams.get('isNewMember') === 'true';
-    const memberId = urlParams.get('memberId');
-    const email = urlParams.get('email');
-    const username = urlParams.get('username'); // username 추가
-    const profileImage = urlParams.get('profileImage');
+    const error = urlParams.get('error');
+    const errorMessage = urlParams.get('message');
 
-    console.log('받은 파라미터들:');
-    console.log('token:', token);
-    console.log('refreshToken:', refreshToken);
-    console.log('isNewMember:', isNewMember);
-    console.log('memberId:', memberId);
-    console.log('email:', email);
-    console.log('username:', username);
+    if (error === 'oauth2_failed' && errorMessage) {
+      console.error('OAuth2 로그인 실패:', errorMessage);
 
-    if (!token) {
-      console.error('토큰이 없습니다');
-      alert('로그인에 실패했습니다. (토큰 없음)');
+      const decodedMessage = decodeURIComponent(errorMessage);
+      alert(decodedMessage);
+
       router.push('/login');
       return;
     }
 
-    if (isNewMember) {
-      console.log('신규 회원 - 회원가입 폼으로 이동');
-      console.log('신규 회원 데이터:', { email, username });
+    const code = urlParams.get('code');
 
-      // 신규 회원인 경우 회원가입 폼으로 이동
-      router.push({
-        path: '/login/signup',
-        query: {
-          socialSignup: 'true',
-          name: username,
-          email: email,
-          profileImage: profileImage,
-          tempToken: token, // temp 토큰 추가
-        },
-      });
-    } else {
-      console.log('기존 회원 - 홈으로 이동');
-      console.log('기존 회원 토큰 정보:', {
-        accessToken: token,
-        refreshToken: refreshToken,
-        memberId: memberId,
-      });
+    console.log('받은 파라미터들:');
+    console.log('code:', code);
 
-      // 기존 회원은 토큰 저장하고 홈으로
-      authStore.setTokens(token, refreshToken, memberId);
+    if (!code) {
+      console.error('Authorization code가 없습니다');
+      alert('로그인에 실패했습니다. (인증 코드 없음)');
+      router.push('/login');
+      return;
+    }
 
-      // setup 함수가 있다면 호출
-      if (typeof authStore.setup === 'function') {
-        await authStore.setup();
+    console.log('토큰 교환 요청 시작');
+    const result = await authAPI.exchangeOAuth2Token(code);
+
+    console.log('토큰 교환 결과:', result);
+
+    if (result.success) {
+      const authResult = result.data;
+
+      console.log('authResult:', authResult);
+
+      if (authResult && authResult.accessToken && authResult.refreshToken) {
+        if (authResult.isNewMember) {
+          console.log('신규 회원 - 회원가입 폼으로 이동');
+
+          router.push({
+            path: '/login/signup',
+            query: {
+              socialSignup: 'true',
+              name: authResult.userMember?.username || authResult.username,
+              email: authResult.userMember?.email || authResult.email,
+              profileImage:
+                authResult.userMember?.profileImage || authResult.profileImage,
+              tempToken: authResult.accessToken,
+            },
+          });
+        } else {
+          console.log('기존 회원 - 토큰 저장 후 홈으로 이동');
+          authStore.setTokens(authResult.accessToken, authResult.refreshToken);
+
+          if (authResult.userInfo) {
+            localStorage.setItem(
+              'userInfo',
+              JSON.stringify(authResult.userInfo)
+            );
+          }
+          console.log('토큰 저장 완료');
+          alert('로그인 성공!');
+          router.push('/');
+        }
+      } else {
+        console.error('토큰 정보가 없습니다:', authResult);
+        alert('로그인 정보 저장에 실패했습니다.');
+        router.push('/login');
       }
-
-      alert('로그인 성공!');
-      router.push('/');
+    } else {
+      console.error('토큰 교환 실패:', result.message);
+      alert(result.message);
+      router.push('/login');
     }
   } catch (error) {
     console.error('OAuth2 리다이렉트 처리 오류:', error);
