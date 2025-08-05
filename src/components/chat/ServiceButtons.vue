@@ -31,7 +31,9 @@
           {{ feature.icon }} {{ feature.text }}
         </span>
       </div>
-      <button class="login-btn" @click="navigateToLogin">로그인하러 가기</button>
+      <button @click="navigateToLogin" class="login-btn">
+        로그인하러 가기
+      </button>
     </div>
   </div>
 </template>
@@ -106,9 +108,9 @@ const navigateToLogin = () => {
 
 .service-btn {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 0.3rem;
   padding: 0.5rem 0.6rem;
   background: var(--color-bg-light);
