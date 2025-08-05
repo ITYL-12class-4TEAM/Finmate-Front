@@ -74,16 +74,16 @@ const filteredPosts = computed(() => {
 
   // 정렬
   switch (sortBy.value) {
-    case 'date-desc':
-      filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    case 'comment-date-desc':
+      filtered.sort((a, b) => new Date(b.myCommentCreatedAt) - new Date(a.myCommentCreatedAt));
       break;
-    case 'date-asc':
-      filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    case 'post-date-desc':
+      filtered.sort((a, b) => new Date(b.postCreatedAt) - new Date(a.postCreatedAt));
       break;
     case 'like-desc':
       filtered.sort((a, b) => b.likeCount - a.likeCount);
       break;
-    case 'comment-desc':
+    case 'comment-count-desc':
       filtered.sort((a, b) => b.commentCount - a.commentCount);
       break;
   }
@@ -153,6 +153,7 @@ const fetchPosts = async () => {
     loading.value = false;
   }
 };
+
 // 개별 게시글 정보 최신화
 const refreshPost = async (postId) => {
   try {
@@ -169,7 +170,7 @@ const refreshPost = async (postId) => {
           content: updated.content,
           likeCount: updated.likeCount,
           commentCount: updated.commentCount,
-          createdAt: convertDateArrayToISOString(updated.createdAt),
+          postCreatedAt: convertDateArrayToISOString(updated.createdAt),
         };
       }
       return p;
@@ -184,12 +185,23 @@ function convertDateArrayToISOString(arr) {
   const [year, month, day, hour = 0, minute = 0, second = 0] = arr;
   return new Date(year, month - 1, day, hour, minute, second).toISOString();
 }
+
 const filterAndSortPosts = () => {
   currentPage.value = 1;
 };
 
 const viewPost = (post) => {
   router.push(`/community/${post.postId}`);
+};
+
+// 내 댓글 보기 함수 추가
+const viewMyComment = (post) => {
+  // 게시글로 이동하면서 특정 댓글로 스크롤하는 기능
+  // 댓글 ID를 쿼리 파라미터로 전달
+  router.push({
+    path: `/community/${post.postId}`,
+    query: { commentId: post.myCommentId }
+  });
 };
 
 const changePage = (page) => {
@@ -205,6 +217,7 @@ const formatDate = (dateString) => {
 onMounted(() => {
   fetchPosts();
 });
+
 defineExpose({ refreshPost });
 </script>
 
