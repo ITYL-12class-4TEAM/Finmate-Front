@@ -135,14 +135,10 @@ export default {
 
 <style scoped>
 .survey-main {
-  max-width: 375px; /* iPhone 기준으로 변경 */
+  max-width: 26.875rem; /* 430px iPhone 기준으로 변경 */
   margin: 0 auto;
   padding: 1.5rem 1rem;
-  font-family:
-    'Pretendard',
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .header {

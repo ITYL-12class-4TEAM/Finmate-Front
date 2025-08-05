@@ -152,14 +152,10 @@ export default {
 <style scoped>
 /* 컨테이너 설정 */
 .survey-page {
-  max-width: 375px;
+  max-width: 26.875rem; /* 430px */
   margin: 0 auto;
   padding: 1rem;
-  font-family:
-    'Pretendard',
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
+  font-family: 'Inter', sans-serif;
   background: linear-gradient(135deg, var(--color-bg-light) 0%, rgba(238, 238, 243, 0.5) 100%);
   min-height: 100vh;
 }
