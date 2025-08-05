@@ -83,22 +83,6 @@
         @join-product="joinProduct"
       />
 
-      <!-- 금융용어 섹션 -->
-      <div class="financial-terms-section">
-        <h3 class="section-title">금융용어 사전</h3>
-        <div class="terms-list">
-          <div
-            v-for="term in financialTerms"
-            :key="term.name"
-            class="term-item"
-            @click="showTermDetail(term.name)"
-          >
-            <div class="term-name">{{ term.name }}</div>
-            <div class="term-preview">{{ term.preview }}</div>
-          </div>
-        </div>
-      </div>
-
       <!-- 하단 여백 (CompareFloatingBar가 가리는 콘텐츠 방지) -->
       <div v-if="compareList.length > 0" style="height: 4rem"></div>
     </div>
