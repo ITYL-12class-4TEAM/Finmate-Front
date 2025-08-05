@@ -178,7 +178,7 @@ const fetchProducts = async () => {
       category: 'deposit',
       categoryId: 1,
       subCategoryId: 102,
-      amount: String(depositAmount.value).replace(/[^\d]/g, ''),
+      depositAmount: String(depositAmount.value).replace(/[^\d]/g, ''),
       saveTrm: period.value,
       page: currentPage.value,
       size: pageSize.value,
@@ -202,7 +202,7 @@ const fetchProducts = async () => {
     }
 
     // 수치형 데이터 변환 확인
-    params.amount = parseInt(params.amount) || 0; // minAmount가 아닌 amount 사용
+    params.depositAmount = parseInt(params.depositAmount) || 0; // minAmount가 아닌 amount 사용
     params.page = parseInt(params.page) || 1;
     params.size = parseInt(params.size) || 10;
 
