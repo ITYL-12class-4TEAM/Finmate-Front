@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-overlay" v-if="isVisible" @click="handleOverlayClick">
+  <div v-if="isVisible" class="modal-overlay" @click="handleOverlayClick">
     <div class="modal-container" @click.stop>
       <!-- 모달 헤더 -->
       <div class="modal-header">
@@ -33,22 +33,16 @@
       <div class="modal-footer">
         <button
           type="button"
-          @click="handleCancel"
           class="modal-btn cancel-btn"
           :disabled="isProcessing"
+          @click="handleCancel"
         >
           <i class="fas fa-times"></i>
           취소
         </button>
 
-        <button
-          @click="handleConfirm"
-          class="modal-btn delete-btn"
-          :disabled="isProcessing"
-        >
-          <i
-            :class="isProcessing ? 'fas fa-sync-alt spin' : 'fas fa-trash-alt'"
-          ></i>
+        <button class="modal-btn delete-btn" :disabled="isProcessing" @click="handleConfirm">
+          <i :class="isProcessing ? 'fas fa-sync-alt spin' : 'fas fa-trash-alt'"></i>
           {{ isProcessing ? '삭제 중...' : '삭제' }}
         </button>
       </div>
@@ -144,11 +138,7 @@ watch(
 }
 
 .modal-container {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
   box-shadow: 0 20px 60px rgba(220, 38, 38, 0.2);
   max-width: 450px;
@@ -161,11 +151,7 @@ watch(
 .modal-header {
   padding: 1rem;
   border-bottom: 1px solid rgba(220, 38, 38, 0.2);
-  background: linear-gradient(
-    135deg,
-    rgba(220, 38, 38, 0.05),
-    rgba(239, 68, 68, 0.05)
-  );
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.05), rgba(239, 68, 68, 0.05));
 }
 
 .modal-title {
@@ -233,11 +219,7 @@ watch(
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem;
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.1),
-    rgba(220, 38, 38, 0.1)
-  );
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
   border-radius: 0.5rem;
   border: 1px solid rgba(220, 38, 38, 0.2);
   font-size: 0.85rem;

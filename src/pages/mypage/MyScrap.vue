@@ -7,21 +7,21 @@
 
   <div v-else>
     <ScrappedPostFilter
-      v-model:searchQuery="searchQuery"
-      v-model:selectedBoard="selectedBoard"
-      v-model:sortBy="sortBy"
+      v-model:search-query="searchQuery"
+      v-model:selected-board="selectedBoard"
+      v-model:sort-by="sortBy"
       @filter="filterAndSortPosts"
     />
 
     <div>
-      <ScrappedPostActions :filteredCount="filteredPosts.length" />
+      <ScrappedPostActions :filtered-count="filteredPosts.length" />
 
       <ScrappedPostList :posts="paginatedPosts" @view-post="viewPost" />
 
       <Pagination
         v-if="totalPages > 1"
-        :currentPage="currentPage"
-        :totalPages="totalPages"
+        :current-page="currentPage"
+        :total-pages="totalPages"
         @change-page="changePage"
       />
     </div>
@@ -72,21 +72,15 @@ const filteredPosts = computed(() => {
   }
 
   if (selectedBoard.value) {
-    filtered = filtered.filter(
-      (post) => post.boardType === selectedBoard.value
-    );
+    filtered = filtered.filter((post) => post.boardType === selectedBoard.value);
   }
 
   switch (sortBy.value) {
     case 'scrap-date-desc':
-      filtered.sort(
-        (a, b) => toDate(b.scrapCreatedAt) - toDate(a.scrapCreatedAt)
-      );
+      filtered.sort((a, b) => toDate(b.scrapCreatedAt) - toDate(a.scrapCreatedAt));
       break;
     case 'post-date-desc':
-      filtered.sort(
-        (a, b) => toDate(b.postCreatedAt) - toDate(a.postCreatedAt)
-      );
+      filtered.sort((a, b) => toDate(b.postCreatedAt) - toDate(a.postCreatedAt));
       break;
     case 'like-desc':
       filtered.sort((a, b) => b.likeCount - a.likeCount);

@@ -9,7 +9,7 @@
   >
     <RecentViewItemCategory
       :product="product"
-      :isSelected="isSelected"
+      :is-selected="isSelected"
       @select="handleSelect"
       @click.stop
     />
@@ -39,12 +39,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits([
-  'select',
-  'remove-from-history',
-  'view-detail',
-  'click-recent',
-]);
+const emit = defineEmits(['select', 'remove-from-history', 'view-detail', 'click-recent']);
 
 const handleSelect = (isSelected) => {
   emit('select', props.product.productId, isSelected);
@@ -58,11 +53,7 @@ const handleCardClick = () => {
 
 <style scoped>
 .recent-view-item {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
   padding: 0.5rem 0.75rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
@@ -164,12 +155,7 @@ const handleCardClick = () => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.4),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
   animation: loading-shimmer 1.5s infinite;
 }
 
@@ -232,11 +218,7 @@ const handleCardClick = () => {
 /* 최근 조회 특화 스타일 */
 .recent-view-item.just-viewed {
   border-color: rgba(5, 150, 105, 0.4);
-  background: linear-gradient(
-    135deg,
-    rgba(5, 150, 105, 0.02) 0%,
-    rgba(16, 185, 129, 0.01) 100%
-  );
+  background: linear-gradient(135deg, rgba(5, 150, 105, 0.02) 0%, rgba(16, 185, 129, 0.01) 100%);
 }
 
 .recent-view-item.just-viewed::before {

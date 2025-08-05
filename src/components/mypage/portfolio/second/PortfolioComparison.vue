@@ -4,9 +4,9 @@
     <div class="row">
       <div class="col-12">
         <AgeComparisonChart
-          :userAgeGroup="userAgeGroup"
-          :ageComparisonChart="ageComparisonChart"
-          :totalAmount="totalAmount"
+          :user-age-group="userAgeGroup"
+          :age-comparison-chart="ageComparisonChart"
+          :total-amount="totalAmount"
         />
       </div>
     </div>

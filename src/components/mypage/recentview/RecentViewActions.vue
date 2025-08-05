@@ -1,9 +1,9 @@
 <template>
   <div class="item-actions">
     <button
-      @click="$emit('view-detail', product)"
       class="btn btn-outline-primary btn-sm"
       :disabled="!product.externalLink"
+      @click="$emit('view-detail', product)"
     >
       <i class="bi bi-eye me-1"></i>상세보기
     </button>

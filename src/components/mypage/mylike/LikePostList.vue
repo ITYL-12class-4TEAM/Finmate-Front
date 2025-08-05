@@ -27,11 +27,7 @@ const emit = defineEmits(['view-post']);
 
 <style scoped>
 .likes-list {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
   box-shadow: 0 2px 8px -2px rgba(45, 51, 107, 0.1);
@@ -70,12 +66,7 @@ const emit = defineEmits(['view-post']);
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(var(--color-light), 0.3),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(var(--color-light), 0.3), transparent);
   animation: shimmer 2s infinite;
   z-index: 1;
 }

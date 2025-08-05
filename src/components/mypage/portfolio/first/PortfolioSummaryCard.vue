@@ -3,10 +3,10 @@
     <div class="summary-grid">
       <div
         class="summary-item primary"
-        @click="$emit('focus-metric', 'totalAmount')"
         :tabindex="0"
         role="button"
         :aria-label="`총 자산 ${formatCurrency(totalAmount)}`"
+        @click="$emit('focus-metric', 'totalAmount')"
       >
         <div class="summary-icon">
           <i class="bi bi-wallet2"></i>
@@ -17,10 +17,10 @@
 
       <div
         class="summary-item secondary"
-        @click="$emit('focus-metric', 'portfolioCount')"
         :tabindex="0"
         role="button"
         :aria-label="`보유 상품 ${portfolioCount}개`"
+        @click="$emit('focus-metric', 'portfolioCount')"
       >
         <div class="summary-icon">
           <i class="bi bi-collection"></i>
@@ -34,10 +34,10 @@
 
       <div
         class="summary-item tertiary"
-        @click="$emit('focus-metric', 'categoryCount')"
         :tabindex="0"
         role="button"
         :aria-label="`카테고리 ${categoryCount}개`"
+        @click="$emit('focus-metric', 'categoryCount')"
       >
         <div class="summary-icon">
           <i class="bi bi-grid-3x3-gap"></i>
@@ -51,10 +51,10 @@
 
       <div
         class="summary-item quaternary"
-        @click="$emit('focus-metric', 'averageAmount')"
         :tabindex="0"
         role="button"
         :aria-label="`평균 투자액 ${formatCurrency(averageAmount)}`"
+        @click="$emit('focus-metric', 'averageAmount')"
       >
         <div class="summary-icon">
           <i class="bi bi-bar-chart-line"></i>
@@ -166,15 +166,12 @@ const getAverageInsight = () => {
 .summary-card {
   max-width: 26.875rem;
   width: 100%;
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
   padding: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow: 0 4px 6px -1px rgba(45, 51, 107, 0.1),
+  box-shadow:
+    0 4px 6px -1px rgba(45, 51, 107, 0.1),
     0 2px 4px -1px rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -237,35 +234,19 @@ const getAverageInsight = () => {
 }
 
 .summary-item.primary::before {
-  background: linear-gradient(
-    90deg,
-    var(--color-main) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(90deg, var(--color-main) 0%, var(--color-sub) 100%);
 }
 
 .summary-item.secondary::before {
-  background: linear-gradient(
-    90deg,
-    var(--color-sub) 0%,
-    var(--color-light) 100%
-  );
+  background: linear-gradient(90deg, var(--color-sub) 0%, var(--color-light) 100%);
 }
 
 .summary-item.tertiary::before {
-  background: linear-gradient(
-    90deg,
-    var(--color-light) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(90deg, var(--color-light) 0%, var(--color-sub) 100%);
 }
 
 .summary-item.quaternary::before {
-  background: linear-gradient(
-    90deg,
-    var(--color-sub) 0%,
-    var(--color-light) 100%
-  );
+  background: linear-gradient(90deg, var(--color-sub) 0%, var(--color-light) 100%);
 }
 
 .summary-icon {

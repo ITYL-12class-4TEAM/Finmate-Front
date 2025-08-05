@@ -18,10 +18,7 @@
             <i class="fa-solid fa-check-circle"></i>
             <span>{{ selectedCount }}개 선택됨</span>
           </div>
-          <button
-            @click="$emit('delete-selected')"
-            class="action-btn delete-selected"
-          >
+          <button class="action-btn delete-selected" @click="$emit('delete-selected')">
             <i class="fa-solid fa-trash"></i>
             <span>선택 삭제</span>
           </button>
@@ -29,11 +26,7 @@
 
         <!-- 선택된 항목이 없을 때 -->
         <div v-else class="default-actions">
-          <button
-            @click="handleClearAll"
-            class="action-btn delete-all"
-            :disabled="count === 0"
-          >
+          <button class="action-btn delete-all" :disabled="count === 0" @click="handleClearAll">
             <i class="fa-solid fa-trash-can"></i>
             <span>전체 삭제</span>
           </button>
@@ -96,11 +89,7 @@ const handleClearAll = () => emit('delete-all');
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0.75rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
   box-shadow: 0 2px 8px -2px rgba(45, 51, 107, 0.1);

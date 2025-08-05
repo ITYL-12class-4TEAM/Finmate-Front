@@ -9,8 +9,8 @@
             <div class="warning-content">
               <h3 class="warning-title">⚠️ 중요한 안내사항</h3>
               <p class="warning-desc">
-                계정 탈퇴는 <strong>되돌릴 수 없는</strong> 작업입니다. 아래
-                내용을 신중히 검토한 후 진행해주세요.
+                계정 탈퇴는 <strong>되돌릴 수 없는</strong> 작업입니다. 아래 내용을 신중히 검토한 후
+                진행해주세요.
               </p>
             </div>
           </div>
@@ -81,7 +81,7 @@
         </div>
 
         <!-- 탈퇴 확인 폼 -->
-        <div class="confirmation-section" v-if="showConfirmation">
+        <div v-if="showConfirmation" class="confirmation-section">
           <div class="section-header">
             <h4 class="section-title danger">
               <i class="fas fa-exclamation-circle me-2"></i>
@@ -132,7 +132,7 @@
             </div>
 
             <!-- 추가 의견 -->
-            <div class="form-group" v-if="deleteReason === 'other'">
+            <div v-if="deleteReason === 'other'" class="form-group">
               <label class="form-label">
                 <i class="fas fa-edit me-2"></i>
                 추가 의견
@@ -148,11 +148,7 @@
             <!-- 최종 확인 체크박스 -->
             <div class="final-check">
               <label class="check-label">
-                <input
-                  v-model="finalConfirm"
-                  type="checkbox"
-                  class="check-input"
-                />
+                <input v-model="finalConfirm" type="checkbox" class="check-input" />
                 <span class="check-mark"></span>
                 <span class="check-text">
                   위의 모든 내용을 확인했으며, 계정 탈퇴에 따른
@@ -166,8 +162,8 @@
               <button
                 type="button"
                 class="action-btn secondary"
-                @click="cancelDeletion"
                 :disabled="processing"
+                @click="cancelDeletion"
               >
                 <i class="fas fa-times me-2"></i>
                 취소
@@ -175,9 +171,9 @@
               <button
                 type="button"
                 class="action-btn danger"
-                @click="proceedToDelete"
                 :disabled="!canProceed || processing"
                 :class="{ processing: processing }"
+                @click="proceedToDelete"
               >
                 <i v-if="processing" class="fas fa-spinner fa-spin me-2"></i>
                 <i v-else class="fas fa-trash me-2"></i>
@@ -188,19 +184,12 @@
         </div>
 
         <!-- 탈퇴 시작 버튼 -->
-        <div class="start-deletion" v-if="!showConfirmation">
+        <div v-if="!showConfirmation" class="start-deletion">
           <div class="start-warning">
-            <p>
-              모든 내용을 확인하셨다면, 아래 버튼을 클릭하여 탈퇴 절차를
-              시작하세요.
-            </p>
+            <p>모든 내용을 확인하셨다면, 아래 버튼을 클릭하여 탈퇴 절차를 시작하세요.</p>
           </div>
           <div class="start-actions">
-            <button
-              type="button"
-              class="action-btn danger"
-              @click="startDeletion"
-            >
+            <button type="button" class="action-btn danger" @click="startDeletion">
               <i class="fas fa-exclamation-triangle me-2"></i>
               탈퇴 절차 시작
             </button>
@@ -225,11 +214,8 @@
               <i class="fas fa-skull-crossbones"></i>
             </div>
             <h5>정말로 계정을 삭제하시겠습니까?</h5>
-            <p>
-              이 작업은 <strong>되돌릴 수 없으며</strong>, 모든 데이터가 즉시
-              영구 삭제됩니다.
-            </p>
-            <div class="countdown" v-if="countdown > 0">
+            <p>이 작업은 <strong>되돌릴 수 없으며</strong>, 모든 데이터가 즉시 영구 삭제됩니다.</p>
+            <div v-if="countdown > 0" class="countdown">
               {{ countdown }}초 후 확인 버튼이 활성화됩니다...
             </div>
           </div>
@@ -242,9 +228,9 @@
           </button>
           <button
             class="modal-btn danger"
-            @click="confirmFinalDeletion"
             :disabled="countdown > 0 || processing"
             :class="{ processing: processing }"
+            @click="confirmFinalDeletion"
           >
             <i v-if="processing" class="fas fa-spinner fa-spin me-2"></i>
             <i v-else class="fas fa-trash me-2"></i>
@@ -336,10 +322,7 @@ const proceedToDelete = () => {
     return;
   }
 
-  if (
-    confirmEmail.value.toLowerCase().trim() !==
-    userInfo.value.email.toLowerCase().trim()
-  ) {
+  if (confirmEmail.value.toLowerCase().trim() !== userInfo.value.email.toLowerCase().trim()) {
     emailError.value = '이메일이 일치하지 않습니다.';
     return;
   }
@@ -460,11 +443,7 @@ onUnmounted(() => {
 }
 
 .delete-card {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
   padding: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
@@ -482,11 +461,7 @@ onUnmounted(() => {
 
 /* 경고 섹션 */
 .warning-section {
-  background: linear-gradient(
-    135deg,
-    rgba(245, 158, 11, 0.1) 0%,
-    rgba(217, 119, 6, 0.1) 100%
-  );
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%);
   border: 2px solid rgba(245, 158, 11, 0.3);
   border-radius: 1rem;
   padding: 1rem;
@@ -669,11 +644,7 @@ onUnmounted(() => {
 
 /* 확인 섹션 */
 .confirmation-section {
-  background: linear-gradient(
-    135deg,
-    rgba(220, 38, 38, 0.05) 0%,
-    rgba(185, 28, 28, 0.05) 100%
-  );
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(185, 28, 28, 0.05) 100%);
   border: 2px solid rgba(220, 38, 38, 0.2);
   border-radius: 1rem;
   padding: 1.5rem;
@@ -812,11 +783,7 @@ onUnmounted(() => {
 /* 체크박스 */
 .final-check {
   padding: 1rem;
-  background: linear-gradient(
-    135deg,
-    rgba(220, 38, 38, 0.08) 0%,
-    rgba(185, 28, 28, 0.08) 100%
-  );
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.08) 0%, rgba(185, 28, 28, 0.08) 100%);
   border: 1px solid rgba(220, 38, 38, 0.2);
   border-radius: 0.75rem;
 }
@@ -940,11 +907,7 @@ onUnmounted(() => {
 }
 
 .action-btn.processing {
-  background: linear-gradient(
-    135deg,
-    var(--color-sub) 0%,
-    var(--color-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-sub) 0%, var(--color-light) 100%);
 }
 
 .action-btn.processing::after {
@@ -954,12 +917,7 @@ onUnmounted(() => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
   animation: shimmer 2s infinite;
 }
 
@@ -1027,11 +985,7 @@ onUnmounted(() => {
 }
 
 .modal-card {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
   width: 100%;
   max-width: 450px;
@@ -1187,11 +1141,7 @@ onUnmounted(() => {
 }
 
 .modal-btn.processing {
-  background: linear-gradient(
-    135deg,
-    var(--color-sub) 0%,
-    var(--color-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-sub) 0%, var(--color-light) 100%);
   position: relative;
   overflow: hidden;
 }

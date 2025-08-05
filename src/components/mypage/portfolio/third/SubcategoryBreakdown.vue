@@ -13,17 +13,17 @@
         <!-- 전체 펼치기/접기 버튼 -->
         <div class="breakdown-controls">
           <button
-            @click="expandAll"
             class="control-button"
             :disabled="expandedCategories.size === processedSummary.length"
+            @click="expandAll"
           >
             <i class="bi bi-arrows-expand me-1"></i>
             전체 펼치기
           </button>
           <button
-            @click="collapseAll"
             class="control-button"
             :disabled="expandedCategories.size === 0"
+            @click="collapseAll"
           >
             <i class="bi bi-arrows-collapse me-1"></i>
             전체 접기
@@ -39,10 +39,10 @@
           <!-- 카테고리 헤더 -->
           <div
             class="category-header"
-            @click="toggleCategory(category.categoryName)"
             role="button"
             :aria-expanded="expandedCategories.has(category.categoryName)"
             :aria-controls="`subcategory-${category.categoryName}`"
+            @click="toggleCategory(category.categoryName)"
           >
             <div class="category-info">
               <div class="category-badge">
@@ -53,18 +53,14 @@
                   }"
                 ></div>
                 <span class="category-name">{{ category.categoryName }}</span>
-                <span class="subcategory-count">
-                  {{ category.subcategories?.length || 0 }}개
-                </span>
+                <span class="subcategory-count"> {{ category.subcategories?.length || 0 }}개 </span>
               </div>
 
               <div class="category-stats">
                 <div class="category-total">
                   {{ formatCurrency(category.totalAmount) }}
                 </div>
-                <div class="category-ratio">
-                  {{ category.ratio.toFixed(1) }}%
-                </div>
+                <div class="category-ratio">{{ category.ratio.toFixed(1) }}%</div>
               </div>
             </div>
 
@@ -138,9 +134,7 @@
                 <div class="subcategory-amount">
                   {{ formatCurrency(sub.totalAmount) }}
                 </div>
-                <div class="subcategory-percentage">
-                  카테고리 내 {{ sub.ratio.toFixed(1) }}%
-                </div>
+                <div class="subcategory-percentage">카테고리 내 {{ sub.ratio.toFixed(1) }}%</div>
                 <div class="subcategory-global-percentage">
                   전체 {{ ((category.ratio * sub.ratio) / 100).toFixed(1) }}%
                 </div>
@@ -149,9 +143,7 @@
 
             <!-- 서브카테고리가 없는 경우 -->
             <div
-              v-if="
-                !category.subcategories || category.subcategories.length === 0
-              "
+              v-if="!category.subcategories || category.subcategories.length === 0"
               class="no-subcategories"
             >
               <i class="bi bi-info-circle me-2"></i>
@@ -252,9 +244,7 @@ const toggleCategory = (categoryName) => {
 
 // 전체 펼치기
 const expandAll = () => {
-  expandedCategories.value = new Set(
-    props.processedSummary.map((cat) => cat.categoryName)
-  );
+  expandedCategories.value = new Set(props.processedSummary.map((cat) => cat.categoryName));
 };
 
 // 전체 접기
@@ -302,9 +292,7 @@ watch(
   () => props.processedSummary,
   (newData) => {
     if (newData.length > 0 && expandedCategories.value.size === 0) {
-      const highest = newData.reduce((max, current) =>
-        current.ratio > max.ratio ? current : max
-      );
+      const highest = newData.reduce((max, current) => (current.ratio > max.ratio ? current : max));
       expandedCategories.value.add(highest.categoryName);
     }
   },
@@ -318,7 +306,8 @@ watch(
   border-radius: 1rem;
   padding: 1.5rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow: 0 4px 6px -1px rgba(45, 51, 107, 0.1),
+  box-shadow:
+    0 4px 6px -1px rgba(45, 51, 107, 0.1),
     0 2px 4px -1px rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -336,7 +325,11 @@ watch(
   font-size: 1.2rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    'Pretendard',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   display: flex;
   align-items: center;
 }
@@ -511,7 +504,9 @@ watch(
 .subcategory-list {
   max-height: 500px;
   overflow: hidden;
-  transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+  transition:
+    max-height 0.3s ease-out,
+    opacity 0.3s ease-out;
   opacity: 1;
 }
 
@@ -613,11 +608,7 @@ watch(
   align-items: center;
   justify-content: center;
   padding: 3rem 1rem;
-  background: linear-gradient(
-    135deg,
-    rgba(185, 187, 204, 0.1) 0%,
-    rgba(125, 129, 162, 0.1) 100%
-  );
+  background: linear-gradient(135deg, rgba(185, 187, 204, 0.1) 0%, rgba(125, 129, 162, 0.1) 100%);
   border-radius: 0.75rem;
   margin-bottom: 1.5rem;
 }
@@ -626,11 +617,7 @@ watch(
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    var(--color-light) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-sub) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -659,11 +646,7 @@ watch(
 .breakdown-summary {
   margin-top: 1.5rem;
   padding: 1.5rem;
-  background: linear-gradient(
-    135deg,
-    rgba(185, 187, 204, 0.1) 0%,
-    rgba(125, 129, 162, 0.1) 100%
-  );
+  background: linear-gradient(135deg, rgba(185, 187, 204, 0.1) 0%, rgba(125, 129, 162, 0.1) 100%);
   border-radius: 0.75rem;
   border: 1px solid rgba(185, 187, 204, 0.2);
 }
@@ -689,11 +672,7 @@ watch(
   width: 2rem;
   height: 2rem;
   border-radius: 0.5rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-light) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-sub) 100%);
   display: flex;
   align-items: center;
   justify-content: center;

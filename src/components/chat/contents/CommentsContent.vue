@@ -6,8 +6,8 @@
         v-for="comment in displayComments"
         :key="`comment-${comment.id || comment.commentId}`"
         class="comment-item"
-        @click="$emit('navigate-to-post', comment.postId)"
         :aria-label="`댓글: ${comment.content || comment.text}`"
+        @click="$emit('navigate-to-post', comment.postId)"
       >
         <div class="comment-info">
           <h4 class="comment-title">
@@ -17,11 +17,7 @@
             <span class="post-ref">게시글 #{{ comment.postId }}</span>
             <span class="separator">·</span>
             <span class="date">
-              {{
-                formatDate(
-                  comment.createdAt || comment.created_at || comment.date
-                )
-              }}
+              {{ formatDate(comment.createdAt || comment.created_at || comment.date) }}
             </span>
             <span
               v-if="comment.likeCount || comment.like_count"
@@ -31,9 +27,7 @@
               <i class="bi bi-heart-fill"></i>
               {{ comment.likeCount || comment.like_count }}
             </span>
-            <span v-if="comment.parentComment" class="reply-badge" title="답글">
-              ↳ 답글
-            </span>
+            <span v-if="comment.parentComment" class="reply-badge" title="답글"> ↳ 답글 </span>
           </p>
         </div>
         <div class="comment-arrow">
@@ -51,9 +45,9 @@
     </div>
     <button
       v-if="hasMoreComments"
-      @click="$emit('navigate-to-more', message.moreUrl)"
       class="more-btn"
       :aria-label="`더보기 (${remainingCount}개)`"
+      @click="$emit('navigate-to-more', message.moreUrl)"
     >
       더보기 ({{ remainingCount }}개)
     </button>
@@ -102,10 +96,7 @@ const formatDate = (dateString) => {
       date = new Date(year, month - 1, day, hour, minute, second);
     } else if (dateString instanceof Date) {
       date = dateString;
-    } else if (
-      typeof dateString === 'string' ||
-      typeof dateString === 'number'
-    ) {
+    } else if (typeof dateString === 'string' || typeof dateString === 'number') {
       date = new Date(dateString);
     } else if (typeof dateString === 'object' && dateString.$date) {
       date = new Date(dateString.$date);
@@ -281,11 +272,7 @@ const formatDate = (dateString) => {
 }
 
 .more-btn {
-  background: linear-gradient(
-    135deg,
-    var(--color-main) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
   color: var(--color-white);
   border: none;
   padding: 0.65rem 1rem;
@@ -306,12 +293,7 @@ const formatDate = (dateString) => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
   transition: left 0.5s;
 }
 

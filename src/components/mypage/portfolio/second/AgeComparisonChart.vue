@@ -5,9 +5,7 @@
         <i class="bi bi-bar-chart me-2"></i>
         {{ userAgeGroup }} 평균과 비교
       </h5>
-      <small class="stats-subtitle">
-        동일 연령대 투자자들과의 자산 배분 비교
-      </small>
+      <small class="stats-subtitle"> 동일 연령대 투자자들과의 자산 배분 비교 </small>
     </div>
 
     <div class="stats-content">
@@ -26,14 +24,8 @@
               @click="toggleTab(index)"
             >
               <span class="tab-name">{{ category.name }}</span>
-              <span
-                :class="[
-                  'tab-difference',
-                  category.difference >= 0 ? 'positive' : 'negative',
-                ]"
-              >
-                {{ category.difference >= 0 ? '+' : ''
-                }}{{ category.difference.toFixed(1) }}%
+              <span :class="['tab-difference', category.difference >= 0 ? 'positive' : 'negative']">
+                {{ category.difference >= 0 ? '+' : '' }}{{ category.difference.toFixed(1) }}%
               </span>
             </button>
           </div>
@@ -42,8 +34,8 @@
           <div class="tab-content" :class="{ collapsed: activeTab === -1 }">
             <div
               v-for="(category, index) in ageComparisonChart"
-              :key="category.name"
               v-show="activeTab === index"
+              :key="category.name"
               class="tab-panel"
             >
               <div class="mobile-comparison-item">
@@ -52,9 +44,7 @@
                 <div class="mobile-stats-grid">
                   <div class="mobile-stat">
                     <span class="mobile-stat-label">내 비율</span>
-                    <span class="mobile-stat-value my-color"
-                      >{{ category.my.toFixed(1) }}%</span
-                    >
+                    <span class="mobile-stat-value my-color">{{ category.my.toFixed(1) }}%</span>
                   </div>
                   <div class="mobile-stat">
                     <span class="mobile-stat-label">또래 평균</span>
@@ -71,8 +61,7 @@
                         category.difference >= 0 ? 'positive' : 'negative',
                       ]"
                     >
-                      {{ category.difference >= 0 ? '+' : ''
-                      }}{{ category.difference.toFixed(1) }}%
+                      {{ category.difference >= 0 ? '+' : '' }}{{ category.difference.toFixed(1) }}%
                     </span>
                   </div>
                 </div>
@@ -86,9 +75,7 @@
                         :style="{ width: Math.min(category.my, 100) + '%' }"
                       ></div>
                     </div>
-                    <span class="mobile-progress-value"
-                      >{{ category.my.toFixed(1) }}%</span
-                    >
+                    <span class="mobile-progress-value">{{ category.my.toFixed(1) }}%</span>
                   </div>
                   <div class="mobile-progress-item">
                     <span class="mobile-progress-label">평균</span>
@@ -100,9 +87,7 @@
                         }"
                       ></div>
                     </div>
-                    <span class="mobile-progress-value"
-                      >{{ category.average.toFixed(1) }}%</span
-                    >
+                    <span class="mobile-progress-value">{{ category.average.toFixed(1) }}%</span>
                   </div>
                 </div>
               </div>
@@ -117,9 +102,7 @@
           <i class="bi bi-graph-up"></i>
         </div>
         <h6 class="empty-title">비교 데이터 없음</h6>
-        <p class="empty-text">
-          {{ userAgeGroup }} 또래의 비교 데이터를 준비 중입니다.
-        </p>
+        <p class="empty-text">{{ userAgeGroup }} 또래의 비교 데이터를 준비 중입니다.</p>
         <small class="empty-subtitle">
           더 많은 사용자 데이터가 축적되면 정확한 비교 분석을 제공할 예정입니다.
         </small>
@@ -174,7 +157,8 @@ const toggleTab = (index) => {
   border-radius: 1rem;
   padding: 1.5rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow: 0 4px 6px -1px rgba(45, 51, 107, 0.1),
+  box-shadow:
+    0 4px 6px -1px rgba(45, 51, 107, 0.1),
     0 2px 4px -1px rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -224,22 +208,14 @@ const toggleTab = (index) => {
 }
 
 .my-bar {
-  background: linear-gradient(
-    90deg,
-    var(--color-main) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(90deg, var(--color-main) 0%, var(--color-sub) 100%);
   border-radius: 1rem;
   transition: width 1s ease-out;
   height: 100%;
 }
 
 .avg-bar {
-  background: linear-gradient(
-    90deg,
-    var(--color-light) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(90deg, var(--color-light) 0%, var(--color-sub) 100%);
   border-radius: 1rem;
   transition: width 1s ease-out 0.2s;
   height: 100%;
@@ -425,11 +401,7 @@ const toggleTab = (index) => {
 .comparison-message {
   margin-top: 1.5rem;
   padding: 1rem;
-  background: linear-gradient(
-    135deg,
-    rgba(185, 187, 204, 0.1) 0%,
-    rgba(125, 129, 162, 0.1) 100%
-  );
+  background: linear-gradient(135deg, rgba(185, 187, 204, 0.1) 0%, rgba(125, 129, 162, 0.1) 100%);
   border-radius: 0.75rem;
   border: 1px solid rgba(185, 187, 204, 0.2);
   display: flex;
@@ -458,11 +430,7 @@ const toggleTab = (index) => {
 .empty-comparison {
   text-align: center;
   padding: 2rem;
-  background: linear-gradient(
-    135deg,
-    rgba(185, 187, 204, 0.1) 0%,
-    rgba(125, 129, 162, 0.1) 100%
-  );
+  background: linear-gradient(135deg, rgba(185, 187, 204, 0.1) 0%, rgba(125, 129, 162, 0.1) 100%);
   border-radius: 0.75rem;
   border: 1px solid rgba(185, 187, 204, 0.2);
 }
@@ -471,11 +439,7 @@ const toggleTab = (index) => {
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    var(--color-light) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-sub) 100%);
   display: flex;
   align-items: center;
   justify-content: center;

@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <div class="modal-overlay" v-if="isVisible" @click.self="closeModal">
+    <div v-if="isVisible" class="modal-overlay" @click.self="closeModal">
       <div class="modal-container" @click.stop>
         <!-- 모달 헤더 -->
         <div class="modal-header">
@@ -13,14 +13,14 @@
               {{ item.customProductName || '상품 정보' }}를 수정합니다
             </div>
           </div>
-          <button class="modal-close" @click="closeModal" title="닫기">
+          <button class="modal-close" title="닫기" @click="closeModal">
             <i class="fas fa-times"></i>
           </button>
         </div>
 
         <!-- 모달 바디 -->
         <div class="modal-body">
-          <form @submit.prevent="handleSubmit" class="edit-form">
+          <form class="edit-form" @submit.prevent="handleSubmit">
             <div class="form-grid">
               <!-- 상품명 -->
               <div class="form-group">
@@ -53,11 +53,7 @@
                   list="company-suggestions"
                 />
                 <datalist id="company-suggestions">
-                  <option
-                    v-for="company in companySuggestions"
-                    :key="company"
-                    :value="company"
-                  >
+                  <option v-for="company in companySuggestions" :key="company" :value="company">
                     {{ company }}
                   </option>
                 </datalist>
@@ -69,11 +65,7 @@
                   <i class="fas fa-th-large"></i>
                   카테고리
                 </label>
-                <select
-                  v-model="formData.category"
-                  class="form-input form-select"
-                  required
-                >
+                <select v-model="formData.category" class="form-input form-select" required>
                   <option value="">카테고리 선택</option>
                   <option value="예금">예금</option>
                   <option value="적금">적금</option>
@@ -91,10 +83,7 @@
                   <i class="fas fa-tags"></i>
                   세부 카테고리
                 </label>
-                <select
-                  v-model="formData.subcategory"
-                  class="form-input form-select"
-                >
+                <select v-model="formData.subcategory" class="form-input form-select">
                   <option value="">세부 분류 선택</option>
                   <option
                     v-for="subcategory in availableSubcategories"
@@ -225,14 +214,14 @@
                   rows="3"
                   maxlength="500"
                 ></textarea>
-                <div class="character-count" v-if="formData.memo">
+                <div v-if="formData.memo" class="character-count">
                   {{ formData.memo.length }}/500자
                 </div>
               </div>
             </div>
 
             <!-- 자동 계산 섹션 -->
-            <div class="auto-calculate-section" v-if="canAutoCalculate">
+            <div v-if="canAutoCalculate" class="auto-calculate-section">
               <div class="calculate-header">
                 <div class="calculate-title">
                   <i class="fas fa-calculator"></i>
@@ -240,18 +229,16 @@
                 </div>
                 <button
                   type="button"
-                  @click="autoCalculateAll"
                   class="auto-calc-btn"
                   :disabled="isProcessing"
+                  @click="autoCalculateAll"
                 >
                   <i class="fas fa-magic"></i>
                   수익 자동계산
                 </button>
               </div>
 
-              <div class="calc-note">
-                금액, 금리, 기간을 바탕으로 예상 수익을 계산합니다
-              </div>
+              <div class="calc-note">금액, 금리, 기간을 바탕으로 예상 수익을 계산합니다</div>
 
               <div class="calc-grid">
                 <div class="form-group">
@@ -298,9 +285,9 @@
         <div class="modal-footer">
           <button
             type="button"
-            @click="closeModal"
             class="modal-btn cancel-btn"
             :disabled="isProcessing"
+            @click="closeModal"
           >
             <i class="fas fa-times"></i>
             취소
@@ -308,22 +295,20 @@
 
           <button
             type="button"
-            @click="resetForm"
             class="modal-btn reset-btn"
             :disabled="isProcessing"
+            @click="resetForm"
           >
             <i class="fas fa-undo"></i>
             초기화
           </button>
 
           <button
-            @click="handleSubmit"
             class="modal-btn save-btn"
             :disabled="isProcessing || !isFormValid"
+            @click="handleSubmit"
           >
-            <i
-              :class="isProcessing ? 'fas fa-sync-alt spin' : 'fas fa-save'"
-            ></i>
+            <i :class="isProcessing ? 'fas fa-sync-alt spin' : 'fas fa-save'"></i>
             {{ isProcessing ? '저장 중...' : '저장' }}
           </button>
         </div>
@@ -413,9 +398,7 @@ const formData = ref({
   expectedReturn: props.item.expectedReturn || null,
   saveTrm: props.item.saveTrm || null,
   joinDate: props.item.joinDate ? formatDateForInput(props.item.joinDate) : '',
-  maturityDate: props.item.maturityDate
-    ? formatDateForInput(props.item.maturityDate)
-    : '',
+  maturityDate: props.item.maturityDate ? formatDateForInput(props.item.maturityDate) : '',
   estimatedInterest: props.item.estimatedInterest || null,
   estimatedAfterTax: props.item.estimatedAfterTax || null,
   memo: props.item.memo || '',
@@ -446,10 +429,7 @@ const canAutoCalculate = computed(() => {
 watch(
   () => formData.value.category,
   (newCategory) => {
-    if (
-      newCategory &&
-      !availableSubcategories.value.includes(formData.value.subcategory)
-    ) {
+    if (newCategory && !availableSubcategories.value.includes(formData.value.subcategory)) {
       formData.value.subcategory = '';
     }
   }
@@ -473,9 +453,7 @@ watch(
         expectedReturn: newItem.expectedReturn || null,
         saveTrm: newItem.saveTrm || null,
         joinDate: newItem.joinDate ? formatDateForInput(newItem.joinDate) : '',
-        maturityDate: newItem.maturityDate
-          ? formatDateForInput(newItem.maturityDate)
-          : '',
+        maturityDate: newItem.maturityDate ? formatDateForInput(newItem.maturityDate) : '',
         estimatedInterest: newItem.estimatedInterest || null,
         estimatedAfterTax: newItem.estimatedAfterTax || null,
         memo: newItem.memo || '',
@@ -551,10 +529,7 @@ const handleSubmit = () => {
 
   Object.keys(cleanedData).forEach((key) => {
     if (cleanedData[key] === '' || cleanedData[key] === 0) {
-      if (
-        ['customProductName', 'category', 'amount', 'portfolioId'].includes(key)
-      )
-        return; // 필수 필드는 제외
+      if (['customProductName', 'category', 'amount', 'portfolioId'].includes(key)) return; // 필수 필드는 제외
       cleanedData[key] = null;
     }
   });
@@ -604,11 +579,7 @@ watch(
 
 /* 모달 컨테이너 */
 .modal-container {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
   max-width: 26.875rem;
 
@@ -626,11 +597,7 @@ watch(
   align-items: flex-start;
   padding: 1.5rem;
   border-bottom: 2px solid rgba(185, 187, 204, 0.15);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(248, 249, 252, 0.9) 100%
-  );
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 252, 0.9) 100%);
 }
 
 .modal-title-section {
@@ -794,11 +761,7 @@ watch(
 /* 자동 계산 섹션 */
 .auto-calculate-section {
   padding: 1.25rem;
-  background: linear-gradient(
-    135deg,
-    rgba(45, 51, 107, 0.05),
-    rgba(125, 129, 162, 0.05)
-  );
+  background: linear-gradient(135deg, rgba(45, 51, 107, 0.05), rgba(125, 129, 162, 0.05));
   border-radius: 0.75rem;
   border: 1px solid rgba(185, 187, 204, 0.2);
 }
@@ -856,11 +819,7 @@ watch(
 .modal-footer {
   padding: 1rem;
   border-top: 1px solid rgba(185, 187, 204, 0.15);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(248, 249, 252, 0.9) 100%
-  );
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 252, 0.9) 100%);
   display: flex;
   gap: 0.5rem;
   justify-content: flex-end;

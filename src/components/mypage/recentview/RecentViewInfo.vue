@@ -71,11 +71,7 @@ const formatViewTime = (viewedAt) => {
   left: 0;
   width: 3px;
   height: 100%;
-  background: linear-gradient(
-    180deg,
-    rgba(45, 51, 107, 0.4) 0%,
-    rgba(125, 129, 162, 0.4) 100%
-  );
+  background: linear-gradient(180deg, rgba(45, 51, 107, 0.4) 0%, rgba(125, 129, 162, 0.4) 100%);
   transform: scaleY(0);
   transition: transform 0.3s ease;
   transform-origin: top;
@@ -233,11 +229,7 @@ const formatViewTime = (viewedAt) => {
 
 /* 최근 조회 특화 스타일 */
 .recent-view-info.highlighted {
-  background: linear-gradient(
-    135deg,
-    rgba(5, 150, 105, 0.05) 0%,
-    rgba(16, 185, 129, 0.02) 100%
-  );
+  background: linear-gradient(135deg, rgba(5, 150, 105, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%);
   border-color: rgba(5, 150, 105, 0.2);
 }
 

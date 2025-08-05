@@ -58,7 +58,7 @@
         </div>
 
         <!-- 수정 가능한 정보 -->
-        <form @submit.prevent="updateProfile" class="edit-form">
+        <form class="edit-form" @submit.prevent="updateProfile">
           <div class="info-section">
             <div class="section-header">
               <h5 class="section-title">
@@ -86,9 +86,9 @@
                 <button
                   type="button"
                   class="input-button"
-                  @click="checkNicknameAvailability"
                   :disabled="!editForm.nickname || checkingNickname"
                   :class="{ loading: checkingNickname }"
+                  @click="checkNicknameAvailability"
                 >
                   <i v-if="checkingNickname" class="fas fa-spinner fa-spin"></i>
                   <i v-else class="fas fa-check"></i>
@@ -104,20 +104,14 @@
                 <i class="fas fa-check-circle me-2"></i>
                 사용 가능한 닉네임입니다.
               </div>
-              <div class="form-hint">
-                2-30자의 한글, 영문, 숫자 조합 (특수문자 제외)
-              </div>
+              <div class="form-hint">2-30자의 한글, 영문, 숫자 조합 (특수문자 제외)</div>
             </div>
 
             <!-- 비밀번호 변경 -->
             <div class="form-group">
               <div class="password-toggle-section">
                 <label class="toggle-label">
-                  <input
-                    v-model="changePassword"
-                    type="checkbox"
-                    class="toggle-input"
-                  />
+                  <input v-model="changePassword" type="checkbox" class="toggle-input" />
                   <span class="toggle-slider"></span>
                   <span class="toggle-text">
                     <i class="fas fa-key me-2"></i>
@@ -143,11 +137,7 @@
                       class="password-toggle-btn"
                       @click="showNewPassword = !showNewPassword"
                     >
-                      <i
-                        :class="
-                          showNewPassword ? 'fas fa-eye-slash' : 'fas fa-eye'
-                        "
-                      ></i>
+                      <i :class="showNewPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
                     </button>
                   </div>
                   <div v-if="passwordError" class="form-message error">
@@ -196,8 +186,7 @@
                 <div class="notification-content">
                   <span class="notification-title">푸시 알림 받기</span>
                   <span class="notification-desc"
-                    >새로운 댓글, 좋아요, 공지사항 등의 알림을 받을 수
-                    있습니다.</span
+                    >새로운 댓글, 좋아요, 공지사항 등의 알림을 받을 수 있습니다.</span
                   >
                 </div>
               </label>
@@ -262,20 +251,14 @@ const isFormValid = computed(() => {
   let valid = true;
 
   // 닉네임이 변경되었다면 중복확인 필요
-  if (
-    editForm.value.nickname &&
-    editForm.value.nickname !== userInfo.value.nickname
-  ) {
+  if (editForm.value.nickname && editForm.value.nickname !== userInfo.value.nickname) {
     valid = valid && nicknameChecked.value && !nicknameError.value;
   }
 
   // 비밀번호 변경을 선택했다면 비밀번호 검증 필요
   if (changePassword.value) {
     valid =
-      valid &&
-      editForm.value.newPassword &&
-      !passwordError.value &&
-      !confirmPasswordError.value;
+      valid && editForm.value.newPassword && !passwordError.value && !confirmPasswordError.value;
   }
 
   return valid;
@@ -343,11 +326,9 @@ const validatePassword = () => {
   confirmPasswordError.value = '';
 
   if (password) {
-    const passwordRegex =
-      /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(password)) {
-      passwordError.value =
-        '8자 이상의 영문, 숫자, 특수문자 조합이어야 합니다.';
+      passwordError.value = '8자 이상의 영문, 숫자, 특수문자 조합이어야 합니다.';
     }
   }
 
@@ -376,10 +357,7 @@ const updateProfile = async () => {
     };
 
     // 닉네임이 변경되었다면 추가
-    if (
-      editForm.value.nickname &&
-      editForm.value.nickname !== userInfo.value.nickname
-    ) {
+    if (editForm.value.nickname && editForm.value.nickname !== userInfo.value.nickname) {
       updateData.nickname = editForm.value.nickname;
       userInfo.value.nickname = editForm.value.nickname;
     }
@@ -389,8 +367,7 @@ const updateProfile = async () => {
       updateData.password = editForm.value.newPassword;
     }
 
-    userInfo.value.receivePushNotification =
-      editForm.value.receivePushNotification;
+    userInfo.value.receivePushNotification = editForm.value.receivePushNotification;
 
     alert('회원정보가 성공적으로 수정되었습니다.');
     resetForm();
@@ -426,8 +403,7 @@ onMounted(() => {
   }
 
   // 폼 초기값 설정
-  editForm.value.receivePushNotification =
-    userInfo.value.receivePushNotification;
+  editForm.value.receivePushNotification = userInfo.value.receivePushNotification;
 });
 </script>
 
@@ -466,11 +442,7 @@ onMounted(() => {
 }
 
 .edit-card {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
   padding: 0.75rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
@@ -530,11 +502,7 @@ onMounted(() => {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    var(--color-sub) 0%,
-    var(--color-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-sub) 0%, var(--color-light) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -744,11 +712,7 @@ onMounted(() => {
 }
 
 .toggle-input:checked + .toggle-slider {
-  background: linear-gradient(
-    135deg,
-    var(--color-main) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
 }
 
 .toggle-input:checked + .toggle-slider::before {
@@ -937,11 +901,7 @@ onMounted(() => {
 }
 
 .action-btn.loading {
-  background: linear-gradient(
-    135deg,
-    var(--color-sub) 0%,
-    var(--color-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-sub) 0%, var(--color-light) 100%);
 }
 
 .action-btn.loading i {
@@ -977,12 +937,7 @@ onMounted(() => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
   animation: shimmer 2s infinite;
 }
 
@@ -1031,19 +986,11 @@ onMounted(() => {
 }
 
 .edit-profile::-webkit-scrollbar-thumb {
-  background: linear-gradient(
-    135deg,
-    var(--color-sub) 0%,
-    var(--color-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-sub) 0%, var(--color-light) 100%);
   border-radius: 4px;
 }
 
 .edit-profile::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(
-    135deg,
-    var(--color-main) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
 }
 </style>

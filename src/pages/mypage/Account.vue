@@ -15,7 +15,7 @@
         </div>
 
         <!-- 비밀번호 입력 폼 -->
-        <form @submit.prevent="verifyPassword" class="verify-form">
+        <form class="verify-form" @submit.prevent="verifyPassword">
           <div class="form-group">
             <label class="form-label">
               <i class="fas fa-key me-2"></i>
@@ -34,12 +34,10 @@
               <button
                 type="button"
                 class="password-toggle"
-                @click="togglePasswordVisibility"
                 :disabled="loading"
+                @click="togglePasswordVisibility"
               >
-                <i
-                  :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
-                ></i>
+                <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
               </button>
             </div>
             <div v-if="hasError" class="error-message">
@@ -78,11 +76,7 @@
 
         <!-- 하단 링크 -->
         <div class="bottom-links">
-          <button
-            @click="forgotPassword"
-            class="link-btn primary"
-            :disabled="loading"
-          >
+          <button class="link-btn primary" :disabled="loading" @click="forgotPassword">
             <i class="fas fa-question-circle me-2"></i>
             비밀번호를 잊으셨나요?
           </button>
@@ -91,20 +85,14 @@
     </div>
 
     <!-- 성공 모달 (옵션) -->
-    <div
-      v-if="showSuccessModal"
-      class="success-modal"
-      @click="closeSuccessModal"
-    >
+    <div v-if="showSuccessModal" class="success-modal" @click="closeSuccessModal">
       <div class="modal-content" @click.stop>
         <div class="success-icon">
           <i class="fas fa-check-circle"></i>
         </div>
         <h3>비밀번호 확인 완료</h3>
-        <p>
-          본인 확인이 완료되었습니다.<br />회원정보 수정 페이지로 이동합니다.
-        </p>
-        <button @click="proceedToEdit" class="modal-btn">계속하기</button>
+        <p>본인 확인이 완료되었습니다.<br />회원정보 수정 페이지로 이동합니다.</p>
+        <button class="modal-btn" @click="proceedToEdit">계속하기</button>
       </div>
     </div>
   </div>
@@ -238,11 +226,7 @@ const forgotPassword = () => {
 }
 
 .verify-card {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
   padding: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
@@ -283,11 +267,7 @@ const forgotPassword = () => {
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    var(--color-sub) 0%,
-    var(--color-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-sub) 0%, var(--color-light) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -498,11 +478,7 @@ const forgotPassword = () => {
 
 /* 보안 안내 */
 .security-notice {
-  background: linear-gradient(
-    135deg,
-    rgba(45, 51, 107, 0.05) 0%,
-    rgba(125, 129, 162, 0.03) 100%
-  );
+  background: linear-gradient(135deg, rgba(45, 51, 107, 0.05) 0%, rgba(125, 129, 162, 0.03) 100%);
   border: 1px solid rgba(45, 51, 107, 0.1);
   border-radius: 0.75rem;
   padding: 1rem;
@@ -565,21 +541,13 @@ const forgotPassword = () => {
 }
 
 .link-btn.primary {
-  background: linear-gradient(
-    135deg,
-    rgba(185, 187, 204, 0.2) 0%,
-    rgba(125, 129, 162, 0.2) 100%
-  );
+  background: linear-gradient(135deg, rgba(185, 187, 204, 0.2) 0%, rgba(125, 129, 162, 0.2) 100%);
   color: var(--color-main);
   border: 1px solid rgba(185, 187, 204, 0.3);
 }
 
 .link-btn.primary:hover:not(:disabled) {
-  background: linear-gradient(
-    135deg,
-    rgba(185, 187, 204, 0.3) 0%,
-    rgba(125, 129, 162, 0.3) 100%
-  );
+  background: linear-gradient(135deg, rgba(185, 187, 204, 0.3) 0%, rgba(125, 129, 162, 0.3) 100%);
   border-color: rgba(185, 187, 204, 0.5);
   transform: translateY(-1px);
 }
@@ -606,11 +574,7 @@ const forgotPassword = () => {
 }
 
 .modal-content {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
   padding: 2rem;
   text-align: center;

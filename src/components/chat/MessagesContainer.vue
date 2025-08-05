@@ -1,9 +1,6 @@
 <template>
-  <div class="messages-container" ref="messagesContainer">
-    <WelcomeMessage
-      v-if="messages.length === 0"
-      :isAuthenticated="isAuthenticated"
-    />
+  <div ref="messagesContainer" class="messages-container">
+    <WelcomeMessage v-if="messages.length === 0" :is-authenticated="isAuthenticated" />
 
     <MessageItem
       v-for="message in messages"

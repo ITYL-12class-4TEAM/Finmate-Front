@@ -6,9 +6,9 @@
           <button
             class="nav-link"
             :class="{ active: activeTab === 'overview' }"
-            @click="$emit('update:activeTab', 'overview')"
             type="button"
             role="tab"
+            @click="$emit('update:activeTab', 'overview')"
           >
             <i class="bi bi-house"></i>
             <span class="nav-text">개요</span>
@@ -18,9 +18,9 @@
           <button
             class="nav-link"
             :class="{ active: activeTab === 'comparison' }"
-            @click="$emit('update:activeTab', 'comparison')"
             type="button"
             role="tab"
+            @click="$emit('update:activeTab', 'comparison')"
           >
             <i class="bi bi-graph-up-arrow"></i>
             <span class="nav-text">비교분석</span>
@@ -30,9 +30,9 @@
           <button
             class="nav-link"
             :class="{ active: activeTab === 'allocation' }"
-            @click="$emit('update:activeTab', 'allocation')"
             type="button"
             role="tab"
+            @click="$emit('update:activeTab', 'allocation')"
           >
             <i class="bi bi-pie-chart"></i>
             <span class="nav-text">자산분배</span>
@@ -42,9 +42,9 @@
           <button
             class="nav-link"
             :class="{ active: activeTab === 'wmti' }"
-            @click="$emit('update:activeTab', 'wmti')"
             type="button"
             role="tab"
+            @click="$emit('update:activeTab', 'wmti')"
           >
             <i class="bi bi-person-badge"></i>
             <span class="nav-text">WMTI</span>
@@ -88,15 +88,12 @@ const indicatorStyle = computed(() => {
 
 .nav-container {
   position: relative;
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
   padding: 0.375rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow: 0 2px 4px -1px rgba(45, 51, 107, 0.1),
+  box-shadow:
+    0 2px 4px -1px rgba(45, 51, 107, 0.1),
     0 1px 2px -1px rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(10px);
 }
@@ -155,7 +152,8 @@ const indicatorStyle = computed(() => {
   color: var(--color-main);
   background: rgba(255, 255, 255, 0.9);
   font-weight: 600;
-  box-shadow: 0 2px 4px rgba(45, 51, 107, 0.1),
+  box-shadow:
+    0 2px 4px rgba(45, 51, 107, 0.1),
     0 1px 2px rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(5px);
 }
@@ -176,15 +174,12 @@ const indicatorStyle = computed(() => {
   left: 0.375rem;
   width: calc(25% - 0.1875rem);
   height: calc(100% - 0.75rem);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.95) 0%,
-    rgba(255, 255, 255, 0.85) 100%
-  );
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
   border-radius: 0.75rem;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1;
-  box-shadow: 0 2px 4px rgba(45, 51, 107, 0.1),
+  box-shadow:
+    0 2px 4px rgba(45, 51, 107, 0.1),
     0 1px 2px rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 255, 255, 0.2);

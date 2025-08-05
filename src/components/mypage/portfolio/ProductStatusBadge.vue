@@ -1,5 +1,5 @@
 <template>
-  <div class="product-status" v-if="productStatus">
+  <div v-if="productStatus" class="product-status">
     <div class="status-badge" :class="productStatus.class">
       <i :class="productStatus.icon"></i>
       {{ productStatus.text }}
@@ -75,9 +75,7 @@ const productStatus = computed(() => {
   const customRate = props.item.customRate;
   const expectedReturn = props.item.expectedReturn;
 
-  const rates = [interestRate, customRate, expectedReturn].filter(
-    (rate) => rate && rate > 0
-  );
+  const rates = [interestRate, customRate, expectedReturn].filter((rate) => rate && rate > 0);
   const maxRate = rates.length > 0 ? Math.max(...rates) : 0;
 
   if (maxRate >= 5.0) {
@@ -128,10 +126,7 @@ const productStatus = computed(() => {
     const maturityDate = new Date(props.item.maturityDate);
     const totalDuration = maturityDate - joinDate;
     const elapsed = today - joinDate;
-    const progress = Math.max(
-      0,
-      Math.min(100, (elapsed / totalDuration) * 100)
-    );
+    const progress = Math.max(0, Math.min(100, (elapsed / totalDuration) * 100));
 
     if (progress >= 80) {
       return {

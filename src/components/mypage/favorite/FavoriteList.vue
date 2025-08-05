@@ -6,9 +6,7 @@
         <i class="fa-regular fa-heart"></i>
       </div>
       <h4 class="empty-title">즐겨찾기한 상품이 없습니다</h4>
-      <p class="empty-description">
-        관심 있는 금융상품을 즐겨찾기에 추가해보세요
-      </p>
+      <p class="empty-description">관심 있는 금융상품을 즐겨찾기에 추가해보세요</p>
       <button class="explore-btn" @click="$emit('explore-products')">
         <i class="fa-solid fa-search"></i>
         상품 둘러보기
@@ -23,9 +21,9 @@
           :key="favorite.productId"
           :favorite="favorite"
           :style="{ 'animation-delay': `${index * 50}ms` }"
+          class="favorite-item-wrapper"
           @click="() => $emit('click-favorite', favorite)"
           @remove-favorite="$emit('remove-favorite', $event)"
-          class="favorite-item-wrapper"
         />
       </TransitionGroup>
     </div>
@@ -78,11 +76,7 @@ const emit = defineEmits(['remove-favorite', 'explore-products']);
   justify-content: center;
   text-align: center;
   padding: 3rem 2rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1.5rem;
   border: 2px dashed rgba(185, 187, 204, 0.4);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -90,11 +84,7 @@ const emit = defineEmits(['remove-favorite', 'explore-products']);
 
 .empty-state:hover {
   border-color: rgba(185, 187, 204, 0.6);
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
 }
 
 .empty-icon {
@@ -103,11 +93,7 @@ const emit = defineEmits(['remove-favorite', 'explore-products']);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(
-    135deg,
-    rgba(220, 53, 69, 0.1) 0%,
-    rgba(220, 53, 69, 0.05) 100%
-  );
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(220, 53, 69, 0.05) 100%);
   border-radius: 50%;
   margin-bottom: 1.5rem;
   transition: all 0.3s ease;
@@ -121,11 +107,7 @@ const emit = defineEmits(['remove-favorite', 'explore-products']);
 
 .empty-state:hover .empty-icon {
   transform: scale(1.1);
-  background: linear-gradient(
-    135deg,
-    rgba(220, 53, 69, 0.15) 0%,
-    rgba(220, 53, 69, 0.08) 100%
-  );
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(220, 53, 69, 0.08) 100%);
 }
 
 .empty-state:hover .empty-icon i {
@@ -153,11 +135,7 @@ const emit = defineEmits(['remove-favorite', 'explore-products']);
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-main) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
   color: white;
   border: none;
   border-radius: 2rem;
@@ -169,11 +147,7 @@ const emit = defineEmits(['remove-favorite', 'explore-products']);
 }
 
 .explore-btn:hover {
-  background: linear-gradient(
-    135deg,
-    var(--color-main) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(45, 51, 107, 0.3);
 }

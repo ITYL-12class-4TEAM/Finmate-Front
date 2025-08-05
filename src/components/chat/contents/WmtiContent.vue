@@ -9,13 +9,13 @@
       <div
         v-for="type in wmtiTypes"
         :key="type.code"
+        :ref="(el) => (typeRefs[type.code] = el)"
         class="wmti-type"
         role="listitem"
         :aria-expanded="expandedTypes.includes(type.code)"
         tabindex="0"
         @click="handleClick(type.code)"
         @keydown.enter.prevent="handleClick(type.code)"
-        :ref="(el) => (typeRefs[type.code] = el)"
       >
         <div class="type-summary">
           <span class="type-code">{{ type.code }}</span>
@@ -26,11 +26,7 @@
           <div v-if="expandedTypes.includes(type.code)" class="type-detail">
             <p class="type-description">{{ type.description }}</p>
             <div class="type-features">
-              <span
-                v-for="feature in type.tag"
-                :key="feature"
-                class="feature-tag"
-              >
+              <span v-for="feature in type.tag" :key="feature" class="feature-tag">
                 {{ feature }}
               </span>
             </div>
@@ -40,9 +36,7 @@
     </div>
 
     <div class="wmti-footer">
-      <button class="survey-btn" @click="goToSurvey">
-        설문조사 하러가기 →
-      </button>
+      <button class="survey-btn" @click="goToSurvey">설문조사 하러가기 →</button>
     </div>
   </div>
 </template>

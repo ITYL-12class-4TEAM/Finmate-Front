@@ -9,9 +9,7 @@
               <i class="bi bi-pie-chart me-2"></i>
               카테고리별 자산 분배
             </h5>
-            <small class="stats-subtitle">
-              총 {{ processedSummary.length }}개 카테고리
-            </small>
+            <small class="stats-subtitle"> 총 {{ processedSummary.length }}개 카테고리 </small>
           </div>
 
           <div class="stats-content">
@@ -39,9 +37,7 @@
                 <i class="bi bi-pie-chart"></i>
               </div>
               <p class="empty-text">투자 상품이 없습니다.</p>
-              <small class="empty-subtitle"
-                >상품을 추가하여 자산 분배를 확인해보세요</small
-              >
+              <small class="empty-subtitle">상품을 추가하여 자산 분배를 확인해보세요</small>
             </div>
 
             <!-- 범례 -->
@@ -50,25 +46,21 @@
                 v-for="(category, index) in processedSummary"
                 :key="category.categoryName"
                 class="legend-item"
-                @click="toggleCategoryVisibility(index)"
                 :class="{ 'legend-hidden': hiddenCategories.has(index) }"
+                @click="toggleCategoryVisibility(index)"
               >
                 <div class="legend-info">
                   <div class="legend-indicator">
                     <div
                       class="legend-color"
                       :style="{
-                        backgroundColor: getCategoryColor(
-                          category.categoryName
-                        ),
+                        backgroundColor: getCategoryColor(category.categoryName),
                       }"
                     ></div>
                     <span class="legend-name">{{ category.categoryName }}</span>
                   </div>
                   <div class="legend-values">
-                    <div class="legend-percentage">
-                      {{ category.ratio.toFixed(1) }}%
-                    </div>
+                    <div class="legend-percentage">{{ category.ratio.toFixed(1) }}%</div>
                     <div class="legend-amount">
                       {{ formatCurrency(category.totalAmount) }}
                     </div>
@@ -82,7 +74,7 @@
 
       <!-- 서브카테고리 분석 섹션 -->
       <div>
-        <SubcategoryBreakdown :processedSummary="processedSummary" />
+        <SubcategoryBreakdown :processed-summary="processedSummary" />
       </div>
     </div>
   </div>
@@ -134,17 +126,12 @@ const adjustColorOpacity = (color, opacity) => {
 
 // 총 자산 계산
 const getTotalAmount = () => {
-  return props.processedSummary.reduce(
-    (sum, category) => sum + category.totalAmount,
-    0
-  );
+  return props.processedSummary.reduce((sum, category) => sum + category.totalAmount, 0);
 };
 
 // 카테고리별 비율 가져오기
 const getCategoryRatio = (categoryName) => {
-  const category = props.processedSummary.find(
-    (cat) => cat.categoryName === categoryName
-  );
+  const category = props.processedSummary.find((cat) => cat.categoryName === categoryName);
   return category ? category.ratio : 0;
 };
 
@@ -228,8 +215,7 @@ const loadChartJS = async () => {
 
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
-    script.src =
-      'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js';
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js';
     script.onload = () => {
       setTimeout(resolve, 100);
     };
@@ -302,11 +288,8 @@ const createPieChart = async () => {
               label: function (context) {
                 const label = context.label || '';
                 const value = context.parsed || 0;
-                const amount =
-                  props.processedSummary[context.dataIndex]?.totalAmount || 0;
-                return `${label}: ${value.toFixed(1)}% (${formatCurrency(
-                  amount
-                )})`;
+                const amount = props.processedSummary[context.dataIndex]?.totalAmount || 0;
+                return `${label}: ${value.toFixed(1)}% (${formatCurrency(amount)})`;
               },
             },
           },
@@ -320,8 +303,7 @@ const createPieChart = async () => {
         },
         onHover: (event, elements) => {
           if (pieChart.value) {
-            pieChart.value.style.cursor =
-              elements.length > 0 ? 'pointer' : 'default';
+            pieChart.value.style.cursor = elements.length > 0 ? 'pointer' : 'default';
           }
         },
       },
@@ -342,8 +324,7 @@ const toggleCategoryVisibility = (index) => {
   }
 
   if (chartInstance) {
-    chartInstance.getDatasetMeta(0).data[index].hidden =
-      hiddenCategories.value.has(index);
+    chartInstance.getDatasetMeta(0).data[index].hidden = hiddenCategories.value.has(index);
     chartInstance.update();
   }
 };
@@ -387,7 +368,8 @@ onBeforeUnmount(cleanup);
   border-radius: 1rem;
   padding: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow: 0 4px 6px -1px rgba(45, 51, 107, 0.1),
+  box-shadow:
+    0 4px 6px -1px rgba(45, 51, 107, 0.1),
     0 2px 4px -1px rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -409,7 +391,11 @@ onBeforeUnmount(cleanup);
   font-size: 1.2rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    'Pretendard',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   display: flex;
   align-items: center;
 }
@@ -470,11 +456,7 @@ onBeforeUnmount(cleanup);
   align-items: center;
   justify-content: center;
   padding: 3rem 1rem;
-  background: linear-gradient(
-    135deg,
-    rgba(185, 187, 204, 0.1) 0%,
-    rgba(125, 129, 162, 0.1) 100%
-  );
+  background: linear-gradient(135deg, rgba(185, 187, 204, 0.1) 0%, rgba(125, 129, 162, 0.1) 100%);
   border-radius: 0.75rem;
   margin-bottom: 1.5rem;
 }
@@ -483,11 +465,7 @@ onBeforeUnmount(cleanup);
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    var(--color-light) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-sub) 100%);
   display: flex;
   align-items: center;
   justify-content: center;

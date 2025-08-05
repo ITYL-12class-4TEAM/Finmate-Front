@@ -7,20 +7,10 @@
         <span class="sub-title">💬 챗봇을 통해 궁금한 것을 물어보세요!</span>
       </div>
     </div>
-    <button class="close-btn" @click="$emit('close')" type="button">
+    <button class="close-btn" type="button" @click="$emit('close')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M18 6L6 18"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-        />
-        <path
-          d="M6 6L18 18"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-        />
+        <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
       </svg>
     </button>
   </div>
@@ -73,8 +63,13 @@ defineEmits(['close']);
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .close-btn {

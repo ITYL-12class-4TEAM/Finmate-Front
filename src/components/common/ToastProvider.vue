@@ -1,24 +1,19 @@
 <template>
   <teleport to="body">
     <div class="toast-container">
-      <Toast
-        v-for="toast in toasts"
-        :key="toast.id"
-        :message="toast.message"
-        :type="toast.type"
-      />
+      <Toast v-for="toast in toasts" :key="toast.id" :message="toast.message" :type="toast.type" />
     </div>
   </teleport>
   <slot />
 </template>
 
 <script setup>
-import { reactive, provide, Teleport } from "vue";
-import Toast from "./Toast.vue";
+import { reactive, provide } from 'vue';
+import Toast from './Toast.vue';
 
 const toasts = reactive([]);
 
-function showToast(message, type = "info") {
+function showToast(message, type = 'info') {
   const id = Date.now() + Math.random();
 
   toasts.push({ id, message, type });
@@ -29,7 +24,7 @@ function showToast(message, type = "info") {
   }, 2000);
 }
 
-provide("showToast", showToast);
+provide('showToast', showToast);
 </script>
 
 <style scoped>

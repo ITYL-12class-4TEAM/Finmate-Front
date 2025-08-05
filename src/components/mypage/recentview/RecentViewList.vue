@@ -6,9 +6,7 @@
         <i class="fa-regular fa-clock"></i>
       </div>
       <h4 class="empty-title">최근 조회한 상품이 없습니다</h4>
-      <p class="empty-description">
-        금융상품을 조회하면 여기에 기록이 남습니다
-      </p>
+      <p class="empty-description">금융상품을 조회하면 여기에 기록이 남습니다</p>
       <button class="explore-btn" @click="$emit('explore-products')">
         <i class="fa-solid fa-search"></i>
         상품 둘러보기
@@ -17,23 +15,18 @@
 
     <!-- 상품 리스트 -->
     <div v-else class="products-container">
-      <TransitionGroup
-        name="recent-item"
-        tag="div"
-        class="products-grid"
-        appear
-      >
+      <TransitionGroup name="recent-item" tag="div" class="products-grid" appear>
         <RecentViewItem
           v-for="(product, index) in products"
           :key="product.productId"
           :product="product"
-          :isSelected="selectedRecent.includes(product.productId)"
-          :isFavorite="favoriteProductIds.has(product.productId)"
+          :is-selected="selectedRecent.includes(product.productId)"
+          :is-favorite="favoriteProductIds.has(product.productId)"
           :style="{ 'animation-delay': `${index * 50}ms` }"
+          class="recent-item-wrapper"
           @select="handleSelect"
           @click-recent="$emit('click-recent', $event)"
           @remove-from-history="$emit('remove-from-history', $event)"
-          class="recent-item-wrapper"
         />
       </TransitionGroup>
     </div>
@@ -106,11 +99,7 @@ const handleSelect = (productId, isSelected) => {
   justify-content: center;
   text-align: center;
   padding: 3rem 2rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1.5rem;
   border: 2px dashed rgba(185, 187, 204, 0.4);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -118,11 +107,7 @@ const handleSelect = (productId, isSelected) => {
 
 .empty-state:hover {
   border-color: rgba(185, 187, 204, 0.6);
-  background: linear-gradient(
-    135deg,
-    var(--color-bg-light) 0%,
-    var(--color-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-bg-light) 0%, var(--color-light) 100%);
 }
 
 .empty-icon {
@@ -131,11 +116,7 @@ const handleSelect = (productId, isSelected) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(
-    135deg,
-    rgba(45, 51, 107, 0.1) 0%,
-    rgba(45, 51, 107, 0.05) 100%
-  );
+  background: linear-gradient(135deg, rgba(45, 51, 107, 0.1) 0%, rgba(45, 51, 107, 0.05) 100%);
   border-radius: 50%;
   margin-bottom: 1.5rem;
   transition: all 0.3s ease;
@@ -149,11 +130,7 @@ const handleSelect = (productId, isSelected) => {
 
 .empty-state:hover .empty-icon {
   transform: scale(1.1);
-  background: linear-gradient(
-    135deg,
-    rgba(45, 51, 107, 0.15) 0%,
-    rgba(45, 51, 107, 0.08) 100%
-  );
+  background: linear-gradient(135deg, rgba(45, 51, 107, 0.15) 0%, rgba(45, 51, 107, 0.08) 100%);
 }
 
 .empty-state:hover .empty-icon i {
@@ -181,11 +158,7 @@ const handleSelect = (productId, isSelected) => {
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-main) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
   color: white;
   border: none;
   border-radius: 2rem;
@@ -197,11 +170,7 @@ const handleSelect = (productId, isSelected) => {
 }
 
 .explore-btn:hover {
-  background: linear-gradient(
-    135deg,
-    var(--color-main) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(45, 51, 107, 0.3);
 }

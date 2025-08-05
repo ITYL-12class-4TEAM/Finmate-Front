@@ -3,9 +3,7 @@
     <!-- Header -->
     <div class="header">
       <h1>검사 히스토리</h1>
-      <p v-if="historyList.length > 0">
-        총 {{ historyList.length }}건의 검사 기록
-      </p>
+      <p v-if="historyList.length > 0">총 {{ historyList.length }}건의 검사 기록</p>
     </div>
 
     <!-- Loading -->
@@ -19,16 +17,12 @@
       <i class="fas fa-clipboard-check"></i>
       <h3>아직 검사 기록이 없습니다</h3>
       <p>금융 성향 검사를 받아보세요</p>
-      <button @click="goToWMTI" class="btn-primary">검사 받기</button>
+      <button class="btn-primary" @click="goToWMTI">검사 받기</button>
     </div>
 
     <!-- History List -->
     <div v-else class="history-list">
-      <div
-        v-for="history in historyList"
-        :key="history.id"
-        class="history-card"
-      >
+      <div v-for="history in historyList" :key="history.id" class="history-card">
         <!-- Card Header -->
         <div class="card-header" @click="toggleDetails(history.id)">
           <div class="card-title">
@@ -41,11 +35,7 @@
             <span class="date">{{ formatDate(history.createdAt) }}</span>
             <i
               class="fas expand-icon"
-              :class="
-                expandedItems.includes(history.id)
-                  ? 'fa-chevron-up'
-                  : 'fa-chevron-down'
-              "
+              :class="expandedItems.includes(history.id) ? 'fa-chevron-up' : 'fa-chevron-down'"
             ></i>
           </div>
         </div>
@@ -56,16 +46,11 @@
         </div>
 
         <!-- Details (Expandable) -->
-        <div
-          class="card-details"
-          :class="{ expanded: expandedItems.includes(history.id) }"
-        >
+        <div class="card-details" :class="{ expanded: expandedItems.includes(history.id) }">
           <!-- Score Grid -->
           <div class="score-grid">
             <div
-              v-for="(scoreData, key) in getDetailedScoresWithInfo(
-                history.originalData
-              )"
+              v-for="(scoreData, key) in getDetailedScoresWithInfo(history.originalData)"
               :key="key"
               class="score-item"
             >
@@ -86,11 +71,11 @@
 
           <!-- Actions -->
           <div class="actions">
-            <button @click="viewResult(history)" class="btn-outline">
+            <button class="btn-outline" @click="viewResult(history)">
               <i class="fas fa-eye"></i>
               상세보기
             </button>
-            <button @click="downloadResult(history)" class="btn-outline">
+            <button class="btn-outline" @click="downloadResult(history)">
               <i class="fas fa-download"></i>
               다운로드
             </button>
@@ -230,9 +215,7 @@ const loadMockData = async () => {
       originalData: item,
     }));
 
-    historyList.value.sort(
-      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-    );
+    historyList.value.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   } catch (err) {
     console.error('❌ Mock 데이터 로드 실패:', err);
   } finally {
@@ -333,9 +316,7 @@ const viewResult = (history) => {
 };
 
 const downloadResult = (history) => {
-  alert(
-    `📄 ${history.wmtiCode} 결과 다운로드\n\n실제 구현에서는 PDF 파일을 다운로드합니다.`
-  );
+  alert(`📄 ${history.wmtiCode} 결과 다운로드\n\n실제 구현에서는 PDF 파일을 다운로드합니다.`);
 };
 
 const goToWMTI = () => {

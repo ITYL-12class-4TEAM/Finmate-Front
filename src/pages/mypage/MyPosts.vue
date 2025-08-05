@@ -5,19 +5,19 @@
 
   <div v-else>
     <PostFilter
-      v-model:searchQuery="searchQuery"
-      v-model:selectedBoard="selectedBoard"
-      v-model:sortBy="sortBy"
+      v-model:search-query="searchQuery"
+      v-model:selected-board="selectedBoard"
+      v-model:sort-by="sortBy"
       @filter="filterAndSortPosts"
     />
 
     <div>
-      <PostActions :filteredCount="filteredPosts.length" />
+      <PostActions :filtered-count="filteredPosts.length" />
       <PostList :posts="paginatedPosts" @view-post="viewPost" />
       <Pagination
         v-if="totalPages > 1"
-        :currentPage="currentPage"
-        :totalPages="totalPages"
+        :current-page="currentPage"
+        :total-pages="totalPages"
         @change-page="changePage"
       />
     </div>
@@ -52,15 +52,12 @@ const filteredPosts = computed(() => {
     const query = searchQuery.value.toLowerCase();
     filtered = filtered.filter(
       (post) =>
-        post.title.toLowerCase().includes(query) ||
-        post.content.toLowerCase().includes(query)
+        post.title.toLowerCase().includes(query) || post.content.toLowerCase().includes(query)
     );
   }
 
   if (selectedBoard.value) {
-    filtered = filtered.filter(
-      (post) => post.boardType === selectedBoard.value
-    );
+    filtered = filtered.filter((post) => post.boardType === selectedBoard.value);
   }
 
   switch (sortBy.value) {
@@ -102,8 +99,7 @@ const fetchPosts = async () => {
       postId: post.postId,
       title: post.title,
       content: post.content,
-      boardType:
-        post.boardId === 1 ? 'FREE' : post.boardId === 2 ? 'HOT' : 'NOTICE',
+      boardType: post.boardId === 1 ? 'FREE' : post.boardId === 2 ? 'HOT' : 'NOTICE',
       isAnonymous: post.anonymous,
       likeCount: post.likeCount,
       commentCount: post.commentCount,

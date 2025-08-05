@@ -4,30 +4,30 @@
       <span class="header-icon">{{ getHeaderIcon() }}</span>
       <p class="content-title">{{ message.title }}</p>
     </div>
-    
+
     <div class="finance-result">
       <div class="result-content" v-html="formattedContent"></div>
     </div>
-    
+
     <div class="finance-actions">
-      <button class="action-btn share-btn" @click="shareResult" aria-label="결과 공유">
+      <button class="action-btn share-btn" aria-label="결과 공유" @click="shareResult">
         <span class="action-icon">📤</span>
         <span class="action-text">공유하기</span>
       </button>
-      <button class="action-btn save-btn" @click="saveResult" aria-label="결과 저장">
+      <button class="action-btn save-btn" aria-label="결과 저장" @click="saveResult">
         <span class="action-icon">💾</span>
         <span class="action-text">저장하기</span>
       </button>
     </div>
-    
+
     <div class="finance-footer">
       <div class="disclaimer">
         <span class="disclaimer-icon">⚠️</span>
         <div class="disclaimer-content">
           <p class="disclaimer-text">
-            <strong>투자 주의사항</strong><br>
-            본 정보는 참고용이며, 투자 결정은 개인 책임하에 신중히 하시기 바랍니다.
-            금융상품의 수익률은 시장 상황에 따라 변동될 수 있습니다.
+            <strong>투자 주의사항</strong><br />
+            본 정보는 참고용이며, 투자 결정은 개인 책임하에 신중히 하시기 바랍니다. 금융상품의
+            수익률은 시장 상황에 따라 변동될 수 있습니다.
           </p>
         </div>
       </div>
@@ -41,8 +41,8 @@ import { computed } from 'vue';
 const props = defineProps({
   message: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
 });
 
 const getHeaderIcon = () => {
@@ -55,55 +55,85 @@ const getHeaderIcon = () => {
 
 const formattedContent = computed(() => {
   if (!props.message.text) return '';
-  
+
   let content = props.message.text;
-  
+
   // 줄바꿈을 <br>로 변환
   content = content.replace(/\n/g, '<br>');
-  
+
   // 금융 키워드 하이라이팅 (더 많은 키워드 추가)
   const keywords = [
-    '수익률', '리스크', '안전성', '유동성', '세제혜택', '만기', '최소금액',
-    '적금', '예금', 'ISA', 'IRP', 'ETF', '펀드', '보험', '대출',
-    '금리', '이자', '배당', '원금보장', '중도해지', '가입조건'
+    '수익률',
+    '리스크',
+    '안전성',
+    '유동성',
+    '세제혜택',
+    '만기',
+    '최소금액',
+    '적금',
+    '예금',
+    'ISA',
+    'IRP',
+    'ETF',
+    '펀드',
+    '보험',
+    '대출',
+    '금리',
+    '이자',
+    '배당',
+    '원금보장',
+    '중도해지',
+    '가입조건',
   ];
-  
-  keywords.forEach(keyword => {
+
+  keywords.forEach((keyword) => {
     const regex = new RegExp(`(${keyword})`, 'gi');
     content = content.replace(regex, '<span class="highlight">$1</span>');
   });
-  
+
   // 숫자와 퍼센트 강조 (더 정확한 패턴)
   content = content.replace(/(\d+(?:\.\d+)?%)/g, '<span class="percentage">$1</span>');
   content = content.replace(/(\d{1,3}(?:,\d{3})*원)/g, '<span class="amount">$1</span>');
   content = content.replace(/(\d{1,3}(?:,\d{3})*만원)/g, '<span class="amount">$1</span>');
   content = content.replace(/(\d+년)/g, '<span class="period">$1</span>');
   content = content.replace(/(\d+개월)/g, '<span class="period">$1</span>');
-  
+
   // 장점/단점 구분 (더 많은 패턴)
-  content = content.replace(/(장점|혜택|특징|추천이유)[:：]/gi, '<span class="pros-title">$1:</span>');
-  content = content.replace(/(단점|주의사항|위험요소|제한사항|고려사항)[:：]/gi, '<span class="cons-title">$1:</span>');
-  
+  content = content.replace(
+    /(장점|혜택|특징|추천이유)[:：]/gi,
+    '<span class="pros-title">$1:</span>'
+  );
+  content = content.replace(
+    /(단점|주의사항|위험요소|제한사항|고려사항)[:：]/gi,
+    '<span class="cons-title">$1:</span>'
+  );
+
   // 등급이나 평점 표시
   content = content.replace(/(★+|⭐+)/g, '<span class="rating">$1</span>');
   content = content.replace(/([A-Z]+등급)/g, '<span class="grade">$1</span>');
-  
+
   // 상품명 강조
-  content = content.replace(/(청년|주택|적금|예금|펀드|ETF|보험)(\s*[가-힣]+)/g, '<span class="product-name">$1$2</span>');
-  
+  content = content.replace(
+    /(청년|주택|적금|예금|펀드|ETF|보험)(\s*[가-힣]+)/g,
+    '<span class="product-name">$1$2</span>'
+  );
+
   return content;
 });
 
 const shareResult = () => {
   if (navigator.share) {
-    navigator.share({
-      title: props.message.title,
-      text: props.message.text,
-      url: window.location.href
-    }).catch(console.error);
+    navigator
+      .share({
+        title: props.message.title,
+        text: props.message.text,
+        url: window.location.href,
+      })
+      .catch(console.error);
   } else {
     // 폴백: 클립보드에 복사
-    navigator.clipboard.writeText(`${props.message.title}\n\n${props.message.text}`)
+    navigator.clipboard
+      .writeText(`${props.message.title}\n\n${props.message.text}`)
       .then(() => alert('결과가 클립보드에 복사되었습니다!'))
       .catch(() => alert('공유 기능을 사용할 수 없습니다.'));
   }
@@ -114,9 +144,9 @@ const saveResult = () => {
     title: props.message.title,
     content: props.message.text,
     timestamp: new Date().toISOString(),
-    type: 'finance-analysis'
+    type: 'finance-analysis',
   };
-  
+
   try {
     const savedResults = JSON.parse(localStorage.getItem('financeResults') || '[]');
     savedResults.push(data);
@@ -149,7 +179,8 @@ const saveResult = () => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -187,12 +218,20 @@ const saveResult = () => {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #4caf50 0%, #2196f3 25%, #9c27b0 50%, #ff9800 75%, #f44336 100%);
+  background: linear-gradient(
+    90deg,
+    #4caf50 0%,
+    #2196f3 25%,
+    #9c27b0 50%,
+    #ff9800 75%,
+    #f44336 100%
+  );
   animation: shimmer 3s ease-in-out infinite;
 }
 
 @keyframes shimmer {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -210,7 +249,7 @@ const saveResult = () => {
 .result-content :deep(br + br) {
   display: block;
   margin: 0.5rem 0;
-  content: "";
+  content: '';
 }
 
 .result-content :deep(.highlight) {
@@ -242,9 +281,15 @@ const saveResult = () => {
 }
 
 @keyframes bounce {
-  0% { transform: scale(0.8); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .result-content :deep(.amount) {
@@ -289,9 +334,15 @@ const saveResult = () => {
 }
 
 @keyframes checkmark {
-  0% { transform: scale(0) rotate(0deg); }
-  50% { transform: scale(1.2) rotate(10deg); }
-  100% { transform: scale(1) rotate(0deg); }
+  0% {
+    transform: scale(0) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(10deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
 }
 
 .result-content :deep(.cons-title) {
@@ -311,9 +362,16 @@ const saveResult = () => {
 }
 
 @keyframes warning {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-5deg); }
-  75% { transform: rotate(5deg); }
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
 }
 
 .result-content :deep(.rating) {
@@ -549,12 +607,12 @@ const saveResult = () => {
   .result-content :deep(.cons-title)::before {
     animation: none;
   }
-  
+
   .finance-result,
   .finance-actions {
     animation: none;
   }
-  
+
   .finance-result::before {
     animation: none;
   }
@@ -565,21 +623,21 @@ const saveResult = () => {
   .finance-result {
     background: linear-gradient(135deg, rgba(45, 51, 107, 0.2) 0%, rgba(90, 106, 207, 0.1) 100%);
   }
-  
+
   .result-content :deep(.highlight) {
     background: rgba(90, 106, 207, 0.3);
     color: #a5b4fc;
   }
-  
+
   .action-btn {
     background: rgba(255, 255, 255, 0.1);
     color: rgba(255, 255, 255, 0.9);
   }
-  
+
   .disclaimer-text {
     color: #ffb74d;
   }
-  
+
   .disclaimer-text strong {
     color: #ff9800;
   }
@@ -590,11 +648,11 @@ const saveResult = () => {
   .finance-content {
     break-inside: avoid;
   }
-  
+
   .finance-actions {
     display: none;
   }
-  
+
   .result-content :deep(.percentage),
   .result-content :deep(.amount),
   .result-content :deep(.period),
@@ -603,12 +661,12 @@ const saveResult = () => {
     color: white !important;
     box-shadow: none !important;
   }
-  
+
   .finance-footer {
     background: #f5f5f5 !important;
     border: 1px solid #ccc !important;
   }
-  
+
   .finance-result::before {
     display: none;
   }
