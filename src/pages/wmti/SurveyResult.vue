@@ -1,12 +1,13 @@
 <template>
   <div class="result-page">
     <!-- 뒤로가기 버튼 -->
-    <BackButton title="투자 성향 결과" to="/wmti/basic"/>
-    
+    <BackButton title="투자 성향 결과" to="/wmti/basic" />
+
     <!-- 헤더 섹션 -->
     <div class="result-header">
       <div class="user-greeting">
-        <span class="username-highlight">{{ userName }}</span>님의 투자 성향은
+        <span class="username-highlight">{{ userName }}</span
+        >님의 투자 성향은
       </div>
       <div class="wmti-code-display">
         <span class="code-text">{{ wmtiCode }}</span>
@@ -15,13 +16,27 @@
       <div class="type-summary">
         <div class="type-item">
           <span class="type-label">투자자 유형</span>
-          <span class="type-value" :class="getResultTypeClass(resultType)">{{ resultType }}</span>
-          <span class="type-description" :class="getResultTypeTextClass(resultType)">{{ getResultTypeLabel(resultType) }}</span>
+          <span class="type-value" :class="getResultTypeClass(resultType)">{{
+            resultType
+          }}</span>
+          <span
+            class="type-description"
+            :class="getResultTypeTextClass(resultType)"
+            >{{ getResultTypeLabel(resultType) }}</span
+          >
         </div>
         <div class="type-item">
           <span class="type-label">리스크 수용도</span>
-          <span class="type-value" :class="getRiskPreferenceClass(riskPreference)">{{ riskPreference }}</span>
-          <span class="type-description" :class="getRiskPreferenceTextClass(riskPreference)">{{ getRiskPreferenceLabel(riskPreference) }}</span>
+          <span
+            class="type-value"
+            :class="getRiskPreferenceClass(riskPreference)"
+            >{{ riskPreference }}</span
+          >
+          <span
+            class="type-description"
+            :class="getRiskPreferenceTextClass(riskPreference)"
+            >{{ getRiskPreferenceLabel(riskPreference) }}</span
+          >
         </div>
       </div>
     </div>
@@ -32,24 +47,35 @@
       <div class="card-header">
         <h4 class="card-title">{{ analysis.aka }}</h4>
       </div>
-      
+
       <!-- 태그 섹션 - 전광판 효과 -->
       <div class="tags-section">
         <h4 class="subsection-title">🏷️ 성향 키워드</h4>
         <div class="tags-marquee">
-          <div class="tags-track" v-if="analysis.tag && analysis.tag.length > 0">
+          <div
+            class="tags-track"
+            v-if="analysis.tag && analysis.tag.length > 0"
+          >
             <!-- 첫 번째 세트 -->
-            <div class="tag-item" v-for="(tag, index) in analysis.tag" :key="'first-' + index">
+            <div
+              class="tag-item"
+              v-for="(tag, index) in analysis.tag"
+              :key="'first-' + index"
+            >
               #{{ tag }}
             </div>
             <!-- 두 번째 세트 (무한 반복용) -->
-            <div class="tag-item" v-for="(tag, index) in analysis.tag" :key="'second-' + index">
+            <div
+              class="tag-item"
+              v-for="(tag, index) in analysis.tag"
+              :key="'second-' + index"
+            >
               #{{ tag }}
             </div>
           </div>
         </div>
       </div>
-      
+
       <!-- 설명 섹션 -->
       <div class="description-section">
         <h4 class="subsection-title">📋 상세 분석</h4>
@@ -67,64 +93,112 @@
           </div>
           <div class="bidirectional-bar">
             <div class="bar-left">
-              <span class="bar-info" :class="{ 'dominant': a === 'A' }">A {{ Math.round(ascore) }}%</span>
-              <div v-if="a === 'A'" class="bar-progress left bar-a" :style="{ width: ascore + '%' }"></div>
+              <span class="bar-info" :class="{ dominant: a === 'A' }"
+                >A {{ Math.round(ascore) }}%</span
+              >
+              <div
+                v-if="a === 'A'"
+                class="bar-progress left bar-a"
+                :style="{ width: ascore + '%' }"
+              ></div>
             </div>
             <div class="bar-center">50</div>
             <div class="bar-right">
-              <div v-if="a === 'I'" class="bar-progress right bar-i" :style="{ width: iscore + '%' }"></div>
-              <span class="bar-info" :class="{ 'dominant': a === 'I' }">I {{ Math.round(iscore) }}%</span>
+              <div
+                v-if="a === 'I'"
+                class="bar-progress right bar-i"
+                :style="{ width: iscore + '%' }"
+              ></div>
+              <span class="bar-info" :class="{ dominant: a === 'I' }"
+                >I {{ Math.round(iscore) }}%</span
+              >
             </div>
           </div>
         </div>
-        
+
         <div class="score-item">
           <div class="dimension-header">
             <span class="dimension-label">P vs B</span>
           </div>
           <div class="bidirectional-bar">
             <div class="bar-left">
-              <span class="bar-info" :class="{ 'dominant': p === 'P' }">P {{ Math.round(pscore) }}%</span>
-              <div v-if="p === 'P'" class="bar-progress left bar-p" :style="{ width: pscore + '%' }"></div>
+              <span class="bar-info" :class="{ dominant: p === 'P' }"
+                >P {{ Math.round(pscore) }}%</span
+              >
+              <div
+                v-if="p === 'P'"
+                class="bar-progress left bar-p"
+                :style="{ width: pscore + '%' }"
+              ></div>
             </div>
             <div class="bar-center">50</div>
             <div class="bar-right">
-              <div v-if="p === 'B'" class="bar-progress right bar-b" :style="{ width: bscore + '%' }"></div>
-              <span class="bar-info" :class="{ 'dominant': p === 'B' }">B {{ Math.round(bscore) }}%</span>
+              <div
+                v-if="p === 'B'"
+                class="bar-progress right bar-b"
+                :style="{ width: bscore + '%' }"
+              ></div>
+              <span class="bar-info" :class="{ dominant: p === 'B' }"
+                >B {{ Math.round(bscore) }}%</span
+              >
             </div>
           </div>
         </div>
-        
+
         <div class="score-item">
           <div class="dimension-header">
             <span class="dimension-label">M vs W</span>
           </div>
           <div class="bidirectional-bar">
             <div class="bar-left">
-              <span class="bar-info" :class="{ 'dominant': m === 'M' }">M {{ Math.round(mscore) }}%</span>
-              <div v-if="m === 'M'" class="bar-progress left bar-m" :style="{ width: mscore + '%' }"></div>
+              <span class="bar-info" :class="{ dominant: m === 'M' }"
+                >M {{ Math.round(mscore) }}%</span
+              >
+              <div
+                v-if="m === 'M'"
+                class="bar-progress left bar-m"
+                :style="{ width: mscore + '%' }"
+              ></div>
             </div>
             <div class="bar-center">50</div>
             <div class="bar-right">
-              <div v-if="m === 'W'" class="bar-progress right bar-w" :style="{ width: wscore + '%' }"></div>
-              <span class="bar-info" :class="{ 'dominant': m === 'W' }">W {{ Math.round(wscore) }}%</span>
+              <div
+                v-if="m === 'W'"
+                class="bar-progress right bar-w"
+                :style="{ width: wscore + '%' }"
+              ></div>
+              <span class="bar-info" :class="{ dominant: m === 'W' }"
+                >W {{ Math.round(wscore) }}%</span
+              >
             </div>
           </div>
         </div>
-        
+
         <div class="score-item">
           <div class="dimension-header">
             <span class="dimension-label">L vs C</span>
           </div>
           <div class="bidirectional-bar">
             <div class="bar-left">
-              <span class="bar-info" :class="{ 'dominant': l === 'L' }">L {{ Math.round(lscore) }}%</span>
-              <div v-if="l === 'L'" class="bar-progress left bar-l" :style="{ width: lscore + '%' }"></div>
+              <span class="bar-info" :class="{ dominant: l === 'L' }"
+                >L {{ Math.round(lscore) }}%</span
+              >
+              <div
+                v-if="l === 'L'"
+                class="bar-progress left bar-l"
+                :style="{ width: lscore + '%' }"
+              ></div>
             </div>
             <div class="bar-center">50</div>
             <div class="bar-right">
-              <div v-if="l === 'C'" class="bar-progress right bar-c" :style="{ width: cscore + '%' }"></div>
-              <span class="bar-info" :class="{ 'dominant': l === 'C' }">C {{ Math.round(cscore) }}%</span>
+              <div
+                v-if="l === 'C'"
+                class="bar-progress right bar-c"
+                :style="{ width: cscore + '%' }"
+              ></div>
+              <span class="bar-info" :class="{ dominant: l === 'C' }"
+                >C {{ Math.round(cscore) }}%</span
+              >
             </div>
           </div>
         </div>
@@ -132,16 +206,12 @@
     </div>
 
     <!-- 테마 포트폴리오 섹션 (미래 구현) -->
-    <div class="thema-portfolio-section">
-      <h3 class="section-title portfolio-title">💼 내 투자성향에 적합한 테마-포트폴리오는?</h3>
-      <div class="portfolio-placeholder">
-        <div class="placeholder-content">
-          <i class="fa-solid fa-chart-pie"></i>
-          <p>맞춤형 테마 포트폴리오 추천 기능이 곧 출시됩니다!</p>
-          <span class="coming-soon">Coming Soon</span>
-        </div>
-      </div>
-    </div>
+    <ThemePortfolio
+      :wmtiCode="wmtiCode"
+      :resultType="resultType"
+      :riskPreference="riskPreference"
+      :userName="userName"
+    />
 
     <!-- 액션 버튼 -->
     <div class="action-section">
@@ -172,11 +242,12 @@ import { getWMTIResultAPI } from '@/api/wmti';
 import { decodeJwt } from '@/utils/jwt';
 import { getWMTIAnalysisAPI } from '@/api/wmti';
 import BackButton from '@/components/common/BackButton.vue';
+import ThemePortfolio from '@/components/wmti/ThemePortfolio.vue';
 
 export default {
   name: 'SurveyResult',
   components: {
-    BackButton,
+    BackButton, ThemePortfolio,
   },
   data() {
     return {
@@ -252,8 +323,9 @@ export default {
       this.cscore = data.cscore;
       this.resultType = data.resultType;
       this.riskPreference = data.riskPreference;
+
+      //this.analysis = data.analysis?.[data.wmtiCode] || {};
       this.createdAt = [...data.createdAt] || [];
-      
       await this.fetchAnalysis(this.wmtiCode);
     },
     async fetchAnalysis(wmtiCode) {
@@ -281,58 +353,58 @@ export default {
     },
     getResultTypeLabel(resultType) {
       const labels = {
-        'AGGRESSIVE': '고수익 지향형',
-        'ACTIVE': '적극적 설계형',
-        'BALANCED': '균형잡힌 실속형',
-        'PASSIVE': '소극적 관리형'
+        AGGRESSIVE: '고수익 지향형',
+        ACTIVE: '적극적 설계형',
+        BALANCED: '균형잡힌 실속형',
+        PASSIVE: '소극적 관리형',
       };
       return labels[resultType] || '투자형';
     },
     getRiskPreferenceLabel(riskPreference) {
       const labels = {
-        'STABILITY': '안정형',
-        'STABILITY_ORIENTED': '안정추구형',
-        'RISK_NEUTRAL': '위험중립형',
-        'ACTIVELY': '적극투자형',
-        'AGGRESSIVE': '공격투자형'
+        STABILITY: '안정형',
+        STABILITY_ORIENTED: '안정추구형',
+        RISK_NEUTRAL: '위험중립형',
+        ACTIVELY: '적극투자형',
+        AGGRESSIVE: '공격투자형',
       };
       return labels[riskPreference] || '위험 수용';
     },
     getResultTypeClass(resultType) {
       const classes = {
-        'AGGRESSIVE': 'type-aggressive',
-        'ACTIVE': 'type-active',
-        'BALANCED': 'type-balanced',
-        'PASSIVE': 'type-passive'
+        AGGRESSIVE: 'type-aggressive',
+        ACTIVE: 'type-active',
+        BALANCED: 'type-balanced',
+        PASSIVE: 'type-passive',
       };
       return classes[resultType] || '';
     },
     getResultTypeTextClass(resultType) {
       const classes = {
-        'AGGRESSIVE': 'text-aggressive',
-        'ACTIVE': 'text-active',
-        'BALANCED': 'text-balanced',
-        'PASSIVE': 'text-passive'
+        AGGRESSIVE: 'text-aggressive',
+        ACTIVE: 'text-active',
+        BALANCED: 'text-balanced',
+        PASSIVE: 'text-passive',
       };
       return classes[resultType] || '';
     },
     getRiskPreferenceClass(riskPreference) {
       const classes = {
-        'STABILITY': 'risk-stability',
-        'STABILITY_ORIENTED': 'risk-stability-oriented',
-        'RISK_NEUTRAL': 'risk-neutral',
-        'ACTIVELY': 'risk-actively',
-        'AGGRESSIVE': 'risk-aggressive'
+        STABILITY: 'risk-stability',
+        STABILITY_ORIENTED: 'risk-stability-oriented',
+        RISK_NEUTRAL: 'risk-neutral',
+        ACTIVELY: 'risk-actively',
+        AGGRESSIVE: 'risk-aggressive',
       };
       return classes[riskPreference] || '';
     },
     getRiskPreferenceTextClass(riskPreference) {
       const classes = {
-        'STABILITY': 'text-stability',
-        'STABILITY_ORIENTED': 'text-stability-oriented',
-        'RISK_NEUTRAL': 'text-neutral',
-        'ACTIVELY': 'text-actively',
-        'AGGRESSIVE': 'text-risk-aggressive'
+        STABILITY: 'text-stability',
+        STABILITY_ORIENTED: 'text-stability-oriented',
+        RISK_NEUTRAL: 'text-neutral',
+        ACTIVELY: 'text-actively',
+        AGGRESSIVE: 'text-risk-aggressive',
       };
       return classes[riskPreference] || '';
     },
@@ -450,104 +522,104 @@ export default {
 
 /* ResultType별 색상 클래스 */
 .type-aggressive {
-  background: #483B8A !important;
+  background: #483b8a !important;
   color: var(--color-white);
   box-shadow: 0 2px 8px rgba(72, 59, 138, 0.3);
 }
 
 .type-active {
-  background: #5B4BAD !important;
+  background: #5b4bad !important;
   color: var(--color-white);
   box-shadow: 0 2px 8px rgba(91, 75, 173, 0.3);
 }
 
 .type-balanced {
-  background: #6D59CF !important;
+  background: #6d59cf !important;
   color: var(--color-white);
   box-shadow: 0 2px 8px rgba(109, 89, 207, 0.3);
 }
 
 .type-passive {
-  background: #836CFA !important;
+  background: #836cfa !important;
   color: var(--color-white);
   box-shadow: 0 2px 8px rgba(131, 108, 250, 0.3);
 }
 
 /* RiskPreference별 색상 클래스 */
 .risk-stability {
-  background: #27AE60 !important;
+  background: #27ae60 !important;
   color: var(--color-white);
   box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
 }
 
 .risk-stability-oriented {
-  background: #2ECC71 !important;
+  background: #2ecc71 !important;
   color: var(--color-white);
   box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
 }
 
 .risk-neutral {
-  background: #F39C12 !important;
+  background: #f39c12 !important;
   color: var(--color-white);
   box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
 }
 
 .risk-actively {
-  background: #E67E22 !important;
+  background: #e67e22 !important;
   color: var(--color-white);
   box-shadow: 0 2px 8px rgba(230, 126, 34, 0.3);
 }
 
 .risk-aggressive {
-  background: #E74C3C !important;
+  background: #e74c3c !important;
   color: var(--color-white);
   box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
 }
 
 /* 텍스트 색상 클래스 - ResultType */
 .text-aggressive {
-  color: #483B8A !important;
+  color: #483b8a !important;
   font-weight: 600;
 }
 
 .text-active {
-  color: #5B4BAD !important;
+  color: #5b4bad !important;
   font-weight: 600;
 }
 
 .text-balanced {
-  color: #6D59CF !important;
+  color: #6d59cf !important;
   font-weight: 600;
 }
 
 .text-passive {
-  color: #836CFA !important;
+  color: #836cfa !important;
   font-weight: 600;
 }
 
 /* 텍스트 색상 클래스 - RiskPreference */
 .text-stability {
-  color: #27AE60 !important;
+  color: #27ae60 !important;
   font-weight: 600;
 }
 
 .text-stability-oriented {
-  color: #2ECC71 !important;
+  color: #2ecc71 !important;
   font-weight: 600;
 }
 
 .text-neutral {
-  color: #F39C12 !important;
+  color: #f39c12 !important;
   font-weight: 600;
 }
 
 .text-actively {
-  color: #E67E22 !important;
+  color: #e67e22 !important;
   font-weight: 600;
 }
 
 .text-risk-aggressive {
-  color: #E74C3C !important;
+  color: #e74c3c !important;
   font-weight: 600;
 }
 
@@ -586,7 +658,11 @@ export default {
 .tags-section {
   margin-bottom: 1.25rem;
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(45, 51, 107, 0.02), rgba(125, 129, 162, 0.01));
+  background: linear-gradient(
+    135deg,
+    rgba(45, 51, 107, 0.02),
+    rgba(125, 129, 162, 0.01)
+  );
   border-radius: 0.875rem;
   padding: 0.875rem 0;
   position: relative;
@@ -631,7 +707,11 @@ export default {
 }
 
 .tag-item {
-  background: linear-gradient(135deg, rgba(45, 51, 107, 0.08), rgba(125, 129, 162, 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba(45, 51, 107, 0.08),
+    rgba(125, 129, 162, 0.05)
+  );
   color: var(--color-main);
   padding: 0.4rem 0.75rem;
   border-radius: 1rem;
@@ -645,7 +725,11 @@ export default {
 }
 
 .tag-item:hover {
-  background: linear-gradient(135deg, rgba(45, 51, 107, 0.12), rgba(125, 129, 162, 0.08));
+  background: linear-gradient(
+    135deg,
+    rgba(45, 51, 107, 0.12),
+    rgba(125, 129, 162, 0.08)
+  );
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(45, 51, 107, 0.15);
 }
@@ -677,37 +761,53 @@ export default {
 }
 
 .analysis-title {
-  color: #E67E22;
-  background: linear-gradient(135deg, rgba(230, 126, 34, 0.1), rgba(230, 126, 34, 0.05));
+  color: #e67e22;
+  background: linear-gradient(
+    135deg,
+    rgba(230, 126, 34, 0.1),
+    rgba(230, 126, 34, 0.05)
+  );
   padding: 0.4rem 0.625rem;
   border-radius: 0.625rem;
-  border-left: 3px solid #E67E22;
+  border-left: 3px solid #e67e22;
 }
 
 .score-title {
-  color: #27AE60;
-  background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(39, 174, 96, 0.05));
+  color: #27ae60;
+  background: linear-gradient(
+    135deg,
+    rgba(39, 174, 96, 0.1),
+    rgba(39, 174, 96, 0.05)
+  );
   padding: 0.4rem 0.625rem;
   border-radius: 0.625rem;
-  border-left: 3px solid #27AE60;
+  border-left: 3px solid #27ae60;
 }
 
 .action-title {
-  color: #8E44AD;
-  background: linear-gradient(135deg, rgba(142, 68, 173, 0.1), rgba(142, 68, 173, 0.05));
+  color: #8e44ad;
+  background: linear-gradient(
+    135deg,
+    rgba(142, 68, 173, 0.1),
+    rgba(142, 68, 173, 0.05)
+  );
   padding: 0.4rem 0.625rem;
   border-radius: 0.625rem;
-  border-left: 3px solid #8E44AD;
+  border-left: 3px solid #8e44ad;
   text-align: center;
   justify-content: center;
 }
 
 .portfolio-title {
-  color: #2C3E50;
-  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(44, 62, 80, 0.05));
+  color: #2c3e50;
+  background: linear-gradient(
+    135deg,
+    rgba(44, 62, 80, 0.1),
+    rgba(44, 62, 80, 0.05)
+  );
   padding: 0.4rem 0.625rem;
   border-radius: 0.625rem;
-  border-left: 3px solid #2C3E50;
+  border-left: 3px solid #2c3e50;
 }
 
 /* 서브섹션 타이틀 */
@@ -840,33 +940,40 @@ export default {
 }
 
 /* 각 차원별 색상 */
-.bar-a, .bar-i {
-  background: linear-gradient(90deg, #3498DB, #5DADE2);
+.bar-a,
+.bar-i {
+  background: linear-gradient(90deg, #3498db, #5dade2);
 }
 
-.bar-p, .bar-b {
-  background: linear-gradient(90deg, #E67E22, #F8C471);
+.bar-p,
+.bar-b {
+  background: linear-gradient(90deg, #e67e22, #f8c471);
 }
 
-.bar-m, .bar-w {
-  background: linear-gradient(90deg, #27AE60, #58D68D);
+.bar-m,
+.bar-w {
+  background: linear-gradient(90deg, #27ae60, #58d68d);
 }
 
 /* 각 차원별 색상 */
-.bar-a, .bar-i {
-  background: linear-gradient(90deg, #3498DB, #5DADE2);
+.bar-a,
+.bar-i {
+  background: linear-gradient(90deg, #3498db, #5dade2);
 }
 
-.bar-p, .bar-b {
-  background: linear-gradient(90deg, #E67E22, #F8C471);
+.bar-p,
+.bar-b {
+  background: linear-gradient(90deg, #e67e22, #f8c471);
 }
 
-.bar-m, .bar-w {
-  background: linear-gradient(90deg, #27AE60, #58D68D);
+.bar-m,
+.bar-w {
+  background: linear-gradient(90deg, #27ae60, #58d68d);
 }
 
-.bar-l, .bar-c {
-  background: linear-gradient(90deg, #8E44AD, #BB8FCE);
+.bar-l,
+.bar-c {
+  background: linear-gradient(90deg, #8e44ad, #bb8fce);
 }
 
 /* 테마 포트폴리오 섹션 */
@@ -883,7 +990,11 @@ export default {
 }
 
 .portfolio-placeholder {
-  background: linear-gradient(135deg, rgba(44, 62, 80, 0.05), rgba(44, 62, 80, 0.02));
+  background: linear-gradient(
+    135deg,
+    rgba(44, 62, 80, 0.05),
+    rgba(44, 62, 80, 0.02)
+  );
   border: 2px dashed rgba(44, 62, 80, 0.2);
   border-radius: 0.875rem;
   padding: 2rem 1rem;
@@ -899,7 +1010,7 @@ export default {
 
 .placeholder-content i {
   font-size: 2rem;
-  color: #2C3E50;
+  color: #2c3e50;
   opacity: 0.6;
 }
 
@@ -911,7 +1022,7 @@ export default {
 }
 
 .coming-soon {
-  background: linear-gradient(135deg, #2C3E50, #34495E);
+  background: linear-gradient(135deg, #2c3e50, #34495e);
   color: var(--color-white);
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
@@ -963,11 +1074,11 @@ export default {
 .action-button.primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 25px rgba(45, 51, 107, 0.4);
-  background: linear-gradient(135deg, #1E2347, var(--color-main));
+  background: linear-gradient(135deg, #1e2347, var(--color-main));
 }
 
 .action-button.secondary {
-  background: linear-gradient(135deg, #3498DB, #5DADE2);
+  background: linear-gradient(135deg, #3498db, #5dade2);
   color: var(--color-white);
   box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
 }
@@ -975,11 +1086,11 @@ export default {
 .action-button.secondary:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 25px rgba(52, 152, 219, 0.4);
-  background: linear-gradient(135deg, #2980B9, #3498DB);
+  background: linear-gradient(135deg, #2980b9, #3498db);
 }
 
 .action-button.tertiary {
-  background: linear-gradient(135deg, #95A5A6, #BDC3C7);
+  background: linear-gradient(135deg, #95a5a6, #bdc3c7);
   color: var(--color-white);
   box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
 }
@@ -987,7 +1098,7 @@ export default {
 .action-button.tertiary:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 25px rgba(149, 165, 166, 0.4);
-  background: linear-gradient(135deg, #7F8C8D, #95A5A6);
+  background: linear-gradient(135deg, #7f8c8d, #95a5a6);
 }
 
 .action-button:active {
@@ -1048,7 +1159,11 @@ export default {
 }
 
 @keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     transform: translateY(0);
   }
   40% {
@@ -1065,33 +1180,33 @@ export default {
     padding: 0.875rem;
     gap: 1rem;
   }
-  
+
   .code-text {
     font-size: 2.25rem;
   }
-  
+
   .type-summary {
     gap: 1.25rem;
   }
-  
+
   .analysis-card,
   .score-card {
     padding: 1rem;
   }
-  
+
   .bidirectional-bar {
     height: 2rem;
   }
-  
+
   .bar-progress {
     height: 1.25rem;
   }
-  
+
   .bar-center {
     width: 1.5rem;
     font-size: 0.65rem;
   }
-  
+
   .bar-info {
     font-size: 0.75rem;
   }
