@@ -167,6 +167,9 @@ const fetchProducts = async () => {
     ) {
       console.log('선택된 은행이 없어 상품을 표시하지 않습니다.');
       depositProducts.value = [];
+      if (depositProducts.value?.length > 0) {
+      console.log('- 첫 번째 상품:', depositProducts.value[0]);
+    }
       totalCount.value = 0;
       return true;
     }

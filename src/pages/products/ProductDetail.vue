@@ -129,7 +129,7 @@ import ProductFeatures from '@/components/products/ProductFeatures.vue';
 import PreferentialConditions from '@/components/products/PreferentialConditions.vue';
 import FinancialTermModal from '@/components/products/FinancialTermModal.vue';
 import ActionButtons from '@/components/products/ActionButtons.vue';
-import CompareFloatingBar from '@/components/products/CompareFloatingBar.vue';
+import CompareFloatingBar from '@/components/products/compare/CompareFloatingBar.vue';
 import useCompareList from '@/composables/useCompareList';
 
 const route = useRoute();
