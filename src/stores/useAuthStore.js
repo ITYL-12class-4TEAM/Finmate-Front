@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import { authAPI } from '@/api/auth';
+import { memberAPI } from '@/api/member';
 
 export const useAuthStore = defineStore('auth', () => {
   // 상태
@@ -17,37 +19,24 @@ export const useAuthStore = defineStore('auth', () => {
     isLoading.value = true;
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+      const result = await authAPI.login(email, password);
 
-      const data = await response.json();
+      if (result.success) {
+        const loginData = result.data;
+        setTokens(loginData.accessToken, loginData.refreshToken);
 
-      if (response.ok) {
-        // 성공 시 토큰과 사용자 정보 저장
-        accessToken.value = data.accessToken;
-        refreshToken.value = data.refreshToken;
-        user.value = data.userInfo;
+        if (loginData.userInfo) {
+          user.value = loginData.userInfo;
+          localStorage.setItem('user', JSON.stringify(loginData.userInfo));
+        }
 
-        // localStorage에 저장
-        localStorage.setItem('accessToken', data.accessToken);
-        localStorage.setItem('refreshToken', data.refreshToken);
-        localStorage.setItem('user', JSON.stringify(data.userInfo));
-
-        return { success: true, message: '로그인 성공' };
+        return { success: true, message: result.message };
       } else {
-        return { success: false, message: data.message || '로그인 실패' };
+        return { success: false, message: result.message };
       }
     } catch (error) {
-      console.error('로그인 에러:', error);
-      return { success: false, message: '네트워크 오류가 발생했습니다.' };
+      console.error('예상치 못한 로그인 에러:', error);
+      return { success: false, message: '네트워크 연결을 확인해주세요.' };
     } finally {
       isLoading.value = false;
     }
@@ -56,88 +45,32 @@ export const useAuthStore = defineStore('auth', () => {
   // 로그아웃 액션
   const logout = async () => {
     try {
-      // 백엔드에 로그아웃 요청 (선택사항)
       if (accessToken.value) {
-        await fetch('/api/auth/logout', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${accessToken.value}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        const result = await authAPI.logout();
+        console.log('로그아웃:', result.message);
       }
     } catch (error) {
-      console.error('로그아웃 에러:', error);
+      console.error('로그아웃 실패:', error);
     } finally {
-      // 상태 초기화
-      user.value = null;
-      accessToken.value = null;
-      refreshToken.value = null;
-
-      // localStorage에서 제거
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
+      clearAuthData();
     }
   };
 
-  // 토큰 새로고침
-  const refreshAccessToken = async () => {
-    if (!refreshToken.value) return false;
-
-    try {
-      const response = await fetch('/api/auth/refresh', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          refreshToken: refreshToken.value,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        accessToken.value = data.accessToken;
-        localStorage.setItem('accessToken', data.accessToken);
-        return true;
-      } else {
-        // refresh token도 만료된 경우
-        await logout();
-        return false;
-      }
-    } catch (error) {
-      console.error('토큰 새로고침 에러:', error);
-      await logout();
+  const refreshUser = async () => {
+    if (!accessToken.value) {
+      console.log('토큰이 없습니다.');
       return false;
     }
-  };
-
-  // 사용자 정보 새로고침
-  const refreshUser = async () => {
-    if (!accessToken.value) return false;
-
     try {
-      const response = await fetch('/api/auth/me', {
-        headers: {
-          Authorization: `Bearer ${accessToken.value}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const result = await memberAPI.getMyInfo();
 
-      if (response.ok) {
-        const userData = await response.json();
-        user.value = userData;
-        localStorage.setItem('user', JSON.stringify(userData));
+      if (result.success) {
+        user.value = result.data;
+        localStorage.setItem('user', JSON.stringify(result.data));
+        console.log('사용자 정보 새로고침 성공');
         return true;
-      } else if (response.status === 401) {
-        // 토큰 만료 시 새로고침 시도
-        const refreshed = await refreshAccessToken();
-        if (refreshed) {
-          return await refreshUser(); // 재귀 호출
-        }
-        return false;
       } else {
+        console.warn('사용자 정보 새로고침 실패:', result.message);
         return false;
       }
     } catch (error) {
@@ -146,29 +79,90 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  // 초기화 (앱 시작 시 실행)
-  const initialize = async () => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser && accessToken.value) {
-      try {
-        user.value = JSON.parse(savedUser);
-        // 토큰 유효성 검증
-        await refreshUser();
-      } catch (error) {
-        console.error('초기화 에러:', error);
-        await logout();
-      }
+  // 토큰 설정
+  const setTokens = (newAccessToken, newRefreshToken) => {
+    if (newAccessToken) {
+      accessToken.value = newAccessToken;
+      localStorage.setItem('accessToken', newAccessToken);
+    }
+
+    if (newRefreshToken) {
+      refreshToken.value = newRefreshToken;
+      localStorage.setItem('refreshToken', newRefreshToken);
     }
   };
 
-  // 디버깅용 - localStorage 상태 확인
-  const debugStorage = () => {
-    console.log('=== localStorage 상태 ===');
-    console.log('accessToken:', accessToken.value);
-    console.log('refreshToken:', refreshToken.value);
-    console.log('user:', user.value);
-    console.log('isAuthenticated:', isAuthenticated.value);
-    console.log('========================');
+  // 인증 데이터 초기화
+  const clearAuthData = () => {
+    console.log('인증 데이터 초기화');
+
+    user.value = null;
+    accessToken.value = null;
+    refreshToken.value = null;
+
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+  };
+
+  const initialize = async () => {
+    console.log('Auth Store 초기화 시작');
+
+    const savedUser = localStorage.getItem('user');
+    const savedAccessToken = localStorage.getItem('accessToken');
+
+    if (!savedUser || !savedAccessToken) {
+      console.log('로그인 필요');
+      return;
+    }
+
+    try {
+      user.value = JSON.parse(savedUser);
+      accessToken.value = savedAccessToken;
+      refreshToken.value = localStorage.getItem('refreshToken');
+
+      console.log('인증 정보 복원 완료:', {
+        hasUser: !!user.value,
+        hasAccessToken: !!accessToken.value,
+        hasRefreshToken: !!refreshToken.value,
+      });
+
+      const shouldValidateToken = false; // 설정으로 제어 가능
+
+      if (shouldValidateToken) {
+        console.log('토큰 유효성 확인 중...');
+        const isValid = await refreshUser();
+
+        if (!isValid) {
+          console.log('토큰이 유효하지 않음');
+          clearAuthData();
+        } else {
+          console.log('토큰 유효성 확인 완료');
+        }
+      }
+    } catch (error) {
+      console.error('초기화 중 오류 발생:', error);
+      console.log('오류로 인한 인증 정보 초기화');
+      clearAuthData();
+    }
+  };
+
+  const hasValidTokens = () => {
+    return !!(accessToken.value && refreshToken.value);
+  };
+  const shouldValidateTokenOnInit = async () => {
+    const currentPath = window.location.pathname;
+
+    // 공개 페이지(추가 예정)
+    const publicPages = ['/', '/login', '/register', '/about'];
+
+    if (publicPages.includes(currentPath)) {
+      console.log('공개 페이지 - 토큰 검증 생략');
+      return false;
+    }
+
+    console.log('로그인이 필요한 페이지 입니다.');
+    return true;
   };
 
   return {
@@ -177,16 +171,20 @@ export const useAuthStore = defineStore('auth', () => {
     accessToken,
     refreshToken,
     isLoading,
+
     // Getters
     isAuthenticated,
     userInfo,
+
     // 액션
     login,
     logout,
-    refreshAccessToken,
     refreshUser,
+    setTokens,
+    clearAuthData,
     initialize,
-    // 디버깅
-    debugStorage,
+
+    hasValidTokens,
+    shouldValidateTokenOnInit,
   };
 });
