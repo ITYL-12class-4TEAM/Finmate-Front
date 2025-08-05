@@ -171,7 +171,7 @@ export default {
   background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.8) 100%);
   border-radius: 1rem;
   padding: 1.5rem 1rem;
-  box-shadow: 0 4px 20px rgba(45, 51, 107, 0.08);
+  box-shadow: 0 0.25rem 1.25rem rgba(45, 51, 107, 0.08);
 }
 
 .main-title {
@@ -218,7 +218,7 @@ export default {
 /* 안내 카드 */
 .instruction-card {
   background: linear-gradient(135deg, rgba(230, 126, 34, 0.1), rgba(230, 126, 34, 0.05));
-  border: 1px solid rgba(230, 126, 34, 0.2);
+  border: 0.0625rem solid rgba(230, 126, 34, 0.2);
   border-radius: 1rem;
   margin-bottom: 1.5rem;
   overflow: hidden;
@@ -278,8 +278,8 @@ export default {
   background: var(--color-white);
   border-radius: 1rem;
   padding: 1.25rem;
-  box-shadow: 0 8px 32px rgba(45, 51, 107, 0.15);
-  border: 1px solid rgba(185, 187, 204, 0.2);
+  box-shadow: 0 0.5rem 2rem rgba(45, 51, 107, 0.15);
+  border: 0.0625rem solid rgba(185, 187, 204, 0.2);
 }
 
 .completion-status {
@@ -321,12 +321,12 @@ export default {
 
 .submit-button.ready {
   background: linear-gradient(135deg, var(--color-main), #4a5299);
-  box-shadow: 0 4px 15px rgba(45, 51, 107, 0.3);
+  box-shadow: 0 0.25rem 0.9375rem rgba(45, 51, 107, 0.3);
 }
 
 .submit-button.ready:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(45, 51, 107, 0.4);
+  transform: translateY(-0.125rem);
+  box-shadow: 0 0.375rem 1.5625rem rgba(45, 51, 107, 0.4);
 }
 
 .submit-button:disabled {
@@ -347,8 +347,8 @@ export default {
 .loading-spinner {
   width: 2rem;
   height: 2rem;
-  border: 3px solid rgba(45, 51, 107, 0.1);
-  border-top: 3px solid var(--color-main);
+  border: 0.1875rem solid rgba(45, 51, 107, 0.1);
+  border-top: 0.1875rem solid var(--color-main);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;

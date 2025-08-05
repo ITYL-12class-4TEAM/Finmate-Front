@@ -419,7 +419,7 @@ export default {
   padding: 1.5rem 0;
   background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.8) 100%);
   border-radius: 1rem;
-  box-shadow: 0 4px 20px rgba(45, 51, 107, 0.08);
+  box-shadow: 0 0.25rem 1.25rem rgba(45, 51, 107, 0.08);
 }
 
 .user-greeting {
@@ -436,7 +436,7 @@ export default {
   border-radius: 1rem;
   font-weight: 700;
   display: inline-block;
-  box-shadow: 0 2px 8px rgba(45, 51, 107, 0.3);
+  box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.3);
 }
 
 .wmti-code-display {
@@ -503,56 +503,56 @@ export default {
 .type-aggressive {
   background: #483b8a !important;
   color: var(--color-white);
-  box-shadow: 0 2px 8px rgba(72, 59, 138, 0.3);
+  box-shadow: 0 0.125rem 0.5rem rgba(72, 59, 138, 0.3); /* 2px 8px */
 }
 
 .type-active {
   background: #5b4bad !important;
   color: var(--color-white);
-  box-shadow: 0 2px 8px rgba(91, 75, 173, 0.3);
+  box-shadow: 0 0.125rem 0.5rem rgba(91, 75, 173, 0.3);
 }
 
 .type-balanced {
   background: #6d59cf !important;
   color: var(--color-white);
-  box-shadow: 0 2px 8px rgba(109, 89, 207, 0.3);
+  box-shadow: 0 0.125rem 0.5rem rgba(109, 89, 207, 0.3);
 }
 
 .type-passive {
   background: #836cfa !important;
   color: var(--color-white);
-  box-shadow: 0 2px 8px rgba(131, 108, 250, 0.3);
+  box-shadow: 0 0.125rem 0.5rem rgba(131, 108, 250, 0.3);
 }
 
 /* RiskPreference별 색상 클래스 */
 .risk-stability {
   background: #27ae60 !important;
   color: var(--color-white);
-  box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+  box-shadow: 0 0.125rem 0.5rem rgba(39, 174, 96, 0.3);
 }
 
 .risk-stability-oriented {
   background: #2ecc71 !important;
   color: var(--color-white);
-  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
+  box-shadow: 0 0.125rem 0.5rem rgba(46, 204, 113, 0.3);
 }
 
 .risk-neutral {
   background: #f39c12 !important;
   color: var(--color-white);
-  box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+  box-shadow: 0 0.125rem 0.5rem rgba(243, 156, 18, 0.3);
 }
 
 .risk-actively {
   background: #e67e22 !important;
   color: var(--color-white);
-  box-shadow: 0 2px 8px rgba(230, 126, 34, 0.3);
+  box-shadow: 0 0.125rem 0.5rem rgba(230, 126, 34, 0.3);
 }
 
 .risk-aggressive {
   background: #e74c3c !important;
   color: var(--color-white);
-  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+  box-shadow: 0 0.125rem 0.5rem rgba(231, 76, 60, 0.3);
 }
 
 /* 텍스트 색상 클래스 - ResultType */
@@ -607,7 +607,7 @@ export default {
   background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.8) 100%);
   border-radius: 1rem;
   padding: 1.25rem;
-  box-shadow: 0 4px 20px rgba(45, 51, 107, 0.08);
+  box-shadow: 0 0.25rem 1.25rem rgba(45, 51, 107, 0.08);
   animation: fadeInUp 0.6s ease-out 0.2s both;
 }
 
@@ -626,7 +626,7 @@ export default {
   color: var(--color-main);
   line-height: 1.4;
   flex: 1;
-  min-width: 180px;
+  min-width: 11.25rem;
   margin: 0;
 }
 
@@ -685,7 +685,7 @@ export default {
   font-size: 0.75rem;
   font-weight: 600;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(45, 51, 107, 0.1);
+  border: 0.063rem solid rgba(45, 51, 107, 0.1);
   white-space: nowrap;
   flex-shrink: 0;
   cursor: pointer;
@@ -693,12 +693,12 @@ export default {
 
 .tag-item:hover {
   background: linear-gradient(135deg, rgba(45, 51, 107, 0.12), rgba(125, 129, 162, 0.08));
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(45, 51, 107, 0.15);
+  transform: translateY(-0.063rem);
+  box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.15);
 }
 
 .description-section {
-  border-left: 3px solid var(--color-main);
+  border-left: 0.188rem solid var(--color-main);
   padding-left: 0.875rem;
   background: rgba(45, 51, 107, 0.02);
   padding: 0.875rem 0.875rem 0.875rem 1.25rem;
@@ -728,7 +728,7 @@ export default {
   background: linear-gradient(135deg, rgba(230, 126, 34, 0.1), rgba(230, 126, 34, 0.05));
   padding: 0.4rem 0.625rem;
   border-radius: 0.625rem;
-  border-left: 3px solid #e67e22;
+  border-left: 0.188rem solid #e67e22;
 }
 
 .score-title {
@@ -736,7 +736,7 @@ export default {
   background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(39, 174, 96, 0.05));
   padding: 0.4rem 0.625rem;
   border-radius: 0.625rem;
-  border-left: 3px solid #27ae60;
+  border-left: 0.188rem solid #27ae60;
 }
 
 .action-title {
@@ -744,7 +744,7 @@ export default {
   background: linear-gradient(135deg, rgba(142, 68, 173, 0.1), rgba(142, 68, 173, 0.05));
   padding: 0.4rem 0.625rem;
   border-radius: 0.625rem;
-  border-left: 3px solid #8e44ad;
+  border-left: 0.188rem solid #8e44ad;
   text-align: center;
   justify-content: center;
 }
@@ -754,7 +754,7 @@ export default {
   background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(44, 62, 80, 0.05));
   padding: 0.4rem 0.625rem;
   border-radius: 0.625rem;
-  border-left: 3px solid #2c3e50;
+  border-left: 0.188rem solid #2c3e50;
 }
 
 /* 서브섹션 타이틀 */
@@ -773,7 +773,7 @@ export default {
   background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.8) 100%);
   border-radius: 1rem;
   padding: 1.25rem;
-  box-shadow: 0 4px 20px rgba(45, 51, 107, 0.08);
+  box-shadow: 0 0.25rem 1.25rem rgba(45, 51, 107, 0.08);
   animation: fadeInUp 0.6s ease-out 0.4s both;
 }
 
@@ -843,7 +843,7 @@ export default {
   border-radius: 0.625rem;
   padding: 0.2rem 0;
   z-index: 2;
-  border: 2px solid rgba(185, 187, 204, 0.3);
+  border: 0.125rem solid rgba(185, 187, 204, 0.3);
 }
 
 .bar-progress {
@@ -878,7 +878,7 @@ export default {
 .bar-info.dominant {
   font-weight: 800;
   color: var(--color-main);
-  text-shadow: 0 1px 2px rgba(45, 51, 107, 0.2);
+  text-shadow: 0.063rem 0.125rem rgba(45, 51, 107, 0.2);
   transform: scale(1.05);
 }
 
@@ -924,13 +924,13 @@ export default {
   background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.8) 100%);
   border-radius: 1rem;
   padding: 1.25rem;
-  box-shadow: 0 4px 20px rgba(45, 51, 107, 0.08);
+  box-shadow: 0 0.25rem 1.25rem rgba(45, 51, 107, 0.08);
   animation: fadeInUp 0.6s ease-out 0.5s both;
 }
 
 .portfolio-placeholder {
   background: linear-gradient(135deg, rgba(44, 62, 80, 0.05), rgba(44, 62, 80, 0.02));
-  border: 2px dashed rgba(44, 62, 80, 0.2);
+  border: 0.125rem dashed rgba(44, 62, 80, 0.2);
   border-radius: 0.875rem;
   padding: 2rem 1rem;
   text-align: center;
@@ -964,7 +964,7 @@ export default {
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.031rem;
 }
 
 /* 액션 섹션 */
@@ -1003,36 +1003,36 @@ export default {
 .action-button.primary {
   background: linear-gradient(135deg, var(--color-main), #4a5299);
   color: var(--color-white);
-  box-shadow: 0 4px 15px rgba(45, 51, 107, 0.3);
+  box-shadow: 0 0.25rem 0.9375rem rgba(45, 51, 107, 0.3); /* 4px 15px */
 }
 
 .action-button.primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(45, 51, 107, 0.4);
+  transform: translateY(-0.125rem); /* -2px */
+  box-shadow: 0 0.375rem 1.5625rem rgba(45, 51, 107, 0.4); /* 6px 25px */
   background: linear-gradient(135deg, #1e2347, var(--color-main));
 }
 
 .action-button.secondary {
   background: linear-gradient(135deg, #3498db, #5dade2);
   color: var(--color-white);
-  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+  box-shadow: 0 0.25rem 0.9375rem rgba(52, 152, 219, 0.3); /* 4px 15px */
 }
 
 .action-button.secondary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(52, 152, 219, 0.4);
+  transform: translateY(-0.125rem); /* -2px */
+  box-shadow: 0 0.375rem 1.5625rem rgba(52, 152, 219, 0.4); /* 6px 25px */
   background: linear-gradient(135deg, #2980b9, #3498db);
 }
 
 .action-button.tertiary {
   background: linear-gradient(135deg, #95a5a6, #bdc3c7);
   color: var(--color-white);
-  box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
+  box-shadow: 0 0.25rem 0.9375rem rgba(149, 165, 166, 0.3); /* 4px 15px */
 }
 
 .action-button.tertiary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(149, 165, 166, 0.4);
+  transform: translateY(-0.125rem); /* -2px */
+  box-shadow: 0 0.375rem 1.5625rem rgba(149, 165, 166, 0.4); /* 6px 25px */
   background: linear-gradient(135deg, #7f8c8d, #95a5a6);
 }
 
@@ -1068,7 +1068,7 @@ export default {
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(1.25rem); /* 20px */
   }
   to {
     opacity: 1;
@@ -1079,7 +1079,7 @@ export default {
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(1.875rem); /* 30px */
   }
   to {
     opacity: 1;
@@ -1102,15 +1102,15 @@ export default {
     transform: translateY(0);
   }
   40% {
-    transform: translateY(-4px);
+    transform: translateY(-0.25rem);
   }
   60% {
-    transform: translateY(-2px);
+    transform: translateY(-0.125rem);
   }
 }
 
 /* 반응형 */
-@media (max-width: 375px) {
+@media (max-width: 26.875rem) {
   .result-page {
     padding: 0.875rem;
     gap: 1rem;

@@ -175,9 +175,9 @@ export default {
 
 .step-card {
   background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.8) 100%);
-  border: 2px solid rgba(45, 51, 107, 0.1);
+  border: 0.125rem solid rgba(45, 51, 107, 0.1);
   border-radius: 1rem;
-  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.08);
+  box-shadow: 0 0.25rem 0.75rem rgba(45, 51, 107, 0.08);
   padding: 1.25rem;
   margin-top: 1.5rem;
   transition: all 0.3s ease;
@@ -254,8 +254,8 @@ export default {
 }
 
 .step-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(45, 51, 107, 0.3);
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.25rem 0.9375rem rgba(45, 51, 107, 0.3);
 }
 
 .step-button:disabled,
@@ -313,7 +313,7 @@ export default {
 /* 디버깅 정보 스타일 */
 .debug-info {
   background: rgba(231, 76, 60, 0.1);
-  border: 1px solid #e74c3c;
+  border: 0.0625rem solid #e74c3c;
   border-radius: 0.5rem;
   padding: 1rem;
   margin-top: 2rem;
@@ -346,10 +346,10 @@ export default {
     transform: translateY(0);
   }
   40% {
-    transform: translateY(-4px);
+    transform: translateY(-0.25rem);
   }
   60% {
-    transform: translateY(-2px);
+    transform: translateY(-0.125rem);
   }
 }
 </style>

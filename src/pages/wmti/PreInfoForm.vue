@@ -204,7 +204,7 @@ input[type='text'],
 input[type='number'] {
   width: 100%;
   padding: 0.6rem;
-  border: 1px solid var(--color-light);
+  border: 0.063rem solid var(--color-light);
   border-radius: 0.5rem;
   font-size: 1rem;
 }

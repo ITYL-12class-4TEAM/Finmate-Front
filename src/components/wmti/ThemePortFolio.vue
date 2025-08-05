@@ -410,7 +410,7 @@ export default {
   background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(44, 62, 80, 0.05));
   padding: 0.4rem 0.625rem;
   border-radius: 0.625rem;
-  border-left: 3px solid #2c3e50;
+  border-left: 0.188rem solid #2c3e50;
 }
 
 .portfolios-container {
@@ -423,9 +423,9 @@ export default {
   background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.8) 100%);
   border-radius: 1rem;
   padding: 1.25rem;
-  box-shadow: 0 4px 20px rgba(45, 51, 107, 0.08);
+  box-shadow: 0 0.25rem 1.25rem rgba(45, 51, 107, 0.08);
   transition: all 0.3s ease;
-  border: 2px solid transparent;
+  border: 0.125rem solid transparent;
 }
 
 .portfolio-card.recommendation-1 {
@@ -457,12 +457,12 @@ export default {
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+  box-shadow: 0 0.125rem 0.5rem rgba(243, 156, 18, 0.3);
 }
 
 .recommendation-2 .portfolio-badge {
   background: linear-gradient(135deg, #3498db, #2980b9);
-  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+  box-shadow: 0 0.125rem 0.5rem rgba(52, 152, 219, 0.3);
 }
 
 .portfolio-name {
@@ -483,18 +483,18 @@ export default {
 
 .chart-container {
   position: relative;
-  height: 200px;
-  width: 200px; /* 명시적 너비 추가 */
+  height: 12.5rem;
+  width: 12.5rem; /* 명시적 너비 추가 */
   margin: 0 auto 1rem auto; /* 중앙 정렬 */
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 1px dashed #ccc; /* 디버깅용 테두리 */
+  border: 0.063rem dashed #ccc; /* 디버깅용 테두리 */
 }
 
 .portfolio-chart {
-  max-width: 200px;
-  max-height: 200px;
+  max-width: 12.5rem;
+  max-height: 12.5rem;
 }
 
 .chart-center {
@@ -600,7 +600,7 @@ export default {
 
 .more-button:hover {
   background: linear-gradient(135deg, var(--color-sub), var(--color-light));
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(125, 129, 162, 0.3);
+  transform: translateY(-0.063rem);
+  box-shadow: 0 0.25rem 0.75rem rgba(125, 129, 162, 0.3);
 }
 </style>

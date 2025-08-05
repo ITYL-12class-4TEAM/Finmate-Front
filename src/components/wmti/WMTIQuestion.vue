@@ -94,12 +94,12 @@ export default {
 /* 메인 컨테이너 */
 .question-container {
   background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.9) 100%);
-  border: 2px solid rgba(185, 187, 204, 0.15);
+  border: 0.125rem solid rgba(185, 187, 204, 0.15);
   border-radius: 1.25rem;
   padding: 1.5rem;
   margin-bottom: 1.25rem;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 16px rgba(45, 51, 107, 0.06);
+  box-shadow: 0 0.25rem 1rem rgba(45, 51, 107, 0.06);
   position: relative;
   overflow: hidden;
 }
@@ -110,15 +110,15 @@ export default {
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
+  height: 0.188rem;
   background: linear-gradient(90deg, transparent, rgba(45, 51, 107, 0.1), transparent);
   transition: all 0.4s ease;
 }
 
 .question-container.answered {
   border-color: rgba(45, 51, 107, 0.3);
-  box-shadow: 0 6px 24px rgba(45, 51, 107, 0.12);
-  transform: translateY(-2px);
+  box-shadow: 0 0.375rem 1.5rem rgba(45, 51, 107, 0.12);
+  transform: translateY(-0.125rem);
 }
 
 .question-container.answered::before {
@@ -142,7 +142,7 @@ export default {
   padding: 0.5rem 0.875rem;
   border-radius: 1.25rem;
   font-weight: 700;
-  box-shadow: 0 3px 12px rgba(45, 51, 107, 0.25);
+  box-shadow: 0 0.188rem 0.75rem rgba(45, 51, 107, 0.25);
 }
 
 .q-label {
@@ -164,7 +164,7 @@ export default {
   align-items: center;
   justify-content: center;
   font-size: 0.8rem;
-  box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+  box-shadow: 0 0.125rem 0.5rem rgba(39, 174, 96, 0.3);
   animation: checkBounce 0.5s ease-out;
 }
 
@@ -243,12 +243,12 @@ export default {
 
 .radio-option.hover-effect:hover {
   background: rgba(45, 51, 107, 0.05);
-  transform: translateY(-2px);
+  transform: translateY(-0.125rem);
 }
 
 .radio-option.selected {
   background: linear-gradient(135deg, rgba(45, 51, 107, 0.08), rgba(45, 51, 107, 0.04));
-  transform: translateY(-2px);
+  transform: translateY(-0.125rem);
 }
 
 .radio-input {
@@ -257,7 +257,7 @@ export default {
 
 /* 옵션 원형 - 크기 차등 적용 */
 .option-circle {
-  border: 2.5px solid rgba(185, 187, 204, 0.4);
+  border: 0.156rem solid rgba(185, 187, 204, 0.4);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -291,7 +291,7 @@ export default {
 
 .radio-option:hover .option-circle {
   border-color: rgba(45, 51, 107, 0.4);
-  box-shadow: 0 4px 16px rgba(45, 51, 107, 0.15);
+  box-shadow: 0 0.25rem 1rem rgba(45, 51, 107, 0.15);
   transform: scale(1.05);
 }
 
@@ -299,7 +299,7 @@ export default {
   border-color: var(--color-main);
   background: linear-gradient(135deg, var(--color-main), #4a5299);
   transform: scale(1.1);
-  box-shadow: 0 6px 20px rgba(45, 51, 107, 0.3);
+  box-shadow: 0 0.375rem 1.25rem rgba(45, 51, 107, 0.3);
 }
 
 .option-inner {
@@ -364,7 +364,7 @@ export default {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 3px;
+  height: 0.188rem;
   overflow: hidden;
 }
 
@@ -415,7 +415,7 @@ export default {
 }
 
 /* 반응형 - 모바일에서도 크기 차등 유지 */
-@media (max-width: 375px) {
+@media (max-width: 26.875rem) {
   .question-container {
     padding: 1.25rem;
   }

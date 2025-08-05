@@ -175,7 +175,7 @@ export default {
 <style scoped>
 .recommendation-reason {
   background: linear-gradient(135deg, rgba(52, 152, 219, 0.05), rgba(52, 152, 219, 0.02));
-  border: 1px solid rgba(52, 152, 219, 0.15);
+  border: 0.063rem solid rgba(52, 152, 219, 0.15);
   border-radius: 0.75rem;
   padding: 1rem;
   margin-top: 1rem;
