@@ -63,6 +63,14 @@
         </div>
       </div>
 
+      <!-- 만기 후 금리 변동 -->
+      <div v-if="product.productDetail?.etc_note" class="info-section">
+        <h3 class="section-title">만기 해지 시 이자 지급 방식</h3>
+        <div class="info-content">
+          {{ product.productDetail.mtrt_int }}
+        </div>
+      </div>
+
       <!-- 비고 섹션 (추가) -->
       <div v-if="product.productDetail?.etc_note" class="info-section">
         <h3 class="section-title">비고</h3>
@@ -128,22 +136,6 @@ const selectedTerm = ref({ name: '', description: '' });
 
 // 비교함 기능 (컴포저블 사용)
 const { compareList, addToCompareList, isInCompareList } = useCompareList();
-
-// 금융 용어 데이터
-const financialTerms = [
-  {
-    name: '복리',
-    preview: '원금뿐만 아니라 이자에도 이자가 붙는 계산법으로...',
-  },
-  {
-    name: '단리',
-    preview: '원금에 대해서만 이자가 발생하는 계산법으로...',
-  },
-  {
-    name: '세금우대',
-    preview: '일반과세보다 낮은 세율이 적용되는 금융상품...',
-  },
-];
 
 // 상품 정보 로드
 const loadProductDetail = async () => {
