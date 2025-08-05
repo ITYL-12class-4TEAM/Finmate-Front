@@ -51,7 +51,11 @@ const props = defineProps({
 });
 
 const goToDetail = () => {
-  router.push(`/community/${props.post.postId}`);
+  router.push({
+    name: 'CommunityDetail',
+    params: { id: props.post.postId },
+    query: { from: 'home' },
+  });
 };
 </script>
 

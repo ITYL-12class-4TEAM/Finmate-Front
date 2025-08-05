@@ -1,6 +1,6 @@
 <template>
   <div class="community-detail">
-    <BackButton :to="'/community'" />
+    <BackButton :to="backTo" />
 
     <div v-if="post" class="post-main">
       <!-- 게시글 상단 -->
@@ -131,7 +131,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import BackButton from '@/components/common/BackButton.vue';
@@ -215,6 +215,11 @@ const deletePost = async () => {
     alert('삭제 실패');
   }
 };
+
+const backTo = computed(() => {
+  if (route.query.from === 'home') return '/';
+  return '/community';
+});
 
 // 댓글 등록
 const submitComment = async () => {
