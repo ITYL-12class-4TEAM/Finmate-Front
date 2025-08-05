@@ -1,12 +1,12 @@
 <template>
   <div class="service-menu-toggle">
     <button
-      @click="$emit('toggle')"
       class="service-menu-btn"
       type="button"
       :class="{ active: showServiceMenu }"
       :aria-expanded="showServiceMenu"
       aria-label="서비스 메뉴 토글"
+      @click="$emit('toggle')"
     >
       <svg
         width="20"

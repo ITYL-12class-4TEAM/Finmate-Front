@@ -7,17 +7,12 @@
           <i class="fa-solid fa-search search-icon"></i>
           <input
             :value="searchQuery"
-            @input="handleSearchInput"
             type="text"
             class="search-input"
             placeholder="댓글단 게시글 제목이나 작성자 검색..."
+            @input="handleSearchInput"
           />
-          <button
-            v-if="searchQuery"
-            @click="clearSearch"
-            class="clear-btn"
-            title="검색어 지우기"
-          >
+          <button v-if="searchQuery" class="clear-btn" title="검색어 지우기" @click="clearSearch">
             <i class="fa-solid fa-times"></i>
           </button>
         </div>
@@ -32,11 +27,7 @@
             게시판 유형
           </label>
           <div class="custom-select">
-            <select
-              :value="selectedType"
-              @change="handleTypeChange"
-              class="select-input"
-            >
+            <select :value="selectedType" class="select-input" @change="handleTypeChange">
               <option value="">전체 게시판</option>
               <option value="FREE">자유게시판</option>
               <option value="HOT">HOT게시판</option>
@@ -52,11 +43,7 @@
             정렬 방식
           </label>
           <div class="custom-select">
-            <select
-              :value="sortBy"
-              @change="handleSortChange"
-              class="select-input"
-            >
+            <select :value="sortBy" class="select-input" @change="handleSortChange">
               <option value="comment-date-desc">최근 댓글순</option>
               <option value="post-date-desc">게시글 최신순</option>
               <option value="like-desc">좋아요 많은순</option>
@@ -73,7 +60,7 @@
           <i class="fa-solid fa-filter"></i>
           필터 적용됨
         </span>
-        <button @click="clearAllFilters" class="clear-all-btn">
+        <button class="clear-all-btn" @click="clearAllFilters">
           <i class="fa-solid fa-times"></i>
           전체 초기화
         </button>
@@ -91,12 +78,7 @@ const props = defineProps({
   sortBy: String,
 });
 
-const emit = defineEmits([
-  'update:searchQuery',
-  'update:selectedBoard',
-  'update:sortBy',
-  'filter',
-]);
+const emit = defineEmits(['update:searchQuery', 'update:selectedBoard', 'update:sortBy', 'filter']);
 // 활성 필터 여부 확인
 const hasActiveFilters = computed(() => {
   return props.searchQuery || props.selectedType;
@@ -136,11 +118,7 @@ const clearAllFilters = () => {
 }
 
 .filter-container {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
   padding: 1.25rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
@@ -298,11 +276,7 @@ const clearAllFilters = () => {
   align-items: center;
   margin-top: 1rem;
   padding: 0.75rem 1rem;
-  background: linear-gradient(
-    135deg,
-    rgba(45, 51, 107, 0.05) 0%,
-    rgba(125, 129, 162, 0.03) 100%
-  );
+  background: linear-gradient(135deg, rgba(45, 51, 107, 0.05) 0%, rgba(125, 129, 162, 0.03) 100%);
   border-radius: 0.75rem;
   border: 1px solid rgba(45, 51, 107, 0.15);
 }

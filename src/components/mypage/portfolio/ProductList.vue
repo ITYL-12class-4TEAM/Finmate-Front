@@ -9,11 +9,7 @@
             보유 상품 목록
           </h5>
           <div class="header-actions">
-            <button
-              class="btn-add-product"
-              @click="handleAddNewProduct"
-              :disabled="isProcessing"
-            >
+            <button class="btn-add-product" :disabled="isProcessing" @click="handleAddNewProduct">
               <i class="fas fa-plus"></i>
               상품 추가
             </button>
@@ -29,7 +25,7 @@
             <i class="fas fa-coins"></i>
             {{ formatTotalAmount() }}
           </span>
-          <span class="stats-item" v-if="portfolioItems.length > 0">
+          <span v-if="portfolioItems.length > 0" class="stats-item">
             <i class="fas fa-chart-line"></i>
             평균 {{ formatAverageAmount() }}
           </span>
@@ -38,15 +34,11 @@
     </div>
 
     <!-- 필터 및 정렬 -->
-    <div class="list-controls" v-if="portfolioItems.length > 0">
+    <div v-if="portfolioItems.length > 0" class="list-controls">
       <div class="filter-controls">
         <select v-model="selectedCategory" class="category-filter">
           <option value="">전체 카테고리</option>
-          <option
-            v-for="category in availableCategories"
-            :key="category"
-            :value="category"
-          >
+          <option v-for="category in availableCategories" :key="category" :value="category">
             {{ category }}
           </option>
         </select>
@@ -69,11 +61,7 @@
             placeholder="상품명 또는 회사명 검색..."
             class="search-input"
           />
-          <button
-            v-if="searchQuery"
-            @click="searchQuery = ''"
-            class="clear-search"
-          >
+          <button v-if="searchQuery" class="clear-search" @click="searchQuery = ''">
             <i class="fas fa-times"></i>
           </button>
         </div>
@@ -81,19 +69,15 @@
     </div>
 
     <!-- 상품 리스트 -->
-    <div
-      class="products-list"
-      v-if="filteredItems.length > 0"
-      :class="[viewMode]"
-    >
+    <div v-if="filteredItems.length > 0" class="products-list" :class="[viewMode]">
       <template v-for="(item, index) in filteredItems" :key="item.portfolioId">
         <ProductItem
           v-if="!isEditing(item)"
           :item="item"
           :index="index"
-          :totalItems="filteredItems.length"
-          :isProcessing="isProcessing"
-          :viewMode="viewMode"
+          :total-items="filteredItems.length"
+          :is-processing="isProcessing"
+          :view-mode="viewMode"
           @start-edit="handleStartEdit"
           @save-product="handleSaveProduct"
           @delete-product="handleDeleteProduct"
@@ -101,8 +85,8 @@
         <ProductEditForm
           v-else
           :item="item"
-          :editForm="editForm"
-          :isProcessing="isProcessing"
+          :edit-form="editForm"
+          :is-processing="isProcessing"
           @save-edit="handleSaveEdit"
           @cancel-edit="handleCancelEdit"
         />
@@ -110,17 +94,12 @@
     </div>
 
     <!-- 검색 결과 없음 -->
-    <div
-      v-else-if="portfolioItems.length > 0 && filteredItems.length === 0"
-      class="no-results"
-    >
+    <div v-else-if="portfolioItems.length > 0 && filteredItems.length === 0" class="no-results">
       <div class="no-results-icon">
         <i class="fas fa-search"></i>
       </div>
       <h6 class="no-results-title">검색 결과가 없습니다</h6>
-      <p class="no-results-description">
-        다른 검색어를 시도하거나 필터를 변경해보세요
-      </p>
+      <p class="no-results-description">다른 검색어를 시도하거나 필터를 변경해보세요</p>
       <button class="btn-reset-filters" @click="resetFilters">
         <i class="fas fa-sync-alt"></i>
         필터 초기화
@@ -192,11 +171,7 @@ const isEditing = (item) => {
 // 사용 가능한 카테고리 목록
 const availableCategories = computed(() => {
   const categories = [
-    ...new Set(
-      props.portfolioItems.map(
-        (item) => item.category || item.subcategoryName || '기타'
-      )
-    ),
+    ...new Set(props.portfolioItems.map((item) => item.category || item.subcategoryName || '기타')),
   ];
   return categories.sort();
 });
@@ -209,8 +184,7 @@ const filteredItems = computed(() => {
   if (selectedCategory.value) {
     items = items.filter(
       (item) =>
-        item.category === selectedCategory.value ||
-        item.subcategoryName === selectedCategory.value
+        item.category === selectedCategory.value || item.subcategoryName === selectedCategory.value
     );
   }
 
@@ -258,10 +232,7 @@ const resetFilters = () => {
 
 // 총 금액 포맷팅
 const formatTotalAmount = () => {
-  const total = props.portfolioItems.reduce(
-    (sum, item) => sum + (item.amount || 0),
-    0
-  );
+  const total = props.portfolioItems.reduce((sum, item) => sum + (item.amount || 0), 0);
   return formatCurrency(total);
 };
 
@@ -366,15 +337,12 @@ const handleDeleteProduct = (item) => {
 
 <style scoped>
 .products-section {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 0.875rem;
   padding: 1.25rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow: 0 4px 6px -1px rgba(45, 51, 107, 0.1),
+  box-shadow:
+    0 4px 6px -1px rgba(45, 51, 107, 0.1),
     0 2px 4px -1px rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -562,14 +530,11 @@ const handleDeleteProduct = (item) => {
 
 /* 상품 리스트 */
 .products-list {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow: 0 4px 6px -1px rgba(45, 51, 107, 0.1),
+  box-shadow:
+    0 4px 6px -1px rgba(45, 51, 107, 0.1),
     0 2px 4px -1px rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(10px);
   overflow: hidden;
@@ -601,11 +566,7 @@ const handleDeleteProduct = (item) => {
 
 /* 검색 결과 없음 */
 .no-results {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
   border: 2px dashed rgba(185, 187, 204, 0.4);
   padding: 2rem;
@@ -616,11 +577,7 @@ const handleDeleteProduct = (item) => {
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    var(--color-light) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-sub) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -666,11 +623,7 @@ const handleDeleteProduct = (item) => {
 
 /* 빈 상태 */
 .empty-state {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
   border: 2px dashed rgba(185, 187, 204, 0.4);
   padding: 3rem 2rem;
@@ -680,22 +633,14 @@ const handleDeleteProduct = (item) => {
 
 .empty-state:hover {
   border-color: rgba(185, 187, 204, 0.6);
-  background: linear-gradient(
-    135deg,
-    var(--color-bg-light) 0%,
-    var(--color-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-bg-light) 0%, var(--color-light) 100%);
 }
 
 .empty-icon {
   width: 4rem;
   height: 4rem;
   border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    var(--color-light) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-sub) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -726,11 +671,7 @@ const handleDeleteProduct = (item) => {
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-main) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
   color: white;
   border: none;
   border-radius: 0.75rem;

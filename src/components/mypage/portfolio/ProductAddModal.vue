@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-overlay" v-if="isVisible" @click="handleOverlayClick">
+  <div v-if="isVisible" class="modal-overlay" @click="handleOverlayClick">
     <div class="modal-container" @click.stop>
       <!-- 모달 헤더 -->
       <div class="modal-header">
@@ -7,22 +7,16 @@
           <i class="fas fa-plus-circle"></i>
           새 상품 추가
         </div>
-        <button
-          class="modal-close"
-          @click="handleClose"
-          :disabled="isProcessing"
-        >
+        <button class="modal-close" :disabled="isProcessing" @click="handleClose">
           <i class="fas fa-times"></i>
         </button>
       </div>
 
       <!-- 모달 바디 -->
       <div class="modal-body">
-        <div class="modal-subtitle">
-          새로운 투자 상품을 포트폴리오에 추가해보세요
-        </div>
+        <div class="modal-subtitle">새로운 투자 상품을 포트폴리오에 추가해보세요</div>
 
-        <form @submit.prevent="handleSubmit" class="add-form">
+        <form class="add-form" @submit.prevent="handleSubmit">
           <div class="form-grid">
             <!-- 상품명 -->
             <div class="form-group">
@@ -57,11 +51,7 @@
                 list="company-suggestions"
               />
               <datalist id="company-suggestions">
-                <option
-                  v-for="company in companySuggestions"
-                  :key="company"
-                  :value="company"
-                >
+                <option v-for="company in companySuggestions" :key="company" :value="company">
                   {{ company }}
                 </option>
               </datalist>
@@ -73,11 +63,7 @@
                 <i class="fas fa-th-large"></i>
                 카테고리
               </label>
-              <select
-                v-model="formData.category"
-                class="form-input form-select"
-                required
-              >
+              <select v-model="formData.category" class="form-input form-select" required>
                 <option value="">카테고리 선택</option>
                 <option value="예금">예금</option>
                 <option value="적금">적금</option>
@@ -176,12 +162,7 @@
                 <i class="fas fa-calendar-plus"></i>
                 가입일
               </label>
-              <input
-                v-model="formData.joinDate"
-                type="date"
-                class="form-input"
-                :max="todayDate"
-              />
+              <input v-model="formData.joinDate" type="date" class="form-input" :max="todayDate" />
             </div>
 
             <!-- 메모 -->
@@ -197,14 +178,14 @@
                 rows="3"
                 maxlength="500"
               ></textarea>
-              <div class="character-count" v-if="formData.memo">
+              <div v-if="formData.memo" class="character-count">
                 {{ formData.memo.length }}/500자
               </div>
             </div>
           </div>
 
           <!-- 미리보기 -->
-          <div class="preview-section" v-if="canShowPreview">
+          <div v-if="canShowPreview" class="preview-section">
             <div class="preview-header">
               <i class="fas fa-eye"></i>
               미리보기
@@ -216,19 +197,13 @@
                   {{ formatCurrency(formData.amount) }}
                 </span>
               </div>
-              <div
-                class="preview-item"
-                v-if="formData.customRate && formData.saveTrm"
-              >
+              <div v-if="formData.customRate && formData.saveTrm" class="preview-item">
                 <span class="preview-label">예상 이자</span>
                 <span class="preview-value profit">
                   {{ formatCurrency(calculateEstimatedInterest()) }}
                 </span>
               </div>
-              <div
-                class="preview-item"
-                v-if="formData.joinDate && formData.saveTrm"
-              >
+              <div v-if="formData.joinDate && formData.saveTrm" class="preview-item">
                 <span class="preview-label">예상 만기일</span>
                 <span class="preview-value">
                   {{ calculateMaturityDate() }}
@@ -243,9 +218,9 @@
       <div class="modal-footer">
         <button
           type="button"
-          @click="handleClose"
           class="modal-btn cancel-btn"
           :disabled="isProcessing"
+          @click="handleClose"
         >
           <i class="fas fa-times"></i>
           취소
@@ -253,18 +228,18 @@
 
         <button
           type="button"
-          @click="resetForm"
           class="modal-btn reset-btn"
           :disabled="isProcessing"
+          @click="resetForm"
         >
           <i class="fas fa-sync-alt"></i>
           초기화
         </button>
 
         <button
-          @click="handleSubmit"
           class="modal-btn save-btn"
           :disabled="isProcessing || !isFormValid"
+          @click="handleSubmit"
         >
           <i :class="isProcessing ? 'fas fa-sync-alt spin' : 'fas fa-save'"></i>
           {{ isProcessing ? '저장 중...' : '저장' }}
@@ -360,9 +335,7 @@ const isFormValid = computed(() => {
 const canShowPreview = computed(() => {
   return (
     formData.value.amount > 0 &&
-    (formData.value.customRate > 0 ||
-      formData.value.saveTrm > 0 ||
-      formData.value.joinDate)
+    (formData.value.customRate > 0 || formData.value.saveTrm > 0 || formData.value.joinDate)
   );
 });
 
@@ -396,12 +369,7 @@ const formatCurrency = (amount) => {
 
 // 예상 이자 계산
 const calculateEstimatedInterest = () => {
-  if (
-    !formData.value.amount ||
-    !formData.value.customRate ||
-    !formData.value.saveTrm
-  )
-    return 0;
+  if (!formData.value.amount || !formData.value.customRate || !formData.value.saveTrm) return 0;
 
   const principal = formData.value.amount;
   const rate = formData.value.customRate / 100;
@@ -427,10 +395,7 @@ const calculateMaturityDate = () => {
 watch(
   () => formData.value.category,
   (newCategory) => {
-    if (
-      newCategory &&
-      !availableSubcategories.value.includes(formData.value.subcategory)
-    ) {
+    if (newCategory && !availableSubcategories.value.includes(formData.value.subcategory)) {
       formData.value.subcategory = '';
     }
   }
@@ -559,11 +524,7 @@ watch(
 
 /* 모달 컨테이너 */
 .modal-container {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem; /* 16px */
   box-shadow: 0 1.25rem 3.75rem rgba(0, 0, 0, 0.3); /* 0 20px 60px */
   max-width: 26.875rem; /* 430px */
@@ -744,11 +705,7 @@ watch(
 .preview-section {
   margin-top: 1rem; /* 16px */
   padding: 1rem; /* 16px */
-  background: linear-gradient(
-    135deg,
-    rgba(45, 51, 107, 0.05),
-    rgba(125, 129, 162, 0.05)
-  );
+  background: linear-gradient(135deg, rgba(45, 51, 107, 0.05), rgba(125, 129, 162, 0.05));
   border-radius: 0.75rem; /* 12px */
   border: 0.0625rem solid rgba(185, 187, 204, 0.2); /* 1px */
 }
@@ -798,11 +755,7 @@ watch(
 .modal-footer {
   padding: 1rem;
   border-top: 1px solid rgba(185, 187, 204, 0.15);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(248, 249, 252, 0.9) 100%
-  );
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 252, 0.9) 100%);
   display: flex;
   gap: 0.5rem;
   justify-content: flex-end;

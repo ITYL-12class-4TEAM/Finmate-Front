@@ -9,9 +9,9 @@
         <button
           v-for="service in availableServices"
           :key="`service-${service.id}`"
-          @click="handleServiceAction(service)"
           class="service-btn"
           type="button"
+          @click="handleServiceAction(service)"
         >
           <span class="service-icon">{{ service.icon }}</span>
           <span class="service-text">{{ service.text }}</span>
@@ -31,9 +31,7 @@
           {{ feature.icon }} {{ feature.text }}
         </span>
       </div>
-      <button @click="navigateToLogin" class="login-btn">
-        로그인하러 가기
-      </button>
+      <button class="login-btn" @click="navigateToLogin">로그인하러 가기</button>
     </div>
   </div>
 </template>

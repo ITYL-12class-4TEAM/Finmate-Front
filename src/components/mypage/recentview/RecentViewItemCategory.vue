@@ -3,11 +3,7 @@
     <div class="category-info">
       <span
         class="category-badge"
-        :class="
-          getProductTypeBadge(
-            getCategoryFromSubcategory(product.subcategoryName)
-          )
-        "
+        :class="getProductTypeBadge(getCategoryFromSubcategory(product.subcategoryName))"
       >
         {{ getCategoryFromSubcategory(product.subcategoryName) }}
       </span>
@@ -17,12 +13,12 @@
     <div class="item-controls">
       <div class="custom-checkbox">
         <input
-          type="checkbox"
           :id="`recent-checkbox-${product.id || Math.random()}`"
+          type="checkbox"
           :checked="isSelected"
+          class="checkbox-input"
           @change="handleCheckboxChange"
           @click.stop
-          class="checkbox-input"
         />
         <label
           :for="`recent-checkbox-${product.id || Math.random()}`"
@@ -203,11 +199,7 @@ const getProductTypeBadge = (type) => {
 }
 
 .checkbox-input:checked + .checkbox-label {
-  background: linear-gradient(
-    135deg,
-    var(--color-main) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
   border-color: var(--color-main);
 }
 
@@ -228,11 +220,7 @@ const getProductTypeBadge = (type) => {
   left: 0;
   width: 3px;
   height: 100%;
-  background: linear-gradient(
-    180deg,
-    rgba(45, 51, 107, 0.3) 0%,
-    rgba(125, 129, 162, 0.3) 100%
-  );
+  background: linear-gradient(180deg, rgba(45, 51, 107, 0.3) 0%, rgba(125, 129, 162, 0.3) 100%);
   border-radius: 0 0.75rem 0.75rem 0;
   opacity: 0;
   transition: opacity 0.3s ease;

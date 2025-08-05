@@ -3,42 +3,37 @@
     <div class="service-toggle-wrapper">
       <ServiceMenuToggle
         v-if="messages.length > 0"
-        :showServiceMenu="showServiceMenu"
+        :show-service-menu="showServiceMenu"
         @toggle="$emit('toggle-service-menu')"
       />
       <ServiceButtons
         v-if="showServiceMenu && messages.length > 0"
-        :availableServices="availableServices"
-        :memberOnlyFeatures="memberOnlyFeatures"
-        :isAuthenticated="isAuthenticated"
+        :available-services="availableServices"
+        :member-only-features="memberOnlyFeatures"
+        :is-authenticated="isAuthenticated"
+        class="service-menu-overlay"
         @service-action="$emit('service-action', $event)"
         @navigate-to-login="$emit('navigate-to-login')"
-        class="service-menu-overlay"
       />
     </div>
     <div class="input-container">
       <input
+        ref="messageInput"
         :value="inputMessage"
-        @input="$emit('update:inputMessage', $event.target.value)"
-        @keypress.enter="$emit('send-message')"
         placeholder="메시지를 입력하세요..."
         :disabled="isTyping"
         class="message-input"
-        ref="messageInput"
+        @input="$emit('update:inputMessage', $event.target.value)"
+        @keypress.enter="$emit('send-message')"
       />
       <button
-        @click="$emit('send-message')"
         :disabled="!inputMessage.trim() || isTyping"
         class="send-btn"
         type="button"
+        @click="$emit('send-message')"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path
-            d="M22 2L11 13"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-          />
+          <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
           <path
             d="M22 2L15 22L11 13L2 9L22 2Z"
             stroke="currentColor"

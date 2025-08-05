@@ -4,11 +4,7 @@
     <div class="comment-header">
       <span class="nickname">{{ comment.nickname }}</span>
       <span class="time">{{ formattedTime(comment.createdAt) }}</span>
-      <button
-        v-if="comment.isMine"
-        class="delete-btn"
-        @click="handleDelete(comment.commentId)"
-      >
+      <button v-if="comment.isMine" class="delete-btn" @click="handleDelete(comment.commentId)">
         삭제
       </button>
     </div>
@@ -58,32 +54,22 @@
       </button>
 
       <!-- 대댓글 작성 버튼 -->
-      <button
-        v-if="!isReply"
-        class="reply-toggle-btn"
-        @click="isReplying = !isReplying"
-      >
+      <button v-if="!isReply" class="reply-toggle-btn" @click="isReplying = !isReplying">
         {{ isReplying ? '취소' : '댓글' }}
       </button>
     </div>
 
     <!-- 대댓글 입력창 -->
-    <div class="reply-form" v-if="isReplying">
+    <div v-if="isReplying" class="reply-form">
       <div class="anonymous-toggle">
-        <CustomCheckbox v-model="isAnonymous" id="reply-anonymous"
-          >익명</CustomCheckbox
-        >
+        <CustomCheckbox id="reply-anonymous" v-model="isAnonymous">익명</CustomCheckbox>
       </div>
-      <input
-        v-model="replyContent"
-        placeholder="대댓글을 입력해주세요."
-        class="reply-input"
-      />
-      <button @click="handleReplySubmit" class="reply-submit">등록</button>
+      <input v-model="replyContent" placeholder="대댓글을 입력해주세요." class="reply-input" />
+      <button class="reply-submit" @click="handleReplySubmit">등록</button>
     </div>
 
     <!-- 대댓글 렌더링 -->
-    <div class="replies" v-if="childReplies.length">
+    <div v-if="childReplies.length" class="replies">
       <CommentItem
         v-for="reply in childReplies"
         :key="reply.commentId"

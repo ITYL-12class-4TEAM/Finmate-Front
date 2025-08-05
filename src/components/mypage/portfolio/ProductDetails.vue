@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <div class="modal-overlay" v-if="isVisible" @click.self="closeModal">
+    <div v-if="isVisible" class="modal-overlay" @click.self="closeModal">
       <div class="modal-container" @click.stop>
         <!-- 모달 헤더 -->
         <div class="modal-header">
@@ -9,16 +9,12 @@
               {{ item.customProductName || '상품 상세정보' }}
             </h4>
             <div class="modal-subtitle">
-              <span class="company-name">{{
-                item.customCompanyName || '회사명 없음'
-              }}</span>
+              <span class="company-name">{{ item.customCompanyName || '회사명 없음' }}</span>
               <span class="category-divider">•</span>
-              <span class="subcategory-name">{{
-                item.subcategory || '분류 없음'
-              }}</span>
+              <span class="subcategory-name">{{ item.subcategory || '분류 없음' }}</span>
             </div>
           </div>
-          <button class="modal-close" @click="closeModal" title="닫기">
+          <button class="modal-close" title="닫기" @click="closeModal">
             <i class="fas fa-times"></i>
           </button>
         </div>
@@ -61,14 +57,14 @@
                 <div class="detail-value">
                   {{ item.customCompanyName || '회사명 없음' }}
                 </div>
-                <div class="detail-sub" v-if="getCompanyType()">
+                <div v-if="getCompanyType()" class="detail-sub">
                   {{ getCompanyType() }}
                 </div>
               </div>
             </div>
 
             <!-- 저축 기간 -->
-            <div class="detail-item" v-if="item.saveTrm">
+            <div v-if="item.saveTrm" class="detail-item">
               <div class="detail-icon duration">
                 <i class="fas fa-hourglass-half"></i>
               </div>
@@ -80,21 +76,21 @@
             </div>
 
             <!-- 금리 정보 -->
-            <div class="detail-item" v-if="hasRateInfo()">
+            <div v-if="hasRateInfo()" class="detail-item">
               <div class="detail-icon rate">
                 <i class="fas fa-percent"></i>
               </div>
               <div class="detail-content">
                 <div class="detail-label">수익률 정보</div>
                 <div class="detail-value interest">{{ formatRateInfo() }}</div>
-                <div class="detail-sub" v-if="item.expectedReturn">
+                <div v-if="item.expectedReturn" class="detail-sub">
                   예상수익률 {{ item.expectedReturn }}%
                 </div>
               </div>
             </div>
 
             <!-- 만기일 -->
-            <div class="detail-item" v-if="item.maturityDate">
+            <div v-if="item.maturityDate" class="detail-item">
               <div class="detail-icon maturity">
                 <i class="fas fa-flag"></i>
               </div>
@@ -110,29 +106,23 @@
             </div>
 
             <!-- 예상 수익 -->
-            <div
-              class="detail-item"
-              v-if="item.estimatedInterest || item.estimatedAfterTax"
-            >
+            <div v-if="item.estimatedInterest || item.estimatedAfterTax" class="detail-item">
               <div class="detail-icon profit">
                 <i class="fas fa-money-bill-wave"></i>
               </div>
               <div class="detail-content">
                 <div class="detail-label">예상 수익</div>
-                <div class="detail-value profit" v-if="item.estimatedInterest">
+                <div v-if="item.estimatedInterest" class="detail-value profit">
                   {{ formatCurrency(item.estimatedInterest) }}
                 </div>
-                <div class="detail-sub" v-if="item.estimatedAfterTax">
+                <div v-if="item.estimatedAfterTax" class="detail-sub">
                   세후 {{ formatCurrency(item.estimatedAfterTax) }}
                 </div>
               </div>
             </div>
 
             <!-- 메모 -->
-            <div
-              class="detail-item full-width"
-              v-if="item.memo && item.memo.trim()"
-            >
+            <div v-if="item.memo && item.memo.trim()" class="detail-item full-width">
               <div class="detail-icon memo">
                 <i class="fas fa-sticky-note"></i>
               </div>
@@ -143,18 +133,14 @@
             </div>
 
             <!-- 추가 정보 없음 -->
-            <div
-              class="detail-item full-width info-notice"
-              v-if="!hasAdditionalInfo()"
-            >
+            <div v-if="!hasAdditionalInfo()" class="detail-item full-width info-notice">
               <div class="detail-icon info">
                 <i class="fas fa-info-circle"></i>
               </div>
               <div class="detail-content">
                 <div class="detail-label">추가 정보</div>
                 <div class="detail-value">
-                  저축 기간, 금리, 만기일 등의 상세 정보를 추가로 등록할 수
-                  있습니다.
+                  저축 기간, 금리, 만기일 등의 상세 정보를 추가로 등록할 수 있습니다.
                 </div>
               </div>
             </div>
@@ -165,11 +151,11 @@
         <div class="modal-footer">
           <div class="product-actions">
             <button
-              @click="handleEdit"
               class="action-btn edit-btn"
               :title="isEditing ? '수정 중' : '수정'"
               :disabled="isEditing || isProcessing"
               :class="{ active: isEditing }"
+              @click="handleEdit"
             >
               <i :class="isEditing ? 'fas fa-sync-alt spin' : 'fas fa-pen'"></i>
               <span class="btn-text">수정</span>
@@ -177,17 +163,13 @@
 
             <!-- ProductDetails.vue 템플릿 -->
             <button
-              @click="handleDelete"
               class="action-btn delete-btn"
               title="삭제"
               :disabled="isProcessing || isDeleting"
+              @click="handleDelete"
             >
-              <i
-                :class="isDeleting ? 'fas fa-sync-alt spin' : 'fas fa-trash'"
-              ></i>
-              <span class="btn-text">{{
-                isDeleting ? '처리중...' : '삭제'
-              }}</span>
+              <i :class="isDeleting ? 'fas fa-sync-alt spin' : 'fas fa-trash'"></i>
+              <span class="btn-text">{{ isDeleting ? '처리중...' : '삭제' }}</span>
             </button>
           </div>
         </div>
@@ -334,8 +316,7 @@ const getCompanyType = () => {
   if (companyName.includes('캐피탈')) return '캐피탈';
   if (companyName.includes('농협')) return '농협';
   if (companyName.includes('신협')) return '신용협동조합';
-  if (companyName.includes('주식회사') || companyName.includes('(주)'))
-    return '주식회사';
+  if (companyName.includes('주식회사') || companyName.includes('(주)')) return '주식회사';
   if (companyName.includes('유한회사')) return '유한회사';
   return '';
 };
@@ -384,13 +365,8 @@ const getMaturityInfo = () => {
     const today = new Date();
     if (isNaN(joinDate.getTime()) || isNaN(maturityDate.getTime())) return '';
     if (today > maturityDate) return '만기 완료';
-    const totalDays = Math.floor(
-      (maturityDate - joinDate) / (1000 * 60 * 60 * 24)
-    );
-    const passedDays = Math.max(
-      0,
-      Math.floor((today - joinDate) / (1000 * 60 * 60 * 24))
-    );
+    const totalDays = Math.floor((maturityDate - joinDate) / (1000 * 60 * 60 * 24));
+    const passedDays = Math.max(0, Math.floor((today - joinDate) / (1000 * 60 * 60 * 24)));
     const progress = Math.min(100, Math.floor((passedDays / totalDays) * 100));
     return `진행률 ${progress}%`;
   } catch (error) {
@@ -499,11 +475,7 @@ const handleDelete = (event) => {
 
 /* 모달 컨테이너 */
 .modal-container {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
   max-width: 600px;
   width: 100%;
@@ -520,11 +492,7 @@ const handleDelete = (event) => {
   align-items: flex-start;
   padding: 1.5rem;
   border-bottom: 2px solid rgba(185, 187, 204, 0.15);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(248, 249, 252, 0.9) 100%
-  );
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 252, 0.9) 100%);
 }
 
 .modal-title-section {
@@ -590,11 +558,7 @@ const handleDelete = (event) => {
   justify-content: space-between;
   align-items: center;
   padding: 1.25rem;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(248, 249, 252, 0.9) 100%
-  );
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 252, 0.9) 100%);
   border-radius: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.2);
   margin-bottom: 1.5rem;
@@ -773,11 +737,7 @@ const handleDelete = (event) => {
 
 /* 특별 상태 */
 .info-notice {
-  background: linear-gradient(
-    135deg,
-    rgba(185, 187, 204, 0.1) 0%,
-    rgba(125, 129, 162, 0.1) 100%
-  );
+  background: linear-gradient(135deg, rgba(185, 187, 204, 0.1) 0%, rgba(125, 129, 162, 0.1) 100%);
   border: 1px dashed rgba(185, 187, 204, 0.4);
 }
 
@@ -792,11 +752,7 @@ const handleDelete = (event) => {
 .modal-footer {
   padding: 0.5rem;
   border-top: 1px solid rgba(185, 187, 204, 0.15);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(248, 249, 252, 0.9) 100%
-  );
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 252, 0.9) 100%);
 }
 
 .product-actions {

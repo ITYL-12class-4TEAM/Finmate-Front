@@ -50,11 +50,7 @@ const formatCount = (count) => {
 .post-summary {
   margin-bottom: 1.5rem;
   padding: 0.5rem 0.75rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
   box-shadow: 0 2px 8px -2px rgba(45, 51, 107, 0.1);
@@ -115,7 +111,8 @@ const formatCount = (count) => {
     box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
   }
   50% {
-    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.5),
+    box-shadow:
+      0 2px 8px rgba(220, 53, 69, 0.5),
       0 0 0 4px rgba(220, 53, 69, 0.1);
   }
 }

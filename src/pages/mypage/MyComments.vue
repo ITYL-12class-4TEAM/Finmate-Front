@@ -5,9 +5,9 @@
 
   <div v-else>
     <CommentedPostFilter
-      v-model:searchQuery="searchQuery"
-      v-model:selectedBoard="selectedBoard"
-      v-model:sortBy="sortBy"
+      v-model:search-query="searchQuery"
+      v-model:selected-board="selectedBoard"
+      v-model:sort-by="sortBy"
       @filter="filterAndSortPosts"
     />
 
@@ -22,8 +22,8 @@
 
       <Pagination
         v-if="totalPages > 1"
-        :currentPage="currentPage"
-        :totalPages="totalPages"
+        :current-page="currentPage"
+        :total-pages="totalPages"
         @change-page="changePage"
       />
     </div>
@@ -69,9 +69,7 @@ const filteredPosts = computed(() => {
 
   // 게시판 필터
   if (selectedBoard.value) {
-    filtered = filtered.filter(
-      (post) => post.boardType === selectedBoard.value
-    );
+    filtered = filtered.filter((post) => post.boardType === selectedBoard.value);
   }
 
   // 정렬

@@ -1,18 +1,9 @@
 <template>
-  <div
-    class="floating-menu"
-    :class="{ 'chat-open': isOpen }"
-    ref="floatingMenu"
-  >
+  <div ref="floatingMenu" class="floating-menu" :class="{ 'chat-open': isOpen }">
     <!-- 챗봇 창 -->
-    <ChatWindow
-      v-if="isOpen"
-      class="chat-window"
-      ref="chatWindow"
-      @close="closeChatBot"
-    />
+    <ChatWindow v-if="isOpen" ref="chatWindow" class="chat-window" @close="closeChatBot" />
     <!-- 플로팅 버튼 -->
-    <button class="chat-button" @click.stop="toggleChat" v-show="!isOpen">
+    <button v-show="!isOpen" class="chat-button" @click.stop="toggleChat">
       <span v-if="!isOpen">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -36,11 +27,7 @@
           stroke-width="1.5"
           stroke="currentColor"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M6 18 18 6M6 6l12 12"
-          />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
         </svg>
       </span>
     </button>
@@ -76,8 +63,7 @@ function onClickOutside(event) {
   const isInsideFloatingMenu = floatingMenuElement.contains(event.target);
 
   // chat-window 내부 클릭인지 확인
-  const isInsideChatWindow =
-    chatWindowElement && chatWindowElement.contains(event.target);
+  const isInsideChatWindow = chatWindowElement && chatWindowElement.contains(event.target);
 
   // 둘 다 아니면 챗봇 닫기
   if (!isInsideFloatingMenu && !isInsideChatWindow) {

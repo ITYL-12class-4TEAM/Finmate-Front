@@ -17,7 +17,7 @@
 import botAvatarImage from '@/assets/images/해결사.png';
 
 defineProps({
-  isAuthenticated: Boolean
+  isAuthenticated: Boolean,
 });
 </script>
 

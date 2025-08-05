@@ -17,20 +17,16 @@
           {{ item.customProductName || '상품명 없음' }}
         </div>
         <div class="product-subtitle">
-          <span class="company-name">{{
-            item.customCompanyName || '회사명 없음'
-          }}</span>
+          <span class="company-name">{{ item.customCompanyName || '회사명 없음' }}</span>
           <span class="category-divider">•</span>
-          <span class="subcategory-name">{{
-            item.subcategory || '분류 없음'
-          }}</span>
+          <span class="subcategory-name">{{ item.subcategory || '분류 없음' }}</span>
         </div>
       </div>
 
       <div class="product-summary">
         <div class="amount-display">
           <div class="amount-value">{{ formatCurrency(item.amount) }}</div>
-          <div class="amount-ratio" v-if="totalAmount">
+          <div v-if="totalAmount" class="amount-ratio">
             {{ getAmountRatio() }}
           </div>
         </div>
@@ -53,17 +49,17 @@
       <!-- 주요 정보 미리보기 -->
       <div class="product-preview">
         <div
-          class="preview-item"
           v-if="item.interestRate || item.customRate || item.expectedReturn"
+          class="preview-item"
         >
           <i class="fas fa-percent"></i>
           <span>{{ getBestRate() }}%</span>
         </div>
-        <div class="preview-item" v-if="item.maturityDate">
+        <div v-if="item.maturityDate" class="preview-item">
           <i class="fas fa-calendar-alt"></i>
           <span>{{ formatDateShort(item.maturityDate) }} 만기</span>
         </div>
-        <div class="preview-item" v-if="item.saveTrm">
+        <div v-if="item.saveTrm" class="preview-item">
           <i class="fas fa-clock"></i>
           <span>{{ item.saveTrm }}개월</span>
         </div>
@@ -71,7 +67,7 @@
     </div>
 
     <!-- 순서 표시 (옵션) -->
-    <div class="product-index" v-if="showIndex">
+    <div v-if="showIndex" class="product-index">
       {{ index + 1 }}
     </div>
   </div>
@@ -141,12 +137,7 @@ const props = defineProps({
 });
 
 // 이벤트 정의
-const emit = defineEmits([
-  'start-edit',
-  'save-product',
-  'cancel-edit',
-  'delete-product',
-]);
+const emit = defineEmits(['start-edit', 'save-product', 'cancel-edit', 'delete-product']);
 
 // 반응형 데이터
 const showDetailModal = ref(false);
@@ -205,11 +196,9 @@ const getAmountRatio = () => {
 
 // 최고 수익률 찾기
 const getBestRate = () => {
-  const rates = [
-    props.item.interestRate,
-    props.item.customRate,
-    props.item.expectedReturn,
-  ].filter((rate) => rate && rate > 0);
+  const rates = [props.item.interestRate, props.item.customRate, props.item.expectedReturn].filter(
+    (rate) => rate && rate > 0
+  );
 
   if (rates.length === 0) return '0.0';
   return Math.max(...rates).toFixed(1);
@@ -306,11 +295,7 @@ const handleDelete = () => {
 
 .product-item:hover::before,
 .product-item.expanded::before {
-  background: linear-gradient(
-    to bottom,
-    var(--color-main) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(to bottom, var(--color-main) 0%, var(--color-sub) 100%);
 }
 
 .product-item.expanded {
@@ -323,11 +308,7 @@ const handleDelete = () => {
 }
 
 .product-item.editing {
-  background: linear-gradient(
-    135deg,
-    rgba(45, 51, 107, 0.08) 0%,
-    rgba(125, 129, 162, 0.08) 100%
-  );
+  background: linear-gradient(135deg, rgba(45, 51, 107, 0.08) 0%, rgba(125, 129, 162, 0.08) 100%);
   border-color: var(--color-main);
   cursor: default;
 }

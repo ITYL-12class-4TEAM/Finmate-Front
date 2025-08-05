@@ -4,8 +4,8 @@
       <li class="page-item" :class="{ disabled: currentPage === 1 }">
         <button
           class="page-link"
-          @click="$emit('change-page', currentPage - 1)"
           :disabled="currentPage === 1"
+          @click="$emit('change-page', currentPage - 1)"
         >
           이전
         </button>
@@ -23,8 +23,8 @@
       <li class="page-item" :class="{ disabled: currentPage === totalPages }">
         <button
           class="page-link"
-          @click="$emit('change-page', currentPage + 1)"
           :disabled="currentPage === totalPages"
+          @click="$emit('change-page', currentPage + 1)"
         >
           다음
         </button>

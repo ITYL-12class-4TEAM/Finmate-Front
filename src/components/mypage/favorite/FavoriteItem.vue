@@ -1,9 +1,6 @@
 <template>
   <div class="favorite-item">
-    <ProductItemHeader
-      :favorite="favorite"
-      @remove-favorite="$emit('remove-favorite', favorite)"
-    />
+    <ProductItemHeader :favorite="favorite" @remove-favorite="$emit('remove-favorite', favorite)" />
 
     <div class="item-content">
       <div class="info-section">
@@ -43,11 +40,7 @@ const emit = defineEmits(['remove-favorite']);
 
 /* 선택되지 않은 상태에서의 호버 효과 */
 .favorite-item.hover-effect:hover {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-color: rgba(185, 187, 204, 0.5);
   transform: translateY(-2px);
   box-shadow: 0 8px 25px -5px rgba(45, 51, 107, 0.15);
@@ -91,12 +84,7 @@ const emit = defineEmits(['remove-favorite']);
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.4),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
   animation: loading-shimmer 1.5s infinite;
 }
 

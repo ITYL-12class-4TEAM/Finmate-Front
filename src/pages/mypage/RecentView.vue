@@ -6,23 +6,23 @@
   <div v-else>
     <RecentViewSummary
       :count="recentProducts.length"
-      :selectedCount="selectedRecent.length"
+      :selected-count="selectedRecent.length"
       @delete-selected="deleteSelected"
       @delete-all="clearAllHistory"
     />
 
     <RecentViewList
+      v-model:selected-recent="selectedRecent"
       :products="paginatedProducts"
-      :favoriteProductIds="favoriteProductIds"
-      v-model:selectedRecent="selectedRecent"
+      :favorite-product-ids="favoriteProductIds"
       @click-recent="clickRecent"
       @remove-from-history="removeFromHistory"
     />
 
     <Pagination
       v-if="totalPages > 1"
-      :currentPage="currentPage"
-      :totalPages="totalPages"
+      :current-page="currentPage"
+      :total-pages="totalPages"
       @change-page="changePage"
     />
   </div>
@@ -97,11 +97,7 @@ const fetchRecentProducts = async () => {
   try {
     const response = await recentViewAPI.getRecentView();
 
-    if (
-      response.data &&
-      response.data.body &&
-      Array.isArray(response.data.body.data)
-    ) {
+    if (response.data && response.data.body && Array.isArray(response.data.body.data)) {
       recentProducts.value = response.data.body.data;
     } else {
       console.warn('예상하지 못한 API 응답 구조:', response.data);
@@ -130,9 +126,7 @@ const removeFromHistory = async (productId) => {
 
     // 배열인지 확인 후 필터링
     if (Array.isArray(recentProducts.value)) {
-      recentProducts.value = recentProducts.value.filter(
-        (p) => p.productId !== productId
-      );
+      recentProducts.value = recentProducts.value.filter((p) => p.productId !== productId);
     }
 
     // 현재 페이지에 상품이 없으면 이전 페이지로 이동
@@ -147,16 +141,11 @@ const removeFromHistory = async (productId) => {
 
 const deleteSelected = async () => {
   if (selectedRecent.value.length === 0) return;
-  if (
-    !confirm(`선택한 ${selectedRecent.value.length}개 상품을 삭제하시겠습니까?`)
-  )
-    return;
+  if (!confirm(`선택한 ${selectedRecent.value.length}개 상품을 삭제하시겠습니까?`)) return;
 
   try {
     await Promise.all(
-      selectedRecent.value.map((productId) =>
-        recentViewAPI.deleteRecentView(productId)
-      )
+      selectedRecent.value.map((productId) => recentViewAPI.deleteRecentView(productId))
     );
 
     // 배열인지 확인 후 필터링

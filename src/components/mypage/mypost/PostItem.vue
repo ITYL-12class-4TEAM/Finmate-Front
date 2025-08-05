@@ -18,12 +18,8 @@
     <!-- 게시글 정보 -->
     <div class="post-meta">
       <div class="meta-left">
-        <span class="like">
-          <i class="fa-solid fa-heart"></i> {{ post.likeCount }}
-        </span>
-        <span class="comment">
-          <i class="fa-solid fa-message"></i> {{ post.commentCount }}
-        </span>
+        <span class="like"> <i class="fa-solid fa-heart"></i> {{ post.likeCount }} </span>
+        <span class="comment"> <i class="fa-solid fa-message"></i> {{ post.commentCount }} </span>
       </div>
       <span class="date">{{ formatDate(post.createdAt) }}</span>
     </div>
@@ -58,22 +54,14 @@ const truncateText = (text, length) => {
   flex-direction: column;
   gap: 0.75rem;
   padding: 1.25rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    rgba(248, 249, 252, 0.5) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.5) 100%);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
 }
 
 .post-item:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(45, 51, 107, 0.02) 0%,
-    rgba(248, 249, 252, 0.8) 100%
-  );
+  background: linear-gradient(135deg, rgba(45, 51, 107, 0.02) 0%, rgba(248, 249, 252, 0.8) 100%);
   transform: translateY(-1px);
 }
 

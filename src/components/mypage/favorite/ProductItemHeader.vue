@@ -3,11 +3,7 @@
     <div class="category-info">
       <span
         class="category-badge"
-        :class="
-          getProductTypeBadge(
-            getCategoryFromSubcategory(favorite.subcategoryName)
-          )
-        "
+        :class="getProductTypeBadge(getCategoryFromSubcategory(favorite.subcategoryName))"
       >
         {{ getCategoryFromSubcategory(favorite.subcategoryName) }}
       </span>
@@ -15,11 +11,7 @@
     </div>
 
     <div class="item-controls">
-      <button
-        @click.stop="$emit('remove-favorite')"
-        class="favorite-btn"
-        title="즐겨찾기 해제"
-      >
+      <button class="favorite-btn" title="즐겨찾기 해제" @click.stop="$emit('remove-favorite')">
         <i class="fa-solid fa-star"></i>
       </button>
     </div>
@@ -101,11 +93,7 @@ const getProductTypeBadge = (type) => {
 
 /* 카테고리별 배지 스타일 */
 .badge-deposit {
-  background: linear-gradient(
-    135deg,
-    var(--color-main) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
   color: white;
 }
 

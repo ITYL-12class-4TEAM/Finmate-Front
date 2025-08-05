@@ -63,9 +63,7 @@
           <!-- Score Grid -->
           <div class="score-grid">
             <div
-              v-for="(scoreData, key) in getDetailedScoresWithInfo(
-                history.originalData
-              )"
+              v-for="(scoreData, key) in getDetailedScoresWithInfo(history.originalData)"
               :key="key"
               class="score-item"
             >
@@ -84,17 +82,7 @@
             </div>
           </div>
 
-          <!-- Actions -->
-          <div class="actions">
-            <button @click="viewResult(history)" class="btn-outline">
-              <i class="fas fa-eye"></i>
-              상세보기
-            </button>
-            <button @click="downloadResult(history)" class="btn-outline">
-              <i class="fas fa-download"></i>
-              다운로드
-            </button>
-          </div>
+
         </div>
       </div>
     </div>
@@ -109,20 +97,18 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { getWMTIHistoryAPI } from '@/api/wmti';
+import router from '@/router';
 
-const props = defineProps({
-  memberId: {
-    type: [String, Number],
-    required: true,
-  },
-});
+
 
 const loading = ref(false);
 const historyList = ref([]);
 const loadingMessage = ref('데이터를 불러오는 중...');
 const expandedItems = ref([]);
 
+
 const memberId = ref(1);
+
 // API 호출 함수
 const fetchHistoryData = async () => {
   loading.value = true;
@@ -130,9 +116,8 @@ const fetchHistoryData = async () => {
 
   try {
     const result = await getWMTIHistoryAPI(memberId.value);
-
-    if (result.header.status === 'OK') {
-      historyList.value = result.body.data.map((item) => ({
+    if (result.data.header.status === 'OK') {
+      historyList.value = result.data.body.data.map((item) => ({
         id: item.historyId,
         type: item.resultType,
         typeName: getResultTypeName(item.resultType),
@@ -146,9 +131,7 @@ const fetchHistoryData = async () => {
       }));
 
       // 최신순으로 정렬 (이미 API에서 정렬되어 올 가능성이 높지만 안전장치)
-      historyList.value.sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-      );
+      historyList.value.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     } else {
       console.error('API 오류:', result.header.message);
     }
@@ -179,22 +162,21 @@ const formatCreatedAtArray = (createdAtArray) => {
 
 const getResultTypeName = (resultType) => {
   const types = {
-    AGGRESSIVE: '공격투자형',
-    ACTIVE: '적극투자형',
-    MODERATE: '중립투자형',
-    PASSIVE: '소극투자형',
-    CONSERVATIVE: '안정추구형',
+    'AGGRESSIVE': '고수익 지향형',
+    'ACTIVE': '적극적 설계형',
+    'BALANCED': '균형잡힌 실속형',
+    'PASSIVE': '소극적 관리형',
   };
   return types[resultType] || resultType;
 };
 
 const getRiskPreferenceDescription = (riskPreference) => {
   const descriptions = {
-    GROWTH: '높은 수익을 위해 위험을 감수하는 성향',
-    RISK_NEUTRAL: '적절한 위험과 수익의 균형을 추구하는 성향',
-    BALANCE: '적절한 수익과 안정성을 추구하는 성향',
-    STABILITY: '안정적인 투자를 선호하는 성향',
-    STABILITY_ORIENTED: '매우 안정적인 투자를 선호하는 성향',
+    'STABILITY': '원금 보전을 최우선으로 하며 낮은 수익률이라도 안정적인 투자를 추구하는 성향',
+    'STABILITY_ORIENTED': '위험을 최소화하고 예측 가능한 수익을 선호하며 보수적인 투자를 지향하는 성향',
+    'RISK_NEUTRAL': '적정 수준의 위험을 감수하여 균형 잡힌 수익을 추구하는 중립적 투자 성향',
+    'ACTIVELY': '적극적인 자산 배분을 통해 시장 기회를 포착하고 능동적인 투자 전략을 선호하는 성향',
+    'AGGRESSIVE': '높은 위험을 감수하더라도 시장 평균을 뛰어넘는 고수익 달성을 목표로 하는 성향',
   };
   return descriptions[riskPreference] || riskPreference;
 };
@@ -492,47 +474,6 @@ onMounted(() => {
   transition: width 0.3s ease;
 }
 
-/* Actions */
-.actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  padding: 1rem;
-}
-
-/* Buttons */
-.btn-primary {
-  background: var(--color-main);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  background: var(--color-sub);
-}
-
-.btn-outline {
-  background: transparent;
-  color: var(--color-main);
-  border: 1px solid var(--color-main);
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  font-size: 0.85rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-}
-
-.btn-outline:hover {
-  background: var(--color-main);
-  color: white;
-}
 
 /* FAB */
 .fab {

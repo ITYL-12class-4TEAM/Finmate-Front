@@ -4,11 +4,11 @@
     <div class="row mb-4">
       <div class="col-12">
         <PortfolioSummaryCard
-          :totalAmount="totalAmount"
-          :portfolioCount="portfolioItems.length"
-          :categoryCount="processedSummary.length"
-          :averageAmount="averageAmount"
-          :showInsights="true"
+          :total-amount="totalAmount"
+          :portfolio-count="portfolioItems.length"
+          :category-count="processedSummary.length"
+          :average-amount="averageAmount"
+          :show-insights="true"
           @focus-metric="handleMetricFocus"
         />
       </div>
@@ -33,10 +33,7 @@
           </div>
 
           <div class="stats-content">
-            <div
-              v-if="processedSummary.length > 0"
-              class="chart-container-small"
-            >
+            <div v-if="processedSummary.length > 0" class="chart-container-small">
               <canvas
                 ref="overviewPieChart"
                 width="150"
@@ -59,9 +56,7 @@
                 <i class="fas fa-chart-pie"></i>
               </div>
               <p class="empty-text">투자 상품이 없습니다</p>
-              <small class="empty-subtitle"
-                >상품을 추가하여 자산 분배를 확인해보세요</small
-              >
+              <small class="empty-subtitle">상품을 추가하여 자산 분배를 확인해보세요</small>
             </div>
           </div>
         </div>
@@ -70,14 +65,7 @@
   </div>
 </template>
 <script setup>
-import {
-  ref,
-  onMounted,
-  nextTick,
-  watch,
-  onBeforeUnmount,
-  computed,
-} from 'vue';
+import { ref, onMounted, nextTick, watch, onBeforeUnmount, computed } from 'vue';
 import PortfolioSummaryCard from './PortfolioSummaryCard.vue';
 
 const props = defineProps({
@@ -201,8 +189,7 @@ const loadChartJS = async () => {
 
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
-    script.src =
-      'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js';
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js';
     script.onload = () => {
       setTimeout(resolve, 100);
     };
@@ -252,12 +239,7 @@ const createOverviewChart = async () => {
     const ctx = overviewPieChart.value.getContext('2d');
 
     // canvas 상태 초기화
-    ctx.clearRect(
-      0,
-      0,
-      overviewPieChart.value.width,
-      overviewPieChart.value.height
-    );
+    ctx.clearRect(0, 0, overviewPieChart.value.width, overviewPieChart.value.height);
 
     const gradients = props.processedSummary.map((item) => {
       const gradient = ctx.createLinearGradient(0, 0, 0, 200);
@@ -296,8 +278,7 @@ const createOverviewChart = async () => {
               padding: 10,
               font: {
                 size: 11,
-                family:
-                  "'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif",
+                family: "'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif",
               },
               color: '#2d336b',
               usePointStyle: true,
@@ -315,11 +296,8 @@ const createOverviewChart = async () => {
               label: function (context) {
                 const label = context.label || '';
                 const value = context.parsed || 0;
-                const amount =
-                  props.processedSummary[context.dataIndex]?.totalAmount || 0;
-                return `${label}: ${value.toFixed(1)}% (${formatCurrency(
-                  amount
-                )})`;
+                const amount = props.processedSummary[context.dataIndex]?.totalAmount || 0;
+                return `${label}: ${value.toFixed(1)}% (${formatCurrency(amount)})`;
               },
             },
           },
@@ -417,14 +395,11 @@ onBeforeUnmount(() => {
 }
 
 .stats-card {
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
   padding: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(45, 51, 107, 0.1),
+  box-shadow:
+    0 4px 6px -1px rgba(45, 51, 107, 0.1),
     0 2px 4px -1px rgba(45, 51, 107, 0.06);
   border: 1px solid rgba(185, 187, 204, 0.3);
   backdrop-filter: blur(10px);
@@ -500,11 +475,7 @@ onBeforeUnmount(() => {
 
 /* 빈 상태 */
 .chart-empty-state {
-  background: linear-gradient(
-    135deg,
-    rgba(185, 187, 204, 0.1) 0%,
-    rgba(125, 129, 162, 0.1) 100%
-  );
+  background: linear-gradient(135deg, rgba(185, 187, 204, 0.1) 0%, rgba(125, 129, 162, 0.1) 100%);
   border-radius: 0.75rem;
   padding: 2rem;
   text-align: center;
@@ -514,11 +485,7 @@ onBeforeUnmount(() => {
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    var(--color-light) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-sub) 100%);
   display: flex;
   align-items: center;
   justify-content: center;

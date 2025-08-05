@@ -1,11 +1,11 @@
 <template>
   <label :for="id" class="checkbox-wrapper">
     <input
-      type="checkbox"
       :id="id"
+      type="checkbox"
       :checked="modelValue"
-      @change="$emit('update:modelValue', $event.target.checked)"
       class="custom-checkbox"
+      @change="$emit('update:modelValue', $event.target.checked)"
     />
     <span class="label-text"><slot /></span>
   </label>

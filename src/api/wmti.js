@@ -20,7 +20,11 @@ export const postwmtiAPI = async (info) => {
 // wmti결과 가져오기
 export const getWMTIResultAPI = async (memberId) => {
   const res = await api.get(`/api/wmti/result/${memberId}`);
-  return res;
+  return res.data;
 };
 
 // wmti 과거 결과 조회
+export const getWMTIHistoryAPI = async (memberId) => {
+  const res = await api.get(`/api/wmti/history/member/${memberId}`);
+  return res;
+};

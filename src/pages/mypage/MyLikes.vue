@@ -5,21 +5,21 @@
 
   <div v-else>
     <LikedPostFilter
-      v-model:searchQuery="searchQuery"
-      v-model:selectedBoard="selectedBoard"
-      v-model:sortBy="sortBy"
+      v-model:search-query="searchQuery"
+      v-model:selected-board="selectedBoard"
+      v-model:sort-by="sortBy"
       @filter="filterAndSortPosts"
     />
 
     <div>
-      <LikedPostActions :filteredCount="filteredPosts.length" />
+      <LikedPostActions :filtered-count="filteredPosts.length" />
 
       <LikedPostList :posts="paginatedPosts" @view-post="viewPost" />
 
       <Pagination
         v-if="totalPages > 1"
-        :currentPage="currentPage"
-        :totalPages="totalPages"
+        :current-page="currentPage"
+        :total-pages="totalPages"
         @change-page="changePage"
       />
     </div>
@@ -64,22 +64,16 @@ const filteredPosts = computed(() => {
 
   // 게시판 필터
   if (selectedBoard.value) {
-    filtered = filtered.filter(
-      (post) => post.boardType === selectedBoard.value
-    );
+    filtered = filtered.filter((post) => post.boardType === selectedBoard.value);
   }
 
   // 정렬
   switch (sortBy.value) {
     case 'like-date-desc':
-      filtered.sort(
-        (a, b) => new Date(b.likeCreatedAt) - new Date(a.likeCreatedAt)
-      );
+      filtered.sort((a, b) => new Date(b.likeCreatedAt) - new Date(a.likeCreatedAt));
       break;
     case 'post-date-desc':
-      filtered.sort(
-        (a, b) => new Date(b.postCreatedAt) - new Date(a.postCreatedAt)
-      );
+      filtered.sort((a, b) => new Date(b.postCreatedAt) - new Date(a.postCreatedAt));
       break;
     case 'total-like-desc':
       filtered.sort((a, b) => b.likeCount - a.likeCount);

@@ -5,9 +5,9 @@
 
   <div v-else>
     <FavoritesFilter
-      v-model:searchQuery="searchQuery"
-      v-model:selectedType="selectedType"
-      v-model:sortBy="sortBy"
+      v-model:search-query="searchQuery"
+      v-model:selected-type="selectedType"
+      v-model:sort-by="sortBy"
       @filter="filterAndSortFavorites"
     />
 
@@ -23,8 +23,8 @@
 
       <Pagination
         v-if="totalPages > 1"
-        :currentPage="currentPage"
-        :totalPages="totalPages"
+        :current-page="currentPage"
+        :total-pages="totalPages"
         @change-page="changePage"
       />
     </div>
@@ -113,9 +113,7 @@ const filteredFavorites = computed(() => {
 
   if (selectedType.value) {
     filtered = filtered.filter(
-      (favorite) =>
-        getCategoryFromSubcategory(favorite.subcategoryName) ===
-        selectedType.value
+      (favorite) => getCategoryFromSubcategory(favorite.subcategoryName) === selectedType.value
     );
   }
 
@@ -195,9 +193,7 @@ const removeFavorite = async (favorite) => {
 
     // 배열인지 확인 후 필터링
     if (Array.isArray(favorites.value)) {
-      favorites.value = favorites.value.filter(
-        (f) => f.productId !== favorite.productId
-      );
+      favorites.value = favorites.value.filter((f) => f.productId !== favorite.productId);
     }
   } catch (err) {
     error.value = '즐겨찾기 삭제에 실패했습니다.';

@@ -5,8 +5,8 @@
     <MessagesContainer
       ref="messagesContainer"
       :messages="messages"
-      :isTyping="isTyping"
-      :isAuthenticated="isAuthenticated()"
+      :is-typing="isTyping"
+      :is-authenticated="isAuthenticated()"
       @navigate-to-post="navigateToPost"
       @navigate-to-more="navigateToMore"
       @navigate-to-survey="navigateToSurvey"
@@ -24,18 +24,18 @@
 
     <ChatInput
       :messages="messages"
-      :inputMessage="inputMessage"
-      :isTyping="isTyping"
-      :showServiceMenu="showServiceMenu"
-      :availableServices="getAvailableServices()"
-      :memberOnlyFeatures="memberOnlyFeatures"
-      :isAuthenticated="isAuthenticated()"
-      @update:inputMessage="inputMessage = $event"
+      :input-message="inputMessage"
+      :is-typing="isTyping"
+      :show-service-menu="showServiceMenu"
+      :available-services="getAvailableServices()"
+      :member-only-features="memberOnlyFeatures"
+      :is-authenticated="isAuthenticated()"
+      class="chat-input-fixed"
+      @update:input-message="inputMessage = $event"
       @send-message="sendMessage"
       @toggle-service-menu="toggleServiceMenu"
       @service-action="handleServiceAction"
       @navigate-to-login="navigateToLogin"
-      class="chat-input-fixed"
     />
   </div>
 </template>
@@ -242,9 +242,7 @@ const createChatSession = async () => {
 
   try {
     // 기본 세션 ID 생성
-    const newSessionId = `session_${Date.now()}_${Math.random()
-      .toString(36)
-      .substr(2, 9)}`;
+    const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     console.log('📝 새 세션 ID 생성:', newSessionId);
 
@@ -273,13 +271,8 @@ const createChatSession = async () => {
         return sessionId.value;
       } else {
         const errorMessage =
-          responseData?.header?.message ||
-          responseData?.message ||
-          '서버 세션 생성 실패';
-        console.warn(
-          '⚠️ 서버 세션 생성 실패, 로컬 세션으로 폴백:',
-          errorMessage
-        );
+          responseData?.header?.message || responseData?.message || '서버 세션 생성 실패';
+        console.warn('⚠️ 서버 세션 생성 실패, 로컬 세션으로 폴백:', errorMessage);
         return await createLocalSession(newSessionId);
       }
     } else if (response.status === 401 || response.status === 403) {
@@ -296,9 +289,7 @@ const createChatSession = async () => {
     // 재시도 로직
     if (sessionRetryCount.value < maxRetries) {
       sessionRetryCount.value++;
-      console.log(
-        `🔄 세션 생성 재시도 (${sessionRetryCount.value}/${maxRetries})`
-      );
+      console.log(`🔄 세션 생성 재시도 (${sessionRetryCount.value}/${maxRetries})`);
 
       // 1초 대기 후 재시도
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -306,9 +297,7 @@ const createChatSession = async () => {
     } else {
       // 최대 재시도 횟수 초과 - 폴백 세션 생성
       console.warn('⚠️ 최대 재시도 횟수 초과 - 폴백 세션 생성');
-      const fallbackSessionId = `fallback_${Date.now()}_${Math.random()
-        .toString(36)
-        .substr(2, 6)}`;
+      const fallbackSessionId = `fallback_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
       return await createLocalSession(fallbackSessionId);
     }
   }
@@ -317,8 +306,7 @@ const createChatSession = async () => {
 const createLocalSession = async (sessionIdToUse) => {
   try {
     const localSessionId =
-      sessionIdToUse ||
-      `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      sessionIdToUse || `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     sessionId.value = localSessionId;
     sessionStatus.value = 'active';
@@ -366,10 +354,7 @@ const endChatSession = async () => {
           console.warn(`⚠️ 서버 세션 종료 응답: ${response.status}`);
         }
       } catch (deleteError) {
-        console.warn(
-          '⚠️ 서버 세션 종료 요청 실패 (무시):',
-          deleteError.message
-        );
+        console.warn('⚠️ 서버 세션 종료 요청 실패 (무시):', deleteError.message);
         // 세션 종료 실패는 치명적이지 않으므로 무시
       }
     } else {
@@ -534,8 +519,7 @@ const handleServiceAction = async (service) => {
     if (service.requireAuth && !isAuthenticated()) {
       await new Promise((resolve) => setTimeout(resolve, 800));
       isTyping.value = false;
-      const loginMessage =
-        chatbotAPI.errorHandler.getErrorMessage('LOGIN_REQUIRED');
+      const loginMessage = chatbotAPI.errorHandler.getErrorMessage('LOGIN_REQUIRED');
       addMessage(loginMessage, 'bot');
       return;
     }
@@ -631,16 +615,14 @@ const handleServiceAction = async (service) => {
       } catch (apiError) {
         isTyping.value = false;
         console.error('API 호출 중 에러:', apiError);
-        const errorMessage =
-          chatbotAPI.errorHandler.getErrorMessage('API_ERROR');
+        const errorMessage = chatbotAPI.errorHandler.getErrorMessage('API_ERROR');
         addMessage(errorMessage, 'bot');
       }
     }
   } catch (error) {
     isTyping.value = false;
     console.error('서비스 액션 처리 중 오류:', error);
-    const errorMessage =
-      chatbotAPI.errorHandler.getErrorMessage('UNKNOWN_ERROR');
+    const errorMessage = chatbotAPI.errorHandler.getErrorMessage('UNKNOWN_ERROR');
     addMessage(errorMessage, 'bot');
   }
 };
@@ -661,10 +643,7 @@ const sendMessageToGPT = async (message) => {
     console.log('📤 사용 중인 세션 ID:', currentSessionId);
 
     // ✅ API 모듈을 사용한 메시지 전송
-    const response = await chatbotAPI.message.sendMessage(
-      currentSessionId,
-      message
-    );
+    const response = await chatbotAPI.message.sendMessage(currentSessionId, message);
 
     console.log('📨 ChatGPT API 응답:', {
       status: response.status,
@@ -682,22 +661,17 @@ const sendMessageToGPT = async (message) => {
         if (typeof botResponse === 'string') {
           try {
             const parsed = JSON.parse(botResponse);
-            botResponse =
-              typeof parsed === 'string' ? parsed : JSON.stringify(parsed);
+            botResponse = typeof parsed === 'string' ? parsed : JSON.stringify(parsed);
           } catch {
             // JSON 파싱 실패시 원본 사용
           }
         } else if (typeof botResponse === 'object') {
-          botResponse =
-            botResponse.message ||
-            botResponse.content ||
-            JSON.stringify(botResponse);
+          botResponse = botResponse.message || botResponse.content || JSON.stringify(botResponse);
         }
 
         return botResponse || '응답을 받았지만 내용이 없습니다.';
       } else {
-        const errorMessage =
-          responseData?.header?.message || '알 수 없는 오류가 발생했습니다.';
+        const errorMessage = responseData?.header?.message || '알 수 없는 오류가 발생했습니다.';
         return `죄송합니다. ${errorMessage}`;
       }
     } else {
@@ -780,9 +754,7 @@ const sendMessage = async () => {
       'ETF',
       '펀드',
     ];
-    const isFinanceQuery = financeKeywords.some((keyword) =>
-      message.includes(keyword)
-    );
+    const isFinanceQuery = financeKeywords.some((keyword) => message.includes(keyword));
 
     if (isFinanceQuery) {
       if (message.includes('비교')) {
@@ -812,18 +784,14 @@ const sendMessage = async () => {
 
     // 빈 응답 체크
     if (!botResponse || botResponse.trim() === '') {
-      addMessage(
-        '죄송합니다. 응답을 생성하지 못했습니다. 다시 시도해주세요.',
-        'bot'
-      );
+      addMessage('죄송합니다. 응답을 생성하지 못했습니다. 다시 시도해주세요.', 'bot');
     } else {
       addMessage(botResponse, 'bot');
     }
   } catch (error) {
     console.error('❌ 메시지 전송 실패:', error);
     isTyping.value = false;
-    const errorMessage =
-      chatbotAPI.errorHandler.getErrorMessage('UNKNOWN_ERROR');
+    const errorMessage = chatbotAPI.errorHandler.getErrorMessage('UNKNOWN_ERROR');
     addMessage(errorMessage, 'bot');
   }
 };

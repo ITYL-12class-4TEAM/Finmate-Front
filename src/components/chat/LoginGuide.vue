@@ -7,9 +7,9 @@
         <p class="guide-subtitle">더 많은 개인화 서비스를 경험해보세요!</p>
       </div>
     </div>
-    
+
     <div class="member-features">
-      <div 
+      <div
         v-for="feature in memberOnlyFeatures"
         :key="`feature-${feature.id}`"
         class="feature-item"
@@ -19,7 +19,7 @@
         <span class="feature-badge">Premium</span>
       </div>
     </div>
-    
+
     <div class="benefits-list">
       <div class="benefit-item">
         <span class="benefit-icon">✨</span>
@@ -34,31 +34,27 @@
         <span class="benefit-text">프리미엄 콘텐츠 접근</span>
       </div>
     </div>
-    
-    <button 
-      @click="$emit('navigate-to-login')" 
-      class="login-btn"
-      aria-label="로그인 페이지로 이동"
-    >
+
+    <button class="login-btn" aria-label="로그인 페이지로 이동" @click="$emit('navigate-to-login')">
       <div class="login-btn-content">
         <span class="login-btn-icon">🚪</span>
         <span class="login-btn-text">로그인하러 가기</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="login-arrow">
-          <path 
-            d="M5 12h14M12 5l7 7-7 7" 
-            stroke="currentColor" 
-            stroke-width="2" 
-            stroke-linecap="round" 
+          <path
+            d="M5 12h14M12 5l7 7-7 7"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
             stroke-linejoin="round"
           />
         </svg>
       </div>
       <div class="login-btn-shine"></div>
     </button>
-    
+
     <div class="guide-footer">
       <p class="footer-text">
-        간편한 소셜 로그인으로 <strong>3초 만에 가입</strong>하고<br>
+        간편한 소셜 로그인으로 <strong>3초 만에 가입</strong>하고<br />
         모든 기능을 무료로 이용해보세요! 🎉
       </p>
     </div>
@@ -69,8 +65,8 @@
 defineProps({
   memberOnlyFeatures: {
     type: Array,
-    default: () => []
-  }
+    default: () => [],
+  },
 });
 
 defineEmits(['navigate-to-login']);
@@ -123,7 +119,8 @@ defineEmits(['navigate-to-login']);
 }
 
 @keyframes bounceRotate {
-  0%, 100% {
+  0%,
+  100% {
     transform: rotate(0deg) scale(1);
   }
   25% {
@@ -291,7 +288,8 @@ defineEmits(['navigate-to-login']);
 }
 
 @keyframes doorSwing {
-  0%, 100% {
+  0%,
+  100% {
     transform: rotate(0deg);
   }
   25% {
@@ -443,13 +441,13 @@ defineEmits(['navigate-to-login']);
     animation: none;
     transition: none;
   }
-  
+
   .guide-icon,
   .login-btn-icon,
   .feature-badge {
     animation: none;
   }
-  
+
   .login-btn-shine,
   .feature-item::before {
     display: none;
@@ -461,11 +459,11 @@ defineEmits(['navigate-to-login']);
   .login-guide {
     border: 2px solid var(--color-main);
   }
-  
+
   .feature-item {
     border: 2px solid var(--color-light);
   }
-  
+
   .login-btn {
     border: 2px solid var(--color-white);
   }
@@ -476,17 +474,17 @@ defineEmits(['navigate-to-login']);
   .login-guide {
     background: linear-gradient(135deg, rgba(90, 106, 207, 0.1) 0%, rgba(154, 165, 208, 0.15) 100%);
   }
-  
+
   .feature-item,
   .benefit-item,
   .guide-footer {
     background: rgba(255, 255, 255, 0.1);
   }
-  
+
   .guide-title h4 {
     color: rgba(255, 255, 255, 0.9);
   }
-  
+
   .guide-subtitle,
   .feature-text,
   .benefit-text,

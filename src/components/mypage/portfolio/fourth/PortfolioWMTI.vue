@@ -13,10 +13,7 @@
 
     <div class="stats-content">
       <!-- 비교 데이터가 있을 때 -->
-      <div
-        v-if="myWMTI !== '' && wmtiComparisonChart.length > 0"
-        class="comparison-chart"
-      >
+      <div v-if="myWMTI !== '' && wmtiComparisonChart.length > 0" class="comparison-chart">
         <!-- 모바일용 탭 형태 -->
         <div class="comparison-tabs mobile-only">
           <div class="tab-buttons">
@@ -41,8 +38,8 @@
           <div class="tab-content" :class="{ collapsed: activeTab === -1 }">
             <div
               v-for="(category, index) in wmtiComparisonChart"
-              :key="category.name"
               v-show="activeTab === index"
+              :key="category.name"
               class="tab-panel"
             >
               <div class="mobile-comparison-item">
@@ -66,9 +63,7 @@
                       :class="[
                         'mobile-stat-value',
                         'difference-value',
-                        (category.difference ?? 0) >= 0
-                          ? 'positive'
-                          : 'negative',
+                        (category.difference ?? 0) >= 0 ? 'positive' : 'negative',
                       ]"
                     >
                       {{ (category.difference ?? 0) >= 0 ? '+' : '' }}
@@ -87,9 +82,7 @@
                         }"
                       ></div>
                     </div>
-                    <span class="mobile-progress-value"
-                      >{{ (category.my ?? 0).toFixed(1) }}%</span
-                    >
+                    <span class="mobile-progress-value">{{ (category.my ?? 0).toFixed(1) }}%</span>
                   </div>
                   <div class="mobile-progress-item">
                     <span class="mobile-progress-label">평균</span>
@@ -117,9 +110,7 @@
           <i class="bi bi-graph-up"></i>
         </div>
         <h6 class="empty-title">비교 데이터 없음</h6>
-        <p class="empty-text">
-          {{ myWMTI }} 동료의 비교 데이터를 준비 중입니다.
-        </p>
+        <p class="empty-text">{{ myWMTI }} 동료의 비교 데이터를 준비 중입니다.</p>
         <small class="empty-subtitle">
           더 많은 사용자 데이터가 축적되면 정확한 비교 분석을 제공할 예정입니다.
         </small>
@@ -174,7 +165,8 @@ const toggleTab = (index) => {
   border-radius: 1rem;
   padding: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow: 0 4px 6px -1px rgba(45, 51, 107, 0.1),
+  box-shadow:
+    0 4px 6px -1px rgba(45, 51, 107, 0.1),
     0 2px 4px -1px rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -218,21 +210,13 @@ const toggleTab = (index) => {
 }
 
 .my-bar {
-  background: linear-gradient(
-    90deg,
-    var(--color-main) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(90deg, var(--color-main) 0%, var(--color-sub) 100%);
   border-radius: 1rem;
   transition: width 1s ease-out;
   height: 100%;
 }
 .avg-bar {
-  background: linear-gradient(
-    90deg,
-    var(--color-light) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(90deg, var(--color-light) 0%, var(--color-sub) 100%);
   border-radius: 1rem;
   transition: width 1s ease-out 0.2s;
   height: 100%;
@@ -388,11 +372,7 @@ const toggleTab = (index) => {
 .empty-comparison {
   text-align: center;
   padding: 2rem;
-  background: linear-gradient(
-    135deg,
-    rgba(185, 187, 204, 0.1) 0%,
-    rgba(125, 129, 162, 0.1) 100%
-  );
+  background: linear-gradient(135deg, rgba(185, 187, 204, 0.1) 0%, rgba(125, 129, 162, 0.1) 100%);
   border-radius: 0.75rem;
   border: 1px solid rgba(185, 187, 204, 0.2);
 }
@@ -401,11 +381,7 @@ const toggleTab = (index) => {
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    var(--color-light) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-sub) 100%);
   display: flex;
   align-items: center;
   justify-content: center;

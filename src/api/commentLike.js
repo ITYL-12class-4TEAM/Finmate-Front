@@ -8,9 +8,7 @@ export const getCommentLikeCountAPI = async (commentId) => {
 
 // 해당 댓글 좋아요 여부 조회
 export const getCommentLikedByMeAPI = async (commentId, memberId) => {
-  const res = await api.get(
-    `/api/comment-like/${commentId}/me?memberId=${memberId}`
-  );
+  const res = await api.get(`/api/comment-like/${commentId}/me?memberId=${memberId}`);
   return res.data.body.data.liked;
 };
 

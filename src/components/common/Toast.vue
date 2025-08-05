@@ -1,6 +1,6 @@
 <template>
   <div class="toast" :class="type">
-    {{ message }}
+    {{ props.message }}
   </div>
 </template>
 
@@ -12,7 +12,7 @@ const props = defineProps({
   },
   type: {
     type: String,
-    default: "info",
+    default: 'info',
   },
 });
 </script>

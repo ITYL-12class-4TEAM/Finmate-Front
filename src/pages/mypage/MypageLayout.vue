@@ -13,11 +13,7 @@
     </div>
 
     <!-- 오버레이 -->
-    <div
-      class="mobile-overlay"
-      v-show="showMobileMenu"
-      @click="closeMobileMenu"
-    ></div>
+    <div v-show="showMobileMenu" class="mobile-overlay" @click="closeMobileMenu"></div>
 
     <div class="main-layout">
       <!-- 드롭다운 사이드바 메뉴 -->
@@ -217,11 +213,7 @@
       </main>
 
       <!-- 스크롤 탑 버튼 -->
-      <button
-        v-show="showScrollTop"
-        class="scroll-top-btn"
-        @click="scrollToTop"
-      >
+      <button v-show="showScrollTop" class="scroll-top-btn" @click="scrollToTop">
         <i class="fa-solid fa-chevron-up"></i>
       </button>
     </div>
@@ -396,11 +388,7 @@ onUnmounted(() => {
   width: 100%;
   max-width: 26.875rem;
   max-height: calc(100vh - 6rem);
-  background: linear-gradient(
-    135deg,
-    var(--color-white) 0%,
-    var(--color-bg-light) 100%
-  );
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   padding: 1.5rem 1.25rem 2rem;
   overflow-y: auto;
   transition: transform 0.3s;
@@ -561,11 +549,7 @@ onUnmounted(() => {
   right: 1.25rem;
   width: 3rem;
   height: 3rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-main) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
   color: white;
   border: none;
   border-radius: 50%;
@@ -579,11 +563,7 @@ onUnmounted(() => {
 }
 
 .scroll-top-btn:hover {
-  background: linear-gradient(
-    135deg,
-    var(--color-main) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(45, 51, 107, 0.3);
 }

@@ -2,20 +2,10 @@
   <div class="survey-content">
     <p class="survey-title">📝 WMTI 투자 성향 테스트</p>
     <p class="survey-description">{{ message.text }}</p>
-    <button
-      @click="$emit('navigate-to-survey')"
-      class="survey-btn"
-      type="button"
-    >
+    <button class="survey-btn" type="button" @click="$emit('navigate-to-survey')">
       <span class="survey-btn-icon">🧭</span>
       <span class="survey-btn-text">설문조사 시작하기</span>
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        class="arrow-icon"
-      >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="arrow-icon">
         <path
           d="M5 12h14M12 5l7 7-7 7"
           stroke="currentColor"
@@ -40,11 +30,7 @@ defineEmits(['navigate-to-survey']);
 .survey-content {
   width: 100%;
   padding: 1rem;
-  background: linear-gradient(
-    135deg,
-    rgba(90, 106, 207, 0.1) 0%,
-    rgba(154, 165, 208, 0.1) 100%
-  );
+  background: linear-gradient(135deg, rgba(90, 106, 207, 0.1) 0%, rgba(154, 165, 208, 0.1) 100%);
   border-radius: 0.75rem; /* 12px */
   border: 0.0625rem solid rgba(90, 106, 207, 0.2); /* 1px */
   margin-bottom: 0.5rem;
@@ -74,11 +60,7 @@ defineEmits(['navigate-to-survey']);
   gap: 0.75rem;
   width: 100%;
   padding: 1rem 1.5rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-main) 0%,
-    var(--color-sub) 100%
-  );
+  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
   color: var(--color-white);
   border: none;
   border-radius: 0.625rem; /* 10px */
