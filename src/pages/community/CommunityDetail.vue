@@ -2,7 +2,7 @@
   <div class="community-detail">
     <BackButton :to="'/community'" />
 
-    <div class="post-main" v-if="post">
+    <div v-if="post" class="post-main">
       <!-- 게시글 상단 -->
       <div class="post-header">
         <img class="profile-img" :src="post.authorImage" alt="프로필 이미지" />
@@ -18,9 +18,7 @@
         <p class="body-text">{{ post.content }}</p>
 
         <div class="tags">
-          <span class="tag" v-for="tag in post.tags" :key="tag"
-            >#{{ tag }}</span
-          >
+          <span v-for="tag in post.tags" :key="tag" class="tag">#{{ tag }}</span>
         </div>
 
         <div class="post-footer">
@@ -101,7 +99,7 @@
           </div>
 
           <!-- 수정/삭제 버튼 (작성자일 경우) -->
-          <div class="post-actions" v-if="post.isMine">
+          <div v-if="post.isMine" class="post-actions">
             <button class="btn-edit" @click="goToEditPage">수정</button>
             <button class="btn-delete" @click="deletePost">삭제</button>
           </div>
@@ -113,15 +111,9 @@
     <div class="comment-write">
       <!-- 익명 여부 선택 -->
       <div class="anonymous-toggle">
-        <CustomCheckbox v-model="isAnonymous" id="comment-anonymous"
-          >익명</CustomCheckbox
-        >
+        <CustomCheckbox id="comment-anonymous" v-model="isAnonymous">익명</CustomCheckbox>
       </div>
-      <input
-        v-model="newComment"
-        placeholder="댓글을 입력해주세요."
-        class="comment-input"
-      />
+      <input v-model="newComment" placeholder="댓글을 입력해주세요." class="comment-input" />
       <button @click="submitComment">작성</button>
     </div>
     <!-- 댓글 목록 -->

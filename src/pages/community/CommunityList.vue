@@ -42,12 +42,10 @@
 
     <!-- 게시글 목록 -->
     <section class="post-list">
-      <p v-if="filteredPosts.length === 0" class="empty-message">
-        조건에 맞는 게시글이 없습니다.
-      </p>
+      <p v-if="filteredPosts.length === 0" class="empty-message">조건에 맞는 게시글이 없습니다.</p>
       <PostCard
-        v-else
         v-for="post in filteredPosts"
+        v-else
         :key="post.id"
         :post="post"
         @click="goToDetailPage(post.id)"
@@ -106,8 +104,7 @@ const filteredPosts = computed(() => {
       selectedTendency.value.length === 0 ||
       selectedTendency.value.every((t) => post.tendency.includes(t));
     const hasProduct =
-      selectedProducts.value.length === 0 ||
-      selectedProducts.value.includes(post.productType);
+      selectedProducts.value.length === 0 || selectedProducts.value.includes(post.productType);
 
     return hasTendency && hasProduct;
   });
@@ -115,8 +112,7 @@ const filteredPosts = computed(() => {
 
 // 라우팅
 const goToWritePage = () => router.push({ name: 'CommunityWrite' });
-const goToDetailPage = (id) =>
-  router.push({ name: 'CommunityDetail', params: { id } });
+const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { id } });
 </script>
 
 <style scoped>

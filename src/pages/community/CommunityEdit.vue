@@ -73,9 +73,7 @@
 
     <!-- 익명 여부 선택 -->
     <div class="anonymous-group">
-      <CustomCheckbox v-model="isAnonymous" id="edit-anonymous"
-        >익명</CustomCheckbox
-      >
+      <CustomCheckbox id="edit-anonymous" v-model="isAnonymous">익명</CustomCheckbox>
     </div>
 
     <!-- 수정 버튼 -->

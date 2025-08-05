@@ -16,3 +16,8 @@ export const postwmtiAPI = async (info) => {
   const res = await api.post('/api/wmti/submit', info);
   return res.data;
 };
+
+export const getWMTIResultAPI = async (memberId) => {
+  const res = await api.get(`/api/wmti/result/${memberId}`);
+  return res.data;
+};
