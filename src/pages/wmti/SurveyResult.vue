@@ -326,6 +326,7 @@ export default {
 
       //this.analysis = data.analysis?.[data.wmtiCode] || {};
       this.createdAt = [...data.createdAt] || [];
+      
       await this.fetchAnalysis(this.wmtiCode);
     },
     async fetchAnalysis(wmtiCode) {
