@@ -1,51 +1,72 @@
 <template>
-  <div class="card">
-    <img :src="product.bankImage" alt="은행 이미지" class="bank-img" />
-    <p class="category">{{ product.category }}</p>
-    <p class="name">{{ product.name }}</p>
+  <div class="card" @click="goToProductDetail">
+    <p class="bank">{{ product.korCoNm }}</p>
+    <p class="name">{{ product.productName }}</p>
     <p class="rate">
-      금리: <strong>{{ product.rate }}</strong>
+      최대 금리:
+      <strong>
+        {{ `${product.maxRate}%` }}
+      </strong>
     </p>
   </div>
 </template>
 
 <script setup>
-defineProps({ product: Object });
+import { useRouter } from 'vue-router';
+const router = useRouter();
+
+const props = defineProps({
+  product: Object,
+});
+
+const goToProductDetail = () => {
+  const { subcategoryName, productId, saveTrm, intrRateType, rstvValue } = props.product;
+  let routePath = '';
+
+  if (subcategoryName === '예금') {
+    routePath = `/products/deposit/${productId}?saveTrm=${saveTrm}&intrRateType=${intrRateType}`;
+  } else if (subcategoryName === '적금') {
+    routePath = `/products/savings/${productId}?saveTrm=${saveTrm}&intrRateType=${intrRateType}&rsrvType=${rstvValue}`;
+  } else if (subcategoryName === '연금') {
+    routePath = `/products/pension/${productId}?saveTrm=${saveTrm}&intrRateType=${intrRateType}`;
+  } else {
+    routePath = `/products/unknown/${productId}`;
+  }
+
+  router.push(routePath);
+};
 </script>
 
 <style scoped>
 .card {
-  min-width: 160px;
-  max-width: 160px;
-  background: #fff;
+  width: 10rem;
+  height: 9rem;
+  background: var(--color-white);
   border: 1px solid var(--color-light);
   border-radius: 0.6rem;
   padding: 1rem;
   margin-right: 0.8rem;
   flex-shrink: 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
 }
 
-.bank-img {
-  width: 36px;
-  height: 36px;
-  object-fit: contain;
-  margin-bottom: 0.5rem;
-}
-
-.category {
-  font-size: 0.75rem;
-  color: #888;
+.bank {
+  font-size: 0.8rem;
+  color: gray;
+  margin-bottom: 0.2rem;
 }
 
 .name {
+  height: 3rem;
   font-size: 0.9rem;
   font-weight: 600;
-  margin: 0.2rem 0;
+  margin: 0.4rem 0;
 }
 
 .rate {
   font-size: 0.85rem;
-  color: #333;
+  color: var(--color-sub);
+  margin-top: 0.2rem;
 }
 </style>

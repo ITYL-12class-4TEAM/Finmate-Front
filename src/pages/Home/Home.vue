@@ -7,9 +7,9 @@
 </template>
 
 <script setup>
-import SurveyBanner from "@/components/home/SurveyBanner.vue";
-import ProductList from "@/components/home/ProductList.vue";
-import HotPostList from "@/components/home/HotPostList.vue";
+import SurveyBanner from '@/components/home/SurveyBanner.vue';
+import ProductList from '@/components/home/ProductList.vue';
+import HotPostList from '@/components/home/HotPostList.vue';
 </script>
 
 <style scoped>
