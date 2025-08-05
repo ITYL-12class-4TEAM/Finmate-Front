@@ -63,7 +63,7 @@
     <div class="more-portfolios">
       <button class="more-button" @click="goToPortfolioList">
         <i class="fa-solid fa-plus-circle"></i>
-        더 많은 포트폴리오 보기
+        다른 테마-포트폴리오는 뭐가 있을까?
       </button>
     </div>
   </div>
@@ -72,7 +72,7 @@
 <script>
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, DoughnutController } from 'chart.js';
 import RecommendationReason from './RecommendationReason.vue';
-import themePortfoliosData from '../../assets/data/themePortfolios.js';
+import themePortfoliosData from '../../constants/themePortfolios.js';
 
 // Chart.js 컴포넌트 등록
 ChartJS.register(ArcElement, Tooltip, Legend, DoughnutController);
