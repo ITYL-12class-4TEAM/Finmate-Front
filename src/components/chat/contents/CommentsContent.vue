@@ -127,7 +127,7 @@ const formatDate = (dateString) => {
   font-weight: 600;
   margin: 0 0 0.5rem 0;
   color: var(--color-main);
-  font-size: 0.85rem;
+  font-size: 0.7rem;
   letter-spacing: 0.01em;
   display: flex;
   align-items: center;
@@ -197,7 +197,7 @@ const formatDate = (dateString) => {
 
 .comment-info h4 {
   margin: 0 0 0.25rem 0;
-  font-size: 0.8rem;
+  font-size: 0.65rem;
   font-weight: 500;
   color: var(--color-text);
   line-height: 1.3;
@@ -209,7 +209,7 @@ const formatDate = (dateString) => {
 
 .comment-title {
   margin: 0 0 0.25rem 0;
-  font-size: 0.85rem;
+  font-size: 0.7rem;
   font-weight: 500;
   color: var(--color-text);
   line-height: 1.3;
@@ -220,7 +220,7 @@ const formatDate = (dateString) => {
 
 .comment-meta {
   margin: 0;
-  font-size: 0.65rem;
+  font-size: 0.58rem;
   color: var(--color-sub);
   display: flex;
   align-items: center;
@@ -241,13 +241,13 @@ const formatDate = (dateString) => {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  font-size: 0.65rem;
+  font-size: 0.55rem;
   font-weight: 500;
   color: #e91e63;
 }
 
 .like-count .bi-heart-fill {
-  font-size: 0.7rem;
+  font-size: 0.55rem;
   color: #e91e63;
 }
 
@@ -256,7 +256,7 @@ const formatDate = (dateString) => {
   color: #2196f3;
   padding: 0.125rem 0.375rem;
   border-radius: 0.625rem;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -278,7 +278,7 @@ const formatDate = (dateString) => {
   padding: 0.65rem 1rem;
   border-radius: 0.5rem;
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 500;
   transition: all 0.3s ease;
   width: 100%;
@@ -318,16 +318,16 @@ const formatDate = (dateString) => {
   }
 
   .comment-info h4 {
-    font-size: 0.75rem;
+    font-size: 0.6rem;
     max-width: 12rem;
   }
 
   .comment-title {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
   }
 
   .comment-meta {
-    font-size: 0.6rem;
+    font-size: 0.5rem;
     gap: 0.3rem;
   }
 
@@ -341,7 +341,7 @@ const formatDate = (dateString) => {
   }
 
   .more-btn {
-    padding: 0.55rem 0.8rem;
+    padding: 0.5rem 0.7rem;
     font-size: 0.7rem;
   }
 }
