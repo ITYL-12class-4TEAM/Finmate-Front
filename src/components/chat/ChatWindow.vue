@@ -97,7 +97,7 @@ const messagesContainer = ref(null);
 const showQuickReplies = ref(true);
 const showServiceButtons = ref(true);
 const sessionId = ref(null);
-const sessionStatus = ref('idle'); // idle, creating, active, ending, error
+const sessionStatus = ref('idle');
 const sessionRetryCount = ref(0);
 const maxRetries = 3;
 const showServiceMenu = ref(false);
@@ -107,7 +107,7 @@ const toggleServiceMenu = () => {
   showQuickReplies.value = false;
 };
 
-// 서비스 기능 데이터
+// 서비스 기능 데이터 (업데이트됨)
 const serviceFeatures = reactive([
   // 비회원도 접근 가능한 기능들
   {
@@ -172,7 +172,7 @@ const serviceFeatures = reactive([
     text: '관심상품',
     icon: '⭐',
     action: 'interestProducts',
-    apiMethod: null,
+    apiMethod: 'getWishlistProducts',
     requireAuth: true,
   },
   {
@@ -180,7 +180,7 @@ const serviceFeatures = reactive([
     text: '최근 본 상품',
     icon: '👀',
     action: 'recentProducts',
-    apiMethod: null,
+    apiMethod: 'getRecentViewedProducts',
     requireAuth: true,
   },
 ]);
@@ -242,11 +242,12 @@ const createChatSession = async () => {
 
   try {
     // 기본 세션 ID 생성
-    const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const newSessionId = `session_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
 
     console.log('📝 새 세션 ID 생성:', newSessionId);
 
-    // ✅ API 모듈을 사용한 세션 생성
     const response = await chatbotAPI.session.createSession(newSessionId);
 
     console.log('📨 서버 세션 생성 응답:', {
@@ -254,7 +255,6 @@ const createChatSession = async () => {
       data: response.data,
     });
 
-    // 응답 상태 확인
     if (response.status === 200 || response.status === 201) {
       const responseData = response.data;
 
@@ -286,16 +286,13 @@ const createChatSession = async () => {
     console.error('❌ 세션 생성 실패:', error);
     sessionStatus.value = 'error';
 
-    // 재시도 로직
     if (sessionRetryCount.value < maxRetries) {
       sessionRetryCount.value++;
       console.log(`🔄 세션 생성 재시도 (${sessionRetryCount.value}/${maxRetries})`);
 
-      // 1초 대기 후 재시도
       await new Promise((resolve) => setTimeout(resolve, 1000));
       return await createChatSession();
     } else {
-      // 최대 재시도 횟수 초과 - 폴백 세션 생성
       console.warn('⚠️ 최대 재시도 횟수 초과 - 폴백 세션 생성');
       const fallbackSessionId = `fallback_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
       return await createLocalSession(fallbackSessionId);
@@ -334,7 +331,6 @@ const endChatSession = async () => {
   console.log('🔚 챗봇 세션 종료 시작:', currentSessionId);
 
   try {
-    // 서버 세션인 경우에만 서버에 종료 요청
     const isServerSession =
       isAuthenticated() &&
       !currentSessionId.startsWith('local_') &&
@@ -345,7 +341,6 @@ const endChatSession = async () => {
       console.log('🔐 서버 세션 종료 요청');
 
       try {
-        // ✅ API 모듈을 사용한 세션 종료
         const response = await chatbotAPI.session.endSession(currentSessionId);
 
         if (response.status === 200 || response.status === 204) {
@@ -354,7 +349,10 @@ const endChatSession = async () => {
           console.warn(`⚠️ 서버 세션 종료 응답: ${response.status}`);
         }
       } catch (deleteError) {
-        console.warn('⚠️ 서버 세션 종료 요청 실패 (무시):', deleteError.message);
+        console.warn(
+          '⚠️ 서버 세션 종료 요청 실패 (무시):',
+          deleteError.message
+        );
         // 세션 종료 실패는 치명적이지 않으므로 무시
       }
     } else {
@@ -363,7 +361,6 @@ const endChatSession = async () => {
   } catch (error) {
     console.warn('⚠️ 세션 종료 중 오류 (무시):', error);
   } finally {
-    // 항상 로컬 상태 정리
     sessionId.value = null;
     sessionStatus.value = 'idle';
     sessionRetryCount.value = 0;
@@ -375,7 +372,6 @@ const isSessionReady = () => {
   return sessionStatus.value === 'active' && sessionId.value !== null;
 };
 
-// 세션 대기 함수
 const waitForSession = async (maxWaitTime = 10000) => {
   const startTime = Date.now();
 
@@ -394,7 +390,7 @@ const waitForSession = async (maxWaitTime = 10000) => {
   return sessionId.value;
 };
 
-// 닫기 핸들러
+// 핸들러들
 const handleClose = async () => {
   console.log('🔒 챗봇 수동 닫기');
   await endChatSession();
@@ -402,7 +398,6 @@ const handleClose = async () => {
   emit('close');
 };
 
-// 유틸리티 함수들
 const scrollToBottom = () => {
   const container = messagesContainer.value?.messagesContainer;
   if (container) {
@@ -455,13 +450,11 @@ const fetchServiceData = async (service) => {
   try {
     console.log('🚀 서비스 데이터 호출 시작:', service.action);
 
-    // 회원 전용 기능 체크
     if (service.requireAuth && !isAuthenticated()) {
       console.log('❌ 인증 필요한 서비스인데 토큰 없음');
       return 'LOGIN_REQUIRED';
     }
 
-    // API 메서드가 있는 경우에만 호출
     if (!service.apiMethod) {
       console.log('⚠️ API 메서드가 정의되지 않은 서비스:', service.action);
       return null;
@@ -469,7 +462,6 @@ const fetchServiceData = async (service) => {
 
     let data;
 
-    // 서비스별 API 호출
     switch (service.action) {
       case 'hotPosts':
         data = await chatbotAPI.publicData.getHotPosts();
@@ -486,6 +478,12 @@ const fetchServiceData = async (service) => {
       case 'myComments':
         data = await chatbotAPI.userData.getMyComments();
         break;
+      case 'interestProducts':
+        data = await chatbotAPI.userData.getWishlistProducts();
+        break;
+      case 'recentProducts':
+        data = await chatbotAPI.userData.getRecentViewedProducts();
+        break;
       default:
         console.warn('⚠️ 정의되지 않은 서비스 액션:', service.action);
         return null;
@@ -495,17 +493,15 @@ const fetchServiceData = async (service) => {
     return data || [];
   } catch (error) {
     console.error('❌ 서비스 데이터 호출 실패:', error);
-
-    // ✅ API 모듈의 에러 핸들러 사용
     const errorType = chatbotAPI.errorHandler.handleError(error);
     return errorType;
   }
 };
 
-// WMTI 성향 데이터 (필요시 실제 데이터로 교체)
+// WMTI 성향 데이터
 const wmtiTypes = [];
 
-// ✅ 서비스 액션 핸들러 (API 모듈 사용)
+// ✅ 서비스 액션 핸들러 (업데이트됨)
 const handleServiceAction = async (service) => {
   showServiceButtons.value = false;
   showQuickReplies.value = false;
@@ -515,7 +511,6 @@ const handleServiceAction = async (service) => {
   isTyping.value = true;
 
   try {
-    // 회원 전용 기능 체크
     if (service.requireAuth && !isAuthenticated()) {
       await new Promise((resolve) => setTimeout(resolve, 800));
       isTyping.value = false;
@@ -559,35 +554,47 @@ const handleServiceAction = async (service) => {
 
         // 정상 데이터 처리
         if (Array.isArray(데이터) && 데이터.length > 0) {
-          let 제목, 더보기URL;
+          let 제목, 더보기URL, 컨텐츠타입;
 
           switch (service.action) {
             case 'hotPosts':
               제목 = '🔥 어제 핫했던 게시물';
               더보기URL = '/posts?filter=hot';
+              컨텐츠타입 = 'posts';
               break;
             case 'myLikedPosts':
               제목 = '❤️ 내가 좋아요 한 글';
-              더보기URL = '/mypage/liked';
+              더보기URL = '/mypage/my-liked';
+              컨텐츠타입 = 'posts';
               break;
             case 'myScrapPosts':
               제목 = '📌 내가 스크랩한 글';
-              더보기URL = '/mypage/scraps';
+              더보기URL = '/mypage/my-scrap';
+              컨텐츠타입 = 'posts';
               break;
             case 'myPosts':
               제목 = '✍️ 내가 쓴 글';
-              더보기URL = '/mypage/posts';
+              더보기URL = '/mypage/my-posts';
+              컨텐츠타입 = 'posts';
               break;
             case 'myComments':
               제목 = '💬 내가 쓴 댓글';
-              더보기URL = '/mypage/comments';
-              addMessage('', 'bot', 'comments', 데이터, 제목, 더보기URL);
-              return;
+              더보기URL = '/mypage/my-comments';
+              컨텐츠타입 = 'comments';
+              break;
+            case 'interestProducts':
+              제목 = '⭐ 관심상품';
+              더보기URL = '/mypage';
+              컨텐츠타입 = 'wishlist';
+              break;
+            case 'recentProducts':
+              제목 = '👀 최근 본 상품';
+              더보기URL = '/mypage/recent-view';
+              컨텐츠타입 = 'recent';
+              break;
           }
 
-          if (service.action !== 'myComments') {
-            addMessage('', 'bot', 'posts', 데이터, 제목, 더보기URL);
-          }
+          addMessage('', 'bot', 컨텐츠타입, 데이터, 제목, 더보기URL);
         } else {
           // 빈 데이터 처리
           let 빈데이터메시지;
@@ -606,6 +613,12 @@ const handleServiceAction = async (service) => {
               break;
             case 'myComments':
               빈데이터메시지 = '💬 아직 작성한 댓글이 없습니다.';
+              break;
+            case 'interestProducts':
+              빈데이터메시지 = '⭐ 아직 관심상품이 없습니다.';
+              break;
+            case 'recentProducts':
+              빈데이터메시지 = '👀 아직 최근 본 상품이 없습니다.';
               break;
             default:
               빈데이터메시지 = '📝 해당하는 데이터가 없습니다.';
@@ -632,32 +645,32 @@ const sendMessageToGPT = async (message) => {
   try {
     console.log('🤖 ChatGPT API 요청 시작:', message);
 
-    // 세션이 준비되지 않았으면 생성하고 대기
     if (!isSessionReady()) {
       console.log('📝 세션이 준비되지 않음 - 세션 생성 시작');
       await createChatSession();
-      await waitForSession(); // 세션이 준비될 때까지 대기
+      await waitForSession();
     }
 
     const currentSessionId = sessionId.value;
     console.log('📤 사용 중인 세션 ID:', currentSessionId);
 
     // ✅ API 모듈을 사용한 메시지 전송
-    const response = await chatbotAPI.message.sendMessage(currentSessionId, message);
+    const response = await chatbotAPI.message.sendMessage(
+      currentSessionId,
+      message
+    );
 
     console.log('📨 ChatGPT API 응답:', {
       status: response.status,
       sessionId: currentSessionId,
     });
 
-    // 응답 처리
     if (response.status === 200) {
       const responseData = response.data;
 
       if (responseData?.header?.status === 'OK') {
         let botResponse = responseData.body?.data || responseData.body;
 
-        // 문자열 응답 처리
         if (typeof botResponse === 'string') {
           try {
             const parsed = JSON.parse(botResponse);
@@ -698,32 +711,8 @@ const sendMessageToGPT = async (message) => {
       }
     }
 
-    // ✅ API 모듈의 에러 핸들러 사용
     const errorType = chatbotAPI.errorHandler.handleError(error);
     const errorMessage = chatbotAPI.errorHandler.getErrorMessage(errorType);
-    return errorMessage;
-  }
-};
-
-// ✅ 금융 상품 API 함수들 (API 모듈 사용)
-const requestProductCompare = async (products) => {
-  try {
-    const result = await chatbotAPI.finance.compareProducts(products);
-    return result;
-  } catch (error) {
-    console.error('상품 비교 API 호출 실패:', error);
-    const errorMessage = chatbotAPI.errorHandler.getErrorMessage('API_ERROR');
-    return errorMessage;
-  }
-};
-
-const requestProductSummary = async (productName) => {
-  try {
-    const result = await chatbotAPI.finance.summarizeProduct(productName);
-    return result;
-  } catch (error) {
-    console.error('상품 요약 API 호출 실패:', error);
-    const errorMessage = chatbotAPI.errorHandler.getErrorMessage('API_ERROR');
     return errorMessage;
   }
 };
@@ -758,18 +747,16 @@ const sendMessage = async () => {
 
     if (isFinanceQuery) {
       if (message.includes('비교')) {
-        const result = await requestProductCompare([message]);
+        // 금융상품 비교 기능 (추후 구현)
         isTyping.value = false;
-        addMessage('', 'bot', 'finance', null, '💰 금융상품 비교 결과', '');
-        addMessage(result, 'bot');
+        addMessage('💰 금융상품 비교 기능은 준비 중입니다.', 'bot');
         return;
       }
 
       if (message.includes('요약')) {
-        const result = await requestProductSummary(message);
+        // 금융상품 요약 기능 (추후 구현)
         isTyping.value = false;
-        addMessage('', 'bot', 'finance', null, '📊 금융상품 요약', '');
-        addMessage(result, 'bot');
+        addMessage('📊 금융상품 요약 기능은 준비 중입니다.', 'bot');
         return;
       }
     }
