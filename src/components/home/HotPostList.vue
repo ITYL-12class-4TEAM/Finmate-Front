@@ -6,10 +6,10 @@
 </template>
 
 <script setup>
-import HotPostItem from "./HotPostItem.vue";
+import HotPostItem from './HotPostItem.vue';
 
-import { ref, onMounted } from "vue";
-import { getHotPostsAPI } from "@/api/posts";
+import { ref, onMounted } from 'vue';
+import { getHotPostsAPI } from '@/api/posts';
 
 const posts = ref([]);
 
@@ -18,8 +18,7 @@ const fetchHotPosts = async () => {
     const response = await getHotPostsAPI();
     posts.value = response;
   } catch (error) {
-    console.error("Error fetching hot posts:", error);
-    return [];
+    console.error('Error fetching hot posts:', error);
   }
 };
 
