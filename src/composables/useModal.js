@@ -4,8 +4,12 @@ export function useModal() {
   const modalState = inject('modalState');
   const modalHandlers = inject('modalHandlers');
 
-  return (message) =>
-    new Promise((resolve) => {
+  if (!modalState || !modalHandlers) {
+    throw new Error('ModalProvider가 App.vue에서 등록되지 않았습니다.');
+  }
+
+  const showModal = (message) => {
+    return new Promise((resolve) => {
       modalState.isOpen = true;
       modalState.message = message;
       modalHandlers.resolve = (result) => {
@@ -13,4 +17,7 @@ export function useModal() {
         resolve(result);
       };
     });
+  };
+
+  return { showModal };
 }
