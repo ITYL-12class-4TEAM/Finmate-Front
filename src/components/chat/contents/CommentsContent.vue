@@ -28,7 +28,7 @@
               class="like-count"
               :title="`좋아요 ${comment.likeCount || comment.like_count}개`"
             >
-              <i class="bi bi-heart-fill" aria-hidden="true"></i>
+              <i class="bi bi-heart-fill"></i>
               {{ comment.likeCount || comment.like_count }}
             </span>
             <span v-if="comment.parentComment" class="reply-badge" title="답글">
@@ -129,6 +129,9 @@ const formatDate = (dateString) => {
 </script>
 
 <style scoped>
+/* Bootstrap Icons 로드 확인을 위한 폴백 */
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css');
+
 .content-title {
   font-weight: 600;
   margin: 0 0 0.5rem 0;
@@ -210,7 +213,6 @@ const formatDate = (dateString) => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
   max-width: 20rem;
 }
 
@@ -234,16 +236,14 @@ const formatDate = (dateString) => {
   gap: 0.4rem;
   flex-wrap: wrap;
 }
-.separator {
-  opacity: 0.5;
-}
-.post-ref {
-  color: #2196f3;
-  font-weight: 500;
-}
 
 .separator {
   opacity: 0.5;
+}
+
+.post-ref {
+  color: #2196f3;
+  font-weight: 500;
 }
 
 .like-count {
@@ -254,6 +254,12 @@ const formatDate = (dateString) => {
   font-weight: 500;
   color: #e91e63;
 }
+
+.like-count .bi-heart-fill {
+  font-size: 0.7rem;
+  color: #e91e63;
+}
+
 .reply-badge {
   background: rgba(33, 150, 243, 0.1);
   color: #2196f3;
@@ -292,6 +298,7 @@ const formatDate = (dateString) => {
   position: relative;
   overflow: hidden;
 }
+
 .more-btn::before {
   content: '';
   position: absolute;
@@ -307,18 +314,18 @@ const formatDate = (dateString) => {
   );
   transition: left 0.5s;
 }
+
 .more-btn:hover::before {
   left: 100%;
 }
 
 .more-btn:hover {
-  transform: translateY(-0.125rem); /* -2px */
-  box-shadow: 0 0.375rem 1.25rem rgba(90, 106, 207, 0.4); /* 6px 20px */
+  transform: translateY(-0.125rem);
+  box-shadow: 0 0.375rem 1.25rem rgba(90, 106, 207, 0.4);
 }
 
 /* 모바일 대응 */
 @media (max-width: 48rem) {
-  /* 768px */
   .comments-list {
     gap: 0.2rem;
     margin-bottom: 0.4rem;
@@ -332,19 +339,25 @@ const formatDate = (dateString) => {
     font-size: 0.75rem;
     max-width: 12rem;
   }
+
   .comment-title {
     font-size: 0.8rem;
   }
 
   .comment-meta {
-   font-size: 0.6rem;
+    font-size: 0.6rem;
     gap: 0.3rem;
+  }
+
+  .like-count .bi-heart-fill {
+    font-size: 0.65rem;
   }
 
   .reply-badge {
     font-size: 0.6rem;
     padding: 0.1rem 0.3rem;
   }
+
   .more-btn {
     padding: 0.55rem 0.8rem;
     font-size: 0.7rem;

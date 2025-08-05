@@ -43,12 +43,14 @@
 <script setup>
 import { ref, reactive, nextTick, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
 
 import ChatHeader from './ChatHeader.vue';
 import MessagesContainer from './MessagesContainer.vue';
 import ServiceButtons from './ServiceButtons.vue';
 import ChatInput from './ChatInput.vue';
+
+// ✅ API 모듈 import
+import { chatbotAPI } from '@/api/chatbot.js';
 
 // Router 설정
 const router = useRouter();
@@ -87,46 +89,6 @@ const isAuthenticated = () => {
   return !!getAccessToken();
 };
 
-// axios 인터셉터 설정
-const setupAxiosInterceptors = () => {
-  axios.interceptors.request.use(
-    (config) => {
-      console.log('🔍 API 요청:', config.url);
-
-      // 비회원 접근 가능한 API 목록
-      const publicEndpoints = [
-        '/api/posts/hot',
-        '/api/chat/',
-        '/api/chatbot/message',
-        '/api/chatbot/session',
-        '/api/auth/',
-      ];
-
-      const isPublicAPI = publicEndpoints.some((endpoint) =>
-        config.url?.includes(endpoint)
-      );
-
-      if (!isPublicAPI) {
-        // 인증이 필요한 API
-        const token = getAccessToken();
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-          console.log('✅ Authorization 헤더 추가됨');
-        } else {
-          console.log('❌ 토큰 없음 - 인증 필요한 API');
-        }
-      } else {
-        console.log('💡 비회원 접근 가능한 API, 토큰 없이 요청');
-      }
-
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
-};
-
 // 상태 관리
 const messages = ref([]);
 const inputMessage = ref('');
@@ -153,7 +115,7 @@ const serviceFeatures = reactive([
     text: '어제 핫했던 게시물',
     icon: '🔥',
     action: 'hotPosts',
-    apiUrl: '/api/posts/hot',
+    apiMethod: 'getHotPosts',
     requireAuth: false,
   },
   {
@@ -161,7 +123,7 @@ const serviceFeatures = reactive([
     text: 'WMTI 성향 보기',
     icon: '🧭',
     action: 'wmtiTypes',
-    apiUrl: null,
+    apiMethod: null,
     requireAuth: false,
   },
   {
@@ -169,7 +131,7 @@ const serviceFeatures = reactive([
     text: '설문조사 하러가기',
     icon: '📝',
     action: 'survey',
-    apiUrl: null,
+    apiMethod: null,
     requireAuth: false,
   },
   // 회원만 접근 가능한 기능들
@@ -178,7 +140,7 @@ const serviceFeatures = reactive([
     text: '내가 좋아요 한 글',
     icon: '❤️',
     action: 'myLikedPosts',
-    apiUrl: '/api/post-like/me',
+    apiMethod: 'getMyLikedPosts',
     requireAuth: true,
   },
   {
@@ -186,7 +148,7 @@ const serviceFeatures = reactive([
     text: '내가 스크랩한 글',
     icon: '📌',
     action: 'myScrapPosts',
-    apiUrl: '/api/scraps/my',
+    apiMethod: 'getMyScrapPosts',
     requireAuth: true,
   },
   {
@@ -194,7 +156,7 @@ const serviceFeatures = reactive([
     text: '내가 쓴 글',
     icon: '✍️',
     action: 'myPosts',
-    apiUrl: '/api/posts/my',
+    apiMethod: 'getMyPosts',
     requireAuth: true,
   },
   {
@@ -202,7 +164,7 @@ const serviceFeatures = reactive([
     text: '내가 쓴 댓글',
     icon: '💬',
     action: 'myComments',
-    apiUrl: '/api/comments/my',
+    apiMethod: 'getMyComments',
     requireAuth: true,
   },
   {
@@ -210,7 +172,7 @@ const serviceFeatures = reactive([
     text: '관심상품',
     icon: '⭐',
     action: 'interestProducts',
-    apiUrl: null,
+    apiMethod: null,
     requireAuth: true,
   },
   {
@@ -218,7 +180,7 @@ const serviceFeatures = reactive([
     text: '최근 본 상품',
     icon: '👀',
     action: 'recentProducts',
-    apiUrl: null,
+    apiMethod: null,
     requireAuth: true,
   },
 ]);
@@ -268,6 +230,7 @@ const addMessage = (
   });
 };
 
+// ✅ 챗봇 세션 생성 (API 모듈 사용)
 const createChatSession = async () => {
   if (sessionStatus.value === 'creating' || sessionStatus.value === 'active') {
     console.log('🔄 세션이 이미 생성 중이거나 활성 상태');
@@ -285,36 +248,8 @@ const createChatSession = async () => {
 
     console.log('📝 새 세션 ID 생성:', newSessionId);
 
-    // 서버에 세션 등록 시도 (인증 여부와 상관없이)
-    console.log('🔐 서버 세션 생성 요청 (비회원/회원 공통)');
-
-    const requestConfig = {
-      method: 'POST',
-      url: '/api/chatbot/session',
-      params: {
-        sessionId: newSessionId,
-      },
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      timeout: 10000,
-      validateStatus: function (status) {
-        return status < 500; // 500 이상의 상태코드만 에러로 처리
-      },
-    };
-
-    // 인증된 사용자인 경우에만 토큰 추가
-    if (isAuthenticated()) {
-      const token = getAccessToken();
-      if (token) {
-        requestConfig.headers.Authorization = `Bearer ${token}`;
-        console.log('✅ 인증된 사용자 - Authorization 헤더 추가');
-      }
-    } else {
-      console.log('👤 비인증 사용자 - 토큰 없이 세션 생성 요청');
-    }
-
-    const response = await axios(requestConfig);
+    // ✅ API 모듈을 사용한 세션 생성
+    const response = await chatbotAPI.session.createSession(newSessionId);
 
     console.log('📨 서버 세션 생성 응답:', {
       status: response.status,
@@ -325,7 +260,6 @@ const createChatSession = async () => {
     if (response.status === 200 || response.status === 201) {
       const responseData = response.data;
 
-      // 응답 데이터 구조 확인
       if (
         responseData?.header?.status === 'OK' ||
         responseData?.status === 'success' ||
@@ -338,7 +272,6 @@ const createChatSession = async () => {
         console.log('✅ 서버 세션 생성 성공:', sessionId.value);
         return sessionId.value;
       } else {
-        // 서버에서 실패 응답을 받은 경우 로컬 세션으로 폴백
         const errorMessage =
           responseData?.header?.message ||
           responseData?.message ||
@@ -350,7 +283,6 @@ const createChatSession = async () => {
         return await createLocalSession(newSessionId);
       }
     } else if (response.status === 401 || response.status === 403) {
-      // 인증 실패 - 로컬 세션으로 폴백
       console.warn('🔓 인증 실패 - 로컬 세션으로 전환');
       return await createLocalSession(newSessionId);
     } else {
@@ -400,6 +332,8 @@ const createLocalSession = async (sessionIdToUse) => {
     throw error;
   }
 };
+
+// ✅ 챗봇 세션 종료 (API 모듈 사용)
 const endChatSession = async () => {
   if (!sessionId.value || sessionStatus.value === 'ending') {
     console.log('🔍 종료할 세션이 없거나 이미 종료 중');
@@ -420,42 +354,23 @@ const endChatSession = async () => {
       !currentSessionId.startsWith('guest_');
 
     if (isServerSession) {
-      const token = getAccessToken();
+      console.log('🔐 서버 세션 종료 요청');
 
-      if (token) {
-        console.log('🔐 서버 세션 종료 요청');
+      try {
+        // ✅ API 모듈을 사용한 세션 종료
+        const response = await chatbotAPI.session.endSession(currentSessionId);
 
-        const requestConfig = {
-          method: 'DELETE',
-          url: '/api/chatbot/session',
-          params: {
-            sessionId: currentSessionId,
-          },
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          timeout: 5000,
-          validateStatus: function (status) {
-            return status < 500; // 500 이상만 에러로 처리
-          },
-        };
-
-        try {
-          const response = await axios(requestConfig);
-
-          if (response.status === 200 || response.status === 204) {
-            console.log('✅ 서버 세션 종료 성공');
-          } else {
-            console.warn(`⚠️ 서버 세션 종료 응답: ${response.status}`);
-          }
-        } catch (deleteError) {
-          console.warn(
-            '⚠️ 서버 세션 종료 요청 실패 (무시):',
-            deleteError.message
-          );
-          // 세션 종료 실패는 치명적이지 않으므로 무시
+        if (response.status === 200 || response.status === 204) {
+          console.log('✅ 서버 세션 종료 성공');
+        } else {
+          console.warn(`⚠️ 서버 세션 종료 응답: ${response.status}`);
         }
+      } catch (deleteError) {
+        console.warn(
+          '⚠️ 서버 세션 종료 요청 실패 (무시):',
+          deleteError.message
+        );
+        // 세션 종료 실패는 치명적이지 않으므로 무시
       }
     } else {
       console.log('✅ 로컬 세션 종료');
@@ -550,112 +465,62 @@ const navigateToSurvey = () => {
   });
 };
 
-// API 관련 함수들
-const fetchApiData = async (apiUrl) => {
+// ✅ API 데이터 호출 (API 모듈 사용)
+const fetchServiceData = async (service) => {
   try {
-    console.log('🚀 API 호출 시작:', apiUrl);
+    console.log('🚀 서비스 데이터 호출 시작:', service.action);
 
-    // 비회원 접근 가능한 API 목록
-    const publicEndpoints = [
-      '/api/posts/hot',
-      '/api/chat/',
-      '/api/chatbot/message',
-      '/api/chatbot/session',
-    ];
-
-    const isPublicEndpoint = publicEndpoints.some((endpoint) =>
-      apiUrl.includes(endpoint)
-    );
-
-    // 비회원 접근 불가능한 API인데 인증되지 않은 경우
-    if (!isPublicEndpoint && !isAuthenticated()) {
-      console.log('❌ 인증 필요한 API인데 토큰 없음');
+    // 회원 전용 기능 체크
+    if (service.requireAuth && !isAuthenticated()) {
+      console.log('❌ 인증 필요한 서비스인데 토큰 없음');
       return 'LOGIN_REQUIRED';
     }
 
-    const 요청설정 = {
-      timeout: 15000,
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-    };
-
-    // 인증이 필요한 API인 경우에만 토큰 추가
-    if (!isPublicEndpoint && isAuthenticated()) {
-      const token = getAccessToken();
-      if (token) {
-        요청설정.headers.Authorization = `Bearer ${token}`;
-        console.log('✅ Authorization 헤더 추가됨 (인증 필요 API)');
-      }
-    } else if (isPublicEndpoint) {
-      console.log('💡 비회원 접근 가능한 API, 토큰 없이 요청');
+    // API 메서드가 있는 경우에만 호출
+    if (!service.apiMethod) {
+      console.log('⚠️ API 메서드가 정의되지 않은 서비스:', service.action);
+      return null;
     }
 
-    const response = await axios.get(apiUrl, 요청설정);
-    console.log('✅ API 응답 성공:', response.status);
+    let data;
 
-    if (response && response.data) {
-      let 데이터 = response.data;
-
-      if (response.data.header && response.data.body) {
-        데이터 = response.data.body.data || response.data.body;
-      } else if (데이터.data) {
-        데이터 = 데이터.data;
-      } else if (데이터.content) {
-        데이터 = 데이터.content;
-      } else if (데이터.result) {
-        데이터 = 데이터.result;
-      } else if (데이터.items) {
-        데이터 = 데이터.items;
-      }
-
-      if (
-        !Array.isArray(데이터) &&
-        typeof 데이터 === 'object' &&
-        데이터 !== null
-      ) {
-        if (데이터.content && Array.isArray(데이터.content)) {
-          데이터 = 데이터.content;
-        } else if (데이터.items && Array.isArray(데이터.items)) {
-          데이터 = 데이터.items;
-        } else {
-          데이터 = [데이터];
-        }
-      }
-
-      return 데이터 || [];
+    // 서비스별 API 호출
+    switch (service.action) {
+      case 'hotPosts':
+        data = await chatbotAPI.publicData.getHotPosts();
+        break;
+      case 'myLikedPosts':
+        data = await chatbotAPI.userData.getMyLikedPosts();
+        break;
+      case 'myScrapPosts':
+        data = await chatbotAPI.userData.getMyScrapPosts();
+        break;
+      case 'myPosts':
+        data = await chatbotAPI.userData.getMyPosts();
+        break;
+      case 'myComments':
+        data = await chatbotAPI.userData.getMyComments();
+        break;
+      default:
+        console.warn('⚠️ 정의되지 않은 서비스 액션:', service.action);
+        return null;
     }
 
-    return [];
+    console.log('✅ 서비스 데이터 호출 성공:', service.action, data);
+    return data || [];
   } catch (error) {
-    console.error('❌ API 요청 실패:', error.response?.status);
+    console.error('❌ 서비스 데이터 호출 실패:', error);
 
-    if (error.response) {
-      const 상태코드 = error.response.status;
-      switch (상태코드) {
-        case 401:
-        case 403:
-          return 'LOGIN_REQUIRED';
-        case 404:
-          return 'NOT_FOUND';
-        case 500:
-          return 'SERVER_ERROR';
-        default:
-          return 'API_ERROR';
-      }
-    } else if (error.request) {
-      return 'NETWORK_ERROR';
-    } else {
-      return 'UNKNOWN_ERROR';
-    }
+    // ✅ API 모듈의 에러 핸들러 사용
+    const errorType = chatbotAPI.errorHandler.handleError(error);
+    return errorType;
   }
 };
 
 // WMTI 성향 데이터 (필요시 실제 데이터로 교체)
 const wmtiTypes = [];
 
-// 서비스 액션 핸들러
+// ✅ 서비스 액션 핸들러 (API 모듈 사용)
 const handleServiceAction = async (service) => {
   showServiceButtons.value = false;
   showQuickReplies.value = false;
@@ -669,13 +534,13 @@ const handleServiceAction = async (service) => {
     if (service.requireAuth && !isAuthenticated()) {
       await new Promise((resolve) => setTimeout(resolve, 800));
       isTyping.value = false;
-      addMessage(
-        '🔐 로그인이 필요한 기능입니다. 로그인 후 이용해주세요!',
-        'bot'
-      );
+      const loginMessage =
+        chatbotAPI.errorHandler.getErrorMessage('LOGIN_REQUIRED');
+      addMessage(loginMessage, 'bot');
       return;
     }
 
+    // 특별 케이스 처리
     if (service.action === 'wmtiTypes') {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       isTyping.value = false;
@@ -694,46 +559,21 @@ const handleServiceAction = async (service) => {
       return;
     }
 
-    if (service.apiUrl) {
+    // API 메서드가 있는 서비스들 처리
+    if (service.apiMethod) {
       try {
-        const 데이터 = await fetchApiData(service.apiUrl);
+        const 데이터 = await fetchServiceData(service);
         await new Promise((resolve) => setTimeout(resolve, 1000));
         isTyping.value = false;
 
-        switch (데이터) {
-          case 'LOGIN_REQUIRED':
-            addMessage(
-              '🔐 로그인이 필요한 기능입니다. 로그인 후 이용해주세요!',
-              'bot'
-            );
-            return;
-          case 'PERMISSION_DENIED':
-            addMessage(
-              '🚫 해당 기능에 접근할 권한이 없습니다. 관리자에게 문의해주세요.',
-              'bot'
-            );
-            return;
-          case 'NOT_FOUND':
-            addMessage('❓ 요청하신 데이터를 찾을 수 없습니다.', 'bot');
-            return;
-          case 'SERVER_ERROR':
-            addMessage(
-              '🔧 서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.',
-              'bot'
-            );
-            return;
-          case 'NETWORK_ERROR':
-            addMessage('🌐 네트워크 연결을 확인해주세요.', 'bot');
-            return;
-          case 'UNKNOWN_ERROR':
-          case 'API_ERROR':
-            addMessage(
-              '⚠️ 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-              'bot'
-            );
-            return;
+        // 에러 타입별 처리
+        if (typeof 데이터 === 'string') {
+          const errorMessage = chatbotAPI.errorHandler.getErrorMessage(데이터);
+          addMessage(errorMessage, 'bot');
+          return;
         }
 
+        // 정상 데이터 처리
         if (Array.isArray(데이터) && 데이터.length > 0) {
           let 제목, 더보기URL;
 
@@ -765,6 +605,7 @@ const handleServiceAction = async (service) => {
             addMessage('', 'bot', 'posts', 데이터, 제목, 더보기URL);
           }
         } else {
+          // 빈 데이터 처리
           let 빈데이터메시지;
           switch (service.action) {
             case 'hotPosts':
@@ -790,23 +631,21 @@ const handleServiceAction = async (service) => {
       } catch (apiError) {
         isTyping.value = false;
         console.error('API 호출 중 에러:', apiError);
-        addMessage(
-          '⚠️ 데이터를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-          'bot'
-        );
+        const errorMessage =
+          chatbotAPI.errorHandler.getErrorMessage('API_ERROR');
+        addMessage(errorMessage, 'bot');
       }
     }
   } catch (error) {
     isTyping.value = false;
     console.error('서비스 액션 처리 중 오류:', error);
-    addMessage(
-      '⚠️ 요청을 처리하는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-      'bot'
-    );
+    const errorMessage =
+      chatbotAPI.errorHandler.getErrorMessage('UNKNOWN_ERROR');
+    addMessage(errorMessage, 'bot');
   }
 };
 
-// ChatGPT 메시지 전송
+// ✅ ChatGPT 메시지 전송 (API 모듈 사용)
 const sendMessageToGPT = async (message) => {
   try {
     console.log('🤖 ChatGPT API 요청 시작:', message);
@@ -821,36 +660,11 @@ const sendMessageToGPT = async (message) => {
     const currentSessionId = sessionId.value;
     console.log('📤 사용 중인 세션 ID:', currentSessionId);
 
-    const requestParams = {
-      sessionId: currentSessionId,
-      userMessage: message,
-    };
-
-    const requestConfig = {
-      method: 'POST',
-      url: '/api/chatbot/message',
-      params: requestParams,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      timeout: 30000,
-      validateStatus: function (status) {
-        return status < 500;
-      },
-    };
-
-    // 인증된 사용자인 경우에만 토큰 추가 (비회원은 토큰 없이 요청)
-    if (isAuthenticated()) {
-      const token = getAccessToken();
-      if (token) {
-        requestConfig.headers.Authorization = `Bearer ${token}`;
-        console.log('✅ 인증된 사용자 - Authorization 헤더 추가');
-      }
-    } else {
-      console.log('👤 비인증 사용자 - 토큰 없이 ChatGPT API 요청');
-    }
-
-    const response = await axios(requestConfig);
+    // ✅ API 모듈을 사용한 메시지 전송
+    const response = await chatbotAPI.message.sendMessage(
+      currentSessionId,
+      message
+    );
 
     console.log('📨 ChatGPT API 응답:', {
       status: response.status,
@@ -910,53 +724,33 @@ const sendMessageToGPT = async (message) => {
       }
     }
 
-    // 에러 메시지 반환
-    if (error.response) {
-      const status = error.response.status;
-      switch (status) {
-        case 400:
-          return '요청 형식이 올바르지 않습니다. 다시 시도해주세요.';
-        case 401:
-          return '인증에 문제가 있습니다. 일부 기능은 로그인이 필요할 수 있습니다.';
-        case 403:
-          return '접근 권한이 없습니다. 일부 기능은 로그인이 필요할 수 있습니다.';
-        case 429:
-          return '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.';
-        case 500:
-          return '서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
-        default:
-          return `서버 오류가 발생했습니다. (${status})`;
-      }
-    } else if (error.request) {
-      return '네트워크 연결을 확인해주세요.';
-    } else {
-      return '요청 처리 중 오류가 발생했습니다. 다시 시도해주세요.';
-    }
+    // ✅ API 모듈의 에러 핸들러 사용
+    const errorType = chatbotAPI.errorHandler.handleError(error);
+    const errorMessage = chatbotAPI.errorHandler.getErrorMessage(errorType);
+    return errorMessage;
   }
 };
 
-// API 요청 함수들
+// ✅ 금융 상품 API 함수들 (API 모듈 사용)
 const requestProductCompare = async (products) => {
   try {
-    const response = await axios.post('/api/chat/compare', {
-      products: products,
-    });
-    return response.data.data || response.data;
+    const result = await chatbotAPI.finance.compareProducts(products);
+    return result;
   } catch (error) {
     console.error('상품 비교 API 호출 실패:', error);
-    return '상품 비교 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
+    const errorMessage = chatbotAPI.errorHandler.getErrorMessage('API_ERROR');
+    return errorMessage;
   }
 };
 
 const requestProductSummary = async (productName) => {
   try {
-    const response = await axios.post('/api/chat/summary', {
-      productName: productName,
-    });
-    return response.data.data || response.data;
+    const result = await chatbotAPI.finance.summarizeProduct(productName);
+    return result;
   } catch (error) {
     console.error('상품 요약 API 호출 실패:', error);
-    return '상품 요약 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
+    const errorMessage = chatbotAPI.errorHandler.getErrorMessage('API_ERROR');
+    return errorMessage;
   }
 };
 
@@ -1028,37 +822,15 @@ const sendMessage = async () => {
   } catch (error) {
     console.error('❌ 메시지 전송 실패:', error);
     isTyping.value = false;
-    addMessage(
-      '죄송합니다. 일시적인 오류가 발생했습니다. 다시 시도해주세요.',
-      'bot'
-    );
+    const errorMessage =
+      chatbotAPI.errorHandler.getErrorMessage('UNKNOWN_ERROR');
+    addMessage(errorMessage, 'bot');
   }
 };
 
-// ChatGPT 연결 확인
-const checkChatGPTConnection = async () => {
-  try {
-    console.log('🔍 ChatGPT 연결 확인 중...');
-
-    // 간단한 테스트 메시지로 연결 확인
-    const testResponse = await sendMessageToGPT('연결 테스트');
-
-    if (testResponse && testResponse.trim() !== '') {
-      console.log('✅ ChatGPT 연결 확인됨');
-      return true;
-    } else {
-      console.warn('⚠️ ChatGPT 응답이 비어있음');
-      return false;
-    }
-  } catch (error) {
-    console.error('❌ ChatGPT 연결 실패:', error);
-    return false;
-  }
-};
-
+// 컴포넌트 마운트 및 언마운트
 onMounted(async () => {
   console.log('🚀 ChatWindow 마운트됨');
-  setupAxiosInterceptors();
   setupRouterGuard();
 
   try {
@@ -1076,6 +848,7 @@ onUnmounted(async () => {
   removeRouterGuard();
 });
 
+// 컴포넌트 expose
 defineExpose({
   sessionId,
   sessionStatus,
