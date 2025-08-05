@@ -8,9 +8,6 @@
         role="button"
         :aria-label="`총 자산 ${formatCurrency(totalAmount)}`"
       >
-        <div class="summary-icon">
-          <i class="bi bi-wallet2"></i>
-        </div>
         <small class="summary-label">총 자산</small>
         <h4 class="summary-value">{{ formatCurrency(totalAmount) }}</h4>
       </div>
@@ -22,9 +19,6 @@
         role="button"
         :aria-label="`보유 상품 ${portfolioCount}개`"
       >
-        <div class="summary-icon">
-          <i class="bi bi-collection"></i>
-        </div>
         <small class="summary-label">보유 상품</small>
         <h4 class="summary-value">{{ portfolioCount }}개</h4>
         <div class="summary-detail">
@@ -39,9 +33,6 @@
         role="button"
         :aria-label="`카테고리 ${categoryCount}개`"
       >
-        <div class="summary-icon">
-          <i class="bi bi-grid-3x3-gap"></i>
-        </div>
         <small class="summary-label">카테고리</small>
         <h4 class="summary-value">{{ categoryCount }}개</h4>
         <div class="summary-detail">
@@ -56,9 +47,6 @@
         role="button"
         :aria-label="`평균 투자액 ${formatCurrency(averageAmount)}`"
       >
-        <div class="summary-icon">
-          <i class="bi bi-bar-chart-line"></i>
-        </div>
         <small class="summary-label">평균 투자액</small>
         <h4 class="summary-value">{{ formatCurrency(averageAmount) }}</h4>
         <div class="summary-detail">

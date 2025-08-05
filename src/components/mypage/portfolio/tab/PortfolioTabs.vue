@@ -10,7 +10,6 @@
             type="button"
             role="tab"
           >
-            <i class="bi bi-house"></i>
             <span class="nav-text">개요</span>
           </button>
         </li>
@@ -22,7 +21,6 @@
             type="button"
             role="tab"
           >
-            <i class="bi bi-graph-up-arrow"></i>
             <span class="nav-text">비교분석</span>
           </button>
         </li>
@@ -34,7 +32,6 @@
             type="button"
             role="tab"
           >
-            <i class="bi bi-pie-chart"></i>
             <span class="nav-text">자산분배</span>
           </button>
         </li>
@@ -46,7 +43,6 @@
             type="button"
             role="tab"
           >
-            <i class="bi bi-person-badge"></i>
             <span class="nav-text">WMTI</span>
           </button>
         </li>

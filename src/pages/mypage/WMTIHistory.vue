@@ -108,133 +108,52 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { getWMTIHistoryAPI } from '@/api/wmti';
 
-// State
+const props = defineProps({
+  memberId: {
+    type: [String, Number],
+    required: true,
+  },
+});
+
 const loading = ref(false);
 const historyList = ref([]);
 const loadingMessage = ref('데이터를 불러오는 중...');
 const expandedItems = ref([]);
 
-// Mock Data
-const mockHistoryData = [
-  {
-    historyId: 1,
-    answersJson: '{}',
-    ascore: 85,
-    bscore: 25,
-    createdAt: '2025-07-15T14:30:00.000Z',
-    cscore: 70,
-    iscore: 60,
-    lscore: 20,
-    memberId: 1,
-    mscore: 75,
-    pscore: 90,
-    resultType: 'AGGRESSIVE',
-    riskPreference: 'GROWTH',
-    userName: '김투자',
-    wmtiCode: 'AILP',
-    wscore: 80,
-  },
-  {
-    historyId: 2,
-    answersJson: '{}',
-    ascore: 65,
-    bscore: 45,
-    createdAt: '2025-06-20T09:15:00.000Z',
-    cscore: 85,
-    iscore: 75,
-    lscore: 70,
-    memberId: 1,
-    mscore: 80,
-    pscore: 55,
-    resultType: 'MODERATE',
-    riskPreference: 'BALANCE',
-    userName: '김투자',
-    wmtiCode: 'MILC',
-    wscore: 60,
-  },
-  {
-    historyId: 3,
-    answersJson: '{}',
-    ascore: 30,
-    bscore: 80,
-    createdAt: '2025-05-10T16:45:00.000Z',
-    cscore: 95,
-    iscore: 90,
-    lscore: 85,
-    memberId: 1,
-    mscore: 40,
-    pscore: 25,
-    resultType: 'CONSERVATIVE',
-    riskPreference: 'STABILITY',
-    userName: '김투자',
-    wmtiCode: 'CIWB',
-    wscore: 35,
-  },
-  {
-    historyId: 4,
-    answersJson: '{}',
-    ascore: 75,
-    bscore: 35,
-    createdAt: '2025-04-05T11:20:00.000Z',
-    cscore: 60,
-    iscore: 80,
-    lscore: 40,
-    memberId: 1,
-    mscore: 85,
-    pscore: 70,
-    resultType: 'AGGRESSIVE',
-    riskPreference: 'GROWTH',
-    userName: '김투자',
-    wmtiCode: 'AMLP',
-    wscore: 75,
-  },
-  {
-    historyId: 5,
-    answersJson: '{}',
-    ascore: 50,
-    bscore: 60,
-    createdAt: '2025-03-12T15:45:00.000Z',
-    cscore: 75,
-    iscore: 85,
-    lscore: 65,
-    memberId: 1,
-    mscore: 70,
-    pscore: 45,
-    resultType: 'MODERATE',
-    riskPreference: 'BALANCE',
-    userName: '김투자',
-    wmtiCode: 'MILC',
-    wscore: 55,
-  },
-];
-
-// Methods
-const loadMockData = async () => {
+const memberId = ref(1);
+// API 호출 함수
+const fetchHistoryData = async () => {
   loading.value = true;
   loadingMessage.value = '히스토리 데이터를 불러오는 중...';
 
-  await new Promise((resolve) => setTimeout(resolve, 800));
-
   try {
-    historyList.value = mockHistoryData.map((item) => ({
-      id: item.historyId,
-      type: item.resultType,
-      typeName: getResultTypeName(item.resultType),
-      description: getRiskPreferenceDescription(item.riskPreference),
-      riskLevel: calculateRiskLevel(item),
-      returnExpectation: calculateReturnExpectation(item),
-      score: calculateTotalScore(item),
-      createdAt: item.createdAt,
-      wmtiCode: item.wmtiCode,
-      originalData: item,
-    }));
+    const result = await getWMTIHistoryAPI(memberId.value);
 
-    historyList.value.sort(
-      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-    );
+    if (result.header.status === 'OK') {
+      historyList.value = result.body.data.map((item) => ({
+        id: item.historyId,
+        type: item.resultType,
+        typeName: getResultTypeName(item.resultType),
+        description: getRiskPreferenceDescription(item.riskPreference),
+        riskLevel: calculateRiskLevel(item),
+        returnExpectation: calculateReturnExpectation(item),
+        score: calculateTotalScore(item),
+        createdAt: formatCreatedAtArray(item.createdAt),
+        wmtiCode: item.wmtiCode,
+        originalData: item,
+      }));
+
+      // 최신순으로 정렬 (이미 API에서 정렬되어 올 가능성이 높지만 안전장치)
+      historyList.value.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+    } else {
+      console.error('API 오류:', result.header.message);
+    }
   } catch (err) {
-    console.error('❌ Mock 데이터 로드 실패:', err);
+    console.error('❌ 히스토리 데이터 로드 실패:', err);
   } finally {
     loading.value = false;
   }
@@ -250,10 +169,20 @@ const toggleDetails = (historyId) => {
 };
 
 // Utility Functions
+const formatCreatedAtArray = (createdAtArray) => {
+  if (Array.isArray(createdAtArray) && createdAtArray.length >= 5) {
+    const [year, month, day, hour, minute, second = 0] = createdAtArray;
+    return new Date(year, month - 1, day, hour, minute, second).toISOString();
+  }
+  return new Date().toISOString();
+};
+
 const getResultTypeName = (resultType) => {
   const types = {
     AGGRESSIVE: '공격투자형',
+    ACTIVE: '적극투자형',
     MODERATE: '중립투자형',
+    PASSIVE: '소극투자형',
     CONSERVATIVE: '안정추구형',
   };
   return types[resultType] || resultType;
@@ -262,15 +191,18 @@ const getResultTypeName = (resultType) => {
 const getRiskPreferenceDescription = (riskPreference) => {
   const descriptions = {
     GROWTH: '높은 수익을 위해 위험을 감수하는 성향',
+    RISK_NEUTRAL: '적절한 위험과 수익의 균형을 추구하는 성향',
     BALANCE: '적절한 수익과 안정성을 추구하는 성향',
     STABILITY: '안정적인 투자를 선호하는 성향',
+    STABILITY_ORIENTED: '매우 안정적인 투자를 선호하는 성향',
   };
   return descriptions[riskPreference] || riskPreference;
 };
 
 const calculateRiskLevel = (item) => {
+  // 실제 API 데이터 구조에 맞게 위험도 계산
   const aggressiveScore = (item.ascore + item.pscore) / 2;
-  const conservativeScore = (item.bscore + item.cscore) / 2;
+  const conservativeScore = item.lscore; // lscore를 보수적 지표로 사용
   const riskLevel = (aggressiveScore - conservativeScore + 100) / 20;
   return Math.max(1, Math.min(10, Math.round(riskLevel)));
 };
@@ -281,16 +213,7 @@ const calculateReturnExpectation = (item) => {
 };
 
 const calculateTotalScore = (item) => {
-  return (
-    item.ascore +
-    item.lscore +
-    item.mscore +
-    item.pscore +
-    item.iscore +
-    item.wscore +
-    item.bscore +
-    item.cscore
-  );
+  return item.ascore + item.lscore + item.mscore + item.pscore;
 };
 
 const getDetailedScoresWithInfo = (originalData) => {
@@ -299,10 +222,6 @@ const getDetailedScoresWithInfo = (originalData) => {
     L: { score: originalData.lscore, name: 'Liquidity' },
     M: { score: originalData.mscore, name: 'Market' },
     P: { score: originalData.pscore, name: 'Profit' },
-    I: { score: originalData.iscore, name: 'Investment' },
-    W: { score: originalData.wscore, name: 'Wealth' },
-    B: { score: originalData.bscore, name: 'Balance' },
-    C: { score: originalData.cscore, name: 'Conservative' },
   };
 };
 
@@ -344,7 +263,7 @@ const goToWMTI = () => {
 
 // Lifecycle
 onMounted(() => {
-  loadMockData();
+  fetchHistoryData();
 });
 </script>
 
@@ -464,9 +383,17 @@ onMounted(() => {
   background: #dc3545;
   color: white;
 }
+.badge-active {
+  background: #fd7e14;
+  color: white;
+}
 .badge-moderate {
   background: #ffc107;
   color: #000;
+}
+.badge-passive {
+  background: #6c757d;
+  color: white;
 }
 .badge-conservative {
   background: #198754;

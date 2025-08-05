@@ -112,14 +112,13 @@ const isDeleting = ref(false);
 
 // 사용자 나이대
 const userAgeGroup = ref('');
-
+const memberId = ref(1);
 // -------------------- API 호출 --------------------
 const fetchWMTIResult = async () => {
   try {
-    const res = await getWMTIResultAPI(); // memberId가 API 내부에서 처리된다면 제거
-    // JSON 응답에서 wmtiCode 추출
-    if (res?.body?.wmtiCode) {
-      myWMTI.value = res.body.wmtiCode; // "IBWC" 같은 값이 저장됨
+    const res = await getWMTIResultAPI(memberId.value); //
+    if (res?.data?.body?.data?.wmtiCode) {
+      myWMTI.value = res.data.body.data.wmtiCode;
     }
   } catch (err) {
     console.error('WMTI 결과 조회 실패:', err);

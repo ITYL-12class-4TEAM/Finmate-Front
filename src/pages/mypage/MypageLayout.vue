@@ -29,10 +29,7 @@
         <nav class="nav-menu">
           <!-- 개인 정보 -->
           <div class="menu-section">
-            <h3 class="section-title">
-              <i class="fa-solid fa-user"></i>
-              개인 정보
-            </h3>
+            <h3 class="section-title">개인 정보</h3>
             <ul class="menu-list">
               <li class="menu-item">
                 <router-link
