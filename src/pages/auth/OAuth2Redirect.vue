@@ -26,6 +26,20 @@ onMounted(async () => {
 
     const error = urlParams.get('error');
     const errorMessage = urlParams.get('message');
+    const code = urlParams.get('code');
+    const isNewMember = urlParams.get('isNewMember') === 'true';
+    const email = urlParams.get('email') ? decodeURIComponent(urlParams.get('email')) : '';
+    const username = urlParams.get('username') ? decodeURIComponent(urlParams.get('username')) : '';
+    const profileImage = urlParams.get('profileImage')
+      ? decodeURIComponent(urlParams.get('profileImage'))
+      : '';
+
+    console.log('받은 파라미터들:');
+    console.log('code:', code);
+    console.log('isNewMember:', isNewMember, '(타입:', typeof isNewMember, ')');
+    console.log('email:', email);
+    console.log('username:', username);
+    console.log('profileImage:', profileImage);
 
     if (error === 'oauth2_failed' && errorMessage) {
       console.error('OAuth2 로그인 실패:', errorMessage);
@@ -37,15 +51,19 @@ onMounted(async () => {
       return;
     }
 
-    const code = urlParams.get('code');
+    if (isNewMember) {
+      console.log('신규 회원 - 회원가입 폼으로 이동');
 
-    console.log('받은 파라미터들:');
-    console.log('code:', code);
+      router.push({
+        path: '/login/signup',
+        query: {
+          socialSignup: 'true',
+          name: username,
+          email: email,
+          profileImage: profileImage || '',
+        },
+      });
 
-    if (!code) {
-      console.error('Authorization code가 없습니다');
-      alert('로그인에 실패했습니다. (인증 코드 없음)');
-      router.push('/login');
       return;
     }
 
@@ -60,34 +78,15 @@ onMounted(async () => {
       console.log('authResult:', authResult);
 
       if (authResult && authResult.accessToken && authResult.refreshToken) {
-        if (authResult.isNewMember) {
-          console.log('신규 회원 - 회원가입 폼으로 이동');
+        console.log('기존 회원 - 토큰 저장 후 홈으로 이동');
+        authStore.setTokens(authResult.accessToken, authResult.refreshToken);
 
-          router.push({
-            path: '/login/signup',
-            query: {
-              socialSignup: 'true',
-              name: authResult.userMember?.username || authResult.username,
-              email: authResult.userMember?.email || authResult.email,
-              profileImage:
-                authResult.userMember?.profileImage || authResult.profileImage,
-              tempToken: authResult.accessToken,
-            },
-          });
-        } else {
-          console.log('기존 회원 - 토큰 저장 후 홈으로 이동');
-          authStore.setTokens(authResult.accessToken, authResult.refreshToken);
-
-          if (authResult.userInfo) {
-            localStorage.setItem(
-              'userInfo',
-              JSON.stringify(authResult.userInfo)
-            );
-          }
-          console.log('토큰 저장 완료');
-          alert('로그인 성공!');
-          router.push('/');
+        if (authResult.userInfo) {
+          localStorage.setItem('userInfo', JSON.stringify(authResult.userInfo));
         }
+        console.log('토큰 저장 완료');
+        alert('로그인 성공!');
+        router.push('/');
       } else {
         console.error('토큰 정보가 없습니다:', authResult);
         alert('로그인 정보 저장에 실패했습니다.');

@@ -5,7 +5,7 @@ import { memberAPI } from '@/api/member';
 
 export const useAuthStore = defineStore('auth', () => {
   // 상태
-  const user = ref(null);
+  const user = ref(JSON.parse(localStorage.getItem('userInfo')) || null);
   const accessToken = ref(localStorage.getItem('accessToken') || null);
   const refreshToken = ref(localStorage.getItem('refreshToken') || null);
   const isLoading = ref(false);
@@ -26,7 +26,7 @@ export const useAuthStore = defineStore('auth', () => {
         setTokens(loginData.accessToken, loginData.refreshToken);
 
         if (loginData.userInfo) {
-          user.value = loginData.userInfo;
+          // user.value = loginData.userInfo;
           localStorage.setItem('userInfo', JSON.stringify(loginData.userInfo));
         }
 
@@ -66,7 +66,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (result.success) {
         user.value = result.data;
-        localStorage.setItem('user', JSON.stringify(result.data));
+        localStorage.setItem('userInfo', JSON.stringify(result.data));
         console.log('사용자 정보 새로고침 성공');
         return true;
       } else {
@@ -102,22 +102,22 @@ export const useAuthStore = defineStore('auth', () => {
 
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
+    localStorage.removeItem('userInfo');
   };
 
   const initialize = async () => {
     console.log('Auth Store 초기화 시작');
 
-    const savedUser = localStorage.getItem('user');
+    const savedUserInfo = localStorage.getItem('userInfo');
     const savedAccessToken = localStorage.getItem('accessToken');
 
-    if (!savedUser || !savedAccessToken) {
+    if (!savedUserInfo || !savedAccessToken) {
       console.log('로그인 필요');
       return;
     }
 
     try {
-      user.value = JSON.parse(savedUser);
+      user.value = JSON.parse(savedUserInfo); // 🔥 savedUser → savedUserInfo 수정
       accessToken.value = savedAccessToken;
       refreshToken.value = localStorage.getItem('refreshToken');
 
@@ -127,7 +127,7 @@ export const useAuthStore = defineStore('auth', () => {
         hasRefreshToken: !!refreshToken.value,
       });
 
-      const shouldValidateToken = false; // 설정으로 제어 가능
+      const shouldValidateToken = false;
 
       if (shouldValidateToken) {
         console.log('토큰 유효성 확인 중...');
@@ -183,7 +183,6 @@ export const useAuthStore = defineStore('auth', () => {
     setTokens,
     clearAuthData,
     initialize,
-
     hasValidTokens,
     shouldValidateTokenOnInit,
   };
