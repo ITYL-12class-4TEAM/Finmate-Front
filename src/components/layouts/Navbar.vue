@@ -6,11 +6,7 @@
     </router-link>
 
     <DesktopNavbar v-if="!isMobile" />
-    <MobileMenu
-      v-if="isMobile"
-      :is-open="mobileOpen"
-      @close="mobileOpen = false"
-    />
+    <MobileMenu v-if="isMobile" :is-open="mobileOpen" @close="mobileOpen = false" />
 
     <div class="navbar__right">
       <template v-if="authStore.isAuthenticated">
@@ -151,6 +147,7 @@ function toggleDropdown() {
   font-weight: 600;
   font-size: 14px;
   color: var(--color-main);
+  z-index: 1000;
 }
 
 .navbar__logo img {
