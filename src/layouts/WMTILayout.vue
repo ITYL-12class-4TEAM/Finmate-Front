@@ -1,6 +1,5 @@
 <template>
-  <div>
-    <h1>WMTILayout</h1>
+  <div class="layout-container">
     <router-view />
   </div>
 </template>
@@ -9,7 +8,7 @@
 
 <style scoped>
 .layout-container {
-  max-width: 430px;
+  max-width: 26.875rem; /* 430px */
   margin: 0 auto;
 }
 </style>
