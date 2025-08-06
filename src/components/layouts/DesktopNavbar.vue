@@ -15,11 +15,11 @@
         <ul class="dropdown">
           <li><router-link to="/wmti/basic">투자 성향 진단</router-link></li>
           <li>
-            <router-link to="/wmti/result">진단 결과 보기 및 재검사</router-link>
+            <router-link to="/wmti/result">진단 결과</router-link>
           </li>
-          <li>
+          <!-- <li>
             <router-link to="/wmti/types">다른 WMTI 유형 보기</router-link>
-          </li>
+          </li> -->
         </ul>
       </li>
       <li class="menu-item">
