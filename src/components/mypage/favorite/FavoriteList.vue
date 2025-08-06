@@ -33,14 +33,14 @@
 <script setup>
 import FavoriteItem from './FavoriteItem.vue';
 
-const props = defineProps({
+defineProps({
   favorites: {
     type: Array,
     required: true,
   },
 });
 
-const emit = defineEmits(['remove-favorite', 'explore-products']);
+defineEmits(['remove-favorite', 'explore-products']);
 </script>
 
 <style scoped>

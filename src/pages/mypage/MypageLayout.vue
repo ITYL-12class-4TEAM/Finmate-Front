@@ -25,10 +25,7 @@
         <nav class="nav-menu">
           <!-- 개인 정보 -->
           <div class="menu-section">
-            <h3 class="section-title">
-              <i class="fa-solid fa-user"></i>
-              개인 정보
-            </h3>
+            <h3 class="section-title">개인 정보</h3>
             <ul class="menu-list">
               <li class="menu-item">
                 <router-link
@@ -214,11 +211,6 @@
       <main class="content" :class="{ 'menu-active': showMobileMenu }">
         <router-view />
       </main>
-
-      <!-- 스크롤 탑 버튼 -->
-      <button v-show="showScrollTop" class="scroll-top-btn" @click="scrollToTop">
-        <i class="fa-solid fa-chevron-up"></i>
-      </button>
     </div>
   </div>
 </template>
@@ -278,10 +270,6 @@ const handleScroll = () => {
   }
 
   lastScrollY.value = currentScrollY;
-};
-
-const scrollToTop = () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 const toggleMobileMenu = () => {
@@ -543,53 +531,5 @@ onUnmounted(() => {
   filter: blur(1px) brightness(0.8);
   transform: scale(0.98);
   pointer-events: none;
-}
-
-/* 스크롤 탑 버튼 */
-.scroll-top-btn {
-  position: fixed;
-  bottom: 2rem;
-  right: 1.25rem;
-  width: 3rem;
-  height: 3rem;
-  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.2);
-  z-index: 950;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.scroll-top-btn:hover {
-  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(45, 51, 107, 0.3);
-}
-
-.scroll-top-btn i {
-  font-size: 1rem;
-}
-
-/* 스크롤바 스타일링 */
-.sidebar::-webkit-scrollbar {
-  width: 4px;
-}
-
-.sidebar::-webkit-scrollbar-track {
-  background: rgba(185, 187, 204, 0.1);
-}
-
-.sidebar::-webkit-scrollbar-thumb {
-  background: rgba(185, 187, 204, 0.3);
-  border-radius: 2px;
-}
-
-.sidebar::-webkit-scrollbar-thumb:hover {
-  background: rgba(185, 187, 204, 0.5);
 }
 </style>
