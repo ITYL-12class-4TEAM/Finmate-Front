@@ -2,6 +2,7 @@
   <div class="result-page">
     <!-- 뒤로가기 버튼 -->
     <BackButton title="투자 성향 결과" to="/wmti/basic" />
+    <button @click="handleError">토스트</button>
 
     <!-- 헤더 섹션 -->
     <div class="result-header">
@@ -16,25 +17,24 @@
       <div class="type-summary">
         <div class="type-item">
           <span class="type-label">투자자 유형</span>
-          <span class="type-value" :class="getResultTypeClass(analysisObject.resultType)">{{
-            analysisObject.resultType
-          }}</span>
-          <span
-            class="type-description"
-            :class="getResultTypeTextClass(analysisObject.resultType)"
-            >{{ getResultTypeLabel(analysisObject.resultType) }}</span
-          >
+          <span class="type-value" :class="getResultTypeClass(analysisObject.resultType)">
+            {{ analysisObject.resultType }}
+          </span>
+          <span class="type-description" :class="getResultTypeTextClass(analysisObject.resultType)">
+            {{ getResultTypeLabel(analysisObject.resultType) }}
+          </span>
         </div>
         <div class="type-item">
           <span class="type-label">리스크 수용도</span>
-          <span class="type-value" :class="getRiskPreferenceClass(analysisObject.riskPreference)">{{
-            analysisObject.riskPreference
-          }}</span>
+          <span class="type-value" :class="getRiskPreferenceClass(analysisObject.riskPreference)">
+            {{ analysisObject.riskPreference }}
+          </span>
           <span
             class="type-description"
             :class="getRiskPreferenceTextClass(analysisObject.riskPreference)"
-            >{{ getRiskPreferenceLabel(analysisObject.riskPreference) }}</span
           >
+            {{ getRiskPreferenceLabel(analysisObject.riskPreference) }}
+          </span>
         </div>
       </div>
     </div>
@@ -46,16 +46,14 @@
         <h4 class="card-title">{{ analysis.aka }}</h4>
       </div>
 
-      <!-- 태그 섹션 - 전광판 효과 -->
+      <!-- 태그 섹션 -->
       <div class="tags-section">
         <h4 class="subsection-title">🏷️ 성향 키워드</h4>
         <div class="tags-marquee">
           <div v-if="analysis.tag && analysis.tag.length > 0" class="tags-track">
-            <!-- 첫 번째 세트 -->
             <div v-for="(tag, index) in analysis.tag" :key="'first-' + index" class="tag-item">
               #{{ tag }}
             </div>
-            <!-- 두 번째 세트 (무한 반복용) -->
             <div v-for="(tag, index) in analysis.tag" :key="'second-' + index" class="tag-item">
               #{{ tag }}
             </div>
@@ -74,15 +72,16 @@
     <div class="score-card">
       <h3 class="section-title score-title">📊 성향 분석 결과</h3>
       <div class="score-grid">
+        <!-- A vs I -->
         <div class="score-item">
           <div class="dimension-header">
             <span class="dimension-label">A vs I</span>
           </div>
           <div class="bidirectional-bar">
             <div class="bar-left">
-              <span class="bar-info" :class="{ dominant: analysisObject.a === 'A' }"
-                >A {{ Math.round(analysisObject.ascore) }}%</span
-              >
+              <span class="bar-info" :class="{ dominant: analysisObject.a === 'A' }">
+                A {{ Math.round(analysisObject.ascore) }}%
+              </span>
               <div
                 v-if="analysisObject.a === 'A'"
                 class="bar-progress left bar-a"
@@ -96,22 +95,23 @@
                 class="bar-progress right bar-i"
                 :style="{ width: analysisObject.iscore + '%' }"
               ></div>
-              <span class="bar-info" :class="{ dominant: analysisObject.a === 'I' }"
-                >I {{ Math.round(analysisObject.iscore) }}%</span
-              >
+              <span class="bar-info" :class="{ dominant: analysisObject.a === 'I' }">
+                I {{ Math.round(analysisObject.iscore) }}%
+              </span>
             </div>
           </div>
         </div>
 
+        <!-- P vs B -->
         <div class="score-item">
           <div class="dimension-header">
             <span class="dimension-label">P vs B</span>
           </div>
           <div class="bidirectional-bar">
             <div class="bar-left">
-              <span class="bar-info" :class="{ dominant: analysisObject.p === 'P' }"
-                >P {{ Math.round(analysisObject.pscore) }}%</span
-              >
+              <span class="bar-info" :class="{ dominant: analysisObject.p === 'P' }">
+                P {{ Math.round(analysisObject.pscore) }}%
+              </span>
               <div
                 v-if="analysisObject.p === 'P'"
                 class="bar-progress left bar-p"
@@ -125,22 +125,23 @@
                 class="bar-progress right bar-b"
                 :style="{ width: analysisObject.bscore + '%' }"
               ></div>
-              <span class="bar-info" :class="{ dominant: analysisObject.p === 'B' }"
-                >B {{ Math.round(analysisObject.bscore) }}%</span
-              >
+              <span class="bar-info" :class="{ dominant: analysisObject.p === 'B' }">
+                B {{ Math.round(analysisObject.bscore) }}%
+              </span>
             </div>
           </div>
         </div>
 
+        <!-- M vs W -->
         <div class="score-item">
           <div class="dimension-header">
             <span class="dimension-label">M vs W</span>
           </div>
           <div class="bidirectional-bar">
             <div class="bar-left">
-              <span class="bar-info" :class="{ dominant: analysisObject.m === 'M' }"
-                >M {{ Math.round(analysisObject.mscore) }}%</span
-              >
+              <span class="bar-info" :class="{ dominant: analysisObject.m === 'M' }">
+                M {{ Math.round(analysisObject.mscore) }}%
+              </span>
               <div
                 v-if="analysisObject.m === 'M'"
                 class="bar-progress left bar-m"
@@ -154,22 +155,23 @@
                 class="bar-progress right bar-w"
                 :style="{ width: analysisObject.wscore + '%' }"
               ></div>
-              <span class="bar-info" :class="{ dominant: analysisObject.m === 'W' }"
-                >W {{ Math.round(analysisObject.wscore) }}%</span
-              >
+              <span class="bar-info" :class="{ dominant: analysisObject.m === 'W' }">
+                W {{ Math.round(analysisObject.wscore) }}%
+              </span>
             </div>
           </div>
         </div>
 
+        <!-- L vs C -->
         <div class="score-item">
           <div class="dimension-header">
             <span class="dimension-label">L vs C</span>
           </div>
           <div class="bidirectional-bar">
             <div class="bar-left">
-              <span class="bar-info" :class="{ dominant: analysisObject.l === 'L' }"
-                >L {{ Math.round(analysisObject.lscore) }}%</span
-              >
+              <span class="bar-info" :class="{ dominant: analysisObject.l === 'L' }">
+                L {{ Math.round(analysisObject.lscore) }}%
+              </span>
               <div
                 v-if="analysisObject.l === 'L'"
                 class="bar-progress left bar-l"
@@ -183,30 +185,29 @@
                 class="bar-progress right bar-c"
                 :style="{ width: analysisObject.cscore + '%' }"
               ></div>
-              <span class="bar-info" :class="{ dominant: analysisObject.l === 'C' }"
-                >C {{ Math.round(analysisObject.cscore) }}%</span
-              >
+              <span class="bar-info" :class="{ dominant: analysisObject.l === 'C' }">
+                C {{ Math.round(analysisObject.cscore) }}%
+              </span>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 테마 포트폴리오 섹션-->
+    <!-- 테마 포트폴리오 -->
     <ThemePortfolio
+      v-if="
+        analysisObject &&
+        analysisObject.wmtiCode &&
+        analysisObject.resultType &&
+        analysisObject.riskPreference
+      "
       :wmti-code="analysisObject.wmtiCode"
       :result-type="analysisObject.resultType"
       :risk-preference="analysisObject.riskPreference"
       :user-name="analysisObject.userName"
     />
-    <!-- 테마 포트폴리오 섹션
-    <ThemePortFolioToggle
-      v-if="analysisObject.wmtiCode"
-      :wmti-code="analysisObject.wmtiCode"
-      :result-type="analysisObject.resultType"
-      :risk-preference="analysisObject.riskPreference"
-      :user-name="analysisObject.userName"
-    /> -->
+
     <!-- 액션 버튼 -->
     <div class="action-section">
       <h3 class="section-title action-title">🚀 다음 단계</h3>
@@ -226,159 +227,146 @@
       </div>
     </div>
 
-    <!-- 페이지 하단 제출 시각 -->
+    <!-- 제출 시각 -->
     <div class="footer-date">검사 완료 시각: {{ formattedDate }}</div>
   </div>
 </template>
 
-<script>
-import { getWMTIResultAPI } from '@/api/wmti';
-import { getWMTIAnalysisAPI } from '@/api/wmti';
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import BackButton from '@/components/common/BackButton.vue';
 import ThemePortfolio from '@/components/wmti/ThemePortfolio.vue';
-// import ThemePortFolioToggle from '../../components/wmti/ThemePortFolioToggle.vue';
+// import ThemePortFolioToggle from '@/components/wmti/ThemePortFolioToggle.vue';
+import { getWMTIResultAPI, getWMTIAnalysisAPI } from '@/api/wmti';
+import { useToast } from '@/composables/useToast';
 
-export default {
-  name: 'SurveyResult',
-  components: {
-    BackButton,
-    ThemePortfolio,
-    // ThemePortFolioToggle,
-  },
-  data() {
-    return {
-      analysisObject: {},
-      analysis: {},
-      createdAt: [],
-    };
-  },
-  computed: {
-    aOrIScore() {
-      return this.analysisObject.a === 'A'
-        ? this.analysisObject.ascore
-        : this.analysisObject.iscore;
-    },
-    pOrBScore() {
-      return this.analysisObject.p === 'P'
-        ? this.analysisObject.pscore
-        : this.analysisObject.bscore;
-    },
-    mOrWScore() {
-      return this.analysisObject.m === 'M'
-        ? this.analysisObject.mscore
-        : this.analysisObject.wscore;
-    },
-    lOrCScore() {
-      return this.analysisObject.l === 'L'
-        ? this.analysisObject.lscore
-        : this.analysisObject.cscore;
-    },
-    formattedDate() {
-      if (!this.createdAt || this.createdAt.length !== 6) {
-        return '제출 시각 없음';
-      }
-      const date = new Date(...this.createdAt);
-      return date.toLocaleString('ko-KR');
-    },
-  },
-  mounted() {
-    this.fetchResult();
-  },
-  methods: {
-    async fetchResult() {
-      // const memberId = 추후 store에서 가져오는것으로 변경예정
-      const memberId = 1; // 임시로 1로 설정
-      const res = await getWMTIResultAPI(memberId);
-      console.log('✅ 응답 전체:', res);
+const router = useRouter();
+const { showToast } = useToast();
 
-      const data = res.body?.data;
-      console.log('✅ data 내용:', data);
+// ✅ 반응형 상태
+const analysisObject = ref({});
+const analysis = ref({});
+const createdAt = ref([]);
 
-      this.analysisObject = data;
-
-      this.createdAt = [...data.createdAt] || [];
-
-      await this.fetchAnalysis(this.analysisObject.wmtiCode);
-    },
-    async fetchAnalysis(wmtiCode) {
-      try {
-        const res = await getWMTIAnalysisAPI(wmtiCode);
-        console.log('🔍 analysis 응답:', res);
-        const data = res.body?.data;
-        this.analysis = data;
-      } catch (e) {
-        console.error('⚠️ 분석 정보 불러오기 실패', e);
-      }
-    },
-
-    goToRecommend() {
-      this.$router.push('/recommend');
-    },
-    goToWMTIList() {
-      this.$router.push('/wmti/collection');
-    },
-    goToHistory() {
-      this.$router.push('/mypage/wmti-history');
-    },
-    getResultTypeLabel(resultType) {
-      const labels = {
-        AGGRESSIVE: '고수익 지향형',
-        ACTIVE: '적극적 설계형',
-        BALANCED: '균형잡힌 실속형',
-        PASSIVE: '소극적 관리형',
-      };
-      return labels[resultType] || '투자형';
-    },
-    getRiskPreferenceLabel(riskPreference) {
-      const labels = {
-        STABILITY: '안정형',
-        STABILITY_ORIENTED: '안정추구형',
-        RISK_NEUTRAL: '위험중립형',
-        ACTIVELY: '적극투자형',
-        AGGRESSIVE: '공격투자형',
-      };
-      return labels[riskPreference] || '위험 수용';
-    },
-    getResultTypeClass(resultType) {
-      const classes = {
-        AGGRESSIVE: 'type-aggressive',
-        ACTIVE: 'type-active',
-        BALANCED: 'type-balanced',
-        PASSIVE: 'type-passive',
-      };
-      return classes[resultType] || '';
-    },
-    getResultTypeTextClass(resultType) {
-      const classes = {
-        AGGRESSIVE: 'text-aggressive',
-        ACTIVE: 'text-active',
-        BALANCED: 'text-balanced',
-        PASSIVE: 'text-passive',
-      };
-      return classes[resultType] || '';
-    },
-    getRiskPreferenceClass(riskPreference) {
-      const classes = {
-        STABILITY: 'risk-stability',
-        STABILITY_ORIENTED: 'risk-stability-oriented',
-        RISK_NEUTRAL: 'risk-neutral',
-        ACTIVELY: 'risk-actively',
-        AGGRESSIVE: 'risk-aggressive',
-      };
-      return classes[riskPreference] || '';
-    },
-    getRiskPreferenceTextClass(riskPreference) {
-      const classes = {
-        STABILITY: 'text-stability',
-        STABILITY_ORIENTED: 'text-stability-oriented',
-        RISK_NEUTRAL: 'text-neutral',
-        ACTIVELY: 'text-actively',
-        AGGRESSIVE: 'text-risk-aggressive',
-      };
-      return classes[riskPreference] || '';
-    },
-  },
+// ✅ 토스트 예시 버튼 핸들러
+const handleError = () => {
+  showToast('오류가 발생했습니다.', 'error');
 };
+
+// ✅ computed: 점수 계산  => 현재 양방향 그래프에서는 미사용. , 추후 리팩토링과정에서 사용가능성.
+// const aOrIScore = computed(() =>
+//   analysisObject.value.a === 'A' ? analysisObject.value.ascore : analysisObject.value.iscore
+// );
+// const pOrBScore = computed(() =>
+//   analysisObject.value.p === 'P' ? analysisObject.value.pscore : analysisObject.value.bscore
+// );
+// const mOrWScore = computed(() =>
+//   analysisObject.value.m === 'M' ? analysisObject.value.mscore : analysisObject.value.wscore
+// );
+// const lOrCScore = computed(() =>
+//   analysisObject.value.l === 'L' ? analysisObject.value.lscore : analysisObject.value.cscore
+// );
+
+const formattedDate = computed(() => {
+  if (!createdAt.value || createdAt.value.length !== 6) {
+    return '제출 시각 없음';
+  }
+  const date = new Date(...createdAt.value);
+  return date.toLocaleString('ko-KR');
+});
+
+// ✅ 결과 및 분석 데이터 불러오기
+const fetchResult = async () => {
+  const memberId = 1; // 추후 store에서 대체 예정
+  try {
+    const res = await getWMTIResultAPI(memberId);
+    console.log('✅ 응답 전체:', res);
+
+    const data = res.body?.data;
+    console.log('✅ data 내용:', data);
+
+    analysisObject.value = data;
+    createdAt.value = [...data.createdAt] || [];
+
+    await fetchAnalysis(data.wmtiCode);
+  } catch (err) {
+    console.error('⚠️ 결과 불러오기 실패:', err);
+    showToast('결과를 불러오지 못했습니다.', 'error');
+  }
+};
+
+const fetchAnalysis = async (wmtiCode) => {
+  try {
+    const res = await getWMTIAnalysisAPI(wmtiCode);
+    console.log('🔍 analysis 응답:', res);
+    analysis.value = res.body?.data;
+  } catch (err) {
+    console.error('⚠️ 분석 정보 불러오기 실패', err);
+    showToast('분석 정보 불러오기 실패', 'error');
+  }
+};
+
+// ✅ 라우팅 함수
+const goToRecommend = () => router.push('/recommend');
+const goToWMTIList = () => router.push('/wmti/collection');
+const goToHistory = () => router.push('/mypage/wmti-history');
+
+// ✅ 스타일 클래스 및 라벨 유틸 함수
+const getResultTypeLabel = (type) =>
+  ({
+    AGGRESSIVE: '고수익 지향형',
+    ACTIVE: '적극적 설계형',
+    BALANCED: '균형잡힌 실속형',
+    PASSIVE: '소극적 관리형',
+  })[type] || '투자형';
+
+const getRiskPreferenceLabel = (risk) =>
+  ({
+    STABILITY: '안정형',
+    STABILITY_ORIENTED: '안정추구형',
+    RISK_NEUTRAL: '위험중립형',
+    ACTIVELY: '적극투자형',
+    AGGRESSIVE: '공격투자형',
+  })[risk] || '위험 수용';
+
+const getResultTypeClass = (type) =>
+  ({
+    AGGRESSIVE: 'type-aggressive',
+    ACTIVE: 'type-active',
+    BALANCED: 'type-balanced',
+    PASSIVE: 'type-passive',
+  })[type] || '';
+
+const getResultTypeTextClass = (type) =>
+  ({
+    AGGRESSIVE: 'text-aggressive',
+    ACTIVE: 'text-active',
+    BALANCED: 'text-balanced',
+    PASSIVE: 'text-passive',
+  })[type] || '';
+
+const getRiskPreferenceClass = (risk) =>
+  ({
+    STABILITY: 'risk-stability',
+    STABILITY_ORIENTED: 'risk-stability-oriented',
+    RISK_NEUTRAL: 'risk-neutral',
+    ACTIVELY: 'risk-actively',
+    AGGRESSIVE: 'risk-aggressive',
+  })[risk] || '';
+
+const getRiskPreferenceTextClass = (risk) =>
+  ({
+    STABILITY: 'text-stability',
+    STABILITY_ORIENTED: 'text-stability-oriented',
+    RISK_NEUTRAL: 'text-neutral',
+    ACTIVELY: 'text-actively',
+    AGGRESSIVE: 'text-risk-aggressive',
+  })[risk] || '';
+
+onMounted(() => {
+  fetchResult();
+});
 </script>
 
 <style scoped>

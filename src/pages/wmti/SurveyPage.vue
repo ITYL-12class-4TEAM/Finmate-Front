@@ -78,79 +78,79 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import WMTIQuestion from '@/components/wmti/WMTIQuestion.vue';
-import { getWMTIQuestionsAPI, postwmtiAPI } from '@/api/wmti';
 import BackButton from '@/components/common/BackButton.vue';
-// import { useToast } from '@/composables/useToast';
-// const { showToast } = useToast();
-// const handleError = (message) => {
-//   showToast(message, 'success');
-// };
-export default {
-  name: 'SurveyPage',
-  components: {
-    WMTIQuestion,
-    BackButton,
-  },
-  data() {
-    return {
-      questions: [],
-      answers: [],
-    };
-  },
-  computed: {
-    isAllAnswered() {
-      return this.answers.length > 0 && this.answers.every((a) => a !== null);
-    },
-    answeredCount() {
-      return this.answers.filter((a) => a !== null).length;
-    },
-    progressPercentage() {
-      if (this.questions.length === 0) return 0;
-      return (this.answeredCount / this.questions.length) * 100;
-    },
-  },
-  created() {
-    this.loadQuestions();
-  },
-  methods: {
-    async loadQuestions() {
-      try {
-        const res = await getWMTIQuestionsAPI();
-        const list = res.body.data;
-        this.questions = list;
-        this.answers = Array(list.length).fill(null);
-        console.log('✅ 질문 수:', list.length);
-      } catch (err) {
-        console.error('설문 문항 로딩 실패:', err);
-        // handleError('설문 문항을 불러오는데 실패했습니다. 다시 시도해주세요.');
-      }
-    },
-    async handleSubmit() {
-      if (!this.isAllAnswered) {
-        // handleError('모든 문항에 응답해주세요.');
-        return;
-      }
-
-      try {
-        const payload = { answers: this.answers };
-        console.log('📤 제출 payload:', payload);
-
-        const res = await postwmtiAPI(payload);
-        const wmtiCode = res.body.wmtiCode;
-
-        this.$router.push({
-          path: '/wmti/result',
-          query: { code: wmtiCode },
-        });
-      } catch (err) {
-        console.error('제출 실패:', err);
-        // handleError('제출 중 오류가 발생했습니다. 다시 시도해주세요.');
-      }
-    },
-  },
+import { getWMTIQuestionsAPI, postwmtiAPI } from '@/api/wmti';
+import { useToast } from '@/composables/useToast';
+const { showToast } = useToast();
+const handleError = (message) => {
+  showToast(message, 'error');
 };
+const handleSuccess = (message) => {
+  showToast(message, 'success');
+};
+const handleWarning = (message) => {
+  showToast(message, 'warning');
+};
+const router = useRouter();
+
+const questions = ref([]);
+const answers = ref([]);
+
+// ✅ 진행률 계산
+const answeredCount = computed(() => answers.value.filter((a) => a !== null).length);
+const isAllAnswered = computed(
+  () => answers.value.length > 0 && answeredCount.value === questions.value.length
+);
+const progressPercentage = computed(() => {
+  if (questions.value.length === 0) return 0;
+  return (answeredCount.value / questions.value.length) * 100;
+});
+
+// ✅ 문항 불러오기
+const loadQuestions = async () => {
+  try {
+    const res = await getWMTIQuestionsAPI();
+    const list = res.body.data;
+    questions.value = list;
+    answers.value = Array(list.length).fill(null);
+    console.log('✅ 질문 수:', list.length);
+  } catch (err) {
+    console.error('설문 문항 로딩 실패:', err);
+    handleError('설문 문항을 불러오는데 실패했습니다.', 'error');
+  }
+};
+
+// ✅ 제출
+const handleSubmit = async () => {
+  if (!isAllAnswered.value) {
+    handleWarning('모든 문항에 응답해주세요.', 'warning');
+    return;
+  }
+
+  try {
+    const payload = { answers: answers.value };
+    console.log('📤 제출 payload:', payload);
+    handleSuccess('제출합니다');
+    const res = await postwmtiAPI(payload);
+    const wmtiCode = res.body.wmtiCode;
+
+    router.push({
+      path: '/wmti/result',
+      query: { code: wmtiCode },
+    });
+  } catch (err) {
+    console.error('제출 실패:', err);
+    handleError('제출 중 오류가 발생했습니다.', 'error');
+  }
+};
+
+onMounted(() => {
+  loadQuestions();
+});
 </script>
 
 <style scoped>

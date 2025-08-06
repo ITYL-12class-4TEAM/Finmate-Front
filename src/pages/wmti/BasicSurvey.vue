@@ -2,6 +2,7 @@
   <div class="survey-main">
     <header class="header"></header>
 
+    <!-- 소개 섹션 -->
     <section class="intro">
       <h1>투자 성향 분석 서비스</h1>
       <p class="note">*본 서비스는 고객님의 기본적인 정보를 입력받습니다.*</p>
@@ -26,7 +27,7 @@
       </button>
     </section>
 
-    <!-- 화살표 -->
+    <!-- 화살표 안내 -->
     <div class="arrow-container">
       <div class="arrow-down" :class="{ active: step1Completed }">
         <svg
@@ -71,71 +72,74 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useToast } from '@/composables/useToast';
-// const { showToast } = useToast();
-// const handleError = () => {
-//   showToast('먼저 기본정보를 입력해주세요!', 'error');
-// };
-export default {
-  name: 'BasicSurvey',
-  data() {
-    return {
-      step2Enabled: false,
-      step1Completed: false,
-      logo: '/api/placeholder/120/40', // 플레이스홀더 이미지
-      showDebug: true, // 개발용 - 실제 운영시에는 false로 설정
-    };
-  },
-  computed: {
-    debugInfo() {
-      return {
-        localStorage: localStorage.getItem('preinfoSubmitted'),
-        step1Completed: this.step1Completed,
-        step2Enabled: this.step2Enabled,
-      };
-    },
-  },
-  created() {
-    this.checkPreinfoStatus();
-    console.log('🔍 BasicSurvey mounted!');
-  },
-  methods: {
-    checkPreinfoStatus() {
-      // 로컬스토리지에서 사전정보 입력 여부 확인
-      const preinfoDone = localStorage.getItem('preinfoSubmitted');
-      this.step1Completed = preinfoDone === 'true';
-      this.step2Enabled = preinfoDone === 'true';
 
-      console.log('✅ Preinfo Status Check:', {
-        localStorage: preinfoDone,
-        step1Completed: this.step1Completed,
-        step2Enabled: this.step2Enabled,
-      });
-    },
-    goToPreInfo() {
-      this.$router.push('/wmti/preinfo');
-    },
-    goToSurvey() {
-      if (this.step2Enabled) {
-        this.$router.push('/wmti/survey');
-      } else {
-        // handleError();
-      }
-    },
-    // 디버깅용 메서드들
-    clearPreinfo() {
-      localStorage.removeItem('preinfoSubmitted');
-      this.checkPreinfoStatus();
-      console.log('🗑️ localStorage cleared');
-    },
-    setPreinfo() {
-      localStorage.setItem('preinfoSubmitted', 'true');
-      this.checkPreinfoStatus();
-      console.log('✅ localStorage set to true');
-    },
-  },
+// ✅ Toast 기능 불러오기
+const { showToast } = useToast();
+
+// ✅ 라우터 사용
+const router = useRouter();
+
+// ✅ 상태 변수들
+const step1Completed = ref(false);
+const step2Enabled = ref(false);
+
+const showDebug = true; // 개발용 - 실제 운영 시 false
+
+// ✅ 디버깅 정보
+const debugInfo = computed(() => ({
+  localStorage: localStorage.getItem('preinfoSubmitted'),
+  step1Completed: step1Completed.value,
+  step2Enabled: step2Enabled.value,
+}));
+
+// ✅ 사전정보 입력 여부 체크
+const checkPreinfoStatus = () => {
+  const preinfoDone = localStorage.getItem('preinfoSubmitted');
+  step1Completed.value = preinfoDone === 'true';
+  step2Enabled.value = preinfoDone === 'true';
+
+  console.log('✅ Preinfo Status Check:', {
+    localStorage: preinfoDone,
+    step1Completed: step1Completed.value,
+    step2Enabled: step2Enabled.value,
+  });
 };
+
+// ✅ 라우팅 함수
+const goToPreInfo = () => {
+  router.push('/wmti/preinfo');
+};
+
+const goToSurvey = () => {
+  if (step2Enabled.value) {
+    router.push('/wmti/survey');
+  } else {
+    showToast('먼저 기본정보를 입력해주세요!', 'error');
+  }
+};
+
+// ✅ 디버깅용 메서드
+const clearPreinfo = () => {
+  localStorage.removeItem('preinfoSubmitted');
+  checkPreinfoStatus();
+  console.log('🗑️ localStorage cleared');
+};
+
+const setPreinfo = () => {
+  localStorage.setItem('preinfoSubmitted', 'true');
+  checkPreinfoStatus();
+  console.log('✅ localStorage set to true');
+};
+
+// ✅ 컴포넌트 마운트 시 상태 확인
+onMounted(() => {
+  checkPreinfoStatus();
+  console.log('🔍 BasicSurvey mounted!');
+});
 </script>
 
 <style scoped>
@@ -149,10 +153,6 @@ export default {
 .header {
   text-align: left;
   margin-bottom: 2rem;
-}
-
-.logo {
-  height: 2.5rem;
 }
 
 .intro h1 {

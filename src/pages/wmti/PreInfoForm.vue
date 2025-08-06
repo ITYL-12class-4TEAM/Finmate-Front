@@ -48,12 +48,11 @@
       </div>
 
       <!-- 투자 목적 -->
-      <!-- <pre>{{ PurposeCategory }}</pre> -->
       <div class="form-group">
         <label>투자 목적</label>
         <div class="radio-group column">
-          <label v-for="item in PurposeCategory" :key="item.value"
-            ><input v-model="form.purposeCategory" type="radio" :value="item.value" />
+          <label v-for="item in PurposeCategory" :key="item.value">
+            <input v-model="form.purposeCategory" type="radio" :value="item.value" />
             {{ item.label }}
           </label>
         </div>
@@ -64,109 +63,105 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { postPreinfoAPI } from '@/api/wmti';
 import { InvestmentPeriodEnum, PurposeCategoryEnum } from '../../constants/wmtienums';
-import { getEnumLabel } from '../../constants/enumUtils';
+import { useToast } from '@/composables/useToast';
 
-export default {
-  name: 'PreInfoForm',
-  data() {
-    return {
-      mounted() {
-        console.log('📌 PreInfoForm mounted!');
-      },
-      form: {
-        username: '',
-        age: null,
-        married: null,
-        monthlyIncome: null,
-        fixedCost: null,
-        period: '',
-        purposeCategory: '',
-      },
-    };
-  },
-  computed: {
-    InvestmentPeriod() {
-      return InvestmentPeriodEnum;
-    },
-    PurposeCategory() {
-      return PurposeCategoryEnum;
-    },
-  },
-  methods: {
-    async handleSubmit() {
-      const { username, age, married, monthlyIncome, fixedCost, period, purposeCategory } =
-        this.form;
+const { showToast } = useToast();
 
-      // 이름 검사
-      if (!username || username.length < 2) {
-        alert('이름을 2자 이상 입력해주세요.');
-        return;
-      }
-
-      // 나이 검사
-      if (!age || age < 0 || age > 120) {
-        alert('나이를 0~120 사이로 입력해주세요.');
-        return;
-      }
-
-      // 기혼 여부 검사
-      if (married !== 'true' && married !== 'false') {
-        alert('기혼 여부를 선택해주세요.');
-        return;
-      }
-
-      // 월소득 검사
-      if (!monthlyIncome || monthlyIncome < 0) {
-        alert('월소득을 0원 이상으로 입력해주세요.');
-        return;
-      }
-
-      // 고정지출 검사
-      if (!fixedCost || fixedCost < 0 || fixedCost > monthlyIncome) {
-        alert('고정지출은 0원 이상이며, 월소득을 초과할 수 없습니다.');
-        return;
-      }
-
-      // 투자기간 검사
-      const validPeriods = InvestmentPeriodEnum.map((item) => item.value);
-      if (!validPeriods.includes(period)) {
-        alert('투자 기간을 선택해주세요.');
-        return;
-      }
-
-      // 투자목적 검사
-      const validPurposes = PurposeCategoryEnum.map((item) => item.value);
-      if (!validPurposes.includes(purposeCategory)) {
-        alert('투자 목적을 선택해주세요.');
-        return;
-      }
-      const finalData = {
-        ...this.form,
-        married: this.form.married === 'true',
-      };
-
-      finalData.platform = /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'web';
-      finalData.userAgent = navigator.userAgent;
-      finalData.screenSize = `${window.innerWidth}x${window.innerHeight}`;
-
-      // 모든 유효성 통과 → 제출
-      try {
-        const res = await postPreinfoAPI(finalData);
-        console.log('✅ 응답 데이터:', res);
-
-        // 응답 성공 시
-        localStorage.setItem('preinfoSubmitted', 'true');
-        this.$router.push('/wmti/basic');
-      } catch (error) {
-        console.error('❌ 제출 실패:', error);
-        alert('제출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
-      }
-    },
-  },
+const handleWarning = (message) => {
+  showToast(message, 'warning');
 };
+const handleError = (message) => {
+  showToast(message, 'error');
+};
+
+// ✅ router 사용
+const router = useRouter();
+
+// ✅ form 상태
+const form = ref({
+  username: '',
+  age: null,
+  married: null,
+  monthlyIncome: null,
+  fixedCost: null,
+  period: '',
+  purposeCategory: '',
+});
+
+// ✅ enum 리스트
+const InvestmentPeriod = InvestmentPeriodEnum;
+const PurposeCategory = PurposeCategoryEnum;
+
+// ✅ 제출 처리 함수
+const handleSubmit = async () => {
+  const { username, age, married, monthlyIncome, fixedCost, period, purposeCategory } = form.value;
+
+  // 유효성 검사
+  if (!username || username.length < 2) {
+    handleWarning('이름을 2자 이상 입력해주세요.');
+    return;
+  }
+
+  if (!age || age < 0 || age > 120) {
+    handleWarning('나이를 0~120 사이로 입력해주세요.');
+    return;
+  }
+
+  if (married !== 'true' && married !== 'false') {
+    handleWarning('기혼 여부를 선택해주세요.');
+    return;
+  }
+
+  if (!monthlyIncome || monthlyIncome < 0) {
+    handleWarning('월소득을 0원 이상으로 입력해주세요.');
+    return;
+  }
+
+  if (!fixedCost || fixedCost < 0 || fixedCost > monthlyIncome) {
+    handleWarning('고정지출은 0원 이상이며, 월소득을 초과할 수 없습니다.');
+    return;
+  }
+
+  const validPeriods = InvestmentPeriod.map((item) => item.value);
+  if (!validPeriods.includes(period)) {
+    handleWarning('투자 기간을 선택해주세요.');
+    return;
+  }
+
+  const validPurposes = PurposeCategory.map((item) => item.value);
+  if (!validPurposes.includes(purposeCategory)) {
+    handleWarning('투자 목적을 선택해주세요.');
+    return;
+  }
+
+  // 최종 데이터 구성
+  const finalData = {
+    ...form.value,
+    married: form.value.married === 'true',
+    platform: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'web',
+    userAgent: navigator.userAgent,
+    screenSize: `${window.innerWidth}x${window.innerHeight}`,
+  };
+
+  try {
+    const res = await postPreinfoAPI(finalData);
+    console.log('✅ 응답 데이터:', res);
+
+    localStorage.setItem('preinfoSubmitted', 'true');
+    router.push('/wmti/basic');
+  } catch (error) {
+    console.error('❌ 제출 실패:', error);
+    handleError('제출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+  }
+};
+
+// 디버그 로그
+console.log('📌 PreInfoForm mounted!');
 </script>
 
 <style scoped>

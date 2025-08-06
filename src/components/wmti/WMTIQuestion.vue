@@ -67,27 +67,23 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'WMTIQuestion',
-  props: {
-    question: {
-      type: Object,
-      required: true,
-    },
-    index: {
-      type: Number,
-      required: true,
-    },
-    value: {
-      required: true,
-    },
+<script setup>
+import { defineProps } from 'vue';
+
+const props = defineProps({
+  question: {
+    type: Object,
+    required: true,
   },
-  emits: ['update:value'],
-  mounted() {
-    console.log(`question ${this.index}:`, this.value);
+  index: {
+    type: Number,
+    required: true,
   },
-};
+  value: {
+    type: [Number, null],
+    required: true,
+  },
+});
 </script>
 
 <style scoped>

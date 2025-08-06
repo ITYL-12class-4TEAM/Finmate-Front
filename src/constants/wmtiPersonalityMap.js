@@ -1,4 +1,4 @@
-// WMTI 투자성향 16종
+// wmtiPersonalityMap.js => WMTI 투자성향 16종
 export const wmtiPersonalityMap = {
   APML: '타고난 리더형으로 투자 트렌드를 선도하는',
   APMC: '박학다식한 투자정보로 시장 흐름을 읽는',

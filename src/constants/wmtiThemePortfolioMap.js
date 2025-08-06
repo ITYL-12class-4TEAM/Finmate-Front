@@ -1,4 +1,4 @@
-//WMTI 테마 포트폴리오 25종
+//wmtiThemePortfolioMap.js => WMTI 테마 포트폴리오 25종
 export const wmtiThemePortfolioMap = {
   // 공격투자형
   TP01: '배당 중심의 공격적',

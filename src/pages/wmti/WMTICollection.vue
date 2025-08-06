@@ -70,58 +70,59 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { getWMTICodesAPI } from '@/api/wmti';
 
-export default {
-  name: 'WMTICollection',
-  data() {
-    return {
-      wmtiList: [],
-      expandedItem: null,
-      loading: true,
-    };
-  },
-  async mounted() {
-    await this.fetchWMTIList();
-  },
-  methods: {
-    async fetchWMTIList() {
-      try {
-        this.loading = true;
-        const res = await getWMTICodesAPI();
-        this.wmtiList = res.data || res;
-      } catch (error) {
-        console.error('WMTI 리스트 가져오기 실패:', error);
-        // 에러 처리 - 사용자에게 알림 표시 등
-      } finally {
-        this.loading = false;
-      }
-    },
+// ✅ 상태 정의
+const wmtiList = ref([]);
+const expandedItem = ref(null);
+const loading = ref(true);
 
-    toggleExpand(itemId) {
-      if (this.expandedItem === itemId) {
-        this.expandedItem = null;
-      } else {
-        this.expandedItem = itemId;
-      }
-    },
+const router = useRouter();
 
-    getWMTIIcon(code) {
-      // 아이콘이 없을 경우 기본 아이콘 표시
-      try {
-        return `/assets/images/wmti/${code.toLowerCase()}.png`;
-      } catch (error) {
-        // 기본 아이콘 또는 텍스트로 대체
-        return null;
-      }
-    },
-
-    goBack() {
-      this.$router.go(-1);
-    },
-  },
+// ✅ WMTI 리스트 API 호출
+const fetchWMTIList = async () => {
+  try {
+    loading.value = true;
+    const res = await getWMTICodesAPI();
+    wmtiList.value = res.data || res;
+  } catch (error) {
+    console.error('WMTI 리스트 가져오기 실패:', error);
+    wmtiList.value = [];
+  } finally {
+    loading.value = false;
+  }
 };
+
+// ✅ 상세 보기 토글
+const toggleExpand = (itemId) => {
+  expandedItem.value = expandedItem.value === itemId ? null : itemId;
+};
+
+// ✅ 아이콘 경로 반환
+const getWMTIIcon = (code) => {
+  try {
+    return `/assets/images/wmti/${code.toLowerCase()}.png`;
+  } catch (error) {
+    return null;
+  }
+};
+
+// ✅ 이미지 에러 핸들러 (선택적으로 구현)
+const handleImageError = (e) => {
+  e.target.style.display = 'none';
+};
+
+// ✅ 뒤로 가기
+const goBack = () => {
+  router.go(-1);
+};
+
+onMounted(() => {
+  fetchWMTIList();
+});
 </script>
 
 <style scoped>
