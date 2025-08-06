@@ -6,7 +6,7 @@ import {
   calculateReturnExpectation,
   calculateTotalScore,
   formatCreatedAtArray,
-} from '@/utils/wmtiUtils';
+} from '../util/wmtiUtils';
 
 // 기본 정보 제출
 export const postPreinfoAPI = async (info) => {

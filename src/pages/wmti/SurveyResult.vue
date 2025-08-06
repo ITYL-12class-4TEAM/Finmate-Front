@@ -6,29 +6,35 @@
     <!-- 헤더 섹션 -->
     <div class="result-header">
       <div class="user-greeting">
-        <span class="username-highlight">{{ userName }}</span
+        <span class="username-highlight">{{ analysisObject.userName }}</span
         >님의 투자 성향은
       </div>
       <div class="wmti-code-display">
-        <span class="code-text">{{ wmtiCode }}</span>
+        <span class="code-text">{{ analysisObject.wmtiCode }}</span>
         <span class="code-suffix">입니다</span>
       </div>
       <div class="type-summary">
         <div class="type-item">
           <span class="type-label">투자자 유형</span>
-          <span class="type-value" :class="getResultTypeClass(resultType)">{{ resultType }}</span>
-          <span class="type-description" :class="getResultTypeTextClass(resultType)">{{
-            getResultTypeLabel(resultType)
+          <span class="type-value" :class="getResultTypeClass(analysisObject.resultType)">{{
+            analysisObject.resultType
           }}</span>
+          <span
+            class="type-description"
+            :class="getResultTypeTextClass(analysisObject.resultType)"
+            >{{ getResultTypeLabel(analysisObject.resultType) }}</span
+          >
         </div>
         <div class="type-item">
           <span class="type-label">리스크 수용도</span>
-          <span class="type-value" :class="getRiskPreferenceClass(riskPreference)">{{
-            riskPreference
+          <span class="type-value" :class="getRiskPreferenceClass(analysisObject.riskPreference)">{{
+            analysisObject.riskPreference
           }}</span>
-          <span class="type-description" :class="getRiskPreferenceTextClass(riskPreference)">{{
-            getRiskPreferenceLabel(riskPreference)
-          }}</span>
+          <span
+            class="type-description"
+            :class="getRiskPreferenceTextClass(analysisObject.riskPreference)"
+            >{{ getRiskPreferenceLabel(analysisObject.riskPreference) }}</span
+          >
         </div>
       </div>
     </div>
@@ -74,24 +80,24 @@
           </div>
           <div class="bidirectional-bar">
             <div class="bar-left">
-              <span class="bar-info" :class="{ dominant: a === 'A' }"
-                >A {{ Math.round(ascore) }}%</span
+              <span class="bar-info" :class="{ dominant: analysisObject.a === 'A' }"
+                >A {{ Math.round(analysisObject.ascore) }}%</span
               >
               <div
-                v-if="a === 'A'"
+                v-if="analysisObject.a === 'A'"
                 class="bar-progress left bar-a"
-                :style="{ width: ascore + '%' }"
+                :style="{ width: analysisObject.ascore + '%' }"
               ></div>
             </div>
             <div class="bar-center">50</div>
             <div class="bar-right">
               <div
-                v-if="a === 'I'"
+                v-if="analysisObject.a === 'I'"
                 class="bar-progress right bar-i"
-                :style="{ width: iscore + '%' }"
+                :style="{ width: analysisObject.iscore + '%' }"
               ></div>
-              <span class="bar-info" :class="{ dominant: a === 'I' }"
-                >I {{ Math.round(iscore) }}%</span
+              <span class="bar-info" :class="{ dominant: analysisObject.a === 'I' }"
+                >I {{ Math.round(analysisObject.iscore) }}%</span
               >
             </div>
           </div>
@@ -103,24 +109,24 @@
           </div>
           <div class="bidirectional-bar">
             <div class="bar-left">
-              <span class="bar-info" :class="{ dominant: p === 'P' }"
-                >P {{ Math.round(pscore) }}%</span
+              <span class="bar-info" :class="{ dominant: analysisObject.p === 'P' }"
+                >P {{ Math.round(analysisObject.pscore) }}%</span
               >
               <div
-                v-if="p === 'P'"
+                v-if="analysisObject.p === 'P'"
                 class="bar-progress left bar-p"
-                :style="{ width: pscore + '%' }"
+                :style="{ width: analysisObject.pscore + '%' }"
               ></div>
             </div>
             <div class="bar-center">50</div>
             <div class="bar-right">
               <div
-                v-if="p === 'B'"
+                v-if="analysisObject.p === 'B'"
                 class="bar-progress right bar-b"
-                :style="{ width: bscore + '%' }"
+                :style="{ width: analysisObject.bscore + '%' }"
               ></div>
-              <span class="bar-info" :class="{ dominant: p === 'B' }"
-                >B {{ Math.round(bscore) }}%</span
+              <span class="bar-info" :class="{ dominant: analysisObject.p === 'B' }"
+                >B {{ Math.round(analysisObject.bscore) }}%</span
               >
             </div>
           </div>
@@ -132,24 +138,24 @@
           </div>
           <div class="bidirectional-bar">
             <div class="bar-left">
-              <span class="bar-info" :class="{ dominant: m === 'M' }"
-                >M {{ Math.round(mscore) }}%</span
+              <span class="bar-info" :class="{ dominant: analysisObject.m === 'M' }"
+                >M {{ Math.round(analysisObject.mscore) }}%</span
               >
               <div
-                v-if="m === 'M'"
+                v-if="analysisObject.m === 'M'"
                 class="bar-progress left bar-m"
-                :style="{ width: mscore + '%' }"
+                :style="{ width: analysisObject.mscore + '%' }"
               ></div>
             </div>
             <div class="bar-center">50</div>
             <div class="bar-right">
               <div
-                v-if="m === 'W'"
+                v-if="analysisObject.m === 'analysisObject.W'"
                 class="bar-progress right bar-w"
-                :style="{ width: wscore + '%' }"
+                :style="{ width: analysisObject.wscore + '%' }"
               ></div>
-              <span class="bar-info" :class="{ dominant: m === 'W' }"
-                >W {{ Math.round(wscore) }}%</span
+              <span class="bar-info" :class="{ dominant: analysisObject.m === 'W' }"
+                >W {{ Math.round(analysisObject.wscore) }}%</span
               >
             </div>
           </div>
@@ -161,24 +167,24 @@
           </div>
           <div class="bidirectional-bar">
             <div class="bar-left">
-              <span class="bar-info" :class="{ dominant: l === 'L' }"
-                >L {{ Math.round(lscore) }}%</span
+              <span class="bar-info" :class="{ dominant: analysisObject.l === 'L' }"
+                >L {{ Math.round(analysisObject.lscore) }}%</span
               >
               <div
-                v-if="l === 'L'"
+                v-if="analysisObject.l === 'L'"
                 class="bar-progress left bar-l"
-                :style="{ width: lscore + '%' }"
+                :style="{ width: analysisObject.lscore + '%' }"
               ></div>
             </div>
             <div class="bar-center">50</div>
             <div class="bar-right">
               <div
-                v-if="l === 'C'"
+                v-if="analysisObject.l === 'C'"
                 class="bar-progress right bar-c"
-                :style="{ width: cscore + '%' }"
+                :style="{ width: analysisObject.cscore + '%' }"
               ></div>
-              <span class="bar-info" :class="{ dominant: l === 'C' }"
-                >C {{ Math.round(cscore) }}%</span
+              <span class="bar-info" :class="{ dominant: analysisObject.l === 'C' }"
+                >C {{ Math.round(analysisObject.cscore) }}%</span
               >
             </div>
           </div>
@@ -186,25 +192,24 @@
       </div>
     </div>
 
-    <!-- 테마 포트폴리오 섹션 (미래 구현) -->
+    <!-- 테마 포트폴리오 섹션-->
     <ThemePortfolio
-      :wmti-code="wmtiCode"
-      :result-type="resultType"
-      :risk-preference="riskPreference"
-      :user-name="userName"
+      :wmti-code="analysisObject.wmtiCode"
+      :result-type="analysisObject.resultType"
+      :risk-preference="analysisObject.riskPreference"
+      :user-name="analysisObject.userName"
     />
-
     <!-- 액션 버튼 -->
     <div class="action-section">
       <h3 class="section-title action-title">🚀 다음 단계</h3>
       <div class="action-buttons">
-        <button class="action-button primary" @click="goToRecommend">
+        <!-- <button class="action-button primary" @click="goToRecommend">
           <i class="fa-solid fa-chart-line"></i>
           상품 추천받기
-        </button>
+        </button> -->
         <button class="action-button secondary" @click="goToWMTIList">
           <i class="fa-solid fa-users"></i>
-          16가지 투자성향 보기
+          16가지 WMTI 투자성향 보기
         </button>
         <button class="action-button tertiary" @click="goToHistory">
           <i class="fa-solid fa-clock-rotate-left"></i>
@@ -232,42 +237,31 @@ export default {
   },
   data() {
     return {
-      userName: '',
-      wmtiCode: '',
-      a: '',
-      p: '',
-      m: '',
-      l: '',
-      ascore: 0,
-      iscore: 0,
-      pscore: 0,
-      bscore: 0,
-      mscore: 0,
-      wscore: 0,
-      lscore: 0,
-      cscore: 0,
-      resultType: '',
-      riskPreference: '',
-      analysis: {
-        aka: '',
-        tag: [],
-        description: '',
-      },
+      analysisObject: {},
+      analysis: {},
       createdAt: [],
     };
   },
   computed: {
     aOrIScore() {
-      return this.a === 'A' ? this.ascore : this.iscore;
+      return this.analysisObject.a === 'A'
+        ? this.analysisObject.ascore
+        : this.analysisObject.iscore;
     },
     pOrBScore() {
-      return this.p === 'P' ? this.pscore : this.bscore;
+      return this.analysisObject.p === 'P'
+        ? this.analysisObject.pscore
+        : this.analysisObject.bscore;
     },
     mOrWScore() {
-      return this.m === 'M' ? this.mscore : this.wscore;
+      return this.analysisObject.m === 'M'
+        ? this.analysisObject.mscore
+        : this.analysisObject.wscore;
     },
     lOrCScore() {
-      return this.l === 'L' ? this.lscore : this.cscore;
+      return this.analysisObject.l === 'L'
+        ? this.analysisObject.lscore
+        : this.analysisObject.cscore;
     },
     formattedDate() {
       if (!this.createdAt || this.createdAt.length !== 6) {
@@ -290,27 +284,11 @@ export default {
       const data = res.body?.data;
       console.log('✅ data 내용:', data);
 
-      this.userName = data.userName;
-      this.wmtiCode = data.wmtiCode;
-      this.a = data.a;
-      this.p = data.p;
-      this.m = data.m;
-      this.l = data.l;
-      this.ascore = data.ascore;
-      this.iscore = data.iscore;
-      this.pscore = data.pscore;
-      this.bscore = data.bscore;
-      this.mscore = data.mscore;
-      this.wscore = data.wscore;
-      this.lscore = data.lscore;
-      this.cscore = data.cscore;
-      this.resultType = data.resultType;
-      this.riskPreference = data.riskPreference;
+      this.analysisObject = data;
 
-      //this.analysis = data.analysis?.[data.wmtiCode] || {};
       this.createdAt = [...data.createdAt] || [];
 
-      await this.fetchAnalysis(this.wmtiCode);
+      await this.fetchAnalysis(this.analysisObject.wmtiCode);
     },
     async fetchAnalysis(wmtiCode) {
       try {
