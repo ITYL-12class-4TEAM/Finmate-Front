@@ -25,7 +25,7 @@
         <span class="filter-value">{{ formatNumber(depositAmount) }}원</span>
       </div>
       <div class="result-count">
-        가입 가능한 상품 <strong>{{ filteredProducts.length }}</strong
+        가입 가능한 상품 <strong>{{ totalCount }}</strong
         >개
       </div>
     </div>
@@ -51,7 +51,7 @@
       <!-- 상품 목록 헤더 -->
       <div class="results-header">
         <div class="total-count">
-          <strong>{{ filteredProducts.length }}</strong
+          <strong>{{ totalCount }}</strong
           >개
         </div>
         <div class="sort-dropdown">

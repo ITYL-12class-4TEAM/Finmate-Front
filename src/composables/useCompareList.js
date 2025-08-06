@@ -74,7 +74,8 @@ export default function useCompareList() {
     const isDuplicate = compareList.value.some(
       (item) =>
         String(item.productId) === String(productId) &&
-        String(item.saveTrm) === String(saveTrm)
+        String(item.saveTrm) === String(saveTrm) &&
+        item.intrRateType === intrRateType
     );
 
     // 이미 존재하면 추가하지 않고 메시지 반환
@@ -114,11 +115,12 @@ export default function useCompareList() {
   };
 
   // 비교함에서 제거
-  const removeFromCompareList = (productId, saveTrm) => {
+  const removeFromCompareList = (productId, saveTrm, intrRateType) => {
     const newList = compareList.value.filter((item) => {
       return !(
         String(item.productId) === String(productId) &&
-        String(item.saveTrm) === String(saveTrm)
+        String(item.saveTrm) === String(saveTrm) &&
+        item.intrRateType === intrRateType
       );
     });
 
@@ -137,11 +139,12 @@ export default function useCompareList() {
   };
 
   // 상품이 비교함에 있는지 확인
-  const isInCompareList = (productId, saveTrm) => {
+  const isInCompareList = (productId, saveTrm, intrRateType) => {
     return compareList.value.some((item) => {
       const result =
         String(item.productId) === String(productId) &&
-        String(item.saveTrm) === String(saveTrm);
+        String(item.saveTrm) === String(saveTrm) &&
+        item.intrRateType === intrRateType;
 
       console.log('비교 중:', {
         검사대상: { productId, saveTrm },

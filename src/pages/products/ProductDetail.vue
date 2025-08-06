@@ -49,14 +49,28 @@
       </div>
 
       <!-- 우대 조건 섹션 (수정) -->
-      <div v-if="product.productDetail?.spcl_cnd || parsedPreferentialConditions.length > 0" class="info-section">
+      <div
+        v-if="
+          product.productDetail?.spcl_cnd ||
+          parsedPreferentialConditions.length > 0
+        "
+        class="info-section"
+      >
         <h3 class="section-title">우대 조건</h3>
         <div class="info-content">
           <!-- API에서 직접 제공하는 우대조건이 있으면 표시 -->
-          <p v-if="product.productDetail?.spcl_cnd">{{ product.productDetail.spcl_cnd }}</p>
+          <p v-if="product.productDetail?.spcl_cnd">
+            {{ product.productDetail.spcl_cnd }}
+          </p>
           <!-- 기존 파싱된 우대조건도 함께 표시 -->
-          <ul v-if="parsedPreferentialConditions.length > 0" class="conditions-list">
-            <li v-for="(condition, idx) in parsedPreferentialConditions" :key="idx">
+          <ul
+            v-if="parsedPreferentialConditions.length > 0"
+            class="conditions-list"
+          >
+            <li
+              v-for="(condition, idx) in parsedPreferentialConditions"
+              :key="idx"
+            >
               {{ condition }}
             </li>
           </ul>
@@ -146,6 +160,7 @@ const loadProductDetail = async () => {
     const category = route.params.category;
     const productId = route.params.id;
     const saveTrm = route.query.saveTrm;
+    const intrRateType = route.query.intrRateType;
 
     console.log(
       `상품 상세 정보 로드: 카테고리=${category}, ID=${productId}, saveTrm=${saveTrm}`
@@ -153,6 +168,7 @@ const loadProductDetail = async () => {
 
     const response = await getProductDetailAPI(category, productId, {
       saveTrm,
+      intrRateType,
     });
 
     if (response) {
@@ -160,7 +176,7 @@ const loadProductDetail = async () => {
       product.value.is_digital_only =
         product.value.join_way === 'online' ||
         product.value.join_way === '인터넷';
-      
+
       // API 응답 구조 확인 (디버깅용)
       console.log('상품 상세 정보:', response);
       console.log('productDetail 정보:', response.productDetail);
@@ -406,7 +422,7 @@ const formatRate = (rate) => {
   return parseFloat(rate).toFixed(2) + '%';
 };
 
-// 선택된 옵션 계산
+// 선택된 옵션 계산 (수정)
 const selectedOption = computed(() => {
   if (!product.value || !product.value.productDetail) {
     return null;
@@ -419,12 +435,28 @@ const selectedOption = computed(() => {
   }
 
   const saveTrm = route.query.saveTrm;
+  const intrRateType = route.query.intrRateType;
 
-  return (
-    options.find(
-      (opt) => String(opt.save_trm || opt.saveTrm) === String(saveTrm)
-    ) || options[0]
+  // saveTrm과 intrRateType 모두 일치하는 옵션 찾기
+  const matchedOption = options.find(
+    (opt) =>
+      String(opt.save_trm || opt.saveTrm) === String(saveTrm) &&
+      (opt.intr_rate_type || opt.intrRateType) === intrRateType
   );
+
+  // 일치하는 옵션이 없으면 saveTrm만 일치하는 옵션 찾기
+  if (!matchedOption) {
+    const saveTrmMatchOnly = options.find(
+      (opt) => String(opt.save_trm || opt.saveTrm) === String(saveTrm)
+    );
+
+    if (saveTrmMatchOnly) {
+      return saveTrmMatchOnly;
+    }
+  }
+
+  // 일치하는 옵션이 있으면 반환, 없으면 첫 번째 옵션 반환
+  return matchedOption || options[0];
 });
 
 // 컴포넌트 마운트 시 데이터 로드

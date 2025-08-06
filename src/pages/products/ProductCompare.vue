@@ -44,7 +44,7 @@
                   </div>
                   <button
                     class="remove-btn"
-                    @click="handleRemoveItem(item.productId, item.saveTrm)"
+                    @click="handleRemoveItem(item.productId, item.saveTrm, item.intrRateType || 'S')"
                   >
                     ×
                   </button>
@@ -609,12 +609,12 @@ const handleModalConfirm = () => {
 };
 
 // 비교함에서 상품 제거
-const handleRemoveItem = (productId, saveTrm) => {
+const handleRemoveItem = (productId, saveTrm, intrRateType = 'S') => {
   modalData.value = {
     title: '상품 제거',
     message: '비교함에서 해당 상품을 제거하시겠습니까?',
     action: removeAndReload,
-    payload: { productId, saveTrm },
+    payload: { productId, saveTrm, intrRateType },
   };
   showModal.value = true;
 };
@@ -632,8 +632,8 @@ const handleClearCompare = () => {
 
 // 상품 제거 후 데이터 리로드
 const removeAndReload = (payload) => {
-  const { productId, saveTrm } = payload;
-  removeFromCompareList(productId, saveTrm);
+  const { productId, saveTrm, intrRateType } = payload;
+  removeFromCompareList(productId, saveTrm, intrRateType);
 
   // 비교함이 비었거나 1개만 남은 경우
   if (compareList.value.length < 2) {

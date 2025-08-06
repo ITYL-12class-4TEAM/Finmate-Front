@@ -51,13 +51,13 @@ export const getProductsAPI = async (params = {}) => {
 * @param {string|number} productId - 상품 ID
 * @returns {Promise<Object>} 상품 상세 정보
 */
-export const getProductDetailAPI = async (productType, productId) => {
+export const getProductDetailAPI = async (productType, productId,params={}) => {
  try {
    // 요청 로깅
    console.log(`상품 상세 조회 요청: 유형=${productType}, ID=${productId}`);
 
    // API 호출
-   const response = await api.get(`/api/products/${productType}/${productId}`);
+   const response = await api.get(`/api/products/${productType}/${productId}`,{params});
 
    // 응답 로깅
    console.log('상품 상세 응답:', response);
