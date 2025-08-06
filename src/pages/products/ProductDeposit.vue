@@ -1,8 +1,5 @@
 <template>
   <div>
-    <!-- 검색 카테고리명 -->
-    <h2 class="product-title">정기예금</h2>
-
     <!-- 검색 폼 컴포넌트 -->
     <DepositSearchForm
       :deposit-amount="depositAmount"
