@@ -81,7 +81,7 @@ const selectedProduct = ref('예금');
 const isAnonymous = ref(false);
 
 const router = useRouter();
-const showModal = useModal();
+const { showModal } = useModal();
 
 // 태그 선택
 const selectProduct = (tag) => (selectedProduct.value = tag);

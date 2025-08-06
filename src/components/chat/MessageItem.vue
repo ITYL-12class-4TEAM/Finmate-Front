@@ -8,6 +8,9 @@
         <component
           :is="getContentComponent(message.contentType)"
           :message="message"
+          :data="message.data"
+          :title="message.title"
+          :moreUrl="message.moreUrl"
           @navigate-to-post="$emit('navigate-to-post', $event)"
           @navigate-to-more="$emit('navigate-to-more', $event)"
           @navigate-to-survey="$emit('navigate-to-survey')"
@@ -26,6 +29,8 @@ import PostsContent from './contents/PostsContent.vue';
 import CommentsContent from './contents/CommentsContent.vue';
 import WmtiContent from './contents/WmtiContent.vue';
 import FinanceContent from './contents/FinanceContent.vue';
+import RecentProductsContent from './contents/RecentProductsContent.vue';
+import WishlistProductsContent from './contents/WishlistProductsContent.vue';
 
 defineProps({
   message: Object,
@@ -34,6 +39,8 @@ defineProps({
 defineEmits(['navigate-to-post', 'navigate-to-more', 'navigate-to-survey']);
 
 const getContentComponent = (contentType) => {
+  console.log('🔍 MessageItem contentType:', contentType); // 디버깅용 로그 추가
+
   const components = {
     text: TextContent,
     survey: SurveyContent,
@@ -41,8 +48,18 @@ const getContentComponent = (contentType) => {
     comments: CommentsContent,
     wmti: WmtiContent,
     finance: FinanceContent,
+    // 📝 수정: ChatWindow.vue에서 전달하는 contentType과 일치하도록 변경
+    recent: RecentProductsContent,
+    wishlist: WishlistProductsContent,
+    // 📝 추가: 기존 이름도 호환성을 위해 유지
+    recentProduct: RecentProductsContent,
+    wishlistProduct: WishlistProductsContent,
   };
-  return components[contentType] || TextContent;
+
+  const component = components[contentType] || TextContent;
+  console.log('🎯 선택된 컴포넌트:', component.name || 'TextContent'); // 디버깅용 로그 추가
+
+  return component;
 };
 
 const formatTime = (timestamp) => {

@@ -79,9 +79,9 @@
               >진단 결과 보기 및 재검사</router-link
             >
           </li>
-          <li>
+          <!-- <li>
             <router-link to="/wmti/types" @click="$emit('close')">다른 WMTI 유형 보기</router-link>
-          </li>
+          </li> -->
         </ul>
       </li>
 

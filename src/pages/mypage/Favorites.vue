@@ -35,6 +35,10 @@
 import { ref, onMounted, computed } from 'vue';
 import router from '@/router';
 import { wishlistAPI } from '@/api/favorite';
+import { useModal } from '@/composables/useModal';
+import { useToast } from '@/composables/useToast';
+const { showToast } = useToast();
+const { showModal } = useModal();
 
 // 공통 컴포넌트
 import LoadingSpinner from '@/components/mypage/common/LoadingSpinner.vue';
@@ -84,7 +88,7 @@ const clickFavorite = (favorite) => {
   if (subcategory === '정기예금') {
     routePath = `/products/deposit/${productId}?saveTrm=${saveTrm}&intrRateType=${intrRateType}`;
   } else if (subcategory === '자유적금') {
-    routePath = `/products/saving/${productId}?saveTrm=${saveTrm}&intrRateType=${intrRateType}&rsrvType=${rsrvValue}`;
+    routePath = `/products/savings/${productId}?saveTrm=${saveTrm}&intrRateType=${intrRateType}&rsrvType=${rsrvValue}`;
   } else if (subcategory === '연금저축') {
     routePath = `/products/pension/${productId}?saveTrm=${saveTrm}&intrRateType=${intrRateType}`;
   } else {
@@ -186,7 +190,8 @@ const fetchFavorites = async () => {
 };
 
 const removeFavorite = async (favorite) => {
-  if (!confirm('즐겨찾기에서 삭제하시겠습니까?')) return;
+  const confirmed = await showModal('즐겨찾기에서 삭제하시겠습니까?');
+  if (!confirmed) return;
 
   try {
     await wishlistAPI.remove(favorite.productId);
@@ -195,8 +200,9 @@ const removeFavorite = async (favorite) => {
     if (Array.isArray(favorites.value)) {
       favorites.value = favorites.value.filter((f) => f.productId !== favorite.productId);
     }
+    showToast('삭제되었습니다!', 'success');
   } catch (err) {
-    error.value = '즐겨찾기 삭제에 실패했습니다.';
+    showToast('즐겨찾기 삭제에 실패했습니다.', 'error');
     console.error('Remove favorite error:', err);
   }
 };
@@ -215,7 +221,7 @@ const viewDetail = (favorite) => {
   if (favorite.externalLink) {
     window.open(favorite.externalLink, '_blank');
   } else {
-    alert('상세 정보 링크가 없습니다.');
+    showToast('상세 정보 링크가 없습니다.', 'error');
   }
 };
 

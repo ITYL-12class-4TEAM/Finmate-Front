@@ -59,14 +59,17 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useToast } from '@/composables/useToast';
+
 const router = useRouter();
 const authStore = useAuthStore();
 const loginForm = ref({
-  email: 'testuser@example.com', // 자동으로 입력 지워야함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  password: 'Test@1234',
+  email: '',
+  password: '',
 });
 
 const showPassword = ref(false);
+const { showToast } = useToast();
 
 // computed 속성
 const isLoading = computed(() => authStore.isLoading);
@@ -95,7 +98,9 @@ const handleLogin = async () => {
 
     if (result.success) {
       console.log('로그인 성공:', authStore.userInfo);
-      alert('로그인 성공!');
+      // alert('로그인 성공!');
+      showToast('로그인 성공!', 'success');
+
       const redirectTo = router.currentRoute.value.query.redirect || '/';
       await router.push(redirectTo);
       // alert(`환영합니다! ${authStore.userInfo?.nickname || authStore.userInfo?.username || ''}님`);

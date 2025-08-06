@@ -17,6 +17,16 @@ const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 
+function handleOAuth2Error(errorCode, message) {
+  console.error('OAuth2 오류:', { errorCode, message });
+
+  const decodedMessage = message
+    ? decodeURIComponent(message)
+    : '소셜 로그인 중 오류가 발생했습니다.';
+
+  alert(decodedMessage);
+}
+
 onMounted(async () => {
   try {
     console.log('OAuth2 리다이렉트 페이지 로드됨');

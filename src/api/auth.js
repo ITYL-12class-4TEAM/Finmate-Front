@@ -4,7 +4,7 @@ export const authAPI = {
   // 로그인
   login: async (email, password) => {
     try {
-      const response = await api.post('/auth/login', {
+      const response = await api.post('/api/auth/login', {
         email,
         password,
       });
@@ -50,7 +50,7 @@ export const authAPI = {
   // 로그아웃
   logout: async () => {
     try {
-      const response = await api.post('/auth/logout');
+      const response = await api.post('/api/auth/logout');
       return {
         success: true,
         message: '로그아웃 되었습니다.',
@@ -69,7 +69,7 @@ export const authAPI = {
   // 아이디 찾기
   findId: async (name, phoneNumber) => {
     try {
-      const response = await api.post('/auth/find-id', {
+      const response = await api.post('/api/auth/find-id', {
         name,
         phoneNumber,
       });
@@ -109,7 +109,7 @@ export const authAPI = {
   // 비밀번호 찾기
   findPassword: async (name, phoneNumber) => {
     try {
-      const response = await api.post('/auth/find-password', {
+      const response = await api.post('/api/auth/find-password', {
         name,
         phoneNumber,
       });
@@ -149,7 +149,7 @@ export const authAPI = {
   // 비밀번호 재설정
   resetPassword: async (newPassword, newPasswordCheck, username) => {
     try {
-      const response = await api.post('/auth/reset-password', {
+      const response = await api.post('/api/auth/reset-password', {
         newPassword,
         newPasswordCheck,
         username,
@@ -187,7 +187,7 @@ export const authAPI = {
   },
   signup: async (signupData) => {
     try {
-      const response = await api.post('/signup', signupData);
+      const response = await api.post('/api/signup', signupData);
 
       const result = response.data;
       if (result.header?.status === 'CREATED') {
@@ -226,7 +226,7 @@ export const authAPI = {
   //소셜 회원가입
   socialSignup: async (signupData) => {
     try {
-      const response = await api.post('/signup/social', signupData);
+      const response = await api.post('/api/signup/social', signupData);
 
       const result = response.data;
       if (result.header?.status === 'CREATED') {
@@ -259,7 +259,7 @@ export const authAPI = {
   },
   exchangeOAuth2Token: async (code) => {
     try {
-      const response = await api.post('/auth/oauth2/token', null, {
+      const response = await api.post('/api/auth/oauth2/token', null, {
         params: { code },
       });
 

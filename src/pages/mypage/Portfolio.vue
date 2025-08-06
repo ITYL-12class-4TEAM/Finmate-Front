@@ -34,7 +34,6 @@
       <PortfolioWMTI
         v-else-if="activeTab === 'wmti'"
         :my-w-m-t-i="myWMTI || 'UNKNOWN'"
-        :same-w-m-t-i-users="2370"
         :wmti-comparison-chart="wmtiComparisonChart"
         :total-amount="totalAmount"
       />
@@ -113,13 +112,14 @@ const isDeleting = ref(false);
 // 사용자 나이대
 const userAgeGroup = ref('');
 
+// TODO: 회원 아이디 받아오기
+const memberId = ref(1);
 // -------------------- API 호출 --------------------
 const fetchWMTIResult = async () => {
   try {
-    const res = await getWMTIResultAPI(); // memberId가 API 내부에서 처리된다면 제거
-    // JSON 응답에서 wmtiCode 추출
-    if (res?.body?.wmtiCode) {
-      myWMTI.value = res.body.wmtiCode; // "IBWC" 같은 값이 저장됨
+    const res = await getWMTIResultAPI(memberId.value);
+    if (res?.body?.data?.wmtiCode) {
+      myWMTI.value = res.body.data.wmtiCode;
     }
   } catch (err) {
     console.error('WMTI 결과 조회 실패:', err);
@@ -376,9 +376,6 @@ const addNewProduct = async (newProduct) => {
       // 1. 먼저 모달 닫기
       closeAddModal();
       console.log('✅ 모달 닫기 완료');
-
-      // 2. 성공 메시지
-      const productName = newProduct.customProductName;
 
       // 3. 포트폴리오 데이터 새로고침 (약간의 지연 후)
       setTimeout(async () => {
