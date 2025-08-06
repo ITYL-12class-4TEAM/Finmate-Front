@@ -1,5 +1,12 @@
 import api from './index';
-import { ResultTypeEnum, RiskPreferenceDescriptionEnum } from '@/constants/wmtienums';
+import {
+  getResultTypeName,
+  getRiskPreferenceDescription,
+  calculateRiskLevel,
+  calculateReturnExpectation,
+  calculateTotalScore,
+  formatCreatedAtArray,
+} from '@/utils/wmtiUtils';
 
 // 기본 정보 제출
 export const postPreinfoAPI = async (info) => {
@@ -41,7 +48,7 @@ export const getWMTIHistoryAPI = async (memberId) => {
   if (res.data.header.status !== 'OK') {
     throw new Error(res.data.header.message);
   }
-  
+
   const rawList = res.data.body.data;
 
   const processedList = rawList.map((item) => ({
@@ -58,37 +65,4 @@ export const getWMTIHistoryAPI = async (memberId) => {
   }));
 
   return processedList;
-};
-
-// 아래는 내부 유틸 함수들
-const getResultTypeName = (resultType) => {
-  return ResultTypeEnum[resultType] || resultType;
-};
-
-const getRiskPreferenceDescription = (riskPreference) => {
-  return RiskPreferenceDescriptionEnum[riskPreference] || riskPreference;
-};
-
-const calculateRiskLevel = (item) => {
-  const aggressiveScore = (item.ascore + item.pscore) / 2;
-  const conservativeScore = item.lscore;
-  const riskLevel = (aggressiveScore - conservativeScore + 100) / 20;
-  return Math.max(1, Math.min(10, Math.round(riskLevel)));
-};
-
-const calculateReturnExpectation = (item) => {
-  const riskLevel = calculateRiskLevel(item);
-  return Math.round(riskLevel * 1.2 + 2);
-};
-
-const calculateTotalScore = (item) => {
-  return item.ascore + item.lscore + item.mscore + item.pscore;
-};
-
-const formatCreatedAtArray = (createdAtArray) => {
-  if (Array.isArray(createdAtArray) && createdAtArray.length >= 5) {
-    const [year, month, day, hour, minute, second = 0] = createdAtArray;
-    return new Date(year, month - 1, day, hour, minute, second).toISOString();
-  }
-  return new Date().toISOString();
 };
