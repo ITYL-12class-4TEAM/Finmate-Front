@@ -220,7 +220,6 @@
 
 <script>
 import { getWMTIResultAPI } from '@/api/wmti';
-import { decodeJwt } from '@/utils/jwt';
 import { getWMTIAnalysisAPI } from '@/api/wmti';
 import BackButton from '@/components/common/BackButton.vue';
 import ThemePortfolio from '@/components/wmti/ThemePortfolio.vue';
@@ -283,7 +282,9 @@ export default {
   },
   methods: {
     async fetchResult() {
-      const res = await getWMTIResultAPI(this.getMemberIdFromToken());
+      // const memberId = 추후 store에서 가져오는것으로 변경예정
+      const memberId = 1; // 임시로 1로 설정
+      const res = await getWMTIResultAPI(memberId);
       console.log('✅ 응답 전체:', res);
 
       const data = res.body?.data;
@@ -321,10 +322,7 @@ export default {
         console.error('⚠️ 분석 정보 불러오기 실패', e);
       }
     },
-    getMemberIdFromToken() {
-      const token = localStorage.getItem('accessToken');
-      return decodeJwt(token)?.memberId;
-    },
+
     goToRecommend() {
       this.$router.push('/recommend');
     },

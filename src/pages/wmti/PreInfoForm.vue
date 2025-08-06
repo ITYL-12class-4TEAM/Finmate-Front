@@ -154,10 +154,6 @@ export default {
 
       // 모든 유효성 통과 → 제출
       try {
-        // ✅ POST 요청 보내기 (토큰 등 헤더 필요시 설정 가능)
-        // const response = await axios.post('/api/preinfo/submit', finalData);
-        // console.log('✅ 응답 데이터:', response.data);
-
         const res = await postPreinfoAPI(finalData);
         console.log('✅ 응답 데이터:', res);
 
