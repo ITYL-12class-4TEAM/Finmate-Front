@@ -93,7 +93,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, defineProps } from 'vue';
+
+const props = defineProps({
+  isOpen: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 const openIndex = ref(null);
 
