@@ -108,6 +108,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 // import axios from 'axios';
 import { getProductDetailAPI } from '@/api/product';
+import { recentViewAPI } from '../../api/recentView';
 import BackButton from '@/components/common/BackButton.vue';
 // import WishlistButton from '../../components/products/wishlist/WishlistButton.vue';
 import ProductInfoCard from '@/components/products/ProductInfoCard.vue';
@@ -164,6 +165,9 @@ const loadProductDetail = async () => {
       // API 응답 구조 확인 (디버깅용)
       console.log('상품 상세 정보:', response);
       console.log('productDetail 정보:', response.productDetail);
+
+      // 상품 정보 로드 성공 후 최근 본 상품으로 저장
+      saveAsRecentViewed();
     } else {
       error.value = '상품 정보를 찾을 수 없습니다.';
     }
@@ -172,6 +176,48 @@ const loadProductDetail = async () => {
     error.value = '상품 정보를 불러오는 중 오류가 발생했습니다.';
   } finally {
     loading.value = false;
+  }
+};
+
+// 최근 본 상품으로 저장하는 함수
+const saveAsRecentViewed = async () => {
+  try {
+    const productId = route.params.id;
+    const saveTrm = route.query.saveTrm;
+    const intrRateType = route.query.intrRateType;
+    // rsrvType은 route.query에서 가져오거나, API 응답에서 추출
+    let rsrvType = route.query.rsrvType;
+
+    // rsrvType이 없을 경우 상품 데이터에서 추출 시도
+    if (
+      !rsrvType &&
+      product.value &&
+      product.value.productDetail &&
+      product.value.productDetail.options
+    ) {
+      // 선택된 옵션에서 rsrvType 값 추출 시도
+      const option = selectedOption.value;
+      if (option) {
+        rsrvType = option.rsrv_type || option.rsrvType;
+      }
+    }
+
+    console.log('최근 본 상품 저장 정보:', {
+      productId,
+      saveTrm,
+      intrRateType,
+      rsrvType,
+    });
+
+    if (!productId) {
+      console.warn('상품 ID가 없어 최근 본 상품으로 저장할 수 없습니다.');
+      return;
+    }
+
+    await recentViewAPI.saveRecentView(productId, saveTrm, intrRateType, rsrvType);
+    console.log('최근 본 상품 저장 성공');
+  } catch (error) {
+    console.error('최근 본 상품 저장 실패:', error);
   }
 };
 

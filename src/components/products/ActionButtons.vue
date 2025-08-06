@@ -1,7 +1,7 @@
 <template>
   <div class="action-section">
-    <button 
-      :class="['compare-btn', isInCompareList ? 'in-list' : 'add-compare-btn']" 
+    <button
+      :class="['compare-btn', isInCompareList ? 'in-list' : 'add-compare-btn']"
       @click="handleCompareClick"
       :disabled="isInCompareList"
     >
@@ -16,8 +16,8 @@
 const props = defineProps({
   isInCompareList: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
 // 이벤트 정의
@@ -25,7 +25,8 @@ const emit = defineEmits(['add-to-compare', 'join-product']);
 
 // 비교함 버튼 클릭 핸들러
 const handleCompareClick = () => {
-  if (!props.isInCompareList) {  // props에서 isInCompareList 참조
+  if (!props.isInCompareList) {
+    // props에서 isInCompareList 참조
     emit('add-to-compare');
   }
 };
@@ -39,7 +40,8 @@ const handleCompareClick = () => {
   margin-bottom: 1rem;
 }
 
-.compare-btn, .join-btn {
+.compare-btn,
+.join-btn {
   padding: 0.75rem 1rem;
   border-radius: 0.375rem;
   font-size: 1rem;
