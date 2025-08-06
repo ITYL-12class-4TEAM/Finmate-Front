@@ -21,6 +21,8 @@
 </template>
 
 <script>
+import { wmtiPersonalityMap } from '../../constants/wmtiPersonalityMap';
+import { wmtiThemePortfolioMap } from '../../constants/wmtiThemePortfolioMap';
 export default {
   name: 'RecommendationReason',
   props: {
@@ -59,67 +61,10 @@ export default {
     },
 
     getWMTIPersonality() {
-      const personalityMap = {
-        APML: '타고난 리더형으로 투자 트렌드를 선도하는',
-        APMC: '박학다식한 투자정보로 시장 흐름을 읽는',
-        APWL: '능숙하게 위험을 관리하는',
-        APWC: '적극적이고 도전적인 투자 성향을 가진',
-        ABML: '적극적이고 장기적 관점의',
-        ABMC: '빠른 적응력과 열정적인 투자의지로 무장한',
-        ABWL: '안정성과 수익성을 동시에 추구하는',
-        ABWC: '신중하고 균형잡힌 투자 성향을 가진',
-        IPML: '분석적이고 전략적인 투자 성향을 가진',
-        IPMC: '과학적이고 논리적인 투자를 선호하는',
-        IPWL: '강한 의지와 현실적인 감각을 가진',
-        IPWC: '용의주도하고 섬세한 감각을 가진',
-        IBML: '독창적인 분석력과 대담함을 지닌',
-        IBMC: '실용적이고 혁신적인 투자 전략을 선호하는',
-        IBWL: '신중하고 안정적인 투자 수단을 선호하는',
-        IBWC: '매사 꼼꼼하고 신중한 투자 성향을 가진',
-
-        // 더 많은 WMTI 조합 추가 가능
-      };
-
-      return personalityMap[this.wmtiCode] || '고객님의 투자 성향을 고려한';
+      return wmtiPersonalityMap[this.portfolioCode] || '고객님의 투자 성향을 고려한';
     },
-
     getPortfolioType() {
-      const portfolioMap = {
-        // 공격투자형 포트폴리오
-        TP01: '배당 중심의 공격적',
-        TP02: '가치주 중심의 공격적',
-        TP03: '미국 중심의 공격적',
-        TP04: 'ESG 중심의 지속가능한',
-        TP05: '기술주 중심의 성장',
-        TP06: '글로벌 대장주 중심의',
-        TP07: '실물자산 중심의 대체투자',
-        TP08: '전문가 운용의 액티브',
-        TP09: '미중 양대 강국 중심의',
-        TP10: '글로벌 분산의 공격적',
-        TP11: '신흥시장 중심의 바겐헌팅',
-
-        // 적극투자형 포트폴리오
-        TP14: '펀드 입문자를 위한 적극적',
-        TP15: '배당 중심의 적극적',
-        TP16: '가치주 중심의 적극적',
-        TP17: '미국 중심의 적극적',
-        TP18: '글로벌 분산의 적극적',
-
-        // 위험중립형 포트폴리오
-        TP12: '계절 변화에 대응하는 균형',
-        TP13: '영구적 자산배분의 균형',
-        TP19: '펀드 입문자를 위한 균형',
-        TP20: '배당 중심의 균형',
-        TP21: '가치주 중심의 균형',
-
-        // 안정형 포트폴리오
-        TP22: '안정추구형을 위한 보수적',
-        TP23: '펀드 입문자를 위한 보수적',
-        TP24: '안정형을 위한 초보수적',
-        TP25: '펀드 입문자를 위한 초보수적',
-      };
-
-      return portfolioMap[this.portfolioCode] || '균형잡힌';
+      return wmtiThemePortfolioMap[this.portfolioCode] || '균형잡힌';
     },
 
     getHighlights() {
