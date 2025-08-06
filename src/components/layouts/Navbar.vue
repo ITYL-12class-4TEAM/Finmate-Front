@@ -46,13 +46,7 @@
 
             <!-- 사용자 메뉴 드롭다운 -->
             <div class="user-dropdown" :class="{ open: dropdownOpen }">
-              <p>
-                {{
-                  authStore.userNickname ||
-                  authStore.userInfo?.username ||
-                  '사용자'
-                }}님
-              </p>
+              <p>{{ authStore.userNickname || authStore.userInfo?.username || '사용자' }}님</p>
               <router-link to="/mypage">마이페이지 이동</router-link>
               <button @click="handleLogout">로그아웃</button>
             </div>
@@ -63,7 +57,6 @@
       <template v-else>
         <router-link to="/login" class="login-btn">로그인</router-link>
       </template>
-
       <!-- 모바일용 햄버거 버튼 -->
       <button v-if="isMobile" class="hamburger" @click="mobileOpen = true">
         <svg
@@ -90,11 +83,13 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useToast } from '@/composables/useToast';
 import DesktopNavbar from './DesktopNavbar.vue';
 import MobileMenu from './MobileMenu.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const { showToast } = useToast();
 
 const isMobile = ref(false);
 const mobileOpen = ref(false);
@@ -118,7 +113,8 @@ const handleLogout = async () => {
     await authStore.logout();
 
     console.log('로그아웃 완료');
-    alert('로그아웃되었습니다.');
+    // alert('로그아웃되었습니다.');
+    showToast('로그아웃되었습니다.', 'success');
 
     // 드롭다운 닫기
     dropdownOpen.value = false;
