@@ -7,35 +7,33 @@
     <div v-else-if="error" class="error-container">
       <div class="error-icon">!</div>
       <p>{{ error }}</p>
-      <button class="back-btn" @click="goBack">목록으로 돌아가기</button>
+      <BackButton title="목록으로" />
     </div>
 
     <div v-else-if="product" class="product-container">
       <!-- 페이지 헤더 -->
       <div class="page-header">
         <BackButton title="목록으로" />
-        <h1 class="page-title">{{ getCategoryName() }} 상세 정보</h1>
-        <!-- <WishlistButton :productId="productId" :saveTrm="saveTrm" :intrRateType="intrRateType" /> -->
       </div>
 
       <!-- 상품 기본 정보 카드 -->
       <ProductInfoCard
         :product="product"
-        :bankLogo="getBankLogo()"
-        :bankInitial="getBankInitial()"
-        :categoryName="getCategoryName()"
-        :interestTypeName="getInterestTypeName()"
+        :bank-logo="getBankLogo()"
+        :bank-initial="getBankInitial()"
+        :category-name="getCategoryName()"
+        :interest-type-name="getInterestTypeName()"
       />
 
       <!-- 금리 정보 섹션 -->
-      <ProductRateInfo :selectedOption="selectedOption" :formatRate="formatRate" />
+      <ProductRateInfo :selected-option="selectedOption" :format-rate="formatRate" />
 
       <!-- 상품 주요 정보 -->
       <ProductFeatures
         :product="product"
-        :selectedOption="selectedOption"
-        :formatCurrency="formatCurrency"
-        :formatDate="formatDate"
+        :selected-option="selectedOption"
+        :format-currency="formatCurrency"
+        :format-date="formatDate"
       />
 
       <!-- 가입 대상 섹션 (추가) -->
@@ -106,10 +104,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-// import axios from 'axios';
 import { getProductDetailAPI } from '@/api/product';
 import BackButton from '@/components/common/BackButton.vue';
-// import WishlistButton from '../../components/products/wishlist/WishlistButton.vue';
 import ProductInfoCard from '@/components/products/ProductInfoCard.vue';
 import ProductRateInfo from '@/components/products/ProductRateInfo.vue';
 import ProductFeatures from '@/components/products/ProductFeatures.vue';
@@ -122,11 +118,6 @@ import useCompareList from '@/composables/useCompareList';
 
 const route = useRoute();
 const router = useRouter();
-
-// todo button
-// const productId = computed(() => route.params.id);
-// const saveTrm = computed(() => route.query.saveTrm);
-// const intrRateType = computed(() => route.query.intrRateType);
 
 // 상태 관리
 const product = ref(null);
@@ -320,11 +311,6 @@ const getBankWebsite = () => {
   );
 };
 
-// 목록으로 돌아가기
-const goBack = () => {
-  router.back();
-};
-
 // 날짜 포맷팅 (YYYYMMDD → YYYY.MM.DD)
 const formatDate = (dateStr) => {
   if (!dateStr) return '';
@@ -406,8 +392,6 @@ onMounted(() => {
 
 <style scoped>
 .product-detail-page {
-  max-width: 375px;
-  margin: 0 auto;
   padding: 1rem;
   font-family: 'Noto Sans KR', sans-serif;
   color: var(--color-text);

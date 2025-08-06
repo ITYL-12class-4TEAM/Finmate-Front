@@ -1,71 +1,51 @@
 <template>
   <button
-    @click="toggleWishlist"
     class="wishlist-btn"
     :class="{ active: isInWishlist }"
-    aria-label="관심상품 등록"
+    :aria-label="isInWishlist ? '관심상품 제거' : '관심상품 등록'"
+    @click="toggleWishlist"
   >
     <svg
+      :class="{ filled: isInWishlist }"
       xmlns="http://www.w3.org/2000/svg"
+      fill="none"
       viewBox="0 0 24 24"
-      :fill="isInWishlist ? '#ff5757' : 'none'"
+      stroke-width="1.5"
       stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      class="size-6"
     >
       <path
-        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-      ></path>
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"
+      />
     </svg>
   </button>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
-import { wishlistAPI } from '@/api/favorite'; // 경로는 실제 파일 위치에 맞게 조정하세요
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { wishlistAPI } from '@/api/favorite';
+import { useToast } from '@/composables/useToast';
+
+const { showToast } = useToast();
+const route = useRoute();
 
 // props 정의
-const props = defineProps({
-  productId: {
-    type: [Number, String],
-    required: true,
-  },
-  saveTrm: {
-    type: [Number, String],
-    default: null,
-  },
-  intrRateType: {
-    type: String,
-    default: null,
-  },
-});
+const productId = route.params.id;
+const saveTrm = route.query.saveTrm ?? 6;
+const intrRateType = route.query.intrRateType ?? 'S';
 
 // 관심상품 상태
 const isInWishlist = ref(false);
+const isProcessing = ref(false);
 
-// 관심상품 상태 확인 (초기 로딩 시)
+// 관심상품 상태 확인
 const checkWishlistStatus = async () => {
   try {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      console.log('토큰이 없어 관심상품 상태 확인을 건너뜁니다.');
-      return; // 로그인하지 않은 경우 체크하지 않음
-    }
-
-    // 관심상품 목록을 가져와서 현재 상품이 포함되어 있는지 확인
-    const wishlistItems = await wishlistAPI.getList();
-
-    // 현재 상품이 관심상품 목록에 있는지 확인
-    const isWishlisted = wishlistItems.some(
-      (item) =>
-        String(item.productId) === String(props.productId) &&
-        (props.saveTrm === null || String(item.saveTrm) === String(props.saveTrm)) &&
-        (props.intrRateType === null || item.intrRateType === props.intrRateType)
-    );
-
-    isInWishlist.value = isWishlisted;
-    console.log(`관심상품 상태 확인: productId=${props.productId}, 결과=${isInWishlist.value}`);
+    const response = await wishlistAPI.isFavorite(productId);
+    isInWishlist.value = response.body.data;
   } catch (error) {
     console.error('관심상품 상태 확인 중 오류 발생:', error);
   }
@@ -73,93 +53,46 @@ const checkWishlistStatus = async () => {
 
 // 관심상품 추가/제거 토글
 const toggleWishlist = async () => {
-  // 현재 상태 저장
-  const currentState = isInWishlist.value;
+  if (isProcessing.value) return;
 
+  isProcessing.value = true;
+
+  if (isInWishlist.value) {
+    await removeFavorite();
+    isInWishlist.value = false;
+  } else {
+    await addFavorite();
+    isInWishlist.value = true;
+  }
+};
+
+const removeFavorite = async () => {
   try {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      console.log('로그인이 필요합니다.');
-      alert('로그인 후 이용 가능합니다.');
-      return;
-    }
-
-    console.log('관심상품 토글 요청 시작, 현재 상태:', currentState ? '관심상품 O' : '관심상품 X');
-
-    // 낙관적 UI 업데이트 (즉시 상태 변경)
-    isInWishlist.value = !currentState;
-
-    if (currentState) {
-      // 관심상품 제거 요청
-      await removeFromWishlist();
-    } else {
-      // 관심상품 추가 요청
-      await addToWishlist();
-    }
-
-    console.log('관심상품 토글 완료, 최종 상태:', isInWishlist.value ? '추가됨' : '제거됨');
+    await wishlistAPI.remove(productId);
+    showToast('즐겨찾기에서 삭제되었습니다!', 'warning');
   } catch (error) {
     console.error('관심상품 토글 중 오류 발생:', error);
-
-    // 오류 발생 시 원래 상태로 복원
-    isInWishlist.value = currentState;
-
-    alert('관심상품 등록/해제 중 오류가 발생했습니다.');
+  } finally {
+    isProcessing.value = false;
   }
 };
 
-// 관심상품 추가
-const addToWishlist = async () => {
+const addFavorite = async () => {
   try {
-    console.log('관심상품 추가 시작 - 데이터:', {
-      productId: Number(props.productId),
-      saveTrm: props.saveTrm ? Number(props.saveTrm) : null,
-      intrRateType: props.intrRateType,
+    await wishlistAPI.add({
+      productId: productId,
+      intrRateType: intrRateType,
+      saveTrm: saveTrm,
     });
-
-    // wishlistAPI를 사용하여 관심상품 추가
-    const result = await wishlistAPI.add(Number(props.productId));
-
-    console.log('관심상품 추가 완료:', result);
-    return result;
-  } catch (error) {
-    console.error('관심상품 추가 중 오류 발생:', error);
-    throw error;
+    showToast('즐겨찾기에 추가되었습니다!', 'success');
+  } catch (err) {
+    console.error('관심상품 토글 중 오류 발생:', err);
+  } finally {
+    isProcessing.value = false;
   }
 };
 
-// 관심상품 제거
-const removeFromWishlist = async () => {
-  try {
-    console.log('관심상품 제거 요청:', {
-      productId: props.productId,
-    });
-
-    // wishlistAPI를 사용하여 관심상품 제거
-    const result = await wishlistAPI.remove(props.productId);
-
-    console.log('관심상품 제거 완료:', result);
-    return result;
-  } catch (error) {
-    console.error('관심상품 제거 중 오류 발생:', error);
-    throw error;
-  }
-};
-
-// props 변경 시 상태 다시 확인
-watch([() => props.productId, () => props.saveTrm, () => props.intrRateType], () => {
-  checkWishlistStatus();
-});
-
-// 컴포넌트 마운트 시 관심상품 상태 확인
-onMounted(() => {
-  console.log('WishlistButton 마운트 - props 값 확인:', {
-    productId: props.productId,
-    saveTrm: props.saveTrm,
-    intrRateType: props.intrRateType,
-  });
-  checkWishlistStatus();
-});
+onMounted(checkWishlistStatus);
 </script>
 
 <style scoped>
@@ -167,7 +100,6 @@ onMounted(() => {
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 8px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -176,17 +108,18 @@ onMounted(() => {
 }
 
 .wishlist-btn svg {
-  width: 24px;
-  height: 24px;
+  width: 2rem;
+  height: 2rem;
   color: var(--color-sub);
+  fill: none;
+  align-self: flex-start;
 }
 
 .wishlist-btn:hover svg {
   color: var(--color-main);
 }
 
-.wishlist-btn.active svg {
-  color: #ff5757;
-  fill: #ff5757;
+.wishlist-btn svg.filled {
+  fill: #ffe344;
 }
 </style>
