@@ -1,65 +1,57 @@
 <template>
-  <div class="login-container">
-    <div class="login-form">
-      <!-- 헤더 -->
-      <div class="header">
-        <h1 class="logo">FinMate</h1>
-        <p class="subtitle">로그인</p>
+  <div class="login-form">
+    <!-- 헤더 -->
+    <div class="header">
+      <h1 class="logo">FinMate</h1>
+      <p class="subtitle">로그인</p>
+    </div>
+    <!-- 로그인 폼 -->
+    <form @submit.prevent="handleLogin">
+      <div class="form-group">
+        <label for="email">이메일 입력</label>
+        <input
+          id="email"
+          v-model="loginForm.email"
+          type="email"
+          placeholder="이메일을 입력하세요"
+          required
+        />
       </div>
-      <!-- 로그인 폼 -->
-      <form @submit.prevent="handleLogin">
-        <div class="form-group">
-          <label for="email">이메일 입력</label>
+      <div class="form-group">
+        <label for="password">비밀번호 입력</label>
+        <div class="password-input">
           <input
-            type="email"
-            id="email"
-            v-model="loginForm.email"
-            placeholder="이메일을 입력하세요"
+            id="password"
+            v-model="loginForm.password"
+            :type="showPassword ? 'text' : 'password'"
+            placeholder="비밀번호를 입력하세요"
             required
           />
+          <button type="button" class="password-toggle" @click="togglePassword">
+            <i class="bi" :class="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+          </button>
         </div>
-        <div class="form-group">
-          <label for="password">비밀번호 입력</label>
-          <div class="password-input">
-            <input
-              :type="showPassword ? 'text' : 'password'"
-              id="password"
-              v-model="loginForm.password"
-              placeholder="비밀번호를 입력하세요"
-              required
-            />
-            <button
-              type="button"
-              class="password-toggle"
-              @click="togglePassword"
-            >
-              <i
-                class="bi"
-                :class="showPassword ? 'bi-eye-slash' : 'bi-eye'"
-              ></i>
-            </button>
-          </div>
-        </div>
-        <button type="submit" class="login-btn" :disabled="isLoading">
-          {{ isLoading ? '로그인 중...' : '이메일로 로그인' }}
-        </button>
-      </form>
-      <!-- 링크들 -->
-      <div class="links">
-        <a href="#" class="link">회원가입</a>
-        <span class="divider">|</span>
-        <a href="#" class="link">아이디 찾기</a>
-        <span class="divider">|</span>
-        <a href="#" class="link">비밀번호 찾기</a>
       </div>
-      <!-- 소셜 로그인 -->
-      <div class="social-login">
-        <button class="social-btn naver">N</button>
-        <button class="social-btn kakao">K</button>
-        <button class="social-btn google">G</button>
-        <button class="social-btn apple">A</button>
-        <button class="social-btn facebook">F</button>
-      </div>
+      <button type="submit" class="login-btn" :disabled="isLoading">
+        {{ isLoading ? '로그인 중...' : '로그인' }}
+      </button>
+    </form>
+    <!-- 링크들 -->
+    <div class="links">
+      <router-link to="/login/signup" class="link">회원가입</router-link>
+      <span class="divider">|</span>
+      <router-link to="/login/find-id" class="link">아이디 찾기</router-link>
+      <span class="divider">|</span>
+      <router-link to="/login/find-password" class="link">비밀번호 찾기</router-link>
+    </div>
+    <!-- 소셜 로그인 -->
+    <div class="social-login">
+      <button class="social-btn google" @click="handleGoogleLogin">
+        <img src="@/assets/images/google_icon.png" alt="Google" />
+      </button>
+      <button class="social-btn kakao" @click="handleKakaoLogin">
+        <img src="@/assets/images/kakao_icon.png" alt="Kakao" />
+      </button>
     </div>
   </div>
 </template>
@@ -70,13 +62,19 @@ import { useAuthStore } from '@/stores/useAuthStore';
 const router = useRouter();
 const authStore = useAuthStore();
 const loginForm = ref({
-  email: '',
-  password: '',
+  email: 'testuser@example.com', // 자동으로 입력 지워야함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  password: 'Test@1234',
 });
+
 const showPassword = ref(false);
 
 // computed 속성
 const isLoading = computed(() => authStore.isLoading);
+
+const isValidEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
 
 const togglePassword = () => {
   showPassword.value = !showPassword.value;
@@ -87,17 +85,20 @@ const handleLogin = async () => {
     alert('이메일과 비밀번호를 입력해주세요.');
     return;
   }
+  if (!isValidEmail(loginForm.value.email)) {
+    alert('올바른 이메일 형식을 입력해주세요.');
+    return;
+  }
 
   try {
-    const result = await authStore.login(
-      loginForm.value.email,
-      loginForm.value.password
-    );
+    const result = await authStore.login(loginForm.value.email, loginForm.value.password);
 
     if (result.success) {
       console.log('로그인 성공:', authStore.userInfo);
       alert('로그인 성공!');
-      router.push('/'); // 홈으로 이동
+      const redirectTo = router.currentRoute.value.query.redirect || '/';
+      await router.push(redirectTo);
+      // alert(`환영합니다! ${authStore.userInfo?.nickname || authStore.userInfo?.username || ''}님`);
     } else {
       alert(result.message);
     }
@@ -106,146 +107,186 @@ const handleLogin = async () => {
     alert('로그인 처리 중 오류가 발생했습니다.');
   }
 };
+
+const getSocialLoginURL = (provider) => {
+  const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+  return `${baseURL}/oauth2/authorization/${provider}`;
+};
+
+const handleGoogleLogin = () => {
+  window.location.href = getSocialLoginURL('google');
+};
+
+const handleKakaoLogin = () => {
+  window.location.href = getSocialLoginURL('kakao');
+};
 </script>
+
 <style scoped>
-.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
-  background-color: white;
-  padding: 150px 0px 20px 0px;
-}
-.login-form {
-  background: white;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
-}
+/* LoginLayout에서 컨테이너 스타일 처리 */
+
 .header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 2.5rem; /* 40px */
 }
+
 .logo {
-  font-size: 2rem;
+  font-size: 2rem; /* 32px */
   font-weight: bold;
-  color: #2d336b;
-  margin: 0 0 8px 0;
+  color: var(--color-main);
+  margin: 0 0 0.5rem 0; /* 8px */
 }
+
 .subtitle {
-  color: #666;
+  color: var(--color-sub);
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.875rem; /* 14px */
 }
+
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem; /* 20px */
 }
+
 .form-group label {
   display: block;
-  margin-bottom: 8px;
-  color: #333;
-  font-size: 0.9rem;
+  margin-bottom: 0.5rem; /* 8px */
+  color: var(--color-main);
+  font-size: 0.875rem; /* 14px */
 }
+
 .form-group input {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 1rem;
+  padding: 0.75rem; /* 12px */
+  border: 1px solid var(--color-light);
+  border-radius: 0.375rem; /* 6px */
+  font-size: 1rem; /* 16px */
   box-sizing: border-box;
 }
+
 .form-group input:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: var(--color-main);
 }
+
 .password-input {
   position: relative;
 }
+
 .password-toggle {
   position: absolute;
-  right: 12px;
+  right: 0.75rem; /* 12px */
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
   cursor: pointer;
-  color: #666;
+  color: var(--color-sub);
 }
+
 .login-btn {
   width: 100%;
-  padding: 12px;
-  background-color: #2d336b;
+  padding: 0.75rem; /* 12px */
+  background-color: var(--color-main);
   color: white;
   border: none;
-  border-radius: 6px;
-  font-size: 1rem;
+  border-radius: 0.375rem; /* 6px */
+  font-size: 1rem; /* 16px */
   cursor: pointer;
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem; /* 20px */
 }
+
 .login-btn:hover {
   background-color: #171d4e;
 }
+
 .login-btn:disabled {
-  background-color: #ccc;
+  background-color: var(--color-light);
   cursor: not-allowed;
 }
+
 .links {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 1.875rem; /* 30px */
 }
+
 .link {
-  color: #666;
+  color: var(--color-sub);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.875rem; /* 14px */
 }
+
 .link:hover {
-  color: #333;
+  color: var(--color-main);
 }
+
 .divider {
-  margin: 0 10px;
-  color: #ccc;
+  margin: 0 0.625rem; /* 10px */
+  color: var(--color-light);
 }
+
 .social-login {
   display: flex;
   justify-content: center;
-  gap: 12px;
+  gap: 1rem; /* 16px */
+  margin-top: 1.25rem; /* 20px */
+  position: relative;
+  padding-top: 1.25rem; /* 20px */
 }
+
+.social-login::before {
+  content: 'SNS LOGIN';
+  position: absolute;
+  top: -0.9375rem; /* -15px */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem; /* 12px */
+  color: var(--color-sub);
+  background: white;
+  padding: 0 0.9375rem; /* 15px */
+}
+
+.social-login::after {
+  content: '';
+  position: absolute;
+  top: 0.625rem; /* 10px */
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-light);
+  z-index: -1;
+}
+
 .social-btn {
-  width: 44px;
-  height: 44px;
+  width: 3.125rem; /* 50px */
+  height: 3.125rem; /* 50px */
   border: none;
-  border-radius: 8px;
+  border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
-  font-weight: bold;
+  padding: 0;
+  transition: transform 0.2s ease;
 }
-.social-btn.naver {
-  background-color: #03c75a;
-  color: white;
+
+.social-btn:hover {
+  transform: scale(1.05);
 }
+
+.social-btn img {
+  width: 1.875rem; /* 30px */
+  height: 1.875rem; /* 30px */
+  object-fit: contain;
+}
+
 .social-btn.kakao {
   background-color: #fee500;
-  color: #000;
+  box-shadow: 0 0.125rem 0.5rem rgba(254, 229, 0, 0.3); /* 2px 8px */
 }
+
 .social-btn.google {
   background-color: #fff;
-  color: #4285f4;
-  border: 1px solid #ddd;
-}
-.social-btn.apple {
-  background-color: #000;
-  color: white;
-}
-.social-btn.facebook {
-  background-color: #1877f2;
-  color: white;
-}
-.social-btn:hover {
-  opacity: 0.8;
+  border: 1px solid #dadce0;
+  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1); /* 2px 8px */
 }
 </style>

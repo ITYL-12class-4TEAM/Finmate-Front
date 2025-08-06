@@ -1,18 +1,20 @@
 <template>
-  <div class="main">
-    <h1>Welcome to Finmate!</h1>
-    <p>This is the main page.</p>
-    <router-link to="/this-page-does-not-exist">Go to not found</router-link>
+  <div class="home">
+    <SurveyBanner />
+    <ProductList />
+    <HotPostList />
   </div>
 </template>
 
 <script setup>
-// 필요한 경우 script 코드 작성 가능
+import SurveyBanner from '@/components/home/SurveyBanner.vue';
+import ProductList from '@/components/home/ProductList.vue';
+import HotPostList from '@/components/home/HotPostList.vue';
 </script>
 
 <style scoped>
-.main {
-  padding: 2rem;
-  text-align: center;
+.home {
+  max-width: 430px;
+  margin: 0 auto;
 }
 </style>
