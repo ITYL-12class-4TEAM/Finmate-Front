@@ -150,7 +150,7 @@
             <div class="bar-center">50</div>
             <div class="bar-right">
               <div
-                v-if="analysisObject.m === 'analysisObject.W'"
+                v-if="analysisObject.m === 'W'"
                 class="bar-progress right bar-w"
                 :style="{ width: analysisObject.wscore + '%' }"
               ></div>
