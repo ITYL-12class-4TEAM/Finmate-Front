@@ -1,10 +1,10 @@
 <template>
   <div>
     <!-- 검색 카테고리명 -->
-    <h2 class="product-title">정기예금</h2>
+    <h2 class="product-title">적금</h2>
 
     <!-- 검색 폼 컴포넌트 -->
-    <DepositSearchForm
+    <SavingsSearchForm
       :deposit-amount="depositAmount"
       :period="period"
       :interest-type="interestType"
@@ -17,9 +17,7 @@
       @search="handleSearch"
       @reset="handleReset"
     />
-
-    <!-- 상품 목록 컴포넌트 -->
-    <DepositProductList
+    <SavingsProductList
       :products="depositProducts"
       :deposit-amount="depositAmount"
       :loading="loading"
@@ -28,6 +26,7 @@
       :current-page="currentPage"
       :page-size="pageSize"
       :sort-by="sortBy"
+      :product-type="'savings'"
       @product-click="goToProductDetail"
       @page-change="goToPage"
       @sort-change="handleSortChange"
@@ -39,8 +38,8 @@
 import { onMounted, ref, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { getProductsAPI, getProductsFilterOptionsAPI } from '@/api/product';
-import DepositSearchForm from '../../components/products/deposit/DepositSearchForm.vue';
-import DepositProductList from '../../components/products/deposit/DepositProductList.vue';
+import SavingsSearchForm from '../../components/products/savings/SavingsSearchForm.vue';
+import SavingsProductList from '../../components/products/savings/SavingsProductList.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -71,7 +70,7 @@ const fetchBanks = async () => {
     loading.value = true;
 
     // API 호출
-    const response = await getProductsFilterOptionsAPI('deposit');
+    const response = await getProductsFilterOptionsAPI('savings');
     console.log('필터 옵션 응답:', response);
 
     // 은행 데이터 처리
@@ -155,11 +154,22 @@ const goToPage = (page) => {
 // API 호출 전용 함수 (실제 데이터 가져오기)
 const fetchProducts = async () => {
   try {
-    // 검색 파라미터 구성 - 기본 파라미터는 객체로 유지
+    // 선택된 은행이 없는 경우 빈 결과 반환
+    if (!selectedBankApiCodes.value || selectedBankApiCodes.value.length === 0) {
+      console.log('선택된 은행이 없어 상품을 표시하지 않습니다.');
+      depositProducts.value = [];
+      if (depositProducts.value?.length > 0) {
+        console.log('- 첫 번째 상품:', depositProducts.value[0]);
+      }
+      totalCount.value = 0;
+      return true;
+    }
+
+    // 검색 파라미터 구성
     const params = {
       category: 'deposit',
       categoryId: 1,
-      subCategoryId: 101, // 적금은 102, 정기예금은 101
+      subCategoryId: 102,
       depositAmount: String(depositAmount.value).replace(/[^\d]/g, ''),
       saveTrm: period.value,
       page: currentPage.value,
@@ -168,49 +178,30 @@ const fetchProducts = async () => {
       sortDirection: 'desc',
     };
 
-    // 수치형 데이터 변환 확인
-    params.depositAmount = parseInt(params.depositAmount) || 0;
-    params.page = parseInt(params.page) || 1;
-    params.size = parseInt(params.size) || 10;
-
-    // URLSearchParams 객체 생성
-    const searchParams = new URLSearchParams();
-
-    // 기본 파라미터 추가
-    Object.entries(params).forEach(([key, value]) => {
-      searchParams.append(key, value);
-    });
-
     // 금리 유형 필터 추가 (전체가 아닌 경우)
     if (interestType.value !== 'B') {
-      searchParams.append('intrRateType', interestType.value);
+      params.intrRateType = interestType.value;
     }
 
     // 가입 방식 필터 추가 (전체가 아닌 경우)
     if (joinWay.value !== 'all') {
-      if (Array.isArray(joinWay.value) && joinWay.value.length > 0) {
-        // 각 항목을 별도의 joinWay 파라미터로 추가
-        joinWay.value.forEach((way) => {
-          searchParams.append('joinWay', way);
-        });
-        console.log('가입 방식 필터링:', joinWay.value);
-      } else if (typeof joinWay.value === 'string' && joinWay.value !== 'all') {
-        // 단일 문자열인 경우 하나의 파라미터로 추가
-        searchParams.append('joinWay', joinWay.value);
-      }
+      params.joinWay = joinWay.value;
     }
 
     // 은행 필터 추가
     if (selectedBankApiCodes.value && selectedBankApiCodes.value.length > 0) {
-      selectedBankApiCodes.value.forEach((bank) => {
-        searchParams.append('banks', bank);
-      });
+      params.banks = selectedBankApiCodes.value.join(',');
     }
 
-    console.log('API 호출 파라미터:', searchParams.toString());
+    // 수치형 데이터 변환 확인
+    params.depositAmount = parseInt(params.depositAmount) || 0; // minAmount가 아닌 amount 사용
+    params.page = parseInt(params.page) || 1;
+    params.size = parseInt(params.size) || 10;
 
-    // API 호출 - 수정된 방식으로 호출 (getProductsAPI 함수가 URLSearchParams를 지원하는지 확인 필요)
-    const response = await getProductsAPI(searchParams);
+    console.log('API 호출 파라미터:', params);
+
+    // API 호출
+    const response = await getProductsAPI(params);
     console.log('API 응답 (원본):', response);
 
     // API 응답 처리
@@ -256,13 +247,8 @@ const searchProducts = async () => {
       queryParams.intrRateType = interestType.value;
     }
 
-    // joinWay 배열 처리 - banks와 동일한 방식으로 처리
     if (joinWay.value !== 'all') {
-      if (Array.isArray(joinWay.value) && joinWay.value.length > 0) {
-        queryParams.joinWay = joinWay.value.join(',');
-      } else if (typeof joinWay.value === 'string' && joinWay.value !== 'all') {
-        queryParams.joinWay = joinWay.value;
-      }
+      queryParams.joinWay = joinWay.value;
     }
 
     if (sortBy.value != 'intrRate') {
@@ -301,7 +287,7 @@ const goToProductDetail = (product) => {
   const saveTrm = product.save_trm || product.saveTrm;
 
   router.push({
-    path: `/products/deposit/${productId}`,
+    path: `/products/savings/${productId}`,
     query: {
       saveTrm: saveTrm,
       intrRateType: product.intr_rate_type || product.intrRateType,
@@ -415,17 +401,9 @@ watch(
       shouldReload = true;
     }
 
-    // joinWay URL 파라미터 처리 - banks와 유사하게 처리
-    if (newQuery.joinWay) {
-      const joinWayFromUrl = newQuery.joinWay.split(',');
-      // 배열인 경우와 문자열인 경우 모두 고려
-      const currentJoinWay = Array.isArray(joinWay.value) ? joinWay.value.join(',') : joinWay.value;
-
-      if (newQuery.joinWay !== currentJoinWay) {
-        // 쉼표 구분 문자열을 배열로 변환하여 저장
-        joinWay.value = joinWayFromUrl;
-        shouldReload = true;
-      }
+    if (newQuery.joinWay && newQuery.joinWay !== joinWay.value) {
+      joinWay.value = newQuery.joinWay;
+      shouldReload = true;
     }
 
     if (newQuery.sortBy && newQuery.sortBy !== sortBy.value) {
