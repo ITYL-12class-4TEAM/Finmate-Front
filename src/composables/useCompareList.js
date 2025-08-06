@@ -146,11 +146,11 @@ export default function useCompareList() {
         String(item.saveTrm) === String(saveTrm) &&
         item.intrRateType === intrRateType;
 
-      console.log('비교 중:', {
-        검사대상: { productId, saveTrm },
-        비교아이템: { productId: item.productId, saveTrm: item.saveTrm },
-        일치여부: result,
-      });
+      // console.log('비교 중:', {
+      //   검사대상: { productId, saveTrm },
+      //   비교아이템: { productId: item.productId, saveTrm: item.saveTrm },
+      //   일치여부: result,
+      // });
 
       return result;
     });

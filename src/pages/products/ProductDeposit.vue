@@ -204,7 +204,7 @@ const fetchProducts = async () => {
       });
     }
 
-    console.log('API 호출 파라미터:', searchParams.toString());
+    // console.log('API 호출 파라미터:', searchParams.toString());
 
     // API 호출 - 수정된 방식으로 호출 (getProductsAPI 함수가 URLSearchParams를 지원하는지 확인 필요)
     const response = await getProductsAPI(searchParams);
