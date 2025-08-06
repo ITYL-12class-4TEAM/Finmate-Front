@@ -72,6 +72,11 @@
 </template>
 
 <script>
+import { useToast } from '@/composables/useToast';
+// const { showToast } = useToast();
+// const handleError = () => {
+//   showToast('먼저 기본정보를 입력해주세요!', 'error');
+// };
 export default {
   name: 'BasicSurvey',
   data() {
@@ -115,7 +120,7 @@ export default {
       if (this.step2Enabled) {
         this.$router.push('/wmti/survey');
       } else {
-        alert('먼저 기본정보를 입력해주세요!');
+        // handleError();
       }
     },
     // 디버깅용 메서드들

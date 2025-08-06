@@ -82,7 +82,11 @@
 import WMTIQuestion from '@/components/wmti/WMTIQuestion.vue';
 import { getWMTIQuestionsAPI, postwmtiAPI } from '@/api/wmti';
 import BackButton from '@/components/common/BackButton.vue';
-
+// import { useToast } from '@/composables/useToast';
+// const { showToast } = useToast();
+// const handleError = (message) => {
+//   showToast(message, 'success');
+// };
 export default {
   name: 'SurveyPage',
   components: {
@@ -120,12 +124,12 @@ export default {
         console.log('✅ 질문 수:', list.length);
       } catch (err) {
         console.error('설문 문항 로딩 실패:', err);
-        alert('설문 문항을 불러오는데 실패했습니다. 다시 시도해주세요.');
+        // handleError('설문 문항을 불러오는데 실패했습니다. 다시 시도해주세요.');
       }
     },
     async handleSubmit() {
       if (!this.isAllAnswered) {
-        alert('모든 문항에 응답해주세요.');
+        // handleError('모든 문항에 응답해주세요.');
         return;
       }
 
@@ -142,7 +146,7 @@ export default {
         });
       } catch (err) {
         console.error('제출 실패:', err);
-        alert('제출 중 오류가 발생했습니다. 다시 시도해주세요.');
+        // handleError('제출 중 오류가 발생했습니다. 다시 시도해주세요.');
       }
     },
   },

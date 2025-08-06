@@ -199,6 +199,14 @@
       :risk-preference="analysisObject.riskPreference"
       :user-name="analysisObject.userName"
     />
+    <!-- 테마 포트폴리오 섹션
+    <ThemePortFolioToggle
+      v-if="analysisObject.wmtiCode"
+      :wmti-code="analysisObject.wmtiCode"
+      :result-type="analysisObject.resultType"
+      :risk-preference="analysisObject.riskPreference"
+      :user-name="analysisObject.userName"
+    /> -->
     <!-- 액션 버튼 -->
     <div class="action-section">
       <h3 class="section-title action-title">🚀 다음 단계</h3>
@@ -228,12 +236,14 @@ import { getWMTIResultAPI } from '@/api/wmti';
 import { getWMTIAnalysisAPI } from '@/api/wmti';
 import BackButton from '@/components/common/BackButton.vue';
 import ThemePortfolio from '@/components/wmti/ThemePortfolio.vue';
+// import ThemePortFolioToggle from '../../components/wmti/ThemePortFolioToggle.vue';
 
 export default {
   name: 'SurveyResult',
   components: {
     BackButton,
     ThemePortfolio,
+    // ThemePortFolioToggle,
   },
   data() {
     return {
@@ -305,7 +315,7 @@ export default {
       this.$router.push('/recommend');
     },
     goToWMTIList() {
-      this.$router.push('/wmti/list');
+      this.$router.push('/wmti/collection');
     },
     goToHistory() {
       this.$router.push('/mypage/wmti-history');
