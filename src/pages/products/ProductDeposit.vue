@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { getProductsAPI, getProductsFilterOptionsAPI } from '@/api/product';
 import DepositSearchForm from '../../components/products/deposit/DepositSearchForm.vue';
@@ -42,24 +42,24 @@ import DepositProductList from '../../components/products/deposit/DepositProduct
 const router = useRouter();
 const route = useRoute();
 
-// 폼 입력 데이터
-const depositAmount = ref('100000');
-const period = ref('6'); // 기본값 6개월
-const interestType = ref('B'); // 기본값 전체
-const joinWay = ref('all'); // 기본값 전체
-const sortBy = ref('intrRate'); // 정렬 기준 : 기본 금리순
+// 폼 입력 데이터 - URL 쿼리 파라미터를 기반으로 초기값 설정
+const depositAmount = ref(route.query.amount ? route.query.amount : '100000');
+const period = ref(route.query.saveTrm || '6'); // 기본값 6개월
+const interestType = ref(route.query.intrRateType || 'S'); // 단리리
+const joinWay = ref(route.query.joinWays ? route.query.joinWays.split(',') : 'all'); // 기본값 전체
+const sortBy = ref(route.query.sortBy || 'intrRate'); // 정렬 기준 : 기본 금리순
 
 // 상품 목록 상태
 const depositProducts = ref([]);
 const loading = ref(false);
 const error = ref(null);
 const totalCount = ref(0);
-const currentPage = ref(1);
+const currentPage = ref(parseInt(route.query.page) || 1);
 const pageSize = ref(10);
 
 // 은행 필터링
 const banks = ref([]);
-const selectedBanks = ref([]);
+const selectedBanks = ref(route.query.banks ? route.query.banks.split(',') : []);
 const selectedBankApiCodes = ref([]);
 
 // API에서 은행 목록 가져오기
@@ -77,15 +77,18 @@ const fetchBanks = async () => {
       banks.value = response.body.data.banks;
       console.log('은행 목록 로드됨:', banks.value);
 
-      // 직접 기본값 설정 (저축은행 제외한 모든 은행)
-      const regularBanks = banks.value.filter(
-        (bank) => typeof bank === 'string' && !bank.includes('저축은행')
-      );
+      // URL에 banks 파라미터가 없을 때만 기본값 설정
+      if (!route.query.banks) {
+        const regularBanks = banks.value.filter(
+          (bank) => typeof bank === 'string' && !bank.includes('저축은행')
+        );
 
-      selectedBanks.value = [...regularBanks];
-      selectedBankApiCodes.value = [...regularBanks];
+        selectedBanks.value = [...regularBanks];
+        selectedBankApiCodes.value = [...regularBanks];
 
-      console.log('기본 선택 은행 설정 완료:', selectedBanks.value);
+        console.log('기본 선택 은행 설정 완료:', selectedBanks.value);
+      }
+      // route.query.banks가 있으면 selectedBanks는 이미 초기화 시 설정되어 있음
     } else {
       console.warn('예상치 못한 API 응답 구조:', response);
       banks.value = [];
@@ -98,20 +101,21 @@ const fetchBanks = async () => {
   }
 };
 
-// 검색 폼 이벤트 핸들러
+// 검색 폼 이벤트 핸들러 수정
 const handleSearch = (formData) => {
   depositAmount.value = formData.depositAmount;
   period.value = formData.period;
   interestType.value = formData.interestType;
-  joinWay.value = formData.joinWay;
+
+  // joinWays 값 처리 수정
+  if (formData.joinWays) {
+    joinWay.value = formData.joinWays; // joinWay 변수에 저장 (변수명 유지)
+  }
 
   // 은행 선택 정보 업데이트
   if (formData.selectedBanks) {
     selectedBanks.value = formData.selectedBanks.uiCodes || [];
     selectedBankApiCodes.value = formData.selectedBanks.apiCodes || [];
-
-    console.log('선택된 은행 (UI):', selectedBanks.value);
-    console.log('선택된 은행 (API):', selectedBankApiCodes.value);
   }
 
   currentPage.value = 1; // 검색 시 첫 페이지로 초기화
@@ -120,9 +124,10 @@ const handleSearch = (formData) => {
 
 // 초기화 핸들러
 const handleReset = () => {
+  // 상태를 명확히 초기화
   depositAmount.value = '100000';
   period.value = '6';
-  interestType.value = 'B';
+  interestType.value = 'S'; // 단리로 명확히 지정
   joinWay.value = 'all';
   sortBy.value = 'intrRate';
 
@@ -134,7 +139,14 @@ const handleReset = () => {
   selectedBankApiCodes.value = [...regularBanks];
 
   currentPage.value = 1;
-  searchProducts();
+
+  // URL 쿼리 파라미터 제거 (모든 필터 제거)
+  router.replace({ query: {} });
+
+  // nextTick을 사용해 상태 업데이트 후 검색 실행
+  nextTick(() => {
+    searchProducts();
+  });
 };
 
 // 정렬 이벤트 핸들러
@@ -149,14 +161,14 @@ const goToPage = (page) => {
   searchProducts();
 };
 
-// API 호출 전용 함수 (실제 데이터 가져오기)
+// fetchProducts 함수 수정
 const fetchProducts = async () => {
   try {
-    // 검색 파라미터 구성 - 기본 파라미터는 객체로 유지
+    // 검색 파라미터 구성 - 기본 파라미터
     const params = {
       category: 'deposit',
       categoryId: 1,
-      subCategoryId: 101, // 적금은 102, 정기예금은 101
+      subCategoryId: 101,
       depositAmount: String(depositAmount.value).replace(/[^\d]/g, ''),
       saveTrm: period.value,
       page: currentPage.value,
@@ -178,22 +190,17 @@ const fetchProducts = async () => {
       searchParams.append(key, value);
     });
 
-    // 금리 유형 필터 추가 (전체가 아닌 경우)
-    if (interestType.value !== 'B') {
-      searchParams.append('intrRateType', interestType.value);
-    }
+    // 금리 유형 필터 추가 - 항상 추가 (S, M, B 모두)
+    searchParams.append('intrRateType', interestType.value);
 
     // 가입 방식 필터 추가 (전체가 아닌 경우)
     if (joinWay.value !== 'all') {
       if (Array.isArray(joinWay.value) && joinWay.value.length > 0) {
-        // 각 항목을 별도의 joinWay 파라미터로 추가
         joinWay.value.forEach((way) => {
-          searchParams.append('joinWay', way);
+          searchParams.append('joinWays', way);
         });
-        console.log('가입 방식 필터링:', joinWay.value);
       } else if (typeof joinWay.value === 'string' && joinWay.value !== 'all') {
-        // 단일 문자열인 경우 하나의 파라미터로 추가
-        searchParams.append('joinWay', joinWay.value);
+        searchParams.append('joinWays', joinWay.value);
       }
     }
 
@@ -204,9 +211,7 @@ const fetchProducts = async () => {
       });
     }
 
-    // console.log('API 호출 파라미터:', searchParams.toString());
-
-    // API 호출 - 수정된 방식으로 호출 (getProductsAPI 함수가 URLSearchParams를 지원하는지 확인 필요)
+    // API 호출
     const response = await getProductsAPI(searchParams);
     console.log('API 응답 (원본):', response);
 
@@ -230,7 +235,7 @@ const fetchProducts = async () => {
   }
 };
 
-// 상품 검색 함수 (URL 업데이트 + API 호출)
+// URL 쿼리 파라미터 업데이트 함수 수정
 const searchProducts = async () => {
   loading.value = true;
   error.value = null;
@@ -249,16 +254,18 @@ const searchProducts = async () => {
       queryParams.saveTrm = period.value;
     }
 
-    if (interestType.value !== 'B') {
+    if (interestType.value !== 'S') {
       queryParams.intrRateType = interestType.value;
     }
 
-    // joinWay 배열 처리 - banks와 동일한 방식으로 처리
+    // joinWay 배열 처리 (쉼표로 구분하되 한 번만 저장)
     if (joinWay.value !== 'all') {
       if (Array.isArray(joinWay.value) && joinWay.value.length > 0) {
-        queryParams.joinWay = joinWay.value.join(',');
+        // 중복 제거 후 쉼표로 구분된 문자열로 변환
+        const uniqueJoinWays = [...new Set(joinWay.value)];
+        queryParams.joinWays = uniqueJoinWays.join(',');
       } else if (typeof joinWay.value === 'string' && joinWay.value !== 'all') {
-        queryParams.joinWay = joinWay.value;
+        queryParams.joinWays = joinWay.value;
       }
     }
 
@@ -309,22 +316,21 @@ const goToProductDetail = (product) => {
 // 초기 데이터 로딩
 onMounted(async () => {
   try {
-    // 로딩 상태 활성화
     loading.value = true;
+
+    // 은행 목록 먼저 로드
     await fetchBanks();
 
-    // URL 쿼리 파라미터 확인
+    // URL 쿼리에서 은행 정보만 처리 (다른 값들은 이미 ref 초기화 시 설정됨)
     if (route.query.banks) {
       selectedBanks.value = route.query.banks.split(',');
 
       // API 코드 변환 (저축은행 처리)
       if (selectedBanks.value.includes('savings_all')) {
-        // 저축은행 코드 목록 생성
         const savingsBanks = banks.value.filter(
           (bank) => typeof bank === 'string' && bank.includes('저축은행')
         );
 
-        // API 코드 생성
         const apiCodes = [...selectedBanks.value];
         const index = apiCodes.indexOf('savings_all');
         if (index !== -1) {
@@ -337,33 +343,14 @@ onMounted(async () => {
       }
     }
 
-    if (route.query.amount) {
-      depositAmount.value = route.query.amount;
-      // 숫자 포맷팅
-      depositAmount.value = new Intl.NumberFormat('ko-KR').format(depositAmount.value);
+    // depositAmount 포맷팅 (이미 값이 설정되어 있으므로 포맷팅만)
+    if (depositAmount.value && depositAmount.value !== '100000') {
+      depositAmount.value = new Intl.NumberFormat('ko-KR').format(
+        depositAmount.value.toString().replace(/,/g, '')
+      );
     }
 
-    if (route.query.saveTrm) {
-      period.value = route.query.saveTrm;
-    }
-
-    if (route.query.intrRateType) {
-      interestType.value = route.query.intrRateType;
-    }
-
-    if (route.query.joinWay) {
-      joinWay.value = route.query.joinWay;
-    }
-
-    if (route.query.sortBy) {
-      sortBy.value = route.query.sortBy;
-    }
-
-    if (route.query.page) {
-      currentPage.value = parseInt(route.query.page) || 1;
-    }
-
-    // 필터 옵션 로드 시도 (선택 사항)
+    // 필터 옵션 로드 시도
     try {
       const filterOptions = await getProductsFilterOptionsAPI('deposit');
       console.log('필터 옵션:', filterOptions);
@@ -371,7 +358,7 @@ onMounted(async () => {
       console.warn('필터 옵션 로드 실패, 기본값을 사용합니다:', optionErr);
     }
 
-    // 초기 검색 실행 (URL 업데이트 없이 API 직접 호출)
+    // 초기 검색 실행
     await fetchProducts();
   } catch (err) {
     console.error('초기 데이터 로딩 실패:', err);
@@ -412,17 +399,15 @@ watch(
       shouldReload = true;
     }
 
-    // joinWay URL 파라미터 처리 - banks와 유사하게 처리
-    if (newQuery.joinWay) {
-      const joinWayFromUrl = newQuery.joinWay.split(',');
-      // 배열인 경우와 문자열인 경우 모두 고려
-      const currentJoinWay = Array.isArray(joinWay.value) ? joinWay.value.join(',') : joinWay.value;
-
-      if (newQuery.joinWay !== currentJoinWay) {
-        // 쉼표 구분 문자열을 배열로 변환하여 저장
-        joinWay.value = joinWayFromUrl;
-        shouldReload = true;
-      }
+    // joinWays URL 파라미터 처리 (쉼표로 구분된 문자열을 배열로 변환)
+    if (newQuery.joinWays) {
+      const uniqueJoinWays = [...new Set(newQuery.joinWays.split(','))];
+      joinWay.value = uniqueJoinWays;
+      shouldReload = true;
+    } else if (!newQuery.joinWays && joinWay.value !== 'all') {
+      // joinWays 파라미터가 없어지면 전체로 초기화
+      joinWay.value = 'all';
+      shouldReload = true;
     }
 
     if (newQuery.sortBy && newQuery.sortBy !== sortBy.value) {

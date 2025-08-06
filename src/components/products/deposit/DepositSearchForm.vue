@@ -69,17 +69,18 @@
           </div>
         </div>
 
-        <!-- 가입 방식 필터 -->
+        <!-- 가입 방식 필터 수정 -->
         <div class="form-group">
           <label class="filter-label">
             <i class="fa-solid fa-laptop"></i>
             가입 방식
           </label>
           <div class="tag-container">
+            <!-- 전체 버튼 스타일 변경 -->
             <div
-              class="filter-tag"
+              class="filter-tag all-tag"
               :class="{ active: selectAllJoinWays }"
-              @click="toggleAllJoinWays(true)"
+              @click="toggleAllJoinWays(!selectAllJoinWays)"
             >
               전체
             </div>
@@ -133,7 +134,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import BankSelectModal from './BankSelectModal.vue';
 
 // 부모로부터 받은 프롭스
@@ -170,22 +171,14 @@ const emit = defineEmits(['search', 'reset']);
 // 로컬 상태 (양방향 바인딩용)
 const localDepositAmount = ref(props.depositAmount);
 const localPeriod = ref(props.period);
-const localInterestType = ref('S');
+const localInterestType = ref(props.interestType);
 const selectedBanks = ref({
   uiCodes: props.selectedBanks.uiCodes || [],
   apiCodes: props.selectedBanks.apiCodes || [],
 });
 
-// 가입 방식 관련 상태
-const joinWayMapping = [
-  { label: '영업점', value: 'branch' },
-  { label: '인터넷', value: 'internet' },
-  { label: '스마트폰', value: 'mobile' },
-  { label: '전화', value: 'phone' },
-];
-
 // 화면 표시용 라벨 배열
-const availableJoinWays = ref(joinWayMapping.map((item) => item.label));
+const availableJoinWays = ref(['영업점', '인터넷', '스마트폰', '전화']);
 
 // 화면 라벨을 API 코드로 변환하는 함수
 const convertLabelToCode = (label) => {
@@ -223,7 +216,7 @@ onMounted(() => {
   }
 });
 
-// 전체 선택/해제 토글 함수
+// 전체 선택/해제 토글 함수 수정
 const toggleAllJoinWays = (state) => {
   selectAllJoinWays.value = state;
   if (selectAllJoinWays.value) {
@@ -233,7 +226,7 @@ const toggleAllJoinWays = (state) => {
   }
 };
 
-// 개별 가입 방식 토글 함수
+// 개별 가입 방식 토글 함수 수정
 const toggleJoinWay = (way) => {
   const index = selectedJoinWays.value.indexOf(way);
   if (index === -1) {
@@ -241,6 +234,7 @@ const toggleJoinWay = (way) => {
   } else {
     selectedJoinWays.value.splice(index, 1);
   }
+  // 개별 선택 시 전체 선택 상태 업데이트
   updateSelectAllState();
 };
 
@@ -350,26 +344,37 @@ const updateSelectedBanks = (bankCodes) => {
   selectedBanks.value = bankCodes;
 };
 
-// 검색 이벤트 핸들러
+// 검색 이벤트 핸들러 수정
 const onSearch = () => {
-  const selectedJoinWayCodes = selectAllJoinWays.value
-    ? 'all'
-    : selectedJoinWays.value.map((label) => convertLabelToCode(label));
+  // 선택된 가입 방법 처리
+  let joinWaysParam;
+
+  if (selectAllJoinWays.value) {
+    // 전체 선택인 경우 'all' 전달
+    joinWaysParam = 'all';
+  } else if (selectedJoinWays.value.length > 0) {
+    // 개별 선택인 경우 한글 그대로 전달 (매핑하지 않음)
+    joinWaysParam = selectedJoinWays.value;
+  } else {
+    // 아무것도 선택하지 않은 경우 'all' 전달
+    joinWaysParam = 'all';
+  }
 
   emit('search', {
     depositAmount: localDepositAmount.value,
     period: localPeriod.value,
     interestType: localInterestType.value,
-    joinWay: selectAllJoinWays.value ? 'all' : selectedJoinWayCodes,
+    joinWays: joinWaysParam, // 다중 선택 처리
     selectedBanks: selectedBanks.value,
   });
 };
 
 // 초기화 이벤트 핸들러
 const onReset = () => {
+  // 값을 직접 할당하고 즉시 반영되도록 수정
   localDepositAmount.value = '100,000';
   localPeriod.value = '6';
-  localInterestType.value = 'S';
+  localInterestType.value = 'S'; // 단리로 명확히 지정
 
   // 가입 방식 초기화 (모두 선택)
   selectedJoinWays.value = [...availableJoinWays.value];
@@ -385,7 +390,16 @@ const onReset = () => {
     apiCodes: [...regularBanks],
   };
 
-  emit('reset');
+  // 변경사항 즉시 반영되도록 $nextTick 사용
+  nextTick(() => {
+    emit('reset');
+  });
+
+  // 버튼 활성화 상태 계산 속성 추가
+  const isButtonActive = computed(() => ({
+    S: localInterestType.value === 'S',
+    M: localInterestType.value === 'M',
+  }));
 };
 </script>
 
@@ -588,6 +602,19 @@ const onReset = () => {
   background: var(--color-main);
   color: white;
   border-color: var(--color-main);
+}
+
+/* '전체' 버튼 스타일 차별화 */
+.filter-tag.all-tag {
+  background-color: var(--color-bg-light);
+  border: 1px solid var(--color-sub);
+  font-weight: bold;
+}
+
+.filter-tag.all-tag.active {
+  background-color: var(--color-sub);
+  color: white;
+  border-color: var(--color-sub);
 }
 
 /* 은행 선택 버튼 */

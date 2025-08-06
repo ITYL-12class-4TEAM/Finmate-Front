@@ -1,29 +1,27 @@
 <template>
   <div class="search-results">
-    <!-- 디버깅 정보 (필요시 주석 해제) -->
-    <!-- 
-    <div style="background: #f5f5f5; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
-      <p>로딩: {{ loading }}</p>
-      <p>에러: {{ error ? '있음' : '없음' }}</p>
-      <p>상품 수: {{ products ? products.length : 0 }}</p>
-      <p>필터링된 상품 수: {{ filteredProducts.length }}</p>
-      <p>예치금액: {{ depositAmount }}</p>
-    </div>
-    -->
-
     <!-- 로딩 및 에러 상태 -->
     <div v-if="loading" class="loading">로딩 중...</div>
     <div v-else-if="error" class="error">{{ error }}</div>
 
-    <!-- 검색 결과 요약 정보 -->
+    <!-- 검색 결과 요약 정보 (정렬 버튼 포함) -->
     <div v-else-if="depositAmount && filteredProducts.length > 0" class="filter-summary">
-      <div class="filter-badge">
-        <span class="filter-label">예치금액</span>
-        <span class="filter-value">{{ formatNumber(depositAmount) }}원</span>
+      <div class="left-section">
+        <div class="filter-badge">
+          <span class="filter-label">예치금액</span>
+          <span class="filter-value">{{ formatNumber(depositAmount) }}원</span>
+        </div>
+        <div class="result-count">
+          가입 가능한 상품 <strong>{{ totalCount }}</strong
+          >개
+        </div>
       </div>
-      <div class="result-count">
-        가입 가능한 상품 <strong>{{ totalCount }}</strong
-        >개
+      <!-- 정렬 버튼을 여기로 이동 -->
+      <div class="sort-dropdown">
+        <select v-model="localSortBy" @change="onSortChange" class="sort-select">
+          <option value="intrRate">기본금리순</option>
+          <option value="intrRate2">우대금리순</option>
+        </select>
       </div>
     </div>
 
@@ -39,31 +37,10 @@
       검색 조건에 맞는 상품이 없습니다.
     </div>
 
-    <!-- 상품 목록 (조건부 렌더링에서 분리) -->
+    <!-- 상품 목록 -->
     <div v-if="filteredProducts.length > 0" class="product-list-container">
-      <!-- 상품 목록 헤더 -->
-      <div class="results-header">
-        <div class="total-count">
-          <strong>{{ totalCount }}</strong
-          >개
-        </div>
-        <div class="sort-dropdown">
-          <select v-model="localSortBy" @change="onSortChange" class="sort-select">
-            <option value="intrRate">기본금리순</option>
-            <option value="intrRate2">우대금리순</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- 상품 목록 (인라인 스타일 추가) -->
-      <div
-        class="product-list"
-        style="
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-          gap: 16px;
-        "
-      >
+      <!-- 265개 표시 제거하고 바로 상품 목록 시작 -->
+      <div class="product-list">
         <div
           v-for="(product, index) in filteredProducts"
           :key="`product-${getProductId(product) || index}`"
@@ -75,17 +52,16 @@
               product.intr_rate_type || product.intrRateType || 'S'
             ),
           }"
-          style="
-            background-color: white;
-            border-radius: 8px;
-            padding: 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 16px;
-          "
         >
           <div class="product-header" @click="onProductClick(product)">
-            <div class="bank-name">
-              {{ product.kor_co_nm || product.korCoNm }}
+            <div class="bank-info">
+              <div class="bank-name">
+                {{ product.kor_co_nm || product.korCoNm }}
+              </div>
+              <!-- 금리 유형 뱃지 추가 -->
+              <div class="rate-type-badge" :class="getRateTypeClass(product)">
+                {{ getRateTypeLabel(product) }}
+              </div>
             </div>
             <div class="product-name">
               {{ product.product_name || product.finPrdtNm }}
@@ -147,7 +123,7 @@
       />
     </div>
 
-    <!-- 비교 플로팅 바 추가 -->
+    <!-- 비교 플로팅 바 -->
     <CompareFloatingBar
       v-if="compareList.length > 0"
       :compareList="compareList"
@@ -262,7 +238,18 @@ const formatNumber = (value) => {
   );
 };
 
-// 필터링된 상품 리스트
+// 금리 유형 라벨 가져오기
+const getRateTypeLabel = (product) => {
+  const rateType = product.intr_rate_type || product.intrRateType || 'S';
+  return rateType === 'S' ? '단리' : '복리';
+};
+
+// 금리 유형 클래스 가져오기
+const getRateTypeClass = (product) => {
+  const rateType = product.intr_rate_type || product.intrRateType || 'S';
+  return rateType === 'S' ? 'simple-interest' : 'compound-interest';
+};
+
 // 필터링된 상품 리스트
 const filteredProducts = computed(() => {
   console.log('filteredProducts 계산 시작');
@@ -462,55 +449,101 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.search-results {
-  margin-top: 20px;
-  padding-bottom: 60px; /* 플로팅 바 높이만큼 여백 추가 */
-}
-
-.loading,
-.error,
-.no-results {
-  padding: 20px;
-  text-align: center;
-  background-color: #f9f9f9;
-  border-radius: 4px;
-  margin-bottom: 20px;
-}
-
-.error {
-  color: #e53935;
-  background-color: #ffebee;
-}
-
-.results-header {
+/* 필터 요약 정보 스타일 수정 */
+.filter-summary {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  justify-content: space-between;
+  background-color: var(--color-bg-light);
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-.total-count {
-  font-size: 0.9rem;
-  color: var(--color-sub);
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-.total-count strong {
-  color: var(--color-main);
+/* 은행 정보 영역 스타일 */
+.bank-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
 }
 
+/* 금리 유형 뱃지 스타일 */
+.rate-type-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.rate-type-badge.simple-interest {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border: 1px solid #bbdefb;
+}
+
+.rate-type-badge.compound-interest {
+  background-color: #fce4ec;
+  color: #c2185b;
+  border: 1px solid #f8bbd0;
+}
+
+/* 정렬 드롭다운 스타일 유지 */
 .sort-dropdown {
   position: relative;
 }
 
 .sort-select {
-  padding: 0.3rem 1.5rem 0.3rem 0.5rem;
+  padding: 0.4rem 1.5rem 0.4rem 0.75rem;
   border: 1px solid var(--color-light);
-  border-radius: 4px;
+  border-radius: 0.375rem;
   background-color: white;
   color: var(--color-main);
-  font-size: 0.8rem;
+  font-size: 0.875rem;
+  font-weight: 500;
   appearance: none;
   cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L2 5h8z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+}
+
+.sort-select:hover {
+  border-color: var(--color-main);
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: var(--color-main);
+  box-shadow: 0 0 0 2px rgba(45, 51, 107, 0.1);
+}
+
+/* 기존 스타일 유지 */
+.product-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.product-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .product-list {
