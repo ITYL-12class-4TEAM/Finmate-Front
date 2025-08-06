@@ -11,20 +11,55 @@
     </div>
 
     <div class="item-controls">
-      <button class="favorite-btn" title="즐겨찾기 해제" @click.stop="$emit('remove-favorite')">
-        <i class="fa-solid fa-star"></i>
-      </button>
+      <FavoriteButton
+        :is-favorite="isFavorite"
+        :product-id="favorite.productId"
+        :loading="statusLoading"
+        @remove-favorite="handleRemoveFavorite"
+        @add-favorite="handleAddFavorite"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-defineProps({
+import { ref, onMounted } from 'vue';
+import FavoriteButton from './FavoriteButton.vue';
+import { wishlistAPI } from '../../../api/favorite';
+
+const props = defineProps({
   favorite: {
     type: Object,
     required: true,
   },
 });
+
+const emit = defineEmits(['remove-favorite']);
+
+const isFavorite = ref(true); // 즐겨찾기 목록이니까 기본값 true
+const statusLoading = ref(true);
+
+onMounted(async () => {
+  try {
+    // 실제 상태 확인 (혹시 동기화 안된 경우를 위해)
+    isFavorite.value = await wishlistAPI.isFavorite(props.favorite.productId);
+  } catch (error) {
+    console.error('즐겨찾기 상태 확인 실패:', error);
+    isFavorite.value = true; // 에러시 기본값
+  } finally {
+    statusLoading.value = false;
+  }
+});
+
+const handleRemoveFavorite = () => {
+  isFavorite.value = false; // 즉시 UI 업데이트
+  emit('remove-favorite', props.favorite);
+};
+
+const handleAddFavorite = () => {
+  isFavorite.value = true; // 즉시 UI 업데이트
+  // 즐겨찾기 목록에서는 이 경우가 없어야 하지만, 혹시 모르니...
+};
 
 const getCategoryFromSubcategory = (subcategoryName) => {
   if (!subcategoryName) return '';
@@ -138,41 +173,5 @@ const getProductTypeBadge = (type) => {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-}
-
-/* 즐겨찾기 버튼 */
-.favorite-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border: none;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(185, 187, 204, 0.2);
-}
-
-.favorite-btn i {
-  font-size: 1rem;
-  color: #f59e0b;
-  transition: all 0.2s ease;
-}
-
-.favorite-btn:hover {
-  background: rgba(245, 158, 11, 0.1);
-  border-color: rgba(245, 158, 11, 0.3);
-  transform: scale(1.05);
-}
-
-.favorite-btn:hover i {
-  color: #d97706;
-  transform: scale(1.1);
-}
-
-.favorite-btn:active {
-  transform: scale(0.95);
 }
 </style>

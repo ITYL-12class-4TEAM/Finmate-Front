@@ -123,7 +123,7 @@ const router = createRouter({
     {
       path: '/products',
       name: 'Products',
-      component: () => import('../pages/products/ProductsLayout.vue'), // 공통 레이아웃
+      component: () => import('../layouts/ProductsLayout.vue'), // 공통 레이아웃
       children: [
         {
           path: 'deposit',
