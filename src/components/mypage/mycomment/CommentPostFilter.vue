@@ -20,14 +20,14 @@
 
       <!-- 필터 옵션 -->
       <div class="filter-options">
-        <!-- 상품 유형 선택 -->
+        <!-- 게시판 유형 선택 -->
         <div class="filter-group">
           <label class="filter-label">
             <i class="fa-solid fa-layer-group"></i>
             게시판 유형
           </label>
           <div class="custom-select">
-            <select :value="selectedType" class="select-input" @change="handleTypeChange">
+            <select :value="selectedBoard" class="select-input" @change="handleBoardChange">
               <option value="">전체 게시판</option>
               <option value="FREE">자유게시판</option>
               <option value="HOT">HOT게시판</option>
@@ -72,16 +72,19 @@
 <script setup>
 import { computed } from 'vue';
 
+// Props 정의
 const props = defineProps({
   searchQuery: String,
   selectedBoard: String,
   sortBy: String,
 });
 
+// Emit 정의
 const emit = defineEmits(['update:searchQuery', 'update:selectedBoard', 'update:sortBy', 'filter']);
+
 // 활성 필터 여부 확인
 const hasActiveFilters = computed(() => {
-  return props.searchQuery || props.selectedType;
+  return props.searchQuery || props.selectedBoard;
 });
 
 // 이벤트 핸들러들
@@ -90,8 +93,8 @@ const handleSearchInput = (event) => {
   emit('filter');
 };
 
-const handleTypeChange = (event) => {
-  emit('update:selectedType', event.target.value);
+const handleBoardChange = (event) => {
+  emit('update:selectedBoard', event.target.value);
   emit('filter');
 };
 
@@ -107,8 +110,8 @@ const clearSearch = () => {
 
 const clearAllFilters = () => {
   emit('update:searchQuery', '');
-  emit('update:selectedType', '');
-  emit('update:sortBy', 'name-asc');
+  emit('update:selectedBoard', '');
+  emit('update:sortBy', 'comment-date-desc');
   emit('filter');
 };
 </script>

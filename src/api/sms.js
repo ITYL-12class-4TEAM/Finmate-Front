@@ -5,7 +5,7 @@ export const smsAPI = {
   sendVerification: async (phoneNumber) => {
     try {
       const response = await api.get(
-        `/sms/send-verification?phoneNumber=${encodeURIComponent(phoneNumber)}`
+        `/api/sms/send-verification?phoneNumber=${encodeURIComponent(phoneNumber)}`
       );
 
       const result = response.data;
@@ -26,9 +26,7 @@ export const smsAPI = {
       console.error('인증번호 발송 API 오류:', error);
       return {
         success: false,
-        message:
-          error.response?.data?.header?.message ||
-          '인증번호 발송에 실패했습니다.',
+        message: error.response?.data?.header?.message || '인증번호 발송에 실패했습니다.',
         data: null,
       };
     }
@@ -37,7 +35,7 @@ export const smsAPI = {
   verifyCode: async (phoneNumber, code) => {
     try {
       const response = await api.post(
-        `/sms/verify-code?phoneNumber=${encodeURIComponent(
+        `/api/sms/verify-code?phoneNumber=${encodeURIComponent(
           phoneNumber
         )}&code=${encodeURIComponent(code)}`
       );
@@ -60,9 +58,7 @@ export const smsAPI = {
       console.error('인증번호 확인 API 오류:', error);
       return {
         success: false,
-        message:
-          error.response?.data?.header?.message ||
-          '인증번호가 일치하지 않습니다.',
+        message: error.response?.data?.header?.message || '인증번호가 일치하지 않습니다.',
         data: null,
       };
     }

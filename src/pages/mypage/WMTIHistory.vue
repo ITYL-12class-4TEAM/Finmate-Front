@@ -47,52 +47,48 @@
 
         <!-- Details (Expandable) -->
         <div class="card-details" :class="{ expanded: expandedItems.includes(history.id) }">
-          <!-- Score Grid -->
-          <div class="score-grid">
-            <div
-              v-for="(scoreData, key) in getDetailedScoresWithInfo(history.originalData)"
-              :key="key"
-              class="score-item"
-            >
-              <div class="score-letter">{{ key }}</div>
-              <div class="score-name">{{ scoreData.name }}</div>
-              <div class="score-value">{{ scoreData.score }}</div>
-              <div class="score-bar">
-                <div
-                  class="score-fill"
-                  :style="{
-                    width: scoreData.score + '%',
-                    backgroundColor: getScoreColor(scoreData.score),
-                  }"
-                ></div>
+          <!-- WMTI Code Breakdown -->
+          <div class="wmti-breakdown">
+            <h4 class="breakdown-title">WMTI 코드 분석</h4>
+            <div class="wmti-code-display">
+              <div
+                v-for="(letter, index) in history.wmtiCode.split('')"
+                :key="index"
+                class="wmti-letter-card"
+              >
+                <div class="letter-header">
+                  <span class="letter">{{ letter }}</span>
+                </div>
+                <div class="score-section">
+                  <div class="score-value">
+                    {{ getScoreByLetter(history.originalData, letter) }}
+                  </div>
+                  <div class="score-bar">
+                    <div
+                      class="score-fill"
+                      :style="{
+                        width: getScoreByLetter(history.originalData, letter) + '%',
+                        backgroundColor: getScoreColor(
+                          getScoreByLetter(history.originalData, letter)
+                        ),
+                      }"
+                    ></div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-
-          <!-- Actions -->
-          <div class="actions">
-            <button class="btn-outline" @click="viewResult(history)">
-              <i class="fas fa-eye"></i>
-              상세보기
-            </button>
-            <button class="btn-outline" @click="downloadResult(history)">
-              <i class="fas fa-download"></i>
-              다운로드
-            </button>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- FAB -->
-    <button class="fab" @click="goToWMTI">
-      <i class="fas fa-plus"></i>
-    </button>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { getWMTIHistoryAPI } from '@/api/wmti';
+import router from '@/router';
+// Props
 
 // State
 const loading = ref(false);
@@ -100,124 +96,17 @@ const historyList = ref([]);
 const loadingMessage = ref('데이터를 불러오는 중...');
 const expandedItems = ref([]);
 
-// Mock Data
-const mockHistoryData = [
-  {
-    historyId: 1,
-    answersJson: '{}',
-    ascore: 85,
-    bscore: 25,
-    createdAt: '2025-07-15T14:30:00.000Z',
-    cscore: 70,
-    iscore: 60,
-    lscore: 20,
-    memberId: 1,
-    mscore: 75,
-    pscore: 90,
-    resultType: 'AGGRESSIVE',
-    riskPreference: 'GROWTH',
-    userName: '김투자',
-    wmtiCode: 'AILP',
-    wscore: 80,
-  },
-  {
-    historyId: 2,
-    answersJson: '{}',
-    ascore: 65,
-    bscore: 45,
-    createdAt: '2025-06-20T09:15:00.000Z',
-    cscore: 85,
-    iscore: 75,
-    lscore: 70,
-    memberId: 1,
-    mscore: 80,
-    pscore: 55,
-    resultType: 'MODERATE',
-    riskPreference: 'BALANCE',
-    userName: '김투자',
-    wmtiCode: 'MILC',
-    wscore: 60,
-  },
-  {
-    historyId: 3,
-    answersJson: '{}',
-    ascore: 30,
-    bscore: 80,
-    createdAt: '2025-05-10T16:45:00.000Z',
-    cscore: 95,
-    iscore: 90,
-    lscore: 85,
-    memberId: 1,
-    mscore: 40,
-    pscore: 25,
-    resultType: 'CONSERVATIVE',
-    riskPreference: 'STABILITY',
-    userName: '김투자',
-    wmtiCode: 'CIWB',
-    wscore: 35,
-  },
-  {
-    historyId: 4,
-    answersJson: '{}',
-    ascore: 75,
-    bscore: 35,
-    createdAt: '2025-04-05T11:20:00.000Z',
-    cscore: 60,
-    iscore: 80,
-    lscore: 40,
-    memberId: 1,
-    mscore: 85,
-    pscore: 70,
-    resultType: 'AGGRESSIVE',
-    riskPreference: 'GROWTH',
-    userName: '김투자',
-    wmtiCode: 'AMLP',
-    wscore: 75,
-  },
-  {
-    historyId: 5,
-    answersJson: '{}',
-    ascore: 50,
-    bscore: 60,
-    createdAt: '2025-03-12T15:45:00.000Z',
-    cscore: 75,
-    iscore: 85,
-    lscore: 65,
-    memberId: 1,
-    mscore: 70,
-    pscore: 45,
-    resultType: 'MODERATE',
-    riskPreference: 'BALANCE',
-    userName: '김투자',
-    wmtiCode: 'MILC',
-    wscore: 55,
-  },
-];
+//TODO: 회원 아이디 받아오기
+const memberId = ref(1);
 
-// Methods
-const loadMockData = async () => {
+// API 호출 함수
+const fetchHistoryData = async () => {
   loading.value = true;
-  loadingMessage.value = '히스토리 데이터를 불러오는 중...';
-
-  await new Promise((resolve) => setTimeout(resolve, 800));
-
   try {
-    historyList.value = mockHistoryData.map((item) => ({
-      id: item.historyId,
-      type: item.resultType,
-      typeName: getResultTypeName(item.resultType),
-      description: getRiskPreferenceDescription(item.riskPreference),
-      riskLevel: calculateRiskLevel(item),
-      returnExpectation: calculateReturnExpectation(item),
-      score: calculateTotalScore(item),
-      createdAt: item.createdAt,
-      wmtiCode: item.wmtiCode,
-      originalData: item,
-    }));
-
+    historyList.value = await getWMTIHistoryAPI(memberId.value);
     historyList.value.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  } catch (err) {
-    console.error('❌ Mock 데이터 로드 실패:', err);
+  } catch (e) {
+    console.error('히스토리 불러오기 실패:', e);
   } finally {
     loading.value = false;
   }
@@ -232,68 +121,25 @@ const toggleDetails = (historyId) => {
   }
 };
 
-// Utility Functions
-const getResultTypeName = (resultType) => {
-  const types = {
-    AGGRESSIVE: '공격투자형',
-    MODERATE: '중립투자형',
-    CONSERVATIVE: '안정추구형',
+const getScoreByLetter = (originalData, letter) => {
+  const scoreMap = {
+    A: originalData.ascore,
+    B: originalData.bscore,
+    C: originalData.cscore,
+    I: originalData.iscore,
+    L: originalData.lscore,
+    M: originalData.mscore,
+    P: originalData.pscore,
+    W: originalData.wscore,
   };
-  return types[resultType] || resultType;
-};
-
-const getRiskPreferenceDescription = (riskPreference) => {
-  const descriptions = {
-    GROWTH: '높은 수익을 위해 위험을 감수하는 성향',
-    BALANCE: '적절한 수익과 안정성을 추구하는 성향',
-    STABILITY: '안정적인 투자를 선호하는 성향',
-  };
-  return descriptions[riskPreference] || riskPreference;
-};
-
-const calculateRiskLevel = (item) => {
-  const aggressiveScore = (item.ascore + item.pscore) / 2;
-  const conservativeScore = (item.bscore + item.cscore) / 2;
-  const riskLevel = (aggressiveScore - conservativeScore + 100) / 20;
-  return Math.max(1, Math.min(10, Math.round(riskLevel)));
-};
-
-const calculateReturnExpectation = (item) => {
-  const riskLevel = calculateRiskLevel(item);
-  return Math.round(riskLevel * 1.2 + 2);
-};
-
-const calculateTotalScore = (item) => {
-  return (
-    item.ascore +
-    item.lscore +
-    item.mscore +
-    item.pscore +
-    item.iscore +
-    item.wscore +
-    item.bscore +
-    item.cscore
-  );
-};
-
-const getDetailedScoresWithInfo = (originalData) => {
-  return {
-    A: { score: originalData.ascore, name: 'Aggressive' },
-    L: { score: originalData.lscore, name: 'Liquidity' },
-    M: { score: originalData.mscore, name: 'Market' },
-    P: { score: originalData.pscore, name: 'Profit' },
-    I: { score: originalData.iscore, name: 'Investment' },
-    W: { score: originalData.wscore, name: 'Wealth' },
-    B: { score: originalData.bscore, name: 'Balance' },
-    C: { score: originalData.cscore, name: 'Conservative' },
-  };
+  return scoreMap[letter] || 0;
 };
 
 const getScoreColor = (score) => {
-  if (score >= 80) return '#198754';
-  if (score >= 60) return '#ffc107';
-  if (score >= 40) return '#fd7e14';
-  return '#dc3545';
+  if (score >= 80) return 'var(--color-main)';
+  if (score >= 60) return 'var(--color-sub)';
+  if (score >= 40) return 'var(--color-light)';
+  return 'var(--color-)';
 };
 
 const getBadgeClass = (type) => {
@@ -308,39 +154,31 @@ const formatDate = (date) => {
   });
 };
 
-// Actions
-const viewResult = (history) => {
-  alert(
-    `🔍 ${history.wmtiCode} 결과 상세보기\n\n투자성향: ${history.typeName}\n위험도: ${history.riskLevel}/10\n기대수익: ${history.returnExpectation}%`
-  );
-};
-
-const downloadResult = (history) => {
-  alert(`📄 ${history.wmtiCode} 결과 다운로드\n\n실제 구현에서는 PDF 파일을 다운로드합니다.`);
-};
-
 const goToWMTI = () => {
-  alert('🧭 WMTI 검사 페이지로 이동합니다!');
+  router.push('/wmti/basic');
 };
 
 // Lifecycle
 onMounted(() => {
-  loadMockData();
+  fetchHistoryData();
 });
 </script>
 
 <style scoped>
 .wmti-history {
+  width: 100%;
   max-width: 26.875rem;
   margin: 0 auto;
   min-height: 100vh;
   background: var(--color-bg);
+  padding: 0.5rem;
+  box-sizing: border-box;
 }
 
 /* Header */
 .header {
   background: var(--color-white);
-  padding: 0.5rem 0.75rem;
+  padding: 1rem;
   border-radius: 0.75rem;
   text-align: center;
 }
@@ -349,7 +187,7 @@ onMounted(() => {
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--color-main);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .header p {
@@ -445,9 +283,17 @@ onMounted(() => {
   background: #dc3545;
   color: white;
 }
+.badge-active {
+  background: #fd7e14;
+  color: white;
+}
 .badge-moderate {
   background: #ffc107;
   color: #000;
+}
+.badge-passive {
+  background: #6c757d;
+  color: white;
 }
 .badge-conservative {
   background: #198754;
@@ -496,62 +342,80 @@ onMounted(() => {
 }
 
 .card-details.expanded {
-  max-height: 31.25rem;
+  max-height: 50rem;
 }
 
-.score-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
-  padding: 0.75rem;
+/* WMTI Breakdown */
+.wmti-breakdown {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--color-bg);
 }
 
-.score-item {
-  text-align: center;
-  padding: 0.75rem;
-  background: var(--color-bg);
-  border-radius: 0.5rem;
-}
-
-.score-letter {
-  font-weight: 700;
+.breakdown-title {
+  font-size: 0.9rem;
+  font-weight: 600;
   color: var(--color-main);
-  font-size: 1rem;
-  margin-bottom: 0.25rem;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
-.score-name {
-  font-size: 0.7rem;
-  color: var(--color-sub);
-  text-transform: uppercase;
+.wmti-code-display {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.wmti-letter-card {
+  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
+  border: 1px solid var(--color-main);
+  border-radius: 0.75rem;
+  padding: 0.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.wmti-letter-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--color-main);
+}
+
+.letter-header {
   margin-bottom: 0.5rem;
 }
 
-.score-value {
+.letter {
+  display: block;
+  font-size: 1rem;
+  text-align: center;
+  font-weight: 700;
+  color: var(--color-main);
+  margin-bottom: 0.25rem;
+}
+
+.score-section .score-value {
+  font-size: 1rem;
   font-weight: 600;
   color: var(--color-main);
   margin-bottom: 0.5rem;
 }
 
-.score-bar {
-  height: 0.25rem;
+.score-section .score-bar {
+  height: 0.3rem;
   background: rgba(185, 187, 204, 0.3);
-  border-radius: 0.125rem;
+  border-radius: 0.15rem;
   overflow: hidden;
 }
 
-.score-fill {
+.score-section .score-fill {
   height: 100%;
-  border-radius: 0.125rem;
-  transition: width 0.3s ease;
-}
-
-/* Actions */
-.actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  padding: 1rem;
+  border-radius: 0.15rem;
+  transition: width 0.5s ease;
 }
 
 /* Buttons */
@@ -569,30 +433,12 @@ onMounted(() => {
   background: var(--color-sub);
 }
 
-.btn-outline {
-  background: transparent;
-  color: var(--color-main);
-  border: 1px solid var(--color-main);
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  font-size: 0.85rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-}
-
-.btn-outline:hover {
-  background: var(--color-main);
-  color: white;
-}
-
 /* FAB */
 .fab {
   position: fixed;
   bottom: 1.5rem;
-  right: calc(50% - 13.4375rem + 1.5rem);
+  right: 50%;
+  transform: translateX(50%);
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 50%;
@@ -602,10 +448,6 @@ onMounted(() => {
   font-size: 1.2rem;
   cursor: pointer;
   box-shadow: 0 0.25rem 0.75rem rgba(45, 51, 107, 0.3);
-}
-
-.fab:hover {
-  background: var(--color-sub);
-  transform: scale(1.05);
+  z-index: 1000;
 }
 </style>

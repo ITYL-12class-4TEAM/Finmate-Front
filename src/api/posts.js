@@ -1,5 +1,5 @@
-import api from './index';
-import { productTagMap } from '@/constants/tags';
+import api from "./index";
+import { productTagMap } from "@/constants/tags";
 
 // 게시글 목록 조회
 export const getPostsAPI = async (boardId) => {
@@ -13,7 +13,7 @@ export const getPostsAPI = async (boardId) => {
     createdAt: post.createdAt,
     likes: post.likeCount,
     comments: post.commentCount,
-    tendency: 'APWC', // 임의 값 (백엔드 리팩터링 전)
+    tendency: "APWC", // 임의 값 (백엔드 리팩터링 전)
     productType: productTagMap[post.productTag],
   }));
 };
@@ -38,13 +38,13 @@ export const getPostByIdAPI = async (postId, memberId) => {
     tags: [productTagMap[post.productTag]],
     nickname: post.nickname,
     isMine: memberId ? post.memberId === memberId : false,
-    authorImage: '/authorImg.jpg', // TODO: 백엔드 이미지 연결 시 교체
+    authorImage: "/authorImg.jpg", // TODO: 백엔드 이미지 연결 시 교체
   };
 };
 
 // 게시글 등록
 export const createPostAPI = async (postData) => {
-  const res = await api.post('/api/posts', postData);
+  const res = await api.post("/api/posts", postData);
   return res.data.body.data;
 };
 
@@ -65,3 +65,9 @@ export const deletePostAPI = async (postId) => {
 //   const res = await api.delete(`/api/posts/attachment/${no}`);
 //   return res.data;
 // };
+
+// 전체 핫게시물 조회
+export const getHotPostsAPI = async () => {
+  const res = await api.get("/api/posts/hot");
+  return res.data.body.data;
+};

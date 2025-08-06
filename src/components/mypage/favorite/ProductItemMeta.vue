@@ -1,7 +1,7 @@
 <template>
   <div class="favorite-item-meta">
     <div class="meta-content">
-      <i class="fa-solid fa-heart"></i>
+      <i class="fa-solid fa-star"></i>
       <span class="meta-text">
         <strong>{{ formatCount(favorite.wishlistCount) }}명</strong>의 관심상품
       </span>
@@ -65,7 +65,7 @@ const formatCount = (count) => {
 }
 
 .meta-content i {
-  color: #dc3545;
+  color: #f0a146;
   font-size: 0.875rem;
   transition: all 0.2s ease;
 }

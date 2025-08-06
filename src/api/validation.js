@@ -5,7 +5,7 @@ export const validationAPI = {
   checkEmail: async (email) => {
     try {
       const response = await api.get(
-        `/validation/check/email?email=${encodeURIComponent(email)}`
+        `/api/validation/check/email?email=${encodeURIComponent(email)}`
       );
 
       const result = response.data;
@@ -27,8 +27,7 @@ export const validationAPI = {
       return {
         success: false,
         message:
-          error.response?.data?.header?.message ||
-          '이메일 중복 확인 중 오류가 발생했습니다.',
+          error.response?.data?.header?.message || '이메일 중복 확인 중 오류가 발생했습니다.',
         data: null,
       };
     }
@@ -37,7 +36,7 @@ export const validationAPI = {
   checkNickname: async (nickname) => {
     try {
       const response = await api.get(
-        `/validation/check/nickname?nickname=${encodeURIComponent(nickname)}`
+        `/api/validation/check/nickname?nickname=${encodeURIComponent(nickname)}`
       );
 
       const result = response.data;
@@ -59,8 +58,7 @@ export const validationAPI = {
       return {
         success: false,
         message:
-          error.response?.data?.header?.message ||
-          '닉네임 중복 확인 중 오류가 발생했습니다.',
+          error.response?.data?.header?.message || '닉네임 중복 확인 중 오류가 발생했습니다.',
         data: null,
       };
     }
