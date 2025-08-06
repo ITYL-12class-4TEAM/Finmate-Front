@@ -26,7 +26,7 @@
         <div class="feature-content">
           <div class="feature-label">가입 기간</div>
           <div class="feature-value">
-            {{ selectedOption?.save_trm || selectedOption?.saveTrm || "-" }}개월
+            {{ selectedOption?.save_trm || selectedOption?.saveTrm || '-' }}개월
           </div>
         </div>
       </div>
@@ -46,7 +46,7 @@
         <div class="feature-content">
           <div class="feature-label">금리 유형</div>
           <div class="feature-value">
-            {{ selectedOption?.intr_rate_type_nm || "정보 없음" }}
+            {{ selectedOption?.intr_rate_type_nm || '정보 없음' }}
           </div>
         </div>
       </div>
@@ -55,7 +55,7 @@
         <div class="feature-icon">🔄</div>
         <div class="feature-content">
           <div class="feature-label">가입 방법</div>
-          <div class="feature-value">{{ product.productDetail?.join_way || "제한 없음" }}</div>
+          <div class="feature-value">{{ product.productDetail?.join_way || '제한 없음' }}</div>
         </div>
       </div>
     </div>
@@ -63,7 +63,7 @@
 </template>
 <script>
 export default {
-  name: "ProductFeatures",
+  name: 'ProductFeatures',
   props: {
     product: {
       type: Object,

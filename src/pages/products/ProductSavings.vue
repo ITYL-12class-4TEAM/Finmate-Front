@@ -74,12 +74,7 @@ const fetchBanks = async () => {
     console.log('필터 옵션 응답:', response);
 
     // 은행 데이터 처리
-    if (
-      response &&
-      response.body &&
-      response.body.data &&
-      response.body.data.banks
-    ) {
+    if (response && response.body && response.body.data && response.body.data.banks) {
       // API 응답에서 banks 배열 가져오기
       banks.value = response.body.data.banks;
       console.log('은행 목록 로드됨:', banks.value);
@@ -160,10 +155,7 @@ const goToPage = (page) => {
 const fetchProducts = async () => {
   try {
     // 선택된 은행이 없는 경우 빈 결과 반환
-    if (
-      !selectedBankApiCodes.value ||
-      selectedBankApiCodes.value.length === 0
-    ) {
+    if (!selectedBankApiCodes.value || selectedBankApiCodes.value.length === 0) {
       console.log('선택된 은행이 없어 상품을 표시하지 않습니다.');
       depositProducts.value = [];
       if (depositProducts.value?.length > 0) {
@@ -281,8 +273,7 @@ const searchProducts = async () => {
     await fetchProducts();
   } catch (err) {
     console.error('상품 검색 실패:', err);
-    error.value =
-      '상품을 검색하는 중 오류가 발생했습니다. ' + (err.message || '');
+    error.value = '상품을 검색하는 중 오류가 발생했습니다. ' + (err.message || '');
     depositProducts.value = [];
     totalCount.value = 0;
   } finally {
@@ -338,9 +329,7 @@ onMounted(async () => {
     if (route.query.amount) {
       depositAmount.value = route.query.amount;
       // 숫자 포맷팅
-      depositAmount.value = new Intl.NumberFormat('ko-KR').format(
-        depositAmount.value
-      );
+      depositAmount.value = new Intl.NumberFormat('ko-KR').format(depositAmount.value);
     }
 
     if (route.query.saveTrm) {
@@ -375,8 +364,7 @@ onMounted(async () => {
     await fetchProducts();
   } catch (err) {
     console.error('초기 데이터 로딩 실패:', err);
-    error.value =
-      '데이터를 불러오는 중 오류가 발생했습니다. ' + (err.message || '');
+    error.value = '데이터를 불러오는 중 오류가 발생했습니다. ' + (err.message || '');
     depositProducts.value = [];
     totalCount.value = 0;
   } finally {
@@ -397,14 +385,9 @@ watch(
     // 쿼리 변경 감지하여 현재 상태와 다른 경우에만 업데이트
     let shouldReload = false;
 
-    if (
-      newQuery.amount &&
-      newQuery.amount !== depositAmount.value.replace(/,/g, '')
-    ) {
+    if (newQuery.amount && newQuery.amount !== depositAmount.value.replace(/,/g, '')) {
       depositAmount.value = newQuery.amount;
-      depositAmount.value = new Intl.NumberFormat('ko-KR').format(
-        depositAmount.value
-      );
+      depositAmount.value = new Intl.NumberFormat('ko-KR').format(depositAmount.value);
       shouldReload = true;
     }
 

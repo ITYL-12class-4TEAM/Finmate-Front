@@ -2,12 +2,7 @@
   <form @submit.prevent="onSearch">
     <div class="form-group">
       <label>예치 금액</label>
-      <input
-        type="text"
-        v-model="localDepositAmount"
-        class="form-control"
-        @input="formatAmount"
-      />
+      <input type="text" v-model="localDepositAmount" class="form-control" @input="formatAmount" />
       <span>원</span>
     </div>
 
@@ -17,33 +12,18 @@
         <label><input type="radio" v-model="localPeriod" value="1" /> 1 </label>
         <label><input type="radio" v-model="localPeriod" value="3" /> 3 </label>
         <label><input type="radio" v-model="localPeriod" value="6" /> 6 </label>
-        <label
-          ><input type="radio" v-model="localPeriod" value="12" /> 12</label
-        >
-        <label
-          ><input type="radio" v-model="localPeriod" value="24" /> 24</label
-        >
-        <label
-          ><input type="radio" v-model="localPeriod" value="36" /> 36</label
-        >
+        <label><input type="radio" v-model="localPeriod" value="12" /> 12</label>
+        <label><input type="radio" v-model="localPeriod" value="24" /> 24</label>
+        <label><input type="radio" v-model="localPeriod" value="36" /> 36</label>
       </div>
     </div>
 
     <div class="form-group">
       <label>금리 유형</label>
       <div class="radio-group">
-        <label
-          ><input type="radio" v-model="localInterestType" value="B" />
-          전체</label
-        >
-        <label
-          ><input type="radio" v-model="localInterestType" value="S" />
-          단리</label
-        >
-        <label
-          ><input type="radio" v-model="localInterestType" value="M" />
-          복리</label
-        >
+        <label><input type="radio" v-model="localInterestType" value="B" /> 전체</label>
+        <label><input type="radio" v-model="localInterestType" value="S" /> 단리</label>
+        <label><input type="radio" v-model="localInterestType" value="M" /> 복리</label>
       </div>
     </div>
 
@@ -52,20 +32,12 @@
       <div class="checkbox-group">
         <!-- 전체 선택 체크박스 -->
         <label class="checkbox-option">
-          <input
-            type="checkbox"
-            v-model="selectAllJoinWays"
-            @change="toggleAllJoinWays"
-          />
+          <input type="checkbox" v-model="selectAllJoinWays" @change="toggleAllJoinWays" />
           <span>전체</span>
         </label>
 
         <!-- 개별 가입 방식 체크박스 -->
-        <label
-          class="checkbox-option"
-          v-for="way in availableJoinWays"
-          :key="way"
-        >
+        <label class="checkbox-option" v-for="way in availableJoinWays" :key="way">
           <input
             type="checkbox"
             v-model="selectedJoinWays"
@@ -97,8 +69,7 @@
           {{ selectedBanks.uiCodes.join(', ') }}
         </span>
         <span v-else>
-          {{ selectedBanks.uiCodes.slice(0, 2).join(', ') }} 외
-          {{ selectedBankCount - 2 }}개
+          {{ selectedBanks.uiCodes.slice(0, 2).join(', ') }} 외 {{ selectedBankCount - 2 }}개
         </span>
       </div>
     </div>
@@ -203,8 +174,7 @@ const toggleAllJoinWays = () => {
 
 // 개별 선택 시 전체 선택 상태 업데이트
 const updateSelectAllState = () => {
-  selectAllJoinWays.value =
-    selectedJoinWays.value.length === availableJoinWays.value.length;
+  selectAllJoinWays.value = selectedJoinWays.value.length === availableJoinWays.value.length;
 };
 
 // 모달 표시 상태
@@ -217,10 +187,7 @@ const selectedBankCount = computed(() => {
 
 // 모든 은행이 선택되었는지 여부
 const isAllBanksSelected = computed(() => {
-  return (
-    selectedBankCount.value > 0 &&
-    selectedBankCount.value === props.banks.length
-  );
+  return selectedBankCount.value > 0 && selectedBankCount.value === props.banks.length;
 });
 
 // props 변경 시 로컬 상태 업데이트
@@ -277,9 +244,7 @@ const formatAmount = () => {
 
   // 숫자 포맷팅 (천 단위 콤마)
   if (numericValue) {
-    localDepositAmount.value = new Intl.NumberFormat('ko-KR').format(
-      numericValue
-    );
+    localDepositAmount.value = new Intl.NumberFormat('ko-KR').format(numericValue);
   } else {
     localDepositAmount.value = '';
   }

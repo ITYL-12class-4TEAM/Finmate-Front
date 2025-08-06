@@ -16,10 +16,7 @@
     <div v-else-if="error" class="error">{{ error }}</div>
 
     <!-- 검색 결과 요약 정보 -->
-    <div
-      v-else-if="depositAmount && filteredProducts.length > 0"
-      class="filter-summary"
-    >
+    <div v-else-if="depositAmount && filteredProducts.length > 0" class="filter-summary">
       <div class="filter-badge">
         <span class="filter-label">예치금액</span>
         <span class="filter-value">{{ formatNumber(depositAmount) }}원</span>
@@ -31,13 +28,9 @@
     </div>
 
     <!-- 검색 결과 없음 메시지 -->
-    <div
-      v-else-if="depositAmount && filteredProducts.length === 0"
-      class="no-results"
-    >
+    <div v-else-if="depositAmount && filteredProducts.length === 0" class="no-results">
       <p>
-        <strong>{{ formatNumber(depositAmount) }}원</strong>으로 가입 가능한
-        상품이 없습니다.
+        <strong>{{ formatNumber(depositAmount) }}원</strong>으로 가입 가능한 상품이 없습니다.
       </p>
       <p class="suggestion">다른 금액으로 검색해보세요.</p>
     </div>
@@ -55,11 +48,7 @@
           >개
         </div>
         <div class="sort-dropdown">
-          <select
-            v-model="localSortBy"
-            @change="onSortChange"
-            class="sort-select"
-          >
+          <select v-model="localSortBy" @change="onSortChange" class="sort-select">
             <option value="intrRate">기본금리순</option>
             <option value="intrRate2">우대금리순</option>
           </select>
@@ -111,9 +100,7 @@
             </div>
             <div class="detail-row">
               <span class="detail-label">가입 기간</span>
-              <span class="detail-value"
-                >{{ product.save_trm || product.saveTrm }}개월</span
-              >
+              <span class="detail-value">{{ product.save_trm || product.saveTrm }}개월</span>
             </div>
           </div>
 
@@ -133,9 +120,7 @@
             >
               비교함에 추가
             </button>
-            <button class="join-btn" @click.stop="goToJoinPage(product)">
-              가입하기
-            </button>
+            <button class="join-btn" @click.stop="goToJoinPage(product)">가입하기</button>
           </div>
         </div>
       </div>
@@ -159,12 +144,12 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import Pagination from "../Pagination.vue";
-import CompareFloatingBar from "@/components/products/compare/CompareFloatingBar.vue";
-import ActionButtons from "@/components/products/ActionButtons.vue";
-import useCompareList from "@/composables/useCompareList";
+import { computed, ref, watch, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import Pagination from '../Pagination.vue';
+import CompareFloatingBar from '@/components/products/compare/CompareFloatingBar.vue';
+import ActionButtons from '@/components/products/ActionButtons.vue';
+import useCompareList from '@/composables/useCompareList';
 
 // 프롭스 정의
 const props = defineProps({
@@ -174,7 +159,7 @@ const props = defineProps({
   },
   depositAmount: {
     type: String,
-    default: "100000",
+    default: '100000',
   },
   loading: {
     type: Boolean,
@@ -198,36 +183,31 @@ const props = defineProps({
   },
   sortBy: {
     type: String,
-    default: "intrRate",
+    default: 'intrRate',
   },
   productType: {
     type: String,
-    default: "deposit", // 기본값은 예금 상품
+    default: 'deposit', // 기본값은 예금 상품
   },
 });
 
 // 이벤트 정의
-const emit = defineEmits(["product-click", "page-change", "sort-change"]);
+const emit = defineEmits(['product-click', 'page-change', 'sort-change']);
 const router = useRouter();
 
 // 현재 정렬 기준 (로컬 상태)
 const localSortBy = ref(props.sortBy);
 
 // 비교함 관련 기능 가져오기 (컴포저블)
-const {
-  compareList,
-  addToCompareList,
-  removeFromCompareList,
-  isInCompareList,
-  clearCompareList,
-} = useCompareList();
+const { compareList, addToCompareList, removeFromCompareList, isInCompareList, clearCompareList } =
+  useCompareList();
 
 // 상품 ID 가져오기 (로컬 함수로 구현)
 const getProductId = (product) => {
   if (!product) return null;
 
   // 가능한 ID 필드명 목록
-  const possibleIdFields = ["product_id", "productId", "id", "finPrdtCd"];
+  const possibleIdFields = ['product_id', 'productId', 'id', 'finPrdtCd'];
 
   // 존재하는 필드 찾기
   for (const field of possibleIdFields) {
@@ -245,7 +225,7 @@ const getSaveTrm = (product) => {
   if (!product) return null;
 
   // 가능한 기간 필드명 목록
-  const possibleTrmFields = ["save_trm", "saveTrm", "term"];
+  const possibleTrmFields = ['save_trm', 'saveTrm', 'term'];
 
   // 존재하는 필드 찾기
   for (const field of possibleTrmFields) {
@@ -260,38 +240,34 @@ const getSaveTrm = (product) => {
 
 // 숫자 포맷팅 함수 (천 단위 콤마)
 const formatNumber = (value) => {
-  if (!value) return "0";
+  if (!value) return '0';
   // 콤마가 이미 있으면 그대로 반환
-  if (typeof value === "string" && value.includes(",")) return value;
+  if (typeof value === 'string' && value.includes(',')) return value;
   // 콤마 없으면 포맷팅
-  return new Intl.NumberFormat("ko-KR").format(
-    typeof value === "string" ? value.replace(/[^\d]/g, "") : value
+  return new Intl.NumberFormat('ko-KR').format(
+    typeof value === 'string' ? value.replace(/[^\d]/g, '') : value
   );
 };
 
 // 필터링된 상품 리스트
 // 필터링된 상품 리스트
 const filteredProducts = computed(() => {
-  console.log("filteredProducts 계산 시작");
-  console.log("- 원본 상품 데이터 길이:", props.products?.length || 0);
-  console.log("- depositAmount:", props.depositAmount);
+  console.log('filteredProducts 계산 시작');
+  console.log('- 원본 상품 데이터 길이:', props.products?.length || 0);
+  console.log('- depositAmount:', props.depositAmount);
 
   // 상품 데이터가 없으면 빈 배열 반환
-  if (
-    !props.products ||
-    !Array.isArray(props.products) ||
-    props.products.length === 0
-  ) {
-    console.log("상품 데이터가 없거나 배열이 아닙니다");
+  if (!props.products || !Array.isArray(props.products) || props.products.length === 0) {
+    console.log('상품 데이터가 없거나 배열이 아닙니다');
     return [];
   }
 
   // 예치금액 파싱
   const userAmount = props.depositAmount
-    ? Number(String(props.depositAmount).replace(/[^\d]/g, ""))
+    ? Number(String(props.depositAmount).replace(/[^\d]/g, ''))
     : 0;
 
-  console.log("- 파싱된 예치금액:", userAmount);
+  console.log('- 파싱된 예치금액:', userAmount);
 
   let filteredData = [...props.products];
 
@@ -300,26 +276,17 @@ const filteredProducts = computed(() => {
     filteredData = filteredData.filter((product) => {
       // 다양한 필드명 대응
       const minDeposit = Number(
-        product.min_deposit ||
-          product.minDeposit ||
-          product.minDepositAmount ||
-          0
+        product.min_deposit || product.minDeposit || product.minDepositAmount || 0
       );
 
       // 최대 한도는 null/빈값일 경우 무제한으로 처리
       const maxLimit =
-        Number(
-          product.max_limit || product.maxLimit || product.maxDepositAmount
-        ) || Number.MAX_SAFE_INTEGER;
+        Number(product.max_limit || product.maxLimit || product.maxDepositAmount) ||
+        Number.MAX_SAFE_INTEGER;
 
       // 최소 예치금액과 최대 한도 로깅
       console.log(
-        `상품 ${
-          product.product_name ||
-          product.productName ||
-          product.finPrdtNm ||
-          "이름 없음"
-        }:` +
+        `상품 ${product.product_name || product.productName || product.finPrdtNm || '이름 없음'}:` +
           ` 최소=${minDeposit}, 최대=${maxLimit}, 입력=${userAmount},` +
           ` 조건충족=${userAmount >= minDeposit && userAmount <= maxLimit}`
       );
@@ -329,7 +296,7 @@ const filteredProducts = computed(() => {
     });
   }
 
-  console.log("- 필터링 후 상품 수:", filteredData.length);
+  console.log('- 필터링 후 상품 수:', filteredData.length);
   return filteredData;
 });
 
@@ -342,12 +309,12 @@ const toggleCompare = (product) => {
   if (isInCompareList(productId, saveTrm)) {
     // 이미 있으면 제거
     const result = removeFromCompareList(productId, saveTrm);
-    console.log("비교함에서 제거:", result);
+    console.log('비교함에서 제거:', result);
   } else {
     // 없으면 추가
     // 비교함 최대 개수 확인 (기본값 4)
     if (compareList.value.length >= 4) {
-      alert("최대 4개까지 비교할 수 있습니다.");
+      alert('최대 4개까지 비교할 수 있습니다.');
       return;
     }
 
@@ -356,13 +323,13 @@ const toggleCompare = (product) => {
       save_trm: product.save_trm || product.saveTrm,
       intr_rate: product.intr_rate || product.intrRate,
       intr_rate2: product.intr_rate2 || product.intrRate2,
-      intr_rate_type: product.intr_rate_type || product.intrRateType || "S",
+      intr_rate_type: product.intr_rate_type || product.intrRateType || 'S',
       option_id: product.option_id || product.optionId || null,
     };
 
     // 비교함에 추가
     const result = addToCompareList(product, option, props.productType);
-    console.log("비교함에 추가:", result);
+    console.log('비교함에 추가:', result);
   }
 };
 
@@ -379,30 +346,30 @@ const totalPages = computed(() => Math.ceil(props.totalCount / props.pageSize));
 
 // 금리 포맷팅 함수
 const formatRate = (rate) => {
-  if (rate === null || rate === undefined) return "정보 없음";
-  return parseFloat(rate).toFixed(2) + "%";
+  if (rate === null || rate === undefined) return '정보 없음';
+  return parseFloat(rate).toFixed(2) + '%';
 };
 
 // 상품 클릭 이벤트 핸들러
 const onProductClick = (product) => {
-  emit("product-click", product);
+  emit('product-click', product);
 };
 
 // 페이지 변경 이벤트 핸들러
 const onPageChange = (page) => {
-  emit("page-change", page);
+  emit('page-change', page);
 };
 
 // 정렬 변경 이벤트 핸들러
 const onSortChange = () => {
-  emit("sort-change", { sortBy: localSortBy.value });
+  emit('sort-change', { sortBy: localSortBy.value });
 };
 
 // 비교함에 추가 핸들러 (이 함수는 더 이상 필요하지 않으면 제거)
 const handleAddToCompare = (product) => {
   // 비교함 최대 개수 확인
   if (compareList.value.length >= 4) {
-    alert("최대 4개까지 비교할 수 있습니다.");
+    alert('최대 4개까지 비교할 수 있습니다.');
     return;
   }
 
@@ -411,11 +378,11 @@ const handleAddToCompare = (product) => {
     save_trm: product.save_trm || product.saveTrm,
     intr_rate: product.intr_rate || product.intrRate,
     intr_rate2: product.intr_rate2 || product.intrRate2,
-    intr_rate_type: product.intr_rate_type || product.intrRateType || "S",
+    intr_rate_type: product.intr_rate_type || product.intrRateType || 'S',
     option_id: product.option_id || product.optionId || null,
   };
 
-  console.log("비교함 추가 전 상품/옵션 정보:", {
+  console.log('비교함 추가 전 상품/옵션 정보:', {
     product: product,
     option: option,
     productType: props.productType,
@@ -436,7 +403,7 @@ const handleRemoveFromCompare = (product) => {
   const saveTrm = getSaveTrm(product);
 
   const result = removeFromCompareList(productId, saveTrm);
-  console.log("비교함에서 제거:", result);
+  console.log('비교함에서 제거:', result);
 };
 
 // 가입 페이지로 이동
@@ -445,7 +412,7 @@ const goToJoinPage = (product) => {
   const saveTrm = getSaveTrm(product);
 
   router.push({
-    name: "ProductDetail",
+    name: 'ProductDetail',
     params: {
       category: props.productType,
       id: productId,
@@ -459,21 +426,21 @@ const goToJoinPage = (product) => {
 // 비교 페이지로 이동
 const goToCompare = () => {
   if (compareList.value.length < 2) {
-    alert("최소 2개 이상의 상품을 선택해주세요.");
+    alert('최소 2개 이상의 상품을 선택해주세요.');
     return;
   }
 
   router.push({
-    path: "/products/compare",
+    path: '/products/compare',
   });
 };
 
 // 컴포넌트 마운트 시 디버깅
 onMounted(() => {
-  console.log("컴포넌트 마운트됨");
-  console.log("상품 데이터:", props.products);
-  console.log("로딩 상태:", props.loading);
-  console.log("에러 상태:", props.error);
+  console.log('컴포넌트 마운트됨');
+  console.log('상품 데이터:', props.products);
+  console.log('로딩 상태:', props.loading);
+  console.log('에러 상태:', props.error);
 });
 </script>
 

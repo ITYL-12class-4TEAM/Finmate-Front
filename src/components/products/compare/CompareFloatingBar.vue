@@ -5,25 +5,24 @@
       <span class="max">/4</span>
     </div>
     <div class="compare-info">
-      비교함에 <strong>{{ compareList.length }}개</strong>의 상품이
-      담겨있습니다.
+      비교함에 <strong>{{ compareList.length }}개</strong>의 상품이 담겨있습니다.
     </div>
     <button class="compare-btn" @click="goToCompare">비교하기</button>
   </div>
 </template>
 <script>
 export default {
-  name: "CompareFloatingBar",
+  name: 'CompareFloatingBar',
   props: {
     compareList: {
       type: Array,
       required: true,
     },
   },
-  emits: ["go-to-compare"],
+  emits: ['go-to-compare'],
   setup(props, { emit }) {
     const goToCompare = () => {
-      emit("go-to-compare");
+      emit('go-to-compare');
     };
 
     return {

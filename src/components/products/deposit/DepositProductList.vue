@@ -16,10 +16,7 @@
     <div v-else-if="error" class="error">{{ error }}</div>
 
     <!-- 검색 결과 요약 정보 -->
-    <div
-      v-else-if="depositAmount && filteredProducts.length > 0"
-      class="filter-summary"
-    >
+    <div v-else-if="depositAmount && filteredProducts.length > 0" class="filter-summary">
       <div class="filter-badge">
         <span class="filter-label">예치금액</span>
         <span class="filter-value">{{ formatNumber(depositAmount) }}원</span>
@@ -31,13 +28,9 @@
     </div>
 
     <!-- 검색 결과 없음 메시지 -->
-    <div
-      v-else-if="depositAmount && filteredProducts.length === 0"
-      class="no-results"
-    >
+    <div v-else-if="depositAmount && filteredProducts.length === 0" class="no-results">
       <p>
-        <strong>{{ formatNumber(depositAmount) }}원</strong>으로 가입 가능한
-        상품이 없습니다.
+        <strong>{{ formatNumber(depositAmount) }}원</strong>으로 가입 가능한 상품이 없습니다.
       </p>
       <p class="suggestion">다른 금액으로 검색해보세요.</p>
     </div>
@@ -55,11 +48,7 @@
           >개
         </div>
         <div class="sort-dropdown">
-          <select
-            v-model="localSortBy"
-            @change="onSortChange"
-            class="sort-select"
-          >
+          <select v-model="localSortBy" @change="onSortChange" class="sort-select">
             <option value="intrRate">기본금리순</option>
             <option value="intrRate2">우대금리순</option>
           </select>
@@ -118,9 +107,7 @@
             </div>
             <div class="detail-row">
               <span class="detail-label">가입 기간</span>
-              <span class="detail-value"
-                >{{ product.save_trm || product.saveTrm }}개월</span
-              >
+              <span class="detail-value">{{ product.save_trm || product.saveTrm }}개월</span>
             </div>
           </div>
 
@@ -146,9 +133,7 @@
             >
               비교함에 추가
             </button>
-            <button class="join-btn" @click.stop="goToJoinPage(product)">
-              가입하기
-            </button>
+            <button class="join-btn" @click.stop="goToJoinPage(product)">가입하기</button>
           </div>
         </div>
       </div>
@@ -227,13 +212,8 @@ const router = useRouter();
 const localSortBy = ref(props.sortBy);
 
 // 비교함 관련 기능 가져오기 (컴포저블)
-const {
-  compareList,
-  addToCompareList,
-  removeFromCompareList,
-  isInCompareList,
-  clearCompareList,
-} = useCompareList();
+const { compareList, addToCompareList, removeFromCompareList, isInCompareList, clearCompareList } =
+  useCompareList();
 
 // 상품 ID 가져오기 (로컬 함수로 구현)
 const getProductId = (product) => {
@@ -290,11 +270,7 @@ const filteredProducts = computed(() => {
   console.log('- depositAmount:', props.depositAmount);
 
   // 상품 데이터가 없으면 빈 배열 반환
-  if (
-    !props.products ||
-    !Array.isArray(props.products) ||
-    props.products.length === 0
-  ) {
+  if (!props.products || !Array.isArray(props.products) || props.products.length === 0) {
     console.log('상품 데이터가 없거나 배열이 아닙니다');
     return [];
   }
@@ -313,26 +289,17 @@ const filteredProducts = computed(() => {
     filteredData = filteredData.filter((product) => {
       // 다양한 필드명 대응
       const minDeposit = Number(
-        product.min_deposit ||
-          product.minDeposit ||
-          product.minDepositAmount ||
-          0
+        product.min_deposit || product.minDeposit || product.minDepositAmount || 0
       );
 
       // 최대 한도는 null/빈값일 경우 무제한으로 처리
       const maxLimit =
-        Number(
-          product.max_limit || product.maxLimit || product.maxDepositAmount
-        ) || Number.MAX_SAFE_INTEGER;
+        Number(product.max_limit || product.maxLimit || product.maxDepositAmount) ||
+        Number.MAX_SAFE_INTEGER;
 
       // 최소 예치금액과 최대 한도 로깅
       console.log(
-        `상품 ${
-          product.product_name ||
-          product.productName ||
-          product.finPrdtNm ||
-          '이름 없음'
-        }:` +
+        `상품 ${product.product_name || product.productName || product.finPrdtNm || '이름 없음'}:` +
           ` 최소=${minDeposit}, 최대=${maxLimit}, 입력=${userAmount},` +
           ` 조건충족=${userAmount >= minDeposit && userAmount <= maxLimit}`
       );

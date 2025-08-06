@@ -15,6 +15,7 @@
       <div class="page-header">
         <BackButton title="목록으로" />
         <h1 class="page-title">{{ getCategoryName() }} 상세 정보</h1>
+        <!-- <WishlistButton :productId="productId" :saveTrm="saveTrm" :intrRateType="intrRateType" /> -->
       </div>
 
       <!-- 상품 기본 정보 카드 -->
@@ -27,10 +28,7 @@
       />
 
       <!-- 금리 정보 섹션 -->
-      <ProductRateInfo
-        :selectedOption="selectedOption"
-        :formatRate="formatRate"
-      />
+      <ProductRateInfo :selectedOption="selectedOption" :formatRate="formatRate" />
 
       <!-- 상품 주요 정보 -->
       <ProductFeatures
@@ -50,10 +48,7 @@
 
       <!-- 우대 조건 섹션 (수정) -->
       <div
-        v-if="
-          product.productDetail?.spcl_cnd ||
-          parsedPreferentialConditions.length > 0
-        "
+        v-if="product.productDetail?.spcl_cnd || parsedPreferentialConditions.length > 0"
         class="info-section"
       >
         <h3 class="section-title">우대 조건</h3>
@@ -63,14 +58,8 @@
             {{ product.productDetail.spcl_cnd }}
           </p>
           <!-- 기존 파싱된 우대조건도 함께 표시 -->
-          <ul
-            v-if="parsedPreferentialConditions.length > 0"
-            class="conditions-list"
-          >
-            <li
-              v-for="(condition, idx) in parsedPreferentialConditions"
-              :key="idx"
-            >
+          <ul v-if="parsedPreferentialConditions.length > 0" class="conditions-list">
+            <li v-for="(condition, idx) in parsedPreferentialConditions" :key="idx">
               {{ condition }}
             </li>
           </ul>
@@ -96,10 +85,7 @@
       <!-- 액션 섹션 -->
       <ActionButtons
         :is-in-compare-list="
-          isInCompareList(
-            product.product_id,
-            selectedOption?.save_trm || selectedOption?.saveTrm
-          )
+          isInCompareList(product.product_id, selectedOption?.save_trm || selectedOption?.saveTrm)
         "
         @add-to-compare="handleAddToCompare"
         @join-product="joinProduct"
@@ -110,29 +96,25 @@
     </div>
 
     <!-- 금융용어 상세 모달 -->
-    <FinancialTermModal
-      v-if="showModal"
-      :term="selectedTerm"
-      @close="showModal = false"
-    />
+    <FinancialTermModal v-if="showModal" :term="selectedTerm" @close="showModal = false" />
 
     <!-- 비교함 플로팅 바 -->
-    <CompareFloatingBar
-      :compare-list="compareList"
-      @go-to-compare="goToCompare"
-    />
+    <CompareFloatingBar :compare-list="compareList" @go-to-compare="goToCompare" />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+// import axios from 'axios';
 import { getProductDetailAPI } from '@/api/product';
 import BackButton from '@/components/common/BackButton.vue';
+// import WishlistButton from '../../components/products/wishlist/WishlistButton.vue';
 import ProductInfoCard from '@/components/products/ProductInfoCard.vue';
 import ProductRateInfo from '@/components/products/ProductRateInfo.vue';
 import ProductFeatures from '@/components/products/ProductFeatures.vue';
-import PreferentialConditions from '@/components/products/PreferentialConditions.vue';
+// todo
+// import PreferentialConditions from '@/components/products/PreferentialConditions.vue';
 import FinancialTermModal from '@/components/products/FinancialTermModal.vue';
 import ActionButtons from '@/components/products/ActionButtons.vue';
 import CompareFloatingBar from '@/components/products/compare/CompareFloatingBar.vue';
@@ -140,6 +122,11 @@ import useCompareList from '@/composables/useCompareList';
 
 const route = useRoute();
 const router = useRouter();
+
+// todo button
+// const productId = computed(() => route.params.id);
+// const saveTrm = computed(() => route.query.saveTrm);
+// const intrRateType = computed(() => route.query.intrRateType);
 
 // 상태 관리
 const product = ref(null);
@@ -162,9 +149,7 @@ const loadProductDetail = async () => {
     const saveTrm = route.query.saveTrm;
     const intrRateType = route.query.intrRateType;
 
-    console.log(
-      `상품 상세 정보 로드: 카테고리=${category}, ID=${productId}, saveTrm=${saveTrm}`
-    );
+    console.log(`상품 상세 정보 로드: 카테고리=${category}, ID=${productId}, saveTrm=${saveTrm}`);
 
     const response = await getProductDetailAPI(category, productId, {
       saveTrm,
@@ -174,8 +159,7 @@ const loadProductDetail = async () => {
     if (response) {
       product.value = response;
       product.value.is_digital_only =
-        product.value.join_way === 'online' ||
-        product.value.join_way === '인터넷';
+        product.value.join_way === 'online' || product.value.join_way === '인터넷';
 
       // API 응답 구조 확인 (디버깅용)
       console.log('상품 상세 정보:', response);
@@ -203,9 +187,7 @@ const parsedPreferentialConditions = computed(() => {
   for (const condition of conditions) {
     if (condition.trim() === '') continue;
 
-    const cleanCondition = condition
-      .replace(/^\d+[\.\)]\s*|\-\s*|\*\s*/, '')
-      .trim();
+    const cleanCondition = condition.replace(/^\d+[\.\)]\s*|\-\s*|\*\s*/, '').trim();
 
     if (cleanCondition) {
       parsedConditions.push(cleanCondition);
@@ -223,10 +205,7 @@ const handleAddToCompare = () => {
   }
 
   // 로컬 스토리지 디버깅 출력
-  console.log(
-    '현재 로컬 스토리지:',
-    localStorage.getItem('finmate_compare_list')
-  );
+  console.log('현재 로컬 스토리지:', localStorage.getItem('finmate_compare_list'));
 
   console.log('비교함 추가 전 상품/옵션 정보:', {
     product: product.value,
@@ -234,19 +213,12 @@ const handleAddToCompare = () => {
     category: route.params.category,
   });
 
-  const result = addToCompareList(
-    product.value,
-    selectedOption.value,
-    route.params.category
-  );
+  const result = addToCompareList(product.value, selectedOption.value, route.params.category);
 
   alert(result.message);
 
   // 결과 확인을 위해 로컬 스토리지 다시 출력
-  console.log(
-    '추가 후 로컬 스토리지:',
-    localStorage.getItem('finmate_compare_list')
-  );
+  console.log('추가 후 로컬 스토리지:', localStorage.getItem('finmate_compare_list'));
 };
 
 // 비교 페이지로 이동
@@ -260,14 +232,14 @@ const goToCompare = () => {
   });
 };
 
-// 상품 유형 체크 함수
-const isDepositProduct = () => {
-  return route.params.category === 'deposit';
-};
+// todo 상품 유형 체크 함수
+// const isDepositProduct = () => {
+//   return route.params.category === 'deposit';
+// };
 
-const isPensionProduct = () => {
-  return route.params.category === 'pension';
-};
+// const isPensionProduct = () => {
+//   return route.params.category === 'pension';
+// };
 
 // 카테고리 이름 가져오기
 const getCategoryName = () => {
@@ -322,34 +294,6 @@ const getBankInitial = () => {
   return product.value.kor_co_nm.charAt(0);
 };
 
-// 금융용어 상세 보기
-const showTermDetail = (termName) => {
-  const termData = {
-    복리: {
-      name: '복리',
-      description:
-        '복리는 원금뿐만 아니라 이자에도 이자가 붙는 계산법입니다. 장기 투자 시 단리보다 더 많은 수익을 얻을 수 있습니다. 복리는 이자가 원금에 더해져 다음 기간에는 이 합계액에 대해 이자가 계산되는 방식으로, "이자의 이자"라고도 불립니다.',
-    },
-    단리: {
-      name: '단리',
-      description:
-        '단리는 원금에 대해서만 이자가 발생하는 계산법입니다. 즉, 이자는 원금에만 적용되고 이전에 발생한 이자에는 적용되지 않습니다. 단리 계산은 복리 계산보다 단순하지만, 장기 투자 시 복리보다 수익이 적을 수 있습니다.',
-    },
-    세금우대: {
-      name: '세금우대',
-      description:
-        '세금우대는 일반과세보다 낮은 세율이 적용되는 금융상품을 말합니다. 일반적으로 이자소득에 대해 15.4%(소득세 14%, 지방소득세 1.4%)의 세금이 부과되지만, 세금우대 상품은 이보다 낮은 9.5%(소득세 8.7%, 지방소득세 0.8%)의 세율이 적용됩니다. 주로 장기 저축을 장려하기 위한 정책으로 활용됩니다.',
-    },
-  };
-
-  selectedTerm.value = termData[termName] || {
-    name: termName,
-    description: '해당 용어에 대한 설명이 준비되지 않았습니다.',
-  };
-
-  showModal.value = true;
-};
-
 // 상품 가입하기
 const joinProduct = () => {
   if (!product.value) return;
@@ -372,9 +316,7 @@ const getBankWebsite = () => {
 
   return (
     bankWebsites[product.value.kor_co_nm] ||
-    `https://www.google.com/search?q=${encodeURIComponent(
-      product.value.kor_co_nm
-    )}`
+    `https://www.google.com/search?q=${encodeURIComponent(product.value.kor_co_nm)}`
   );
 };
 
@@ -389,10 +331,7 @@ const formatDate = (dateStr) => {
 
   if (typeof dateStr === 'string') {
     if (/^\d{8}$/.test(dateStr)) {
-      return `${dateStr.substring(0, 4)}.${dateStr.substring(
-        4,
-        6
-      )}.${dateStr.substring(6, 8)}`;
+      return `${dateStr.substring(0, 4)}.${dateStr.substring(4, 6)}.${dateStr.substring(6, 8)}`;
     }
 
     if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {

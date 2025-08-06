@@ -11,9 +11,7 @@
       <div class="empty-icon">🔍</div>
       <p>비교함이 비어있습니다.</p>
       <p class="empty-subtitle">상품 목록에서 비교할 상품을 추가해 주세요.</p>
-      <button class="primary-btn" @click="goToProductList">
-        상품 목록으로 이동
-      </button>
+      <button class="primary-btn" @click="goToProductList">상품 목록으로 이동</button>
     </div>
 
     <!-- 비교 콘텐츠 -->
@@ -21,9 +19,7 @@
       <!-- 비교함 관리 -->
       <div class="compare-actions">
         <div class="compare-count">{{ compareList.length }}/4 상품 비교 중</div>
-        <button class="clear-btn" @click="handleClearCompare">
-          비교함 비우기
-        </button>
+        <button class="clear-btn" @click="handleClearCompare">비교함 비우기</button>
       </div>
 
       <!-- 비교 테이블 -->
@@ -44,7 +40,9 @@
                   </div>
                   <button
                     class="remove-btn"
-                    @click="handleRemoveItem(item.productId, item.saveTrm, item.intrRateType || 'S')"
+                    @click="
+                      handleRemoveItem(item.productId, item.saveTrm, item.intrRateType || 'S')
+                    "
                   >
                     ×
                   </button>
@@ -103,11 +101,7 @@
                 class="product-cell"
               >
                 {{
-                  getInterestTypeForProduct(
-                    item.productId,
-                    item.saveTrm,
-                    item.intrRateType || 'S'
-                  )
+                  getInterestTypeForProduct(item.productId, item.saveTrm, item.intrRateType || 'S')
                 }}
               </td>
             </tr>
@@ -131,15 +125,11 @@
                 <div class="action-buttons">
                   <button
                     class="detail-btn"
-                    @click="
-                      goToDetail(item.productId, item.productType, item.saveTrm)
-                    "
+                    @click="goToDetail(item.productId, item.productType, item.saveTrm)"
                   >
                     상세 보기
                   </button>
-                  <button class="join-btn" @click="handleJoinProduct(item)">
-                    가입하기
-                  </button>
+                  <button class="join-btn" @click="handleJoinProduct(item)">가입하기</button>
                 </div>
               </td>
             </tr>
@@ -156,9 +146,7 @@
       <div v-else-if="error" class="error-state">
         <div class="error-icon">!</div>
         <p>{{ error }}</p>
-        <p class="error-subtitle">
-          API 연결에 실패했지만, 기본 비교 정보를 확인할 수 있습니다.
-        </p>
+        <p class="error-subtitle">API 연결에 실패했지만, 기본 비교 정보를 확인할 수 있습니다.</p>
         <div v-if="comparisonSummary" class="summary-cards">
           <div class="summary-card">
             <div class="summary-title">최고 금리 상품</div>
@@ -180,9 +168,7 @@
             <div class="summary-product">
               {{ comparisonSummary.shortestTerm.productName }}
             </div>
-            <div class="summary-value">
-              {{ comparisonSummary.shortestTerm.term }}개월
-            </div>
+            <div class="summary-value">{{ comparisonSummary.shortestTerm.term }}개월</div>
           </div>
         </div>
         <button class="retry-btn" @click="loadCompareData">다시 시도</button>
@@ -312,8 +298,7 @@ const getProductData = (type) => {
     highestRate: {
       key: 'highestRateProduct',
       title: '최고 금리',
-      valueFormatter: (product) =>
-        formatRate(product.value || product.intrRate2 || 0),
+      valueFormatter: (product) => formatRate(product.value || product.intrRate2 || 0),
       valueSuffix: '',
       highlight: true,
     },
@@ -332,15 +317,13 @@ const getProductData = (type) => {
     shortestTerm: {
       key: 'shortestTermProduct',
       title: '짧은 가입 기간',
-      valueFormatter: (product) =>
-        String(product.value || product.saveTrm || 6),
+      valueFormatter: (product) => String(product.value || product.saveTrm || 6),
       valueSuffix: '개월',
     },
     lowestDeposit: {
       key: 'lowestDepositProduct',
       title: '낮은 가입금액',
-      valueFormatter: (product) =>
-        formatCurrency(product.value || product.minDeposit || 0),
+      valueFormatter: (product) => formatCurrency(product.value || product.minDeposit || 0),
       valueSuffix: '',
     },
   };
@@ -392,21 +375,15 @@ const getProductData = (type) => {
   }
 
   // 상품 ID로 compareList에서 추가 정보 찾기
-  const productId =
-    product.finPrdtCd || product.fin_prdt_cd || product.productId;
+  const productId = product.finPrdtCd || product.fin_prdt_cd || product.productId;
   const compareItem = findProductInCompareList(productId);
 
   // 반환할 정보 구성
   return {
     title: cardType.title,
-    bankName:
-      product.korCoNm ||
-      product.bankName ||
-      (compareItem ? compareItem.korCoNm : ''),
+    bankName: product.korCoNm || product.bankName || (compareItem ? compareItem.korCoNm : ''),
     productName:
-      product.productName ||
-      product.finPrdtNm ||
-      (compareItem ? compareItem.productName : ''),
+      product.productName || product.finPrdtNm || (compareItem ? compareItem.productName : ''),
     value: `${cardType.valueFormatter(product)}${cardType.valueSuffix}`,
     highlight: cardType.highlight,
   };
@@ -417,17 +394,17 @@ const getMinDepositForProduct = (productId) => {
   // compareData에서 상품 정보 찾기
   if (compareData.value && compareData.value.products) {
     const product = compareData.value.products.find(
-      (p) => 
+      (p) =>
         String(p.productId) === String(productId) ||
         String(p.finPrdtCd) === String(productId) ||
         String(p.product_id) === String(productId)
     );
-    
+
     // API 응답에서 minDepositAmount 필드 확인
     if (product && product.minDepositAmount) {
       return formatCurrency(product.minDepositAmount);
     }
-    
+
     // 다른 가능한 필드명도 확인
     if (product) {
       const amount = product.minDepositAmount || product.minDeposit || product.min_deposit;
@@ -436,32 +413,33 @@ const getMinDepositForProduct = (productId) => {
       }
     }
   }
-  
+
   // compareData에 없으면 compareList에서 찾기
   const listProduct = compareList.value.find(
     (item) => String(item.productId) === String(productId)
   );
-  
+
   if (listProduct) {
     // 여러 가능한 필드명 확인
-    const amount = listProduct.minDepositAmount || listProduct.minDeposit || listProduct.min_deposit;
+    const amount =
+      listProduct.minDepositAmount || listProduct.minDeposit || listProduct.min_deposit;
     if (amount) {
       return formatCurrency(amount);
     }
-    
+
     // productDetail 내부 확인
     if (listProduct.productDetail) {
-      const detailAmount = 
-        listProduct.productDetail.minDepositAmount || 
-        listProduct.productDetail.minDeposit || 
+      const detailAmount =
+        listProduct.productDetail.minDepositAmount ||
+        listProduct.productDetail.minDeposit ||
         listProduct.productDetail.min_deposit;
-      
+
       if (detailAmount) {
         return formatCurrency(detailAmount);
       }
     }
   }
-  
+
   return '정보 없음';
 };
 
@@ -480,8 +458,7 @@ const getInterestTypeForProduct = (productId, saveTrm, intrRateType) => {
     // compareList에서 해당 상품 찾기
     const product = compareList.value.find(
       (item) =>
-        String(item.productId) === String(productId) &&
-        String(item.saveTrm) === String(saveTrm)
+        String(item.productId) === String(productId) && String(item.saveTrm) === String(saveTrm)
     );
 
     // 해당 상품에서 금리 유형명 추출
@@ -494,17 +471,14 @@ const getInterestTypeForProduct = (productId, saveTrm, intrRateType) => {
 
   // compareData에서 해당 상품 정보 찾기
   const product = compareData.value.products.find(
-    (p) =>
-      String(p.productId) === String(productId) ||
-      String(p.finPrdtCd) === String(productId)
+    (p) => String(p.productId) === String(productId) || String(p.finPrdtCd) === String(productId)
   );
 
   // 해당 상품의 특정 기간 옵션 찾기
   if (product && product.options) {
     const option = product.options.find(
       (opt) =>
-        String(opt.saveTrm) === String(saveTrm) &&
-        String(opt.intrRateType) === String(intrRateType)
+        String(opt.saveTrm) === String(saveTrm) && String(opt.intrRateType) === String(intrRateType)
     );
 
     if (option && option.intrRateTypeNm) {
@@ -641,7 +615,7 @@ const removeAndReload = (payload) => {
   } else {
     loadCompareData();
   }
-  
+
   // 페이지 새로고침으로 UI 상태 강제 업데이트
   window.location.reload();
 };
@@ -689,16 +663,13 @@ const goToProductList = () => {
   }
 
   // 3. 로컬 스토리지에서 마지막으로 방문한 카테고리 확인
-  const lastCategory =
-    localStorage.getItem('lastVisitedCategory') || 'deposit';
+  const lastCategory = localStorage.getItem('lastVisitedCategory') || 'deposit';
   router.push(`/products/${lastCategory}`);
 };
 
 // 현재 상품 유형 가져오기
 const getProductType = () => {
-  return compareList.value.length > 0
-    ? compareList.value[0].productType
-    : 'deposit';
+  return compareList.value.length > 0 ? compareList.value[0].productType : 'deposit';
 };
 
 // 상품 객체에서 상품 유형 추출
@@ -751,9 +722,7 @@ const handleJoinProduct = (item) => {
 
   const url =
     bankWebsites[item.korCoNm] ||
-    `https://www.google.com/search?q=${encodeURIComponent(
-      item.korCoNm + ' ' + item.productName
-    )}`;
+    `https://www.google.com/search?q=${encodeURIComponent(item.korCoNm + ' ' + item.productName)}`;
 
   window.open(url, '_blank');
 };
@@ -775,12 +744,12 @@ onMounted(() => {
   if (compareList.value.length >= 2) {
     loadCompareData();
   }
-  
+
   // 디버깅을 위해 함수가 정의되었는지 확인
   console.log('함수 정의 확인:', {
     handleClearCompare: typeof handleClearCompare === 'function',
     removeAndReload: typeof removeAndReload === 'function',
-    clearAndReload: typeof clearAndReload === 'function'
+    clearAndReload: typeof clearAndReload === 'function',
   });
 });
 </script>

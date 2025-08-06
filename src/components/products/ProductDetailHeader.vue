@@ -34,9 +34,7 @@ export default {
     };
 
     const bankLogo = computed(() => bankLogos[props.korCoNm] || null);
-    const bankInitial = computed(() =>
-      props.korCoNm ? props.korCoNm.charAt(0) : ''
-    );
+    const bankInitial = computed(() => (props.korCoNm ? props.korCoNm.charAt(0) : ''));
 
     return {
       bankLogo,
