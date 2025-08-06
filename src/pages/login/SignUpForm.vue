@@ -45,11 +45,7 @@
         </div>
         <div v-if="emailVerified" class="success-message">
           ✓
-          {{
-            isSocialSignup
-              ? '소셜 로그인 인증된 이메일입니다'
-              : '사용 가능한 이메일입니다'
-          }}
+          {{ isSocialSignup ? '소셜 로그인 인증된 이메일입니다' : '사용 가능한 이메일입니다' }}
         </div>
       </div>
 
@@ -67,13 +63,12 @@
             type="button"
             class="verify-btn"
             @click="checkNicknameDuplicate"
+            :disabled="!signupForm.nickname"
           >
             중복확인
           </button>
         </div>
-        <div v-if="nicknameVerified" class="success-message">
-          ✓ 사용 가능한 닉네임입니다
-        </div>
+        <div v-if="nicknameVerified" class="success-message">✓ 사용 가능한 닉네임입니다</div>
       </div>
 
       <!-- 비밀번호 (소셜 로그인이 아닌 경우만 표시) -->
@@ -92,28 +87,16 @@
           </button>
         </div>
         <div class="password-requirements-compact">
-          <span
-            class="requirement-compact"
-            :class="{ valid: passwordChecks.length }"
-          >
+          <span class="requirement-compact" :class="{ valid: passwordChecks.length }">
             8자 이상
           </span>
-          <span
-            class="requirement-compact"
-            :class="{ valid: passwordChecks.hasLetter }"
-          >
+          <span class="requirement-compact" :class="{ valid: passwordChecks.hasLetter }">
             영문
           </span>
-          <span
-            class="requirement-compact"
-            :class="{ valid: passwordChecks.hasNumber }"
-          >
+          <span class="requirement-compact" :class="{ valid: passwordChecks.hasNumber }">
             숫자
           </span>
-          <span
-            class="requirement-compact"
-            :class="{ valid: passwordChecks.hasSpecial }"
-          >
+          <span class="requirement-compact" :class="{ valid: passwordChecks.hasSpecial }">
             특수문자
           </span>
         </div>
@@ -133,16 +116,10 @@
           <i
             class="bi"
             :class="
-              passwordsMatch
-                ? 'bi-check-circle-fill text-success'
-                : 'bi-x-circle-fill text-danger'
+              passwordsMatch ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger'
             "
           ></i>
-          {{
-            passwordsMatch
-              ? '비밀번호가 일치합니다'
-              : '비밀번호가 일치하지 않습니다'
-          }}
+          {{ passwordsMatch ? '비밀번호가 일치합니다' : '비밀번호가 일치하지 않습니다' }}
         </div>
       </div>
 
@@ -188,20 +165,13 @@
             확인
           </button>
         </div>
-        <div v-if="phoneVerified" class="success-message">
-          ✓ 인증이 완료되었습니다
-        </div>
+        <div v-if="phoneVerified" class="success-message">✓ 인증이 완료되었습니다</div>
       </div>
 
       <!-- 생일 -->
       <div class="form-group">
         <label for="birthdate">생년월일</label>
-        <input
-          type="date"
-          id="birthdate"
-          v-model="signupForm.birthdate"
-          required
-        />
+        <input type="date" id="birthdate" v-model="signupForm.birthdate" required />
       </div>
 
       <!-- 성별 -->
@@ -233,11 +203,7 @@
         <div class="agreement-section">
           <!-- 전체 동의 -->
           <label class="agreement-item all-agreement">
-            <input
-              type="checkbox"
-              v-model="agreements.all"
-              @change="toggleAllAgreements"
-            />
+            <input type="checkbox" v-model="agreements.all" @change="toggleAllAgreements" />
             <span class="checkmark"></span>
             <span class="agreement-text">전체 동의</span>
           </label>
@@ -251,37 +217,21 @@
               <input type="checkbox" v-model="agreements.terms" required />
               <span class="checkmark"></span>
               <span class="agreement-text">이용약관 동의 (필수)</span>
-              <button
-                type="button"
-                class="view-btn"
-                @click="showTermsModal = true"
-              >
-                보기
-              </button>
+              <button type="button" class="view-btn" @click="showTermsModal = true">보기</button>
             </label>
 
             <label class="agreement-item">
               <input type="checkbox" v-model="agreements.privacy" required />
               <span class="checkmark"></span>
               <span class="agreement-text">개인정보 처리방침 동의 (필수)</span>
-              <button
-                type="button"
-                class="view-btn"
-                @click="showPrivacyModal = true"
-              >
-                보기
-              </button>
+              <button type="button" class="view-btn" @click="showPrivacyModal = true">보기</button>
             </label>
 
             <label class="agreement-item optional">
               <input type="checkbox" v-model="agreements.marketing" />
               <span class="checkmark"></span>
               <span class="agreement-text">마케팅 정보 수신 동의 (선택)</span>
-              <button
-                type="button"
-                class="view-btn"
-                @click="showMarketingModal = true"
-              >
+              <button type="button" class="view-btn" @click="showMarketingModal = true">
                 보기
               </button>
             </label>
@@ -291,39 +241,30 @@
 
       <!-- 약관 모달들 -->
       <!-- 이용약관 모달 -->
-      <div
-        v-if="showTermsModal"
-        class="modal-overlay"
-        @click="showTermsModal = false"
-      >
+      <div v-if="showTermsModal" class="modal-overlay" @click="showTermsModal = false">
         <div class="modal-content" @click.stop>
           <div class="modal-header">
             <h3>이용약관</h3>
-            <button @click="showTermsModal = false" class="close-btn">
-              &times;
-            </button>
+            <button @click="showTermsModal = false" class="close-btn">&times;</button>
           </div>
           <div class="modal-body">
             <h4>제1조 (목적)</h4>
             <p>
-              본 약관은 FinMate(이하 "회사")가 제공하는 금융 서비스의 이용조건
-              및 절차에 관한 사항을 규정함을 목적으로 합니다.
+              본 약관은 FinMate(이하 "회사")가 제공하는 금융 서비스의 이용조건 및 절차에 관한 사항을
+              규정함을 목적으로 합니다.
             </p>
 
             <h4>제2조 (정의)</h4>
             <p>
-              1. "서비스"라 함은 회사가 제공하는 금융상품 추천, 자산관리,
-              투자정보 등의 서비스를 말합니다.
+              1. "서비스"라 함은 회사가 제공하는 금융상품 추천, 자산관리, 투자정보 등의 서비스를
+              말합니다.
             </p>
-            <p>
-              2. "회원"이라 함은 본 약관에 따라 서비스를 이용하는 자를 말합니다.
-            </p>
+            <p>2. "회원"이라 함은 본 약관에 따라 서비스를 이용하는 자를 말합니다.</p>
 
             <h4>제3조 (약관의 효력 및 변경)</h4>
             <p>1. 본 약관은 회원가입 시 동의함으로써 효력이 발생합니다.</p>
             <p>
-              2. 회사는 필요시 약관을 변경할 수 있으며, 변경된 약관은 공지 후
-              효력이 발생합니다.
+              2. 회사는 필요시 약관을 변경할 수 있으며, 변경된 약관은 공지 후 효력이 발생합니다.
             </p>
 
             <h4>제4조 (서비스의 제공)</h4>
@@ -336,17 +277,11 @@
       </div>
 
       <!-- 개인정보 처리방침 모달 -->
-      <div
-        v-if="showPrivacyModal"
-        class="modal-overlay"
-        @click="showPrivacyModal = false"
-      >
+      <div v-if="showPrivacyModal" class="modal-overlay" @click="showPrivacyModal = false">
         <div class="modal-content" @click.stop>
           <div class="modal-header">
             <h3>개인정보 처리방침</h3>
-            <button @click="showPrivacyModal = false" class="close-btn">
-              &times;
-            </button>
+            <button @click="showPrivacyModal = false" class="close-btn">&times;</button>
           </div>
           <div class="modal-body">
             <h4>1. 개인정보의 처리목적</h4>
@@ -361,38 +296,31 @@
 
             <h4>3. 개인정보의 처리 및 보유기간</h4>
             <p>
-              개인정보는 수집·이용에 관한 동의일로부터 개인정보의
-              수집·이용목적을 달성할 때까지 보유·이용됩니다.
+              개인정보는 수집·이용에 관한 동의일로부터 개인정보의 수집·이용목적을 달성할 때까지
+              보유·이용됩니다.
             </p>
 
             <h4>4. 개인정보의 제3자 제공</h4>
             <p>
-              회사는 정보주체의 동의, 법률의 특별한 규정 등 개인정보보호법
-              제17조 및 제18조에 해당하는 경우에만 개인정보를 제3자에게
-              제공합니다.
+              회사는 정보주체의 동의, 법률의 특별한 규정 등 개인정보보호법 제17조 및 제18조에
+              해당하는 경우에만 개인정보를 제3자에게 제공합니다.
             </p>
           </div>
         </div>
       </div>
 
       <!-- 마케팅 정보 수신 동의 모달 -->
-      <div
-        v-if="showMarketingModal"
-        class="modal-overlay"
-        @click="showMarketingModal = false"
-      >
+      <div v-if="showMarketingModal" class="modal-overlay" @click="showMarketingModal = false">
         <div class="modal-content" @click.stop>
           <div class="modal-header">
             <h3>마케팅 정보 수신 동의</h3>
-            <button @click="showMarketingModal = false" class="close-btn">
-              &times;
-            </button>
+            <button @click="showMarketingModal = false" class="close-btn">&times;</button>
           </div>
           <div class="modal-body">
             <h4>마케팅 정보 수신 동의 안내</h4>
             <p>
-              FinMate에서는 회원님께 더 나은 서비스를 제공하기 위해 다음과 같은
-              마케팅 정보를 발송할 수 있습니다:
+              FinMate에서는 회원님께 더 나은 서비스를 제공하기 위해 다음과 같은 마케팅 정보를 발송할
+              수 있습니다:
             </p>
 
             <h4>수신 정보 유형</h4>
@@ -406,15 +334,13 @@
 
             <h4>동의 철회</h4>
             <p>
-              마케팅 정보 수신에 대한 동의는 언제든지 철회하실 수 있으며,
-              마이페이지에서 설정을 변경하거나 고객센터를 통해 요청하실 수
-              있습니다.
+              마케팅 정보 수신에 대한 동의는 언제든지 철회하실 수 있으며, 마이페이지에서 설정을
+              변경하거나 고객센터를 통해 요청하실 수 있습니다.
             </p>
 
             <p>
               <strong
-                >※ 본 동의는 선택사항이며, 동의하지 않아도 서비스 이용에는
-                제한이 없습니다.</strong
+                >※ 본 동의는 선택사항이며, 동의하지 않아도 서비스 이용에는 제한이 없습니다.</strong
               >
             </p>
           </div>
@@ -432,9 +358,7 @@
       <span class="divider">|</span>
       <router-link to="/login/find-id" class="link">아이디 찾기</router-link>
       <span class="divider">|</span>
-      <router-link to="/login/find-password" class="link"
-        >비밀번호 찾기</router-link
-      >
+      <router-link to="/login/find-password" class="link">비밀번호 찾기</router-link>
     </div>
   </div>
 </template>
@@ -545,9 +469,7 @@ const isFormValid = computed(() => {
 
   if (isSocialSignup.value) {
     // 소셜 로그인 시: 닉네임 무조건 필수 및 검증 필요
-    return (
-      baseValidation && signupForm.value.nickname && nicknameVerified.value
-    );
+    return baseValidation && signupForm.value.nickname && nicknameVerified.value;
   } else {
     // 일반 회원가입 시: 모든 필드 필수
     return (
@@ -571,16 +493,10 @@ const toggleAllAgreements = () => {
 
 // 개별 동의 변경 시 전체 동의 상태 업데이트
 watch(
-  () => [
-    agreements.value.terms,
-    agreements.value.privacy,
-    agreements.value.marketing,
-  ],
+  () => [agreements.value.terms, agreements.value.privacy, agreements.value.marketing],
   () => {
     agreements.value.all =
-      agreements.value.terms &&
-      agreements.value.privacy &&
-      agreements.value.marketing;
+      agreements.value.terms && agreements.value.privacy && agreements.value.marketing;
   }
 );
 
@@ -618,9 +534,7 @@ const checkNicknameDuplicate = async () => {
   }
 
   try {
-    const response = await validationAPI.checkNickname(
-      signupForm.value.nickname
-    );
+    const response = await validationAPI.checkNickname(signupForm.value.nickname);
 
     if (response.success) {
       nicknameVerified.value = true;

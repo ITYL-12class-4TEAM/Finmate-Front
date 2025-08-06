@@ -11,10 +11,22 @@
 import { onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { authAPI } from '@/api/auth';
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
+
+// ✅ handleOAuth2Error 함수를 onMounted 밖으로 이동
+function handleOAuth2Error(errorCode, message) {
+  console.error('OAuth2 오류:', { errorCode, message });
+
+  const decodedMessage = message
+    ? decodeURIComponent(message)
+    : '소셜 로그인 중 오류가 발생했습니다.';
+
+  alert(decodedMessage);
+}
 
 onMounted(async () => {
   try {
@@ -22,64 +34,82 @@ onMounted(async () => {
     console.log('현재 URL:', window.location.href);
 
     const urlParams = new URLSearchParams(window.location.search);
+    const error = urlParams.get('error');
+    const errorCode = urlParams.get('errorCode');
+    const message = urlParams.get('message');
 
-    // 서버에서 보내는 파라미터 이름에 맞게 수정
-    const token = urlParams.get('token'); // 서버에서 'token'으로 보냄
-    const refreshToken = urlParams.get('refreshToken');
-    const isNewMember = urlParams.get('isNewMember') === 'true';
-    const memberId = urlParams.get('memberId');
-    const email = urlParams.get('email');
-    const username = urlParams.get('username'); // username 추가
-    const profileImage = urlParams.get('profileImage');
-
-    console.log('받은 파라미터들:');
-    console.log('token:', token);
-    console.log('refreshToken:', refreshToken);
-    console.log('isNewMember:', isNewMember);
-    console.log('memberId:', memberId);
-    console.log('email:', email);
-    console.log('username:', username);
-
-    if (!token) {
-      console.error('토큰이 없습니다');
-      alert('로그인에 실패했습니다. (토큰 없음)');
+    if (error === 'oauth2_failed') {
+      console.error('OAuth2 오류 발생:', { errorCode, message });
+      handleOAuth2Error(errorCode, message);
       router.push('/login');
       return;
     }
 
+    const code = urlParams.get('code');
+
+    console.log('받은 파라미터들:');
+    console.log('code:', code);
+
+    if (!code) {
+      console.error('코드가 없습니다');
+      alert('로그인에 실패했습니다. (코드 없음)');
+      router.push('/login');
+      return;
+    }
+
+    console.log('서버에 토큰 교환 요청 중...');
+    const response = await authAPI.exchangeToken(code);
+
+    if (!response.success) {
+      console.error('토큰 교환 실패:', response.message);
+      alert(`로그인에 실패했습니다: ${response.message}`);
+      router.push('/login');
+      return;
+    }
+
+    console.log('토큰 교환 성공:', response.data);
+
+    const { accessToken, refreshToken, userInfo, isNewMember } = response.data;
+
     if (isNewMember) {
       console.log('신규 회원 - 회원가입 폼으로 이동');
-      console.log('신규 회원 데이터:', { email, username });
+      console.log('신규 회원 데이터:', userInfo);
 
-      // 신규 회원인 경우 회원가입 폼으로 이동
       router.push({
         path: '/login/signup',
         query: {
           socialSignup: 'true',
-          name: username,
-          email: email,
-          profileImage: profileImage,
-          tempToken: token, // temp 토큰 추가
+          name: userInfo?.name || userInfo?.username,
+          email: userInfo?.email,
+          profileImage: userInfo?.profileImage,
+          tempToken: accessToken,
         },
       });
     } else {
       console.log('기존 회원 - 홈으로 이동');
       console.log('기존 회원 토큰 정보:', {
-        accessToken: token,
-        refreshToken: refreshToken,
-        memberId: memberId,
+        accessToken,
+        refreshToken,
+        userInfo,
       });
 
-      // 기존 회원은 토큰 저장하고 홈으로
-      authStore.setTokens(token, refreshToken, memberId);
+      authStore.setTokens(accessToken, refreshToken);
 
-      // setup 함수가 있다면 호출
-      if (typeof authStore.setup === 'function') {
-        await authStore.setup();
+      if (userInfo) {
+        authStore.user = userInfo;
+        localStorage.setItem('user', JSON.stringify(userInfo));
+      }
+
+      if (typeof authStore.initialize === 'function') {
+        await authStore.initialize();
       }
 
       alert('로그인 성공!');
-      router.push('/');
+
+      const redirectTo = sessionStorage.getItem('redirectAfterLogin') || '/';
+      sessionStorage.removeItem('redirectAfterLogin');
+
+      router.push(redirectTo);
     }
   } catch (error) {
     console.error('OAuth2 리다이렉트 처리 오류:', error);
