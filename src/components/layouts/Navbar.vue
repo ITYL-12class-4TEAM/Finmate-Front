@@ -6,31 +6,12 @@
     </router-link>
 
     <DesktopNavbar v-if="!isMobile" />
-    <MobileMenu
-      v-if="isMobile"
-      :is-open="mobileOpen"
-      @close="mobileOpen = false"
-    />
+    <MobileMenu v-if="isMobile" :is-open="mobileOpen" @close="mobileOpen = false" />
 
     <div class="navbar__right">
-      <!-- 알림/사용자 -->
-      <div class="navbar__icons">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          width="24"
-          height="24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
-          />
-        </svg>
-        <div class="user-menu" @click="toggleDropdown()">
+      <template v-if="authStore.isAuthenticated">
+        <!-- 알림/사용자 -->
+        <div class="navbar__icons">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -43,24 +24,46 @@
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
-              d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+              d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
             />
           </svg>
+          <div class="user-menu" @click="toggleDropdown()">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              width="24"
+              height="24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+              />
+            </svg>
 
-          <!-- 사용자 메뉴 드롭다운 -->
-          <div class="user-dropdown" :class="{ open: dropdownOpen }">
-            <p>
-              {{
-                authStore.userNickname ||
-                authStore.userInfo?.username ||
-                '사용자'
-              }}님
-            </p>
-            <router-link to="/mypage">마이페이지 이동</router-link>
-            <button @click="handleLogout">로그아웃</button>
+            <!-- 사용자 메뉴 드롭다운 -->
+            <div class="user-dropdown" :class="{ open: dropdownOpen }">
+              <p>
+                {{
+                  authStore.userNickname ||
+                  authStore.userInfo?.username ||
+                  '사용자'
+                }}님
+              </p>
+              <router-link to="/mypage">마이페이지 이동</router-link>
+              <button @click="handleLogout">로그아웃</button>
+            </div>
           </div>
         </div>
-      </div>
+      </template>
+
+      <template v-else>
+        <router-link to="/login" class="login-btn">로그인</router-link>
+      </template>
+
       <!-- 모바일용 햄버거 버튼 -->
       <button v-if="isMobile" class="hamburger" @click="mobileOpen = true">
         <svg
@@ -144,6 +147,7 @@ function toggleDropdown() {
   font-weight: 600;
   font-size: 14px;
   color: var(--color-main);
+  z-index: 1000;
 }
 
 .navbar__logo img {
@@ -156,9 +160,33 @@ function toggleDropdown() {
   gap: 8px;
 }
 
+.login-btn {
+  color: var(--color-sub);
+  background-color: var(--color-bg-light);
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  border: 1px solid var(--color-light);
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(125, 129, 162, 0.1);
+}
+
+.login-btn:active {
+  background-color: var(--color-light);
+  color: var(--color-main);
+  border-color: var(--color-sub);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(45, 51, 107, 0.15);
+}
+
 .hamburger {
   background: none;
   color: var(--color-main);
+  border: none;
+  cursor: pointer;
+  padding: 4px;
 }
 
 .navbar__icons {

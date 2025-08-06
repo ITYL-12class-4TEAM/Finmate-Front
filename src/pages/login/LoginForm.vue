@@ -10,9 +10,9 @@
       <div class="form-group">
         <label for="email">이메일 입력</label>
         <input
-          type="email"
           id="email"
           v-model="loginForm.email"
+          type="email"
           placeholder="이메일을 입력하세요"
           required
         />
@@ -21,9 +21,9 @@
         <label for="password">비밀번호 입력</label>
         <div class="password-input">
           <input
-            :type="showPassword ? 'text' : 'password'"
             id="password"
             v-model="loginForm.password"
+            :type="showPassword ? 'text' : 'password'"
             placeholder="비밀번호를 입력하세요"
             required
           />
@@ -42,9 +42,7 @@
       <span class="divider">|</span>
       <router-link to="/login/find-id" class="link">아이디 찾기</router-link>
       <span class="divider">|</span>
-      <router-link to="/login/find-password" class="link"
-        >비밀번호 찾기</router-link
-      >
+      <router-link to="/login/find-password" class="link">비밀번호 찾기</router-link>
     </div>
     <!-- 소셜 로그인 -->
     <div class="social-login">
@@ -93,10 +91,7 @@ const handleLogin = async () => {
   }
 
   try {
-    const result = await authStore.login(
-      loginForm.value.email,
-      loginForm.value.password
-    );
+    const result = await authStore.login(loginForm.value.email, loginForm.value.password);
 
     if (result.success) {
       console.log('로그인 성공:', authStore.userInfo);
