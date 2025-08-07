@@ -1,42 +1,88 @@
 <template>
-  <div class="wmti-content">
-    <div class="content-header" role="banner">
-      <span class="header-icon" aria-hidden="true">🧭</span>
-      <p class="content-title">WMTI 투자 성향 유형</p>
-    </div>
-
-    <div class="wmti-types" role="list">
-      <div
-        v-for="type in wmtiTypes"
-        :key="type.code"
-        :ref="(el) => (typeRefs[type.code] = el)"
-        class="wmti-type"
-        role="listitem"
-        :aria-expanded="expandedTypes.includes(type.code)"
-        tabindex="0"
-        @click="handleClick(type.code)"
-        @keydown.enter.prevent="handleClick(type.code)"
-      >
-        <div class="type-summary">
-          <span class="type-code">{{ type.code }}</span>
-          <span class="type-aka">{{ type.aka }}</span>
-        </div>
-
-        <transition name="fade">
-          <div v-if="expandedTypes.includes(type.code)" class="type-detail">
-            <p class="type-description">{{ type.description }}</p>
-            <div class="type-features">
-              <span v-for="feature in type.tag" :key="feature" class="feature-tag">
-                {{ feature }}
-              </span>
-            </div>
+  <div class="container-fluid px-0">
+    <div class="wmti-container">
+      <!-- 헤더 섹션 -->
+      <div class="header-card mb-3">
+        <div class="row g-0 align-items-center">
+          <div class="col">
+            <h4 class="header-title mb-0">WMTI</h4>
+            <small class="header-subtitle">투자 성향 16가지 타입</small>
           </div>
-        </transition>
+        </div>
       </div>
-    </div>
 
-    <div class="wmti-footer">
-      <button class="survey-btn" @click="goToSurvey">설문조사 하러가기 →</button>
+      <!-- 타입 리스트 -->
+      <div class="types-grid">
+        <div
+          v-for="type in wmtiTypes"
+          :key="type.code"
+          :ref="(el) => (typeRefs[type.code] = el)"
+          class="type-card"
+          :class="{ expanded: expandedTypes.includes(type.code) }"
+          @click="handleClick(type.code)"
+        >
+          <!-- 카드 컨텐츠 -->
+          <div class="card-content position-relative">
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center gap-2">
+                <span class="type-badge">{{ type.code }}</span>
+                <span class="type-name">{{ type.aka }}</span>
+              </div>
+              <div class="expand-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M6 9l6 6 6-6"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            <!-- 확장 컨텐츠 -->
+            <transition name="slide-fade">
+              <div v-if="expandedTypes.includes(type.code)" class="expanded-content mt-3">
+                <p class="type-description">{{ type.description }}</p>
+
+                <!-- 움직이는 해시태그 섹션 -->
+                <div class="hashtag-container">
+                  <div class="hashtag-scroll">
+                    <div class="hashtag-track">
+                      <span
+                        v-for="(feature, index) in [...type.tag, ...type.tag]"
+                        :key="`${feature}-${index}`"
+                        class="hashtag"
+                      >
+                        #{{ feature }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </transition>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA 버튼 -->
+      <div class="cta-section mt-4">
+        <button class="cta-button" @click="goToSurvey">
+          <div class="button-content d-flex align-items-center justify-content-center gap-2">
+            <span class="button-text">테스트 시작</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="arrow-icon">
+              <path
+                d="M5 12h14M12 5l7 7-7 7"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -88,7 +134,6 @@ const toggleDetail = (code) => {
 // 클릭 시 스크롤 이동 및 토글
 const handleClick = (code) => {
   toggleDetail(code);
-  // 스크롤 이동
   const el = typeRefs[code];
   if (el) {
     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -101,196 +146,211 @@ const goToSurvey = () => {
 </script>
 
 <style scoped>
-.wmti-content {
-  max-width: 22.5rem; /* 원하는 최대 너비 유지 */
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 0; /* 좌우 여백 제거 */
-  padding-right: 0;
-}
-.content-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+.wmti-container {
+  max-width: 75vw;
+  margin: 0 auto;
+  padding: 0.5rem;
 }
 
-.header-icon {
-  font-size: 1rem;
-  font-weight: 900;
-  color: #2d336b;
-  user-select: none;
+/* 헤더 카드 */
+.header-card {
+  /* padding: 1rem 0 0.5rem 0; */
 }
 
-.content-title {
-  font-weight: 900;
-  font-size: 0.9rem;
-  color: #2d336b;
-  margin: 0;
-  user-select: none;
+.header-title {
+  font-size: 1rem !important;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.3;
 }
 
-.wmti-types {
+.header-subtitle {
+  font-size: 0.8125rem !important;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+/* 타입 그리드 */
+.types-grid {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
-  max-width: 100%;
-  padding-left: 0;
-  padding-right: 0;
-  width: 100%;
-  margin: 0;
+  gap: 0.75rem;
 }
 
-.wmti-type {
-  padding: 0.5rem 0.8rem;
-  font-size: 1rem;
+.type-card {
+  background: white;
+  border-radius: 0.75rem;
   cursor: pointer;
-  border: 1px solid #2d336b;
-  border-radius: 14px;
-  background: #f7f8fc;
-  box-shadow: 0 2px 4px rgb(45 51 107 / 0.1);
-  transition:
-    box-shadow 0.3s ease,
-    background-color 0.3s ease,
-    transform 0.2s ease;
-  user-select: none;
+  transition: all 0.25s ease;
+  border: 1px solid #f3f4f6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.wmti-type:hover,
-.wmti-type:focus {
-  box-shadow: 0 6px 15px rgb(45 51 107 / 0.3);
-  background-color: #e6e9f7;
-  transform: translateY(-2px);
-  outline: none;
-}
-.wmti-types > .wmti-type:last-child {
-  margin-bottom: 0;
+.type-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #e5e7eb;
 }
 
-.wmti-footer {
-  margin-top: 0; /* 버튼 위 여백 제거 */
+.card-content {
+  padding: 0.7rem;
 }
 
-.type-summary {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.type-code {
-  display: inline-block;
-  font-weight: 700;
-  padding: 0.15rem 0.5rem;
-  border-radius: 3px;
-  font-size: 0.6rem;
-  color: #fff;
-  background-color: #2d336b;
-  user-select: none;
-  min-width: 48px;
-  text-align: center;
-  letter-spacing: 0.03em;
-  box-shadow: 0 2px 6px rgba(45, 51, 107, 0.6);
-}
-
-.type-aka {
-  font-size: 0.7rem;
-  color: #2d336b;
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  user-select: none;
-  max-width: 100%;
-}
-
-.type-detail {
-  margin-top: 0.6rem;
-  font-size: 0.55rem;
-  color: #555a85;
-  line-height: 1.4;
-  font-weight: 500;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-.type-description {
-  margin-bottom: 0.6rem;
-  white-space: pre-line;
-  letter-spacing: 0.02em;
-}
-
-.type-features {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-.feature-tag {
-  font-size: 0.45rem;
+.type-badge {
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 0.6875rem;
   font-weight: 600;
-  color: #2d336b;
-  background-color: #c3c9e9;
-  border-radius: 12px;
-  padding: 0.15rem 0.6rem;
-  user-select: none;
-  cursor: default;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  letter-spacing: 0.01em;
+}
+
+.type-name {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #111827;
+  flex: 1;
+}
+
+.expand-icon {
+  color: #9ca3af;
+  transition: transform 0.25s ease;
+}
+
+.type-card.expanded .expand-icon {
+  transform: rotate(180deg);
+}
+
+/* 확장 컨텐츠 */
+.expanded-content {
+  border-top: 1px solid #f3f4f6;
+  padding-top: 0.75rem;
+  margin-top: 0.75rem !important;
+}
+
+.type-description {
+  font-size: 0.7rem;
+  color: #6b7280;
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+  white-space: pre-line;
+}
+
+/* 움직이는 해시태그 컨테이너 */
+.hashtag-container {
+  background: #f9fafb;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.hashtag-scroll {
+  overflow: hidden;
+  width: 100%;
   white-space: nowrap;
-  border: 1.5px solid transparent;
-  transition:
-    background-color 0.25s ease,
-    border-color 0.25s ease,
-    color 0.25s ease;
-  position: relative;
 }
 
-.feature-tag::before {
-  content: '#';
-  color: #364a96;
-  margin-right: 0.15rem;
-  font-weight: 700;
-  position: relative;
-  top: 1px;
+.hashtag-track {
+  display: inline-flex;
+  animation: scroll-left 35s linear infinite;
+  gap: 1rem;
+  align-items: center;
 }
 
-.feature-tag:hover {
-  background-color: #2d336b;
-  color: #f0f0f5;
-  border-color: #1a1f4a;
-  box-shadow: 0 3px 8px rgba(45, 51, 107, 0.4);
+.hashtag {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #6366f1;
+  background: white;
+  border-radius: 1rem;
+  border: 1px solid #e0e7ff;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
 }
 
-.wmti-footer {
-  margin-top: 0.5rem;
-  text-align: center;
-}
-
-.survey-btn {
-  margin-top: 0;
-  margin-bottom: 0.2rem;
-  padding: 0.4rem 1rem;
-  background: #2d336b;
-  color: white;
-  border: none;
-  border-radius: 9px;
-  font-weight: 800;
-  font-size: 0.6rem;
-  cursor: pointer;
-  user-select: none;
-  transition:
-    background-color 0.3s ease,
-    transform 0.2s ease;
-}
-
-.survey-btn:hover {
-  background: #23285a;
+.hashtag:hover {
+  background: #e0e7ff;
+  color: #4f46e5;
   transform: scale(1.05);
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.35s ease;
+/* 스크롤 애니메이션 */
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
-.fade-enter-from,
-.fade-leave-to {
+/* 호버시 애니메이션 일시정지 */
+.hashtag-container:hover .hashtag-track {
+  animation-play-state: paused;
+}
+
+/* CTA 버튼 */
+.cta-section {
+  text-align: center;
+}
+
+.cta-button {
+  position: relative;
+  padding: 0.875rem 1.25rem;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: #f9fafb;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+}
+
+.button-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.button-text {
+  font-size: 0.875rem;
+}
+
+.arrow-icon {
+  transition: transform 0.2s ease;
+}
+
+.cta-button:hover {
+  background: #374151;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.cta-button:hover .arrow-icon {
+  transform: translateX(2px);
+}
+
+/* 트랜지션 */
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.25s ease;
+}
+
+.slide-fade-enter-from {
   opacity: 0;
+  transform: translateY(-10px);
+}
+
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 </style>
