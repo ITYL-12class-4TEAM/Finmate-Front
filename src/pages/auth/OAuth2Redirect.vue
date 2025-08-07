@@ -12,6 +12,9 @@ import { onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { authAPI } from '@/api/auth';
+import { useToast } from '@/composables/useToast';
+
+const { showToast } = useToast();
 
 const router = useRouter();
 const route = useRoute();
@@ -45,7 +48,7 @@ onMounted(async () => {
       console.error('OAuth2 로그인 실패:', errorMessage);
 
       const decodedMessage = decodeURIComponent(errorMessage);
-      alert(decodedMessage);
+      showToast(decodedMessage, 'error');
 
       router.push('/login');
       return;
@@ -85,21 +88,21 @@ onMounted(async () => {
           localStorage.setItem('userInfo', JSON.stringify(authResult.userInfo));
         }
         console.log('토큰 저장 완료');
-        alert('로그인 성공!');
+        showToast('로그인 성공!');
         router.push('/');
       } else {
         console.error('토큰 정보가 없습니다:', authResult);
-        alert('로그인 정보 저장에 실패했습니다.');
+        showToast('로그인 정보 저장에 실패했습니다.', 'error');
         router.push('/login');
       }
     } else {
       console.error('토큰 교환 실패:', result.message);
-      alert(result.message);
+      showToast(result.message, 'error');
       router.push('/login');
     }
   } catch (error) {
     console.error('OAuth2 리다이렉트 처리 오류:', error);
-    alert('로그인 처리 중 오류가 발생했습니다.');
+    showToast('로그인 처리 중 오류가 발생했습니다.', 'error');
     router.push('/login');
   }
 });

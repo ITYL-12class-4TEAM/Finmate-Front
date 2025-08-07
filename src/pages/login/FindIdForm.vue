@@ -4,9 +4,7 @@
     <div class="header">
       <h1 class="logo">FinMate</h1>
       <p class="subtitle">아이디 찾기</p>
-      <p class="description">
-        가입 시 등록한 정보로 아이디를 찾을 수 있습니다.
-      </p>
+      <p class="description">가입 시 등록한 정보로 아이디를 찾을 수 있습니다.</p>
     </div>
 
     <!-- 휴대폰 인증으로 아이디 찾기 -->
@@ -64,11 +62,7 @@
             </button>
           </div>
         </div>
-        <button
-          type="submit"
-          class="find-btn"
-          :disabled="!phoneVerified || isLoading"
-        >
+        <button type="submit" class="find-btn" :disabled="!phoneVerified || isLoading">
           {{ isLoading ? '찾는 중...' : '아이디 찾기' }}
         </button>
       </form>
@@ -89,9 +83,7 @@
     <div class="links">
       <router-link to="/login" class="link">로그인</router-link>
       <span class="divider">|</span>
-      <router-link to="/login/find-password" class="link"
-        >비밀번호 찾기</router-link
-      >
+      <router-link to="/login/find-password" class="link">비밀번호 찾기</router-link>
       <span class="divider">|</span>
       <router-link to="/login/signup" class="link">회원가입</router-link>
     </div>
@@ -103,7 +95,9 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { authAPI } from '@/api/auth';
 import { smsAPI } from '@/api/sms';
+import { useToast } from '@/composables/useToast';
 
+const { showToast } = useToast();
 const router = useRouter();
 
 // 상태 관리
@@ -129,17 +123,14 @@ const formatPhoneNumber = (event) => {
   } else if (value.length <= 7) {
     phoneForm.value.phone = `${value.slice(0, 3)}-${value.slice(3)}`;
   } else {
-    phoneForm.value.phone = `${value.slice(0, 3)}-${value.slice(
-      3,
-      7
-    )}-${value.slice(7, 11)}`;
+    phoneForm.value.phone = `${value.slice(0, 3)}-${value.slice(3, 7)}-${value.slice(7, 11)}`;
   }
 };
 
 // 휴대폰 인증번호 발송
 const sendPhoneVerification = async () => {
   if (!phoneForm.value.phone) {
-    alert('휴대폰 번호를 입력해주세요.');
+    showToast('휴대폰 번호를 입력해주세요.', 'warning');
     return;
   }
 
@@ -149,47 +140,44 @@ const sendPhoneVerification = async () => {
 
     if (response.success) {
       phoneVerificationSent.value = true;
-      alert(response.message);
+      showToast(response.message);
     } else {
-      alert(response.message);
+      showToast(response.message);
     }
   } catch (error) {
-    alert('인증번호 발송에 실패했습니다.');
+    showToast('인증번호 발송에 실패했습니다.', 'error');
   }
 };
 
 // 휴대폰 인증번호 확인
 const verifyPhoneCode = async () => {
   if (!phoneForm.value.verificationCode) {
-    alert('인증번호를 입력해주세요.');
+    showToast('인증번호를 입력해주세요.', 'warning');
     return;
   }
 
   try {
     const phoneNumber = phoneForm.value.phone.replace(/-/g, '');
-    const result = await smsAPI.verifyCode(
-      phoneNumber,
-      phoneForm.value.verificationCode
-    );
+    const result = await smsAPI.verifyCode(phoneNumber, phoneForm.value.verificationCode);
 
     if (result.success) {
       phoneVerified.value = true;
-      alert(result.message);
+      showToast(result.message);
     } else {
       phoneVerified.value = false;
-      alert(result.message);
+      showToast(result.message, 'error');
     }
   } catch (error) {
     phoneVerified.value = false;
     console.error('인증번호 확인 오류:', error);
-    alert('인증번호가 일치하지 않습니다.');
+    showToast('인증번호가 일치하지 않습니다.', 'error');
   }
 };
 
 // 휴대폰으로 아이디 찾기
 const findIdByPhone = async () => {
   if (!phoneVerified.value) {
-    alert('휴대폰 번호 인증을 완료해주세요.');
+    showToast('휴대폰 번호 인증을 완료해주세요.', 'warning');
     return;
   }
 
@@ -203,11 +191,11 @@ const findIdByPhone = async () => {
       foundDate.value = result.data.joinDate || '정보 없음';
       console.log('아이디 찾기 성공:', result.message);
     } else {
-      alert(result.message);
+      showToast(result.message, 'error');
     }
   } catch (error) {
     console.error('아이디 찾기 오류:', error);
-    alert('입력하신 정보와 일치하는 아이디를 찾을 수 없습니다.');
+    showToast('입력하신 정보와 일치하는 아이디를 찾을 수 없습니다.', 'error');
   } finally {
     isLoading.value = false;
   }

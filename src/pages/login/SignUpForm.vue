@@ -370,7 +370,9 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { authAPI } from '@/api/auth';
 import { smsAPI } from '@/api/sms';
 import { validationAPI } from '@/api/validation';
+import { useToast } from '@/composables/useToast';
 
+const { showToast } = useToast();
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
@@ -436,7 +438,7 @@ onMounted(() => {
       console.log('전화번호 설정:', route.query.phone);
     }
 
-    alert('추가 정보를 입력해주세요.');
+    showToast('추가 정보를 입력해주세요.');
   }
 });
 
@@ -455,6 +457,10 @@ const isPasswordValid = computed(() => {
 const passwordsMatch = computed(() => {
   return signupForm.value.password === signupForm.value.passwordConfirm;
 });
+const isValidEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
 
 // 폼 유효성 검사 수정
 const isFormValid = computed(() => {
@@ -506,7 +512,11 @@ const togglePassword = () => {
 
 const checkEmailDuplicate = async () => {
   if (!signupForm.value.email) {
-    alert('이메일을 입력해주세요.');
+    showToast('이메일을 입력해주세요.', 'warning');
+    return;
+  }
+  if (!isValidEmail(signupForm.value.email)) {
+    showToast('올바른 이메일 형식을 입력해주세요.', 'warning');
     return;
   }
 
@@ -515,21 +525,21 @@ const checkEmailDuplicate = async () => {
 
     if (response.success) {
       emailVerified.value = true;
-      alert(response.message);
+      showToast(response.message);
     } else {
       emailVerified.value = false;
-      alert(response.message);
+      showToast(response.message, 'warning');
     }
   } catch (error) {
     emailVerified.value = false;
     console.error('이메일 중복 확인 오류:', error);
-    alert('이메일 중복 확인 중 오류가 발생했습니다.');
+    showToast('이메일 중복 확인 중 오류가 발생했습니다.', 'error');
   }
 };
 
 const checkNicknameDuplicate = async () => {
   if (!signupForm.value.nickname) {
-    alert('닉네임을 입력해주세요.');
+    showToast('닉네임을 입력해주세요.', 'warning');
     return;
   }
 
@@ -538,21 +548,21 @@ const checkNicknameDuplicate = async () => {
 
     if (response.success) {
       nicknameVerified.value = true;
-      alert(response.message);
+      showToast(response.message);
     } else {
       nicknameVerified.value = false;
-      alert(response.message);
+      showToast(response.message, 'warning');
     }
   } catch (error) {
     nicknameVerified.value = false;
     console.error('닉네임 중복 확인 오류:', error);
-    alert('닉네임 중복 확인 중 오류가 발생했습니다.');
+    showToast('닉네임 중복 확인 중 오류가 발생했습니다.', 'error');
   }
 };
 
 const sendPhoneVerification = async () => {
   if (!signupForm.value.phone) {
-    alert('휴대폰 번호를 입력해주세요.');
+    showToast('휴대폰 번호를 입력해주세요.', 'warning');
     return;
   }
 
@@ -561,19 +571,19 @@ const sendPhoneVerification = async () => {
 
     if (response.success) {
       phoneVerificationSent.value = true;
-      alert(response.message);
+      showToast(response.message);
     } else {
-      alert(response.message);
+      showToast(response.message, 'warning');
     }
   } catch (error) {
     console.error('인증번호 발송 오류:', error);
-    alert('인증번호 발송에 실패했습니다.');
+    showToast('인증번호 발송에 실패했습니다.', 'error');
   }
 };
 
 const verifyPhoneCode = async () => {
   if (!signupForm.value.verificationCode) {
-    alert('인증번호를 입력해주세요.');
+    showToast('인증번호를 입력해주세요.', 'warning');
     return;
   }
 
@@ -585,21 +595,21 @@ const verifyPhoneCode = async () => {
 
     if (response.success) {
       phoneVerified.value = true;
-      alert(response.message);
+      showToast(response.message);
     } else {
       phoneVerified.value = false;
-      alert(response.message);
+      showToast(response.message, 'warning');
     }
   } catch (error) {
     phoneVerified.value = false;
     console.error('인증번호 확인 오류:', error);
-    alert('인증번호가 일치하지 않습니다.');
+    showToast('인증번호가 일치하지 않습니다.', 'error');
   }
 };
 
 const handleSignup = async () => {
   if (!isFormValid.value) {
-    alert('모든 필수 항목을 입력해주세요.');
+    showToast('모든 필수 항목을 입력해주세요.', 'warning');
     return;
   }
 
@@ -642,19 +652,19 @@ const handleSignup = async () => {
           localStorage.setItem('userInfo', JSON.stringify(authData.userInfo));
         }
 
-        alert('소셜 회원가입이 완료되었습니다!');
+        showToast('소셜 회원가입이 완료되었습니다!');
         router.push('/');
         console.log('소셜 회원가입 완료');
       } else {
-        alert('회원가입이 완료되었습니다. 로그인해주세요.');
+        showToast('회원가입이 완료되었습니다. 로그인해주세요.');
         router.push('/login');
       }
     } else {
-      alert(response.message);
+      showToast(response.message, 'error');
     }
   } catch (error) {
     console.error('회원가입 오류:', error);
-    alert('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
+    showToast('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
   }
 };
 </script>

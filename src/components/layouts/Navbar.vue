@@ -46,13 +46,7 @@
 
             <!-- 사용자 메뉴 드롭다운 -->
             <div class="user-dropdown" :class="{ open: dropdownOpen }">
-              <p>
-                {{
-                  authStore.userNickname ||
-                  authStore.userInfo?.username ||
-                  '사용자'
-                }}님
-              </p>
+              <p>{{ authStore.userNickname || authStore.userInfo?.username || '사용자' }}님</p>
               <router-link to="/mypage">마이페이지 이동</router-link>
               <button @click="handleLogout">로그아웃</button>
             </div>
@@ -92,7 +86,9 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/useAuthStore';
 import DesktopNavbar from './DesktopNavbar.vue';
 import MobileMenu from './MobileMenu.vue';
+import { useToast } from '@/composables/useToast';
 
+const { showToast } = useToast();
 const router = useRouter();
 const authStore = useAuthStore();
 
@@ -118,7 +114,7 @@ const handleLogout = async () => {
     await authStore.logout();
 
     console.log('로그아웃 완료');
-    alert('로그아웃되었습니다.');
+    showToast('로그아웃되었습니다.');
 
     // 드롭다운 닫기
     dropdownOpen.value = false;
@@ -127,7 +123,7 @@ const handleLogout = async () => {
     router.push('/login');
   } catch (error) {
     console.error('로그아웃 처리 중 오류:', error);
-    alert('로그아웃 처리 중 오류가 발생했습니다.');
+    showToast('로그아웃 처리 중 오류가 발생했습니다.', 'error');
   }
 };
 
