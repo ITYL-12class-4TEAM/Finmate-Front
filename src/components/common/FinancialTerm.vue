@@ -34,7 +34,7 @@ const termDescription = computed(() => financialTerms[props.term] || '설명 없
   transform: translateX(-50%);
   background: #fdf4d0;
   color: #333;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 0.7rem;
   font-size: 0.7rem;
   line-height: 1.5;
   z-index: 100;
@@ -42,8 +42,8 @@ const termDescription = computed(() => financialTerms[props.term] || '설명 없
   border-radius: 0.75rem;
   white-space: normal;
   word-break: keep-all;
-  min-width: 11rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  min-width: 8rem;
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.2);
   opacity: 0;
   transition:
     opacity 0.2s ease-in-out,
@@ -78,6 +78,6 @@ const termDescription = computed(() => financialTerms[props.term] || '설명 없
 
 .term {
   font-weight: 600;
-  padding-bottom: 0.3rem;
+  padding-bottom: 0.2rem;
 }
 </style>
