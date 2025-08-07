@@ -257,4 +257,46 @@ export const authAPI = {
       };
     }
   },
+  exchangeOAuth2Token: async (code) => {
+    try {
+      const response = await api.post('/api/auth/oauth2/token', null, {
+        params: { code },
+      });
+
+      const result = response.data;
+      if (result.header?.status === 'OK') {
+        return {
+          success: true,
+          message: result.header.message || 'OAuth2 토큰 교환 성공',
+          data: result.body?.data || result.data || null,
+        };
+      } else {
+        return {
+          success: false,
+          message: result.header?.message || 'OAuth2 토큰 교환에 실패했습니다.',
+          data: null,
+        };
+      }
+    } catch (error) {
+      console.error('OAuth2 토큰 교환 API 오류:', error);
+
+      let errorMessage = 'OAuth2 토큰 교환 중 오류가 발생했습니다.';
+
+      if (error.response?.data?.header?.message) {
+        errorMessage = error.response.data.header.message;
+      } else if (error.response?.status === 401) {
+        errorMessage = '인증 코드가 유효하지 않습니다.';
+      } else if (error.response?.status === 400) {
+        errorMessage = '잘못된 요청입니다. 다시 로그인해주세요.';
+      } else if (error.response?.status >= 500) {
+        errorMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+      }
+
+      return {
+        success: false,
+        message: errorMessage,
+        data: null,
+      };
+    }
+  },
 };

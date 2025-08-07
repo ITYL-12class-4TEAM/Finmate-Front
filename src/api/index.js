@@ -43,7 +43,9 @@ api.interceptors.response.use(
           });
 
           const newAccessToken = response.data.accessToken;
+          const newRefreshToken = response.data.refreshToken;
           localStorage.setItem('accessToken', newAccessToken);
+          localStorage.setItem('refreshToken', newRefreshToken);
 
           console.log('토큰 새로고침 성공');
 
