@@ -1,73 +1,69 @@
 <template>
   <div class="action-section">
     <button
-      :class="['compare-btn', isInCompareList ? 'in-list' : 'add-compare-btn']"
+      class="compare-btn"
+      :class="isInCompareList ? 'in-list' : 'add-btn'"
       @click="handleCompareClick"
-      :disabled="isInCompareList"
     >
-      {{ isInCompareList ? '비교함에 추가됨' : '비교함에 추가' }}
+      {{ isInCompareList ? '비교함에서 제거' : '비교함에 추가' }}
     </button>
     <button class="join-btn" @click="$emit('join-product')">가입하기</button>
   </div>
 </template>
 
 <script setup>
-// Props 정의
 const props = defineProps({
-  isInCompareList: {
-    type: Boolean,
-    default: false,
-  },
+  isInCompareList: Boolean,
 });
+const emit = defineEmits(['add-to-compare', 'remove-from-compare', 'join-product']);
 
-// 이벤트 정의
-const emit = defineEmits(['add-to-compare', 'join-product']);
-
-// 비교함 버튼 클릭 핸들러
 const handleCompareClick = () => {
-  if (!props.isInCompareList) {
-    // props에서 isInCompareList 참조
-    emit('add-to-compare');
-  }
+  props.isInCompareList ? emit('remove-from-compare') : emit('add-to-compare');
 };
 </script>
 
 <style scoped>
 .action-section {
   display: flex;
-  justify-content: space-between;
+  gap: 0.5rem;
   margin-top: 1rem;
   margin-bottom: 1rem;
+  width: 100%;
+  max-width: 430px;
 }
 
 .compare-btn,
 .join-btn {
-  padding: 0.75rem 1rem;
-  border-radius: 0.375rem;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
   flex: 1;
+  padding: 0.68rem 0.8rem;
+  border-radius: 0.75rem;
+  font-size: 0.96rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition:
+    background 0.18s,
+    color 0.18s,
+    border 0.18s;
 }
 
-.add-compare-btn {
-  background-color: var(--color-bg-light);
+.add-btn {
+  background: var(--color-bg-light);
   color: var(--color-main);
   border: 1px solid var(--color-light);
-  margin-right: 0.5rem;
 }
-
 .in-list {
-  background-color: #e0e0e0;
-  color: #888;
-  border: 1px solid #ccc;
-  cursor: default;
-  margin-right: 0.5rem;
+  background: var(--color-sub);
+  color: #fff;
+  border: 1px solid var(--color-sub);
 }
-
 .join-btn {
-  background-color: var(--color-main);
-  color: white;
+  background: var(--color-main);
+  color: #fff;
+  border: none;
+}
+.compare-btn:active,
+.join-btn:active {
+  opacity: 0.92;
 }
 </style>

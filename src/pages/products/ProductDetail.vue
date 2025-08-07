@@ -81,20 +81,23 @@
       </div>
 
       <!-- 액션 섹션 -->
+      <!-- 액션 섹션 -->
       <ActionButtons
         :is-in-compare-list="
-          isInCompareList(product.product_id, selectedOption?.save_trm || selectedOption?.saveTrm)
+          isInCompareList(
+            product.product_id,
+            selectedOption?.save_trm || selectedOption?.saveTrm,
+            selectedOption?.intr_rate_type || selectedOption?.intrRateType || 'S'
+          )
         "
         @add-to-compare="handleAddToCompare"
+        @remove-from-compare="handleRemoveFromCompare"
         @join-product="joinProduct"
       />
 
       <!-- 하단 여백 (CompareFloatingBar가 가리는 콘텐츠 방지) -->
       <div v-if="compareList.length > 0" style="height: 4rem"></div>
     </div>
-
-    <!-- 금융용어 상세 모달 -->
-    <FinancialTermModal v-if="showModal" :term="selectedTerm" @close="showModal = false" />
 
     <!-- 비교함 플로팅 바 -->
     <CompareFloatingBar :compare-list="compareList" @go-to-compare="goToCompare" />
@@ -112,7 +115,6 @@ import ProductRateInfo from '@/components/products/ProductRateInfo.vue';
 import ProductFeatures from '@/components/products/ProductFeatures.vue';
 // todo
 // import PreferentialConditions from '@/components/products/PreferentialConditions.vue';
-import FinancialTermModal from '@/components/products/FinancialTermModal.vue';
 import ActionButtons from '@/components/products/ActionButtons.vue';
 import CompareFloatingBar from '@/components/products/compare/CompareFloatingBar.vue';
 import useCompareList from '@/composables/useCompareList';
@@ -128,7 +130,7 @@ const showModal = ref(false);
 const selectedTerm = ref({ name: '', description: '' });
 
 // 비교함 기능 (컴포저블 사용)
-const { compareList, addToCompareList, isInCompareList } = useCompareList();
+const { compareList, addToCompareList, removeFromCompareList, isInCompareList } = useCompareList();
 
 // 상품 정보 로드
 const loadProductDetail = async () => {
@@ -256,6 +258,18 @@ const handleAddToCompare = () => {
 
   // 결과 확인을 위해 로컬 스토리지 다시 출력
   console.log('추가 후 로컬 스토리지:', localStorage.getItem('finmate_compare_list'));
+};
+
+const handleRemoveFromCompare = () => {
+  if (!product.value || !selectedOption.value) return;
+
+  const productId = product.value.product_id || product.value.productId;
+  const saveTrm = selectedOption.value.save_trm || selectedOption.value.saveTrm;
+  const intrRateType =
+    selectedOption.value.intr_rate_type || selectedOption.value.intrRateType || 'S';
+
+  const result = removeFromCompareList(productId, saveTrm, intrRateType);
+  alert(result.message);
 };
 
 // 비교 페이지로 이동

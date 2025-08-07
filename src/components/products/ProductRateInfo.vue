@@ -1,77 +1,73 @@
 <template>
-  <div class="interest-section">
+  <section class="interest-section">
     <div class="interest-rates">
       <div class="rate-item">
-        <div class="rate-label">기본금리</div>
-        <div class="rate-value">
+        <span class="rate-label">기본금리</span>
+        <span class="rate-value">
           {{ formatRate(selectedOption?.intr_rate) }}
-        </div>
+        </span>
       </div>
       <div class="rate-divider"></div>
-
       <div class="rate-item">
-        <div class="rate-label">우대금리</div>
-        <div class="rate-value highlight">
+        <span class="rate-label">우대금리</span>
+        <span class="rate-value highlight">
           {{ formatRate(selectedOption?.intr_rate2) }}
-        </div>
+        </span>
       </div>
     </div>
-
-    <div class="rate-notice">
-      <div class="notice-icon">i</div>
-      <div>
+    <div class="rate-notice" role="note" aria-label="금리 안내">
+      <span class="notice-icon" aria-hidden="true">i</span>
+      <span>
         금리는
         <strong>{{ selectedOption?.save_trm || selectedOption?.saveTrm || '-' }}개월</strong>
         기준이며, 실제 금리는 가입 시점과 조건에 따라 달라질 수 있습니다.
-      </div>
+      </span>
     </div>
-  </div>
+  </section>
 </template>
-<script>
-export default {
-  name: 'ProductRateInfo',
-  props: {
-    selectedOption: {
-      type: Object,
-      default: null,
-    },
-    formatRate: {
-      type: Function,
-      required: true,
-    },
-  },
-};
+
+<script setup>
+defineProps({
+  selectedOption: { type: Object, default: null },
+  formatRate: { type: Function, required: true },
+});
 </script>
+
 <style scoped>
 .interest-section {
-  padding: 1.5rem;
-  background-color: var(--color-bg-light);
+  padding: 1.25rem;
+  background: var(--color-bg-light);
   border-radius: 0.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
+  max-width: 430px;
 }
 
 .interest-rates {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
-  gap: 1.5rem;
-  margin-bottom: 1rem;
+  gap: 1.2rem;
+  margin-bottom: 0.85rem;
 }
 
 .rate-item {
+  flex: 1;
   text-align: center;
 }
 
 .rate-label {
-  font-size: 0.875rem;
+  display: block;
+  font-size: 0.86rem;
   color: var(--color-sub);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.21rem;
+  letter-spacing: -0.01em;
 }
 
 .rate-value {
-  font-size: 1.75rem;
-  font-weight: 500;
+  font-size: 1.53rem;
+  font-weight: 600;
   color: var(--color-main);
+  line-height: 1.2;
 }
 
 .rate-value.highlight {
@@ -80,32 +76,34 @@ export default {
 
 .rate-divider {
   width: 1px;
-  height: 3.75rem;
-  background-color: var(--color-light);
+  height: 3.2rem;
+  background: var(--color-light);
+  align-self: center;
 }
 
 .rate-notice {
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
-  background-color: white;
-  border-radius: 0.375rem;
-  padding: 0.75rem;
-  font-size: 0.8125rem;
+  gap: 0.7rem;
+  background: #fff;
+  border-radius: 0.38rem;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.81rem;
   color: var(--color-sub);
+  box-shadow: 0 1px 4px rgba(45, 51, 107, 0.04);
 }
 
 .notice-icon {
+  width: 1.16rem;
+  height: 1.16rem;
+  background: var(--color-bg-light);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.25rem;
-  height: 1.25rem;
-  border-radius: 50%;
-  background-color: var(--color-bg-light);
   font-style: italic;
-  font-weight: bold;
-  font-size: 0.75rem;
+  font-weight: 700;
+  font-size: 0.79rem;
   color: var(--color-sub);
   flex-shrink: 0;
 }

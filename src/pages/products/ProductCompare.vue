@@ -18,7 +18,7 @@
     <div v-else class="compare-content">
       <!-- 비교함 관리 -->
       <div class="compare-actions">
-        <div class="compare-count">{{ compareList.length }}/4 상품 비교 중</div>
+        <div class="compare-count">{{ compareList.length }}/3 상품 비교 중</div>
         <button class="clear-btn" @click="handleClearCompare">비교함 비우기</button>
       </div>
 
@@ -144,7 +144,7 @@
                 }}
               </td>
             </tr>
-            <tr>
+            <!-- <tr>
               <td class="feature-cell">상품 유형</td>
               <td
                 v-for="item in compareList"
@@ -153,7 +153,7 @@
               >
                 {{ getProductTypeName(item.productType) }}
               </td>
-            </tr>
+            </tr> -->
             <tr>
               <td class="feature-cell">상세 보기</td>
               <td
@@ -258,6 +258,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import axios from 'axios';
 import useCompareList from '@/composables/useCompareList';
 import BackButton from '@/components/common/BackButton.vue';
 import { compareProductsAPI } from '@/api/product';
@@ -590,42 +591,55 @@ const loadCompareData = async () => {
     isLoading.value = true;
     error.value = null;
 
-    // 상품 ID 목록 추출
-    const productIds = compareList.value.map((item) => item.productId);
-
     // 상품 타입 (모두 같은 타입이라고 가정)
     const productType = compareList.value[0].productType;
 
-    console.log('비교 API 호출 정보:', {
-      productIds,
-      productType,
-      compareListItems: compareList.value,
+    // API 호출 URL 구성
+    let url = `/api/products/compare?productType=${productType}`;
+
+    // 각 상품별 ID와 saveTrm을 URL에 추가
+    compareList.value.forEach((item) => {
+      url += `&productIds=${item.productId}`;
+
+      // 각 상품에 대응하는 saveTrm 추가 (있는 경우에만)
+      if (item.saveTrm) {
+        url += `&saveTrm=${item.saveTrm}`;
+      }
+
+      // 각 상품에 대응하는 intrRateType 추가 (있는 경우에만)
+      if (item.intrRateType) {
+        url += `&intrRateType=${item.intrRateType}`;
+      }
     });
 
+    console.log('비교 API 호출 URL:', url);
+
     // API 호출
-    const response = await compareProductsAPI(productIds, productType);
-    compareData.value = response;
+    const response = await axios.get(url);
+    compareData.value = response.data;
 
     // API 응답 확인
-    console.log('전체 API 응답:', response);
+    console.log('전체 API 응답:', response.data);
 
     // API에서 products 배열이 있는지 확인
-    if (response?.products && Array.isArray(response.products)) {
+    if (response.data?.products && Array.isArray(response.data.products)) {
       // 기존 compareList 항목을 유지하면서 필요한 필드만 추가
       compareList.value = compareList.value.map((item) => {
         // API 응답에서 해당 상품 찾기
-        const apiProduct = response.products.find(
+        const apiProduct = response.data.products.find(
           (p) =>
-            String(p.product_id) === String(item.productId) ||
-            String(p.fin_prdt_cd) === String(item.finPrdtCd)
+            String(p.productId) === String(item.productId) ||
+            String(p.finPrdtCd) === String(item.finPrdtCd)
         );
 
         if (apiProduct) {
           // 기존 항목 유지하면서 필요한 필드만 추가
           return {
             ...item,
-            preferential_tags: apiProduct.preferential_tags,
-            join_member: apiProduct.join_member,
+            preferentialTags: apiProduct.preferentialTags,
+            joinMember: apiProduct.joinMember,
+            // 옵션 정보 추가
+            options: apiProduct.options || [],
           };
         }
         return item;
@@ -635,22 +649,24 @@ const loadCompareData = async () => {
     }
     // data.body.data.products 경로도 확인 (API 구조가 변경될 경우 대비)
     else if (
-      response?.data?.body?.data?.products &&
-      Array.isArray(response.data.body.data.products)
+      response.data?.data?.body?.data?.products &&
+      Array.isArray(response.data.data.body.data.products)
     ) {
       // 동일한 방식으로 필요한 필드만 추가
       compareList.value = compareList.value.map((item) => {
-        const apiProduct = response.data.body.data.products.find(
+        const apiProduct = response.data.data.body.data.products.find(
           (p) =>
-            String(p.product_id) === String(item.productId) ||
-            String(p.fin_prdt_cd) === String(item.finPrdtCd)
+            String(p.productId) === String(item.productId) ||
+            String(p.finPrdtCd) === String(item.finPrdtCd)
         );
 
         if (apiProduct) {
           return {
             ...item,
-            preferential_tags: apiProduct.preferential_tags,
-            join_member: apiProduct.join_member,
+            preferentialTags: apiProduct.preferentialTags,
+            joinMember: apiProduct.joinMember,
+            // 옵션 정보 추가
+            options: apiProduct.options || [],
           };
         }
         return item;
