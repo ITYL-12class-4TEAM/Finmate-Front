@@ -280,7 +280,7 @@ const formattedDate = computed(() => {
 
 // ✅ 결과 및 분석 데이터 불러오기
 const fetchResult = async () => {
-  const memberId = authStore.user.memberId;
+  const memberId = authStore.userInfo.memberId;
 
   try {
     const res = await getWMTIResultAPI(memberId);
