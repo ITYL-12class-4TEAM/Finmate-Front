@@ -10,25 +10,21 @@
     <button class="compare-btn" @click="goToCompare">비교하기</button>
   </div>
 </template>
-<script>
-export default {
-  name: 'CompareFloatingBar',
-  props: {
-    compareList: {
-      type: Array,
-      required: true,
-    },
+<script setup>
+// props 정의
+const props = defineProps({
+  compareList: {
+    type: Array,
+    required: true,
   },
-  emits: ['go-to-compare'],
-  setup(props, { emit }) {
-    const goToCompare = () => {
-      emit('go-to-compare');
-    };
+});
 
-    return {
-      goToCompare,
-    };
-  },
+// emits 정의
+const emit = defineEmits(['go-to-compare']);
+
+// 비교하기 버튼 클릭 핸들러
+const goToCompare = () => {
+  emit('go-to-compare');
 };
 </script>
 <style scoped>

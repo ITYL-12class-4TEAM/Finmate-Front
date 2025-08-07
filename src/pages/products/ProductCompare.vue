@@ -3,7 +3,7 @@
     <!-- 헤더 -->
     <div class="page-header">
       <BackButton title="상품 목록으로" />
-      <h1 class="page-title">금융 상품 비교</h1>
+      <!-- <h1 class="page-title">금융 상품 비교</h1> -->
     </div>
 
     <!-- 비교함이 비어있는 경우 -->
@@ -73,6 +73,26 @@
                 </div>
               </td>
             </tr>
+
+            <!-- 우대 조건 태그 행 -->
+            <tr>
+              <td class="feature-cell">우대 조건 태그</td>
+              <td v-for="(item, index) in compareList" :key="`tags-${index}`" class="product-cell">
+                <div class="tags-container">
+                  <template v-if="item && item.preferential_tags">
+                    <span
+                      v-for="(tag, tagIndex) in item.preferential_tags.split(',')"
+                      :key="tagIndex"
+                      class="tag-pill"
+                    >
+                      #{{ tag.trim() }}
+                    </span>
+                  </template>
+                  <span v-else class="no-tags">태그 없음</span>
+                </div>
+              </td>
+            </tr>
+
             <tr>
               <td class="feature-cell">가입 기간</td>
               <td
@@ -83,14 +103,33 @@
                 {{ item.saveTrm }}개월
               </td>
             </tr>
-            <tr v-if="compareData && compareData.products">
+            <!-- 최소 가입금액 행 -->
+            <tr
+              v-if="compareData && (compareData.products || compareData.data?.body?.data?.products)"
+            >
               <td class="feature-cell">최소 가입금액</td>
+              <td v-for="(item, index) in compareList" :key="`min-${index}`" class="product-cell">
+                {{ getMinDepositForProduct(item.productId) }}
+              </td>
+            </tr>
+
+            <!-- 최대 가입금액 행 -->
+            <tr
+              v-if="compareData && (compareData.products || compareData.data?.body?.data?.products)"
+            >
+              <td class="feature-cell">최대 가입금액</td>
+              <td v-for="(item, index) in compareList" :key="`max-${index}`" class="product-cell">
+                {{ getMaxDepositForProduct(item.productId) }}
+              </td>
+            </tr>
+            <tr>
+              <td class="feature-cell">가입 대상</td>
               <td
-                v-for="item in compareList"
-                :key="`min-${item.productId}-${item.saveTrm}`"
+                v-for="(item, index) in compareList"
+                :key="`member-${index}`"
                 class="product-cell"
               >
-                {{ getMinDepositForProduct(item.productId) }}
+                {{ item.join_member || '제한 없음' }}
               </td>
             </tr>
             <tr>
@@ -389,55 +428,59 @@ const getProductData = (type) => {
   };
 };
 
-// 상품 ID로 최소 가입금액 조회
 const getMinDepositForProduct = (productId) => {
-  // compareData에서 상품 정보 찾기
+  // 최상위 products 배열 확인
   if (compareData.value && compareData.value.products) {
     const product = compareData.value.products.find(
-      (p) =>
-        String(p.productId) === String(productId) ||
-        String(p.finPrdtCd) === String(productId) ||
-        String(p.product_id) === String(productId)
+      (p) => String(p.productId) === String(productId) || String(p.product_id) === String(productId)
     );
 
-    // API 응답에서 minDepositAmount 필드 확인
-    if (product && product.minDepositAmount) {
-      return formatCurrency(product.minDepositAmount);
-    }
-
-    // 다른 가능한 필드명도 확인
     if (product) {
-      const amount = product.minDepositAmount || product.minDeposit || product.min_deposit;
+      const amount = product.minDepositAmount || product.min_deposit_amount || 0;
       if (amount) {
         return formatCurrency(amount);
       }
     }
   }
 
-  // compareData에 없으면 compareList에서 찾기
+  // 기존 로직 유지
   const listProduct = compareList.value.find(
     (item) => String(item.productId) === String(productId)
   );
 
   if (listProduct) {
-    // 여러 가능한 필드명 확인
-    const amount =
-      listProduct.minDepositAmount || listProduct.minDeposit || listProduct.min_deposit;
+    const amount = listProduct.minDepositAmount || listProduct.min_deposit_amount || 0;
     if (amount) {
       return formatCurrency(amount);
     }
+  }
 
-    // productDetail 내부 확인
-    if (listProduct.productDetail) {
-      const detailAmount =
-        listProduct.productDetail.minDepositAmount ||
-        listProduct.productDetail.minDeposit ||
-        listProduct.productDetail.min_deposit;
+  return '정보 없음';
+};
 
-      if (detailAmount) {
-        return formatCurrency(detailAmount);
-      }
+const getMaxDepositForProduct = (productId) => {
+  // 최상위 products 배열 확인
+  if (compareData.value && compareData.value.products) {
+    const product = compareData.value.products.find(
+      (p) => String(p.productId) === String(productId) || String(p.product_id) === String(productId)
+    );
+
+    if (product) {
+      const amount = product.maxDepositAmount || product.max_deposit_amount || product.max_limit;
+      if (amount === 0) return '제한 없음';
+      if (amount) return formatCurrency(amount);
     }
+  }
+
+  // 기존 로직 유지
+  const listProduct = compareList.value.find(
+    (item) => String(item.productId) === String(productId)
+  );
+
+  if (listProduct) {
+    const amount = listProduct.maxDepositAmount || listProduct.max_limit || 0;
+    if (amount === 0) return '제한 없음';
+    if (amount) return formatCurrency(amount);
   }
 
   return '정보 없음';
@@ -539,7 +582,7 @@ const cardTypes = computed(() => {
   return types;
 });
 
-// 페이지 로드 시 API 호출
+// API 호출 후 처리
 const loadCompareData = async () => {
   if (compareList.value.length < 2) return;
 
@@ -559,11 +602,60 @@ const loadCompareData = async () => {
       compareListItems: compareList.value,
     });
 
-    // API 호출 - productIds 배열을 그대로 전달
+    // API 호출
     const response = await compareProductsAPI(productIds, productType);
     compareData.value = response;
 
-    console.log('비교 데이터 로드 완료:', compareData.value);
+    // API 응답 확인
+    console.log('전체 API 응답:', response);
+
+    // API에서 products 배열이 있는지 확인
+    if (response?.products && Array.isArray(response.products)) {
+      // 기존 compareList 항목을 유지하면서 필요한 필드만 추가
+      compareList.value = compareList.value.map((item) => {
+        // API 응답에서 해당 상품 찾기
+        const apiProduct = response.products.find(
+          (p) =>
+            String(p.product_id) === String(item.productId) ||
+            String(p.fin_prdt_cd) === String(item.finPrdtCd)
+        );
+
+        if (apiProduct) {
+          // 기존 항목 유지하면서 필요한 필드만 추가
+          return {
+            ...item,
+            preferential_tags: apiProduct.preferential_tags,
+            join_member: apiProduct.join_member,
+          };
+        }
+        return item;
+      });
+
+      console.log('업데이트된 compareList:', compareList.value);
+    }
+    // data.body.data.products 경로도 확인 (API 구조가 변경될 경우 대비)
+    else if (
+      response?.data?.body?.data?.products &&
+      Array.isArray(response.data.body.data.products)
+    ) {
+      // 동일한 방식으로 필요한 필드만 추가
+      compareList.value = compareList.value.map((item) => {
+        const apiProduct = response.data.body.data.products.find(
+          (p) =>
+            String(p.product_id) === String(item.productId) ||
+            String(p.fin_prdt_cd) === String(item.finPrdtCd)
+        );
+
+        if (apiProduct) {
+          return {
+            ...item,
+            preferential_tags: apiProduct.preferential_tags,
+            join_member: apiProduct.join_member,
+          };
+        }
+        return item;
+      });
+    }
   } catch (err) {
     console.error('상품 비교 데이터 로드 오류:', err);
     error.value = '비교 정보를 불러오는 중 오류가 발생했습니다.';
@@ -767,14 +859,7 @@ onMounted(() => {
 .page-header {
   display: flex;
   align-items: center;
-  margin-bottom: 1.25rem;
-}
-
-.page-title {
-  margin: 0;
-  font-size: 1.25rem;
-  color: var(--color-main);
-  flex: 1;
+  margin-bottom: 1.5rem;
 }
 
 /* 비어있는 상태 */
@@ -795,7 +880,6 @@ onMounted(() => {
 .empty-state p {
   margin: 0 0 0.5rem;
   font-size: 1rem;
-  color: var(--color-text);
 }
 
 .empty-subtitle {
@@ -916,6 +1000,27 @@ onMounted(() => {
   color: #e91e63;
 }
 
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.tag-pill {
+  background-color: var(--color-bg-light);
+  color: var(--color-main);
+  font-size: 0.75rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 1rem;
+  white-space: nowrap;
+}
+
+.no-tags {
+  font-size: 0.75rem;
+  color: var(--color-sub);
+}
+
 .action-buttons {
   display: flex;
   flex-direction: column;
@@ -942,21 +1047,6 @@ onMounted(() => {
   background-color: var(--color-main);
   color: white;
   border: none;
-}
-
-/* 비교 상세 정보 */
-.compare-details {
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.05);
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.section-title {
-  font-size: 1.125rem;
-  margin: 0 0 1rem 0;
-  color: var(--color-main);
 }
 
 /* 로딩 상태 */
@@ -1116,76 +1206,6 @@ onMounted(() => {
   border: none;
 }
 
-/* 비교 테이블 (API 응답) */
-.comparison-table-container {
-  overflow-x: auto;
-  margin-bottom: 1.5rem;
-}
-
-.comparison-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 100%;
-}
-
-.comparison-table th,
-.comparison-table td {
-  padding: 0.75rem;
-  text-align: center;
-  border-bottom: 1px solid var(--color-bg-light);
-}
-
-.feature-name {
-  background-color: var(--color-bg-light);
-  font-weight: 500;
-  color: var(--color-main);
-  text-align: left;
-  min-width: 5rem;
-  position: sticky;
-  left: 0;
-  z-index: 1;
-}
-
-.product-column {
-  min-width: 8rem;
-  font-size: 0.875rem;
-  color: var(--color-text);
-}
-
-.product-name-cell {
-  font-size: 0.75rem;
-  color: var(--color-sub);
-  margin-top: 0.25rem;
-}
-
-.highlight-cell {
-  position: relative;
-  font-weight: 600;
-  color: var(--color-main);
-}
-
-.highlight-cell::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 0 0.75rem 0.75rem 0;
-  border-color: transparent var(--color-main) transparent transparent;
-}
-
-.detail-link {
-  background-color: var(--color-bg-light);
-  color: var(--color-main);
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  cursor: pointer;
-}
-
 /* 비교 요약 */
 .compare-summary {
   margin-top: 1.5rem;
@@ -1213,7 +1233,7 @@ onMounted(() => {
   line-height: 1.5;
 }
 
-/* 요약 카드 스타일 */
+/* 요약 카드 목록 */
 .result-cards {
   display: flex;
   flex-direction: column;
@@ -1221,62 +1241,18 @@ onMounted(() => {
   max-width: 100%;
 }
 
-.result-card {
-  background-color: white;
-  border-radius: 0.75rem;
-  overflow: hidden;
-  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.08);
-  position: relative;
-  border-left: 4px solid var(--color-main);
-}
+/* 모바일에서 가로 스크롤 용이하게 */
+@media (max-width: 767px) {
+  .compare-table-container {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    width: calc(100% + 2rem);
+    border-radius: 0;
+  }
 
-.highlight-card {
-  border-left: 4px solid #e91e63;
-}
-
-.card-header {
-  background-color: var(--color-bg-light);
-  padding: 0.75rem 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-}
-
-.card-badge {
-  background-color: var(--color-main);
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 500;
-  padding: 0.25rem 0.5rem;
-  border-radius: 1rem;
-}
-
-.highlight-card .card-badge {
-  background-color: #e91e63;
-}
-
-.card-bank {
-  font-size: 0.875rem;
-  color: var(--color-sub);
-}
-
-.card-body {
-  padding: 1rem;
-}
-
-.rate-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #e91e63;
-  margin-top: 0.5rem;
-}
-
-.value-info {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--color-main);
-  margin-top: 0.5rem;
+  .compare-table {
+    padding: 0 1rem;
+  }
 }
 
 .summary-cards {
@@ -1316,35 +1292,5 @@ onMounted(() => {
   font-size: 1.125rem;
   font-weight: 700;
   color: var(--color-main);
-}
-
-/* 모바일에서 가로 스크롤 용이하게 */
-@media (max-width: 767px) {
-  .compare-table-container {
-    margin-left: -1rem;
-    margin-right: -1rem;
-    width: calc(100% + 2rem);
-    border-radius: 0;
-  }
-
-  .compare-table {
-    padding: 0 1rem;
-  }
-}
-
-.no-products-message {
-  padding: 1rem;
-  color: var(--color-sub);
-  text-align: center;
-}
-
-.no-products-message pre {
-  text-align: left;
-  overflow: auto;
-  background-color: #f5f5f5;
-  padding: 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  margin-top: 1rem;
 }
 </style>

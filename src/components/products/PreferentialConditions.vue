@@ -2,11 +2,7 @@
   <div class="conditions-card">
     <h3 class="section-title">우대 조건</h3>
     <div v-if="conditions.length > 0" class="conditions-list">
-      <div
-        v-for="(condition, index) in conditions"
-        :key="index"
-        class="condition-item"
-      >
+      <div v-for="(condition, index) in conditions" :key="index" class="condition-item">
         <div class="condition-number">{{ index + 1 }}</div>
         <div class="condition-text">{{ condition }}</div>
       </div>
@@ -14,16 +10,14 @@
     <div v-else class="no-conditions">우대 조건 정보가 없습니다.</div>
   </div>
 </template>
-<script>
-export default {
-  name: "PreferentialConditions",
-  props: {
-    conditions: {
-      type: Array,
-      default: () => [],
-    },
+<script setup>
+// defineProps를 사용해 props 정의
+defineProps({
+  conditions: {
+    type: Array,
+    default: () => [],
   },
-};
+});
 </script>
 <style scoped>
 .conditions-card {

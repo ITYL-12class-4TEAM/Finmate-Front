@@ -21,11 +21,7 @@
       <div class="notice-icon">i</div>
       <div>
         금리는
-        <strong
-          >{{
-            selectedOption?.save_trm || selectedOption?.saveTrm || "-"
-          }}개월</strong
-        >
+        <strong>{{ selectedOption?.save_trm || selectedOption?.saveTrm || '-' }}개월</strong>
         기준이며, 실제 금리는 가입 시점과 조건에 따라 달라질 수 있습니다.
       </div>
     </div>
@@ -33,7 +29,7 @@
 </template>
 <script>
 export default {
-  name: "ProductRateInfo",
+  name: 'ProductRateInfo',
   props: {
     selectedOption: {
       type: Object,

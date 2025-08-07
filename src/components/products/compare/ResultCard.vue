@@ -1,4 +1,3 @@
-<!-- components/compare/ResultCard.vue -->
 <template>
   <div class="result-card" :class="{ 'highlight-card': highlight }">
     <div class="card-header">

@@ -19,27 +19,21 @@
 <script setup>
 import { computed } from 'vue';
 
-export default {
-  name: 'ProductHeader',
-  props: {
-    korCoNm: { type: String, required: true },
-    finPrdtNm: { type: String, required: true },
-    isDigitalOnly: { type: Boolean, default: false },
-    categoryName: { type: String, default: '금융상품' },
-    interestTypeName: { type: String, default: '기본금리' },
-  },
-  setup(props) {
-    const bankLogos = {
-      /* ... 은행 로고 URL 맵 ... */
-    };
+// defineProps를 사용하여 props 정의
+const props = defineProps({
+  korCoNm: { type: String, required: true },
+  finPrdtNm: { type: String, required: true },
+  isDigitalOnly: { type: Boolean, default: false },
+  categoryName: { type: String, default: '금융상품' },
+  interestTypeName: { type: String, default: '기본금리' },
+});
 
-    const bankLogo = computed(() => bankLogos[props.korCoNm] || null);
-    const bankInitial = computed(() => (props.korCoNm ? props.korCoNm.charAt(0) : ''));
-
-    return {
-      bankLogo,
-      bankInitial,
-    };
-  },
+// 은행 로고 매핑 객체
+const bankLogos = {
+  /* ... 은행 로고 URL 맵 ... */
 };
+
+// computed 속성 정의
+const bankLogo = computed(() => bankLogos[props.korCoNm] || null);
+const bankInitial = computed(() => (props.korCoNm ? props.korCoNm.charAt(0) : ''));
 </script>

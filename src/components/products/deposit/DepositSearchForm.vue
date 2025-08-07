@@ -74,9 +74,6 @@
           <label class="filter-label">
             <i class="fa-solid fa-laptop"></i>
             가입 방식
-          </label>
-          <div class="tag-container">
-            <!-- 전체 버튼 스타일 변경 -->
             <div
               class="filter-tag all-tag"
               :class="{ active: selectAllJoinWays }"
@@ -84,6 +81,17 @@
             >
               전체
             </div>
+          </label>
+
+          <div class="tag-container">
+            <!-- 전체 버튼 스타일 변경 -->
+            <!-- <div
+              class="filter-tag all-tag"
+              :class="{ active: selectAllJoinWays }"
+              @click="toggleAllJoinWays(!selectAllJoinWays)"
+            >
+              전체
+            </div> -->
             <div
               v-for="way in availableJoinWays"
               :key="way"
@@ -180,17 +188,17 @@ const selectedBanks = ref({
 // 화면 표시용 라벨 배열
 const availableJoinWays = ref(['영업점', '인터넷', '스마트폰', '전화']);
 
-// 화면 라벨을 API 코드로 변환하는 함수
-const convertLabelToCode = (label) => {
-  const item = joinWayMapping.find((item) => item.label === label);
-  return item ? item.value : label;
-};
+// // 화면 라벨을 API 코드로 변환하는 함수
+// const convertLabelToCode = (label) => {
+//   const item = joinWayMapping.find((item) => item.label === label);
+//   return item ? item.value : label;
+// };
 
-// API 코드를 화면 라벨로 변환하는 함수
-const convertCodeToLabel = (code) => {
-  const item = joinWayMapping.find((item) => item.value === code);
-  return item ? item.label : code;
-};
+// // API 코드를 화면 라벨로 변환하는 함수
+// const convertCodeToLabel = (code) => {
+//   const item = joinWayMapping.find((item) => item.value === code);
+//   return item ? item.label : code;
+// };
 
 const selectedJoinWays = ref([]);
 const selectAllJoinWays = ref(false);
@@ -395,11 +403,11 @@ const onReset = () => {
     emit('reset');
   });
 
-  // 버튼 활성화 상태 계산 속성 추가
-  const isButtonActive = computed(() => ({
-    S: localInterestType.value === 'S',
-    M: localInterestType.value === 'M',
-  }));
+  // // 버튼 활성화 상태 계산 속성 추가
+  // const isButtonActive = computed(() => ({
+  //   S: localInterestType.value === 'S',
+  //   M: localInterestType.value === 'M',
+  // }));
 };
 </script>
 

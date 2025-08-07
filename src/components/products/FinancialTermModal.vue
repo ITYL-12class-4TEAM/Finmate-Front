@@ -11,17 +11,17 @@
     </div>
   </div>
 </template>
-<script>
-export default {
-  name: "FinancialTermModal",
-  props: {
-    term: {
-      type: Object,
-      required: true,
-    },
+<script setup>
+// props 정의
+const props = defineProps({
+  term: {
+    type: Object,
+    required: true,
   },
-  emits: ["close"],
-};
+});
+
+// emits 정의
+const emit = defineEmits(['close']);
 </script>
 <style scoped>
 .modal-overlay {

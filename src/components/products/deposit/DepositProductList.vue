@@ -7,10 +7,10 @@
     <!-- 검색 결과 요약 정보 (정렬 버튼 포함) -->
     <div v-else-if="depositAmount && filteredProducts.length > 0" class="filter-summary">
       <div class="left-section">
-        <div class="filter-badge">
+        <!-- <div class="filter-badge">
           <span class="filter-label">예치금액</span>
           <span class="filter-value">{{ formatNumber(depositAmount) }}원</span>
-        </div>
+        </div> -->
         <div class="result-count">
           가입 가능한 상품 <strong>{{ totalCount }}</strong
           >개
@@ -137,7 +137,7 @@ import { computed, ref, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Pagination from '../Pagination.vue';
 import CompareFloatingBar from '@/components/products/compare/CompareFloatingBar.vue';
-import ActionButtons from '@/components/products/ActionButtons.vue';
+// import ActionButtons from '@/components/products/ActionButtons.vue';
 import useCompareList from '@/composables/useCompareList';
 
 // 프롭스 정의
@@ -188,8 +188,7 @@ const router = useRouter();
 const localSortBy = ref(props.sortBy);
 
 // 비교함 관련 기능 가져오기 (컴포저블)
-const { compareList, addToCompareList, removeFromCompareList, isInCompareList, clearCompareList } =
-  useCompareList();
+const { compareList, addToCompareList, removeFromCompareList, isInCompareList } = useCompareList();
 
 // 상품 ID 가져오기 (로컬 함수로 구현)
 const getProductId = (product) => {
@@ -301,38 +300,38 @@ const filteredProducts = computed(() => {
 });
 
 // 비교함 추가/제거 토글 함수 (filteredProducts 외부로 이동)
-const toggleCompare = (product) => {
-  const productId = getProductId(product);
-  const saveTrm = getSaveTrm(product);
-  const intrRateType = product.intr_rate_type || product.intrRateType || 'S';
+// const toggleCompare = (product) => {
+//   const productId = getProductId(product);
+//   const saveTrm = getSaveTrm(product);
+//   const intrRateType = product.intr_rate_type || product.intrRateType || 'S';
 
-  // 이미 비교함에 있는지 확인 (intrRateType 매개변수 추가)
-  if (isInCompareList(productId, saveTrm, intrRateType)) {
-    // 이미 있으면 제거 (intrRateType 매개변수 추가)
-    const result = removeFromCompareList(productId, saveTrm, intrRateType);
-    console.log('비교함에서 제거:', result);
-  } else {
-    // 없으면 추가
-    // 비교함 최대 개수 확인 (기본값 4)
-    if (compareList.value.length >= 4) {
-      alert('최대 4개까지 비교할 수 있습니다.');
-      return;
-    }
+//   // 이미 비교함에 있는지 확인 (intrRateType 매개변수 추가)
+//   if (isInCompareList(productId, saveTrm, intrRateType)) {
+//     // 이미 있으면 제거 (intrRateType 매개변수 추가)
+//     const result = removeFromCompareList(productId, saveTrm, intrRateType);
+//     console.log('비교함에서 제거:', result);
+//   } else {
+//     // 없으면 추가
+//     // 비교함 최대 개수 확인 (기본값 4)
+//     if (compareList.value.length >= 4) {
+//       alert('최대 4개까지 비교할 수 있습니다.');
+//       return;
+//     }
 
-    // 상품의 옵션 정보 (기간/금리 정보) 준비
-    const option = {
-      save_trm: product.save_trm || product.saveTrm,
-      intr_rate: product.intr_rate || product.intrRate,
-      intr_rate2: product.intr_rate2 || product.intrRate2,
-      intr_rate_type: product.intr_rate_type || product.intrRateType || 'S',
-      option_id: product.option_id || product.optionId || null,
-    };
+//     // 상품의 옵션 정보 (기간/금리 정보) 준비
+//     const option = {
+//       save_trm: product.save_trm || product.saveTrm,
+//       intr_rate: product.intr_rate || product.intrRate,
+//       intr_rate2: product.intr_rate2 || product.intrRate2,
+//       intr_rate_type: product.intr_rate_type || product.intrRateType || 'S',
+//       option_id: product.option_id || product.optionId || null,
+//     };
 
-    // 비교함에 추가
-    const result = addToCompareList(product, option, props.productType);
-    console.log('비교함에 추가:', result);
-  }
-};
+//     // 비교함에 추가
+//     const result = addToCompareList(product, option, props.productType);
+//     console.log('비교함에 추가:', result);
+//   }
+// };
 
 // props 변경 시 로컬 상태 업데이트
 watch(
@@ -455,7 +454,7 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   background-color: var(--color-bg-light);
-  padding: 0.75rem 1rem;
+  padding: 0.875rem 1rem;
   border-radius: 0.5rem;
   margin-bottom: 1rem;
 }
@@ -683,7 +682,7 @@ onMounted(() => {
 }
 
 .result-count {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: var(--color-sub);
 }
 
