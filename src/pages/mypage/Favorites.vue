@@ -17,8 +17,8 @@
       <FavoritesList
         :favorites="paginatedFavorites"
         @click-favorite="clickFavorite"
-        @remove-favorite="removeFavorite"
         @view-detail="viewDetail"
+        @remove-favorite="removeFavorite"
       />
 
       <Pagination
@@ -35,10 +35,8 @@
 import { ref, onMounted, computed } from 'vue';
 import router from '@/router';
 import { wishlistAPI } from '@/api/favorite';
-import { useModal } from '@/composables/useModal';
 import { useToast } from '@/composables/useToast';
 const { showToast } = useToast();
-const { showModal } = useModal();
 
 // 공통 컴포넌트
 import LoadingSpinner from '@/components/mypage/common/LoadingSpinner.vue';
@@ -96,6 +94,12 @@ const clickFavorite = (favorite) => {
   }
 
   router.push(routePath);
+};
+const removeFavorite = (removedFavorite) => {
+  // favorites 배열에서 해당 아이템 제거
+  favorites.value = favorites.value.filter(
+    (favorite) => favorite.productId !== removedFavorite.productId
+  );
 };
 
 const filteredFavorites = computed(() => {
@@ -186,24 +190,6 @@ const fetchFavorites = async () => {
     favorites.value = []; // 에러 시에도 배열로 초기화
   } finally {
     loading.value = false;
-  }
-};
-
-const removeFavorite = async (favorite) => {
-  const confirmed = await showModal('즐겨찾기에서 삭제하시겠습니까?');
-  if (!confirmed) return;
-
-  try {
-    await wishlistAPI.remove(favorite.productId);
-
-    // 배열인지 확인 후 필터링
-    if (Array.isArray(favorites.value)) {
-      favorites.value = favorites.value.filter((f) => f.productId !== favorite.productId);
-    }
-    showToast('삭제되었습니다!', 'success');
-  } catch (err) {
-    showToast('즐겨찾기 삭제에 실패했습니다.', 'error');
-    console.error('Remove favorite error:', err);
   }
 };
 
