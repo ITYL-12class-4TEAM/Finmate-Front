@@ -88,6 +88,7 @@
 import { ref, onMounted } from 'vue';
 import { getWMTIHistoryAPI } from '@/api/wmti';
 import router from '@/router';
+import { useAuthStore } from '@/stores/useAuthStore';
 // Props
 
 // State
@@ -96,8 +97,9 @@ const historyList = ref([]);
 const loadingMessage = ref('데이터를 불러오는 중...');
 const expandedItems = ref([]);
 
-//TODO: 회원 아이디 받아오기
-const memberId = ref(1);
+// 로그인 유저 ID
+const authStore = useAuthStore();
+const memberId = authStore.user.memberId;
 
 // API 호출 함수
 const fetchHistoryData = async () => {
