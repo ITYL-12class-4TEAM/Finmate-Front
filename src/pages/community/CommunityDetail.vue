@@ -155,7 +155,8 @@ const router = useRouter();
 const { showModal } = useModal();
 const authStore = useAuthStore();
 
-const memberId = authStore.user.memberId;
+const memberId = authStore.userInfo.memberId;
+
 const postId = route.params.id;
 
 const post = ref(null);
