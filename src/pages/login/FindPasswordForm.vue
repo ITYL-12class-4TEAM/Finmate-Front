@@ -3,9 +3,7 @@
   <div class="header">
     <h1 class="logo">FinMate</h1>
     <p class="subtitle">비밀번호 찾기</p>
-    <p class="description">
-      가입 시 등록한 정보로 비밀번호를 재설정할 수 있습니다.
-    </p>
+    <p class="description">가입 시 등록한 정보로 비밀번호를 재설정할 수 있습니다.</p>
   </div>
 
   <!-- 사용자 정보 입력 및 휴대폰 인증 -->
@@ -63,11 +61,7 @@
           </button>
         </div>
       </div>
-      <button
-        type="submit"
-        class="find-btn"
-        :disabled="!phoneVerified || isLoading"
-      >
+      <button type="submit" class="find-btn" :disabled="!phoneVerified || isLoading">
         {{ isLoading ? '찾는 중...' : '비밀번호 재설정하기' }}
       </button>
     </form>
@@ -90,28 +84,16 @@
           required
         />
         <div class="password-requirements-compact">
-          <span
-            class="requirement-compact"
-            :class="{ valid: passwordChecks.length }"
-          >
+          <span class="requirement-compact" :class="{ valid: passwordChecks.length }">
             8자 이상
           </span>
-          <span
-            class="requirement-compact"
-            :class="{ valid: passwordChecks.hasLetter }"
-          >
+          <span class="requirement-compact" :class="{ valid: passwordChecks.hasLetter }">
             영문
           </span>
-          <span
-            class="requirement-compact"
-            :class="{ valid: passwordChecks.hasNumber }"
-          >
+          <span class="requirement-compact" :class="{ valid: passwordChecks.hasNumber }">
             숫자
           </span>
-          <span
-            class="requirement-compact"
-            :class="{ valid: passwordChecks.hasSpecial }"
-          >
+          <span class="requirement-compact" :class="{ valid: passwordChecks.hasSpecial }">
             특수문자
           </span>
         </div>
@@ -129,16 +111,10 @@
           <i
             class="bi"
             :class="
-              passwordsMatch
-                ? 'bi-check-circle-fill text-success'
-                : 'bi-x-circle-fill text-danger'
+              passwordsMatch ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger'
             "
           ></i>
-          {{
-            passwordsMatch
-              ? '비밀번호가 일치합니다'
-              : '비밀번호가 일치하지 않습니다'
-          }}
+          {{ passwordsMatch ? '비밀번호가 일치합니다' : '비밀번호가 일치하지 않습니다' }}
         </div>
       </div>
       <button
@@ -176,7 +152,9 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { authAPI } from '@/api/auth';
 import { smsAPI } from '@/api/sms';
+import { useToast } from '@/composables/useToast';
 
+const { showToast } = useToast();
 const router = useRouter();
 
 // 상태 관리
@@ -207,17 +185,14 @@ const formatPhoneNumber = (event) => {
   } else if (value.length <= 7) {
     phoneForm.value.phone = `${value.slice(0, 3)}-${value.slice(3)}`;
   } else {
-    phoneForm.value.phone = `${value.slice(0, 3)}-${value.slice(
-      3,
-      7
-    )}-${value.slice(7, 11)}`;
+    phoneForm.value.phone = `${value.slice(0, 3)}-${value.slice(3, 7)}-${value.slice(7, 11)}`;
   }
 };
 
 // 휴대폰 인증번호 발송
 const sendPhoneVerification = async () => {
   if (!phoneForm.value.phone) {
-    alert('휴대폰 번호를 입력해주세요.');
+    showToast('휴대폰 번호를 입력해주세요.', 'warning');
     return;
   }
 
@@ -227,41 +202,38 @@ const sendPhoneVerification = async () => {
 
     if (result.success) {
       phoneVerificationSent.value = true;
-      alert(result.message);
+      showToast(result.message);
     } else {
-      alert(result.message);
+      showToast(result.message, 'error');
     }
   } catch (error) {
     console.error('인증번호 발송 오류:', error);
-    alert('인증번호 발송에 실패했습니다.');
+    showToast('인증번호 발송에 실패했습니다.', 'error');
   }
 };
 
 // 휴대폰 인증번호 확인
 const verifyPhoneCode = async () => {
   if (!phoneForm.value.verificationCode) {
-    alert('인증번호를 입력해주세요.');
+    showToast('인증번호를 입력해주세요.', 'warning');
     return;
   }
 
   try {
     const phoneNumber = phoneForm.value.phone.replace(/-/g, '');
-    const result = await smsAPI.verifyCode(
-      phoneNumber,
-      phoneForm.value.verificationCode
-    );
+    const result = await smsAPI.verifyCode(phoneNumber, phoneForm.value.verificationCode);
 
     if (result.success) {
       phoneVerified.value = true;
-      alert(result.message);
+      showToast(result.message);
     } else {
       phoneVerified.value = false;
-      alert(result.message);
+      showToast(result.message, 'error');
     }
   } catch (error) {
     phoneVerified.value = false;
     console.error('인증번호 확인 오류:', error);
-    alert('인증번호가 일치하지 않습니다.');
+    showToast('인증번호가 일치하지 않습니다.', 'error');
   }
 };
 // 비밀번호 유효성 검사
@@ -277,36 +249,32 @@ const isPasswordValid = computed(() => {
 });
 
 const passwordsMatch = computed(() => {
-  return (
-    newPasswordForm.value.password === newPasswordForm.value.confirmPassword
-  );
+  return newPasswordForm.value.password === newPasswordForm.value.confirmPassword;
 });
 
 // 휴대폰으로 비밀번호 찾기
 const findPasswordByPhone = async () => {
   if (!phoneVerified.value) {
-    alert('휴대폰 번호 인증을 완료해주세요.');
+    showToast('휴대폰 번호 인증을 완료해주세요.', 'warning');
     return;
   }
 
   isLoading.value = true;
   try {
     const phoneNumber = phoneForm.value.phone.replace(/-/g, '');
-    const response = await authAPI.findPassword(
-      phoneForm.value.name,
-      phoneNumber
-    );
+    const response = await authAPI.findPassword(phoneForm.value.name, phoneNumber);
 
     if (response.success) {
       userEmail.value = response.data.email;
       currentStep.value = 2;
-      alert('본인 인증이 완료되었습니다. 새 비밀번호를 설정해주세요.');
+      showToast('본인 인증이 완료되었습니다. 새 비밀번호를 설정해주세요.');
     } else {
-      alert(response.message);
+      showToast(response.message, 'error');
+      currentStep.value = 1;
     }
   } catch (error) {
     console.error('비밀번호 찾기 오류:', error);
-    alert('입력하신 정보와 일치하는 계정을 찾을 수 없습니다.');
+    showToast('입력하신 정보와 일치하는 계정을 찾을 수 없습니다.', 'error');
   } finally {
     isLoading.value = false;
   }
@@ -324,13 +292,13 @@ const resetPassword = async () => {
 
     if (response.success) {
       currentStep.value = 3;
-      alert('비밀번호가 성공적으로 변경되었습니다.');
+      showToast('비밀번호가 성공적으로 변경되었습니다.');
     } else {
-      alert(response.message);
+      showToast(response.message, 'error');
     }
   } catch (error) {
     console.error('비밀번호 재설정 오류:', error);
-    alert('비밀번호 변경에 실패했습니다.');
+    showToast('비밀번호 변경에 실패했습니다.', 'error');
   } finally {
     isLoading.value = false;
   }
