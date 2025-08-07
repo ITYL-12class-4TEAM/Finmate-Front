@@ -43,36 +43,44 @@ const props = defineProps({
 </script>
 
 <style scoped>
+/* ==========================================================================
+   1. 카드 기본 레이아웃
+   - 상세 페이지의 다른 카드들과 일관된 디자인 적용
+   ========================================================================== */
 .product-card {
-  background: #fff;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 10px rgba(45, 51, 107, 0.06);
-  margin-bottom: 1.25rem;
+  background: #ffffff;
+  border-radius: 0.75rem; /* 12px, 다른 컴포넌트와 통일 */
+  box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.04);
+  margin-bottom: 1rem;
   overflow: hidden;
-  max-width: 430px;
 }
 
 .card-header {
   display: flex;
   align-items: flex-start;
-  padding: 1.1rem 1rem 1.1rem 1.1rem;
-  border-bottom: 1px solid var(--color-bg-light);
-  gap: 0.9rem;
+  padding: 1.25rem 1rem; /* 20px 16px, 다른 카드와 여백 통일 */
+  gap: 1rem; /* 16px */
 }
 
+/* ==========================================================================
+   2. 은행 로고 및 이니셜
+   ========================================================================== */
 .bank-logo {
-  width: 3.2rem;
-  height: 3.2rem;
+  width: 3rem; /* 48px */
+  height: 3rem; /* 48px */
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  border: 0.0625rem solid var(--color-bg-light);
+  border-radius: 50%;
+  overflow: hidden;
 }
 
 .bank-logo img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover; /* 로고가 꽉 차도록 contain에서 cover로 변경 */
 }
 
 .bank-initial {
@@ -83,48 +91,47 @@ const props = defineProps({
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
+  font-size: 1.25rem; /* 20px */
   font-weight: 700;
   color: var(--color-main);
 }
 
+/* ==========================================================================
+   3. 상품 정보 (은행명, 상품명, 태그)
+   ========================================================================== */
 .product-info {
   flex: 1;
   min-width: 0;
 }
 
 .bank-name {
-  font-size: 0.82rem;
+  font-size: 0.875rem; /* 14px */
   color: var(--color-sub);
-  margin-bottom: 0.22rem;
+  margin-bottom: 0.25rem;
   font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .product-name {
-  font-size: 1.08rem;
-  margin: 0 0 0.65rem 0;
+  font-size: 1.25rem; /* 20px, 상품명 강조 */
+  margin: 0 0 0.75rem 0;
   color: var(--color-main);
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 1.4;
   word-break: keep-all;
 }
 
 .product-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
+  gap: 0.5rem; /* 8px */
 }
 
 .tag {
   display: inline-block;
-  font-size: 0.71rem;
-  padding: 0.18rem 0.56rem;
-  border-radius: 0.25rem;
+  font-size: 0.75rem; /* 12px */
+  padding: 0.25rem 0.625rem; /* 4px 10px */
+  border-radius: 0.875rem; /* 14px, 알약 형태 */
   font-weight: 500;
-  letter-spacing: -0.01em;
 }
 
 .tag.digital {
@@ -140,25 +147,6 @@ const props = defineProps({
 .tag.interest-type {
   background: var(--color-bg-light);
   color: var(--color-main);
-}
-
-@media (max-width: 430px) {
-  .product-card {
-    margin-bottom: 0.8rem;
-  }
-  .card-header {
-    padding: 1rem 0.8rem 1rem 1rem;
-    gap: 0.65rem;
-  }
-  .bank-logo,
-  .bank-initial {
-    width: 2.6rem;
-    height: 2.6rem;
-    font-size: 1.05rem;
-  }
-  .product-name {
-    font-size: 0.97rem;
-    margin-bottom: 0.45rem;
-  }
+  border: 0.0625rem solid #e0e0e0;
 }
 </style>

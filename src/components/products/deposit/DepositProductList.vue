@@ -116,7 +116,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import Pagination from '../Pagination.vue';
+import Pagination from '../common/Pagination.vue';
 import CompareFloatingBar from '@/components/products/compare/CompareFloatingBar.vue';
 import useCompareList from '@/composables/useCompareList';
 
@@ -232,195 +232,218 @@ const goToCompare = () => {
 </script>
 
 <style scoped>
-/* 요약/정렬 */
+/* ==========================================================================
+   1. 검색 요약 및 정렬
+   ========================================================================== */
 .filter-summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--color-bg-light);
-  padding: 0.9rem 1rem;
-  border-radius: 0.5rem;
-  margin-bottom: 1rem;
+  background-color: #ffffff;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem; /* 8px */
+  margin-bottom: 1.25rem;
+  box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.03);
 }
+
 .result-count {
-  font-size: 0.92rem;
+  font-size: 0.9375rem; /* 15px */
   color: var(--color-sub);
 }
+
 .result-count strong {
   color: var(--color-main);
   font-weight: 600;
 }
 
-/* 드롭다운 */
 .sort-dropdown {
   position: relative;
 }
+
 .sort-select {
-  padding: 0.4rem 1.5rem 0.4rem 0.75rem;
-  border: 1px solid var(--color-light);
-  border-radius: 0.4rem;
-  background: #fff;
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 0.375rem; /* 6px */
+  background-color: transparent;
   color: var(--color-main);
-  font-size: 0.92rem;
+  font-size: 0.875rem; /* 14px */
   font-weight: 500;
   appearance: none;
+  -webkit-appearance: none;
   cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L2 5h8z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237d81a2'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.5rem center;
+  background-size: 1rem;
+  transition: background-color 0.2s;
+}
+.sort-select:hover {
+  background-color: var(--color-bg-light);
 }
 .sort-select:focus {
   outline: none;
-  border-color: var(--color-main);
 }
 
-/* 리스트 */
+/* ==========================================================================
+   2. 상품 카드 리스트
+   ========================================================================== */
 .product-list {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
   margin-bottom: 2rem;
-  max-width: 430px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .product-card {
   background: #fff;
-  border-radius: 0.8rem;
-  padding: 1.1rem;
-  box-shadow: 0 2px 8px rgba(45, 51, 107, 0.07);
+  border-radius: 0.75rem; /* 12px */
+  padding: 1.25rem 1rem;
+  box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.04);
   display: flex;
   flex-direction: column;
-  border: 1.5px solid transparent;
-  transition:
-    border 0.15s,
-    box-shadow 0.15s;
+  border: 0.125rem solid transparent; /* 2px */
+  transition: all 0.2s ease-in-out;
 }
+
 .product-card.in-compare {
-  border: 1.5px solid var(--color-main);
-  box-shadow: 0 0 0 2px var(--color-bg-light);
+  border-color: var(--color-main);
+  box-shadow: 0 0.25rem 1.5rem rgba(45, 51, 107, 0.08);
 }
 
 .product-header {
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
   cursor: pointer;
 }
+
 .bank-info {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.15rem;
+  margin-bottom: 0.375rem;
 }
+
 .bank-name {
-  font-size: 0.87rem;
-  color: var(--color-main);
-  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--color-sub);
+  font-weight: 500;
 }
+
 .rate-type-badge {
-  padding: 0.1rem 0.5rem;
-  border-radius: 0.75rem;
-  font-size: 0.73rem;
-  font-weight: 600;
+  padding: 0.25rem 0.625rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
   background: var(--color-bg-light);
   color: var(--color-main);
 }
-.rate-type-badge.simple-interest {
-  background: #e6f2ff;
-  color: #256ad7;
-  border: 1px solid #b8d7fa;
-}
-.rate-type-badge.compound-interest {
-  background: #fae9f2;
-  color: #e91e63;
-  border: 1px solid #f8bbd0;
-}
 
 .product-name {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #222;
-  margin-top: 0.2rem;
+  font-size: 1.125rem; /* 18px */
+  font-weight: 600;
+  color: var(--color-main);
+  line-height: 1.4;
 }
 
 .product-details {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.625rem; /* 10px */
   flex-grow: 1;
   cursor: pointer;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1.25rem;
+  border-top: 1px solid var(--color-bg-light);
+  padding-top: 1rem;
 }
+
 .detail-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .detail-label {
-  font-size: 0.85rem;
-  color: #7d81a2;
-}
-.detail-value {
-  font-size: 0.95rem;
-  font-weight: 500;
-}
-.highlight {
-  color: #e91e63;
+  font-size: 0.9375rem; /* 15px */
+  color: var(--color-sub);
 }
 
-/* 버튼 */
+.detail-value {
+  font-size: 1rem; /* 16px */
+  font-weight: 600;
+  color: var(--color-main);
+}
+
+.detail-value.highlight {
+  font-size: 1.125rem; /* 18px */
+  color: var(--color-accent, #e91e63);
+}
+
+/* ==========================================================================
+   3. 액션 버튼
+   ========================================================================== */
 .action-section {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 0.2rem;
+  gap: 0.75rem;
 }
+
 .compare-btn,
 .join-btn {
   flex: 1;
-  padding: 0.75rem 1rem;
-  border-radius: 0.375rem;
-  font-size: 0.95rem;
+  height: 3rem; /* 48px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem; /* 8px */
+  font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
   border: none;
-  transition:
-    background 0.12s,
-    color 0.12s;
+  transition: all 0.2s ease-in-out;
 }
+
 .add-compare-btn {
-  background: var(--color-bg-light);
+  background: #ffffff;
   color: var(--color-main);
-  border: 1px solid var(--color-light);
+  border: 0.0625rem solid var(--color-light);
 }
+
 .compare-btn.in-list {
   background: var(--color-main);
   color: #fff;
-  font-weight: 700;
   border: 1px solid var(--color-main);
 }
-.compare-btn.in-list:hover {
-  opacity: 0.9;
-}
+
 .join-btn {
-  background: linear-gradient(135deg, var(--color-main), var(--color-sub));
+  background: var(--color-main);
   color: #fff;
 }
+.join-btn:hover {
+  filter: brightness(110%);
+}
 
-/* 결과 없음 */
-.no-results {
-  padding: 2.2rem 0.5rem;
+/* ==========================================================================
+   4. 결과 없음 / 로딩
+   ========================================================================== */
+.no-results,
+.loading,
+.error {
+  padding: 3rem 1rem;
   text-align: center;
-  background: #fafbfc;
-  border-radius: 0.5rem;
+  background: #ffffff;
+  border-radius: 0.75rem;
   margin-bottom: 1.5rem;
   color: var(--color-sub);
 }
+
 .no-results strong {
   color: var(--color-main);
 }
+
 .suggestion {
-  font-size: 0.9rem;
-  opacity: 0.8;
-  margin-top: 0.7rem;
+  font-size: 0.9375rem;
+  margin-top: 0.5rem;
+}
+
+.error {
+  color: #d32f2f;
 }
 </style>

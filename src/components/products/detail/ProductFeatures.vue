@@ -63,44 +63,53 @@ const features = computed(() => {
 </script>
 
 <style scoped>
+/* ==========================================================================
+   1. 카드 기본 레이아웃 (유지)
+   ========================================================================== */
 .key-features {
-  padding: 1.25rem 1rem;
-  background: #fff;
-  border-radius: 0.5rem;
-  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
+  border-radius: 0.75rem; /* 12px */
+  padding: 1.25rem 1rem; /* 20px 16px */
   margin-bottom: 1rem;
-  max-width: 430px;
-  margin-left: auto;
-  margin-right: auto;
+  box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.04);
 }
 
+/* ==========================================================================
+   2. 섹션 제목 (유지)
+   ========================================================================== */
 .section-title {
-  font-size: 1rem;
-  margin-bottom: 0.75rem;
+  font-size: 1.125rem; /* 18px */
+  font-weight: 600;
   color: var(--color-main);
-  font-weight: 700;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 0.0625rem solid var(--color-bg-light);
 }
 
+/* ==========================================================================
+   3. 정보 리스트 (✨ 그리드 -> 세로 리스트 레이아웃으로 변경)
+   ========================================================================== */
 .feature-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem; /* 각 항목 사이의 세로 간격을 넉넉하게 설정 */
 }
 
 .feature-item {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  min-width: 0;
+  align-items: flex-start; /* 아이콘과 텍스트를 상단에 정렬 */
+  gap: 0.75rem; /* 12px, 아이콘과 콘텐츠 사이 간격 */
 }
 
+/* ==========================================================================
+   4. 아이콘 및 콘텐츠 스타일 (✨ 리스트 레이아웃에 맞게 수정)
+   ========================================================================== */
 .feature-icon {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.5rem; /* 40px */
+  height: 2.5rem; /* 40px */
   background: var(--color-bg-light);
-  color: var(--color-main);
   border-radius: 50%;
-  font-size: 1.2rem;
+  font-size: 1.125rem; /* 18px */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -110,33 +119,21 @@ const features = computed(() => {
 .feature-content {
   flex: 1;
   min-width: 0;
+  padding-top: 0.125rem; /* 아이콘과 텍스트의 시각적 높이 조절 */
 }
 
 .feature-label {
-  font-size: 0.81rem;
+  font-size: 0.875rem; /* 14px */
   color: var(--color-sub);
-  margin-bottom: 0.1rem;
-  white-space: nowrap;
+  margin-bottom: 0.25rem; /* 라벨과 값 사이 간격 */
 }
 
 .feature-value {
-  font-size: 0.97rem;
-  font-weight: 500;
+  font-size: 1rem; /* 16px */
+  font-weight: 600;
   color: var(--color-main);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-@media (max-width: 430px) {
-  .key-features {
-    padding: 1rem 0.6rem;
-  }
-  .feature-grid {
-    gap: 0.7rem 0.25rem;
-  }
-  .section-title {
-    font-size: 0.97rem;
-  }
+  white-space: normal;
+  word-break: keep-all; /* 단어 단위로 줄바꿈하여 가독성 향상 */
+  line-height: 1.4;
 }
 </style>

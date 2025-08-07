@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="product-deposit-page">
     <DepositSearchForm
       :deposit-amount="depositAmount"
       :period="period"
@@ -82,37 +82,45 @@ const fetchProducts = async () => {
   loading.value = true;
   error.value = null;
   try {
-    // 파라미터 구성
-    const params = {
-      category: 'deposit',
-      categoryId: 1,
-      subCategoryId: 101,
-      depositAmount: String(depositAmount.value).replace(/[^\d]/g, ''),
-      saveTrm: period.value,
-      page: currentPage.value,
-      size: pageSize.value,
-      sortBy: sortBy.value,
-      sortDirection: 'desc',
-      intrRateType: interestType.value,
-    };
+    // 파라미터 구성 (객체 대신 URLSearchParams 직접 사용)
+    const searchParams = new URLSearchParams();
+
+    // 기본 파라미터 추가
+    searchParams.append('category', 'deposit');
+    searchParams.append('categoryId', '1');
+    searchParams.append('subCategoryId', '101');
+    searchParams.append('depositAmount', String(depositAmount.value).replace(/[^\d]/g, ''));
+    searchParams.append('saveTrm', period.value);
+    searchParams.append('page', String(currentPage.value));
+    searchParams.append('size', String(pageSize.value));
+    searchParams.append('sortBy', sortBy.value);
+    searchParams.append('sortDirection', 'desc');
+    searchParams.append('intrRateType', interestType.value);
 
     // 가입방식
     if (joinWay.value !== 'all') {
-      [].concat(joinWay.value).forEach((w) => (params.joinWays = w));
-    }
-    // 은행
-    if (selectedBankApiCodes.value.length > 0) {
-      selectedBankApiCodes.value.forEach((bank) => (params.banks = bank));
+      if (Array.isArray(joinWay.value)) {
+        joinWay.value.forEach((way) => searchParams.append('joinWays', way));
+      } else {
+        searchParams.append('joinWays', joinWay.value);
+      }
     }
 
-    // URLSearchParams → getProductsAPI에서 잘 처리한다면 직접 넘겨도 됨
-    const searchParams = new URLSearchParams();
-    Object.entries(params).forEach(([k, v]) => searchParams.append(k, v));
+    // 은행 - 이 부분이 중요함!
+    if (selectedBankApiCodes.value.length > 0) {
+      // forEach에서 append 사용하여 각 은행을 별도 파라미터로 추가
+      selectedBankApiCodes.value.forEach((bank) => {
+        searchParams.append('banks', bank);
+      });
+
+      console.log('API 요청에 포함된 은행 수:', selectedBankApiCodes.value.length);
+    }
 
     const res = await getProductsAPI(searchParams);
     depositProducts.value = res.products || [];
     totalCount.value = res.totalCount || depositProducts.value.length || 0;
   } catch (err) {
+    console.error('상품 검색 오류:', err);
     error.value = '상품을 검색하는 중 오류가 발생했습니다. ' + (err.message || '');
     depositProducts.value = [];
     totalCount.value = 0;
@@ -217,10 +225,14 @@ onMounted(async () => {
 });
 </script>
 
-<style>
-.product-title {
-  font-size: 24px;
-  margin-bottom: 20px;
-  color: #333;
+<style scoped>
+/* ==========================================================================
+   1. 페이지 전체 레이아웃
+   - 상세 페이지와 동일한 배경색과 여백을 적용하여 통일성 유지
+   ========================================================================== */
+.product-deposit-page {
+  background-color: var(--color-bg-light);
+  padding: 1rem;
+  min-height: 100vh;
 }
 </style>

@@ -7,13 +7,13 @@
     <div v-else-if="error" class="error-container">
       <div class="error-icon">!</div>
       <p>{{ error }}</p>
-      <BackButton title="목록으로" />
+      <BackButton title="이전으로" />
     </div>
 
     <div v-else-if="product" class="product-container">
       <!-- 페이지 헤더 -->
       <div class="page-header">
-        <BackButton title="목록으로" />
+        <BackButton title="이전으로" />
       </div>
 
       <!-- 상품 기본 정보 카드 -->
@@ -110,9 +110,9 @@ import { useRoute, useRouter } from 'vue-router';
 import { getProductDetailAPI } from '@/api/product';
 import { recentViewAPI } from '../../api/recentView';
 import BackButton from '@/components/common/BackButton.vue';
-import ProductInfoCard from '@/components/products/ProductInfoCard.vue';
-import ProductRateInfo from '@/components/products/ProductRateInfo.vue';
-import ProductFeatures from '@/components/products/ProductFeatures.vue';
+import ProductInfoCard from '@/components/products/detail/ProductInfoCard.vue';
+import ProductRateInfo from '@/components/products/detail/ProductRateInfo.vue';
+import ProductFeatures from '@/components/products/detail/ProductFeatures.vue';
 // todo
 // import PreferentialConditions from '@/components/products/PreferentialConditions.vue';
 import ActionButtons from '@/components/products/ActionButtons.vue';
@@ -451,41 +451,46 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* ==========================================================================
+   1. 페이지 기본 레이아웃 및 로딩/에러 상태 (유지)
+   ========================================================================== */
 .product-detail-page {
+  background-color: var(--color-bg-light);
   padding: 1rem;
-  font-family: 'Noto Sans KR', sans-serif;
-  color: var(--color-text);
-  padding-bottom: 4rem; /* CompareFloatingBar 영역 확보 */
+  padding-bottom: 6rem; /* 하단 플로팅 바를 위한 여백 확보 */
+  min-height: 100vh;
 }
 
-/* 로딩 & 에러 상태 */
 .loading-container,
 .error-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3.75rem 0;
+  padding: 4rem 0;
   text-align: center;
+  color: var(--color-sub);
 }
 
 .spinner {
   width: 2.5rem;
   height: 2.5rem;
-  border: 0.25rem solid var(--color-bg-light);
-  border-top: 0.25rem solid var(--color-main);
+  border: 0.25rem solid rgba(0, 0, 0, 0.1);
+  border-top-color: var(--color-main);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
+  to {
     transform: rotate(360deg);
   }
+}
+
+.error-container p {
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
 }
 
 .error-icon {
@@ -502,100 +507,94 @@ onMounted(() => {
   margin-bottom: 1rem;
 }
 
-.back-btn {
-  margin-top: 1rem;
-  padding: 0.5rem 1rem;
-  background-color: var(--color-bg-light);
-  border: none;
-  border-radius: 0.25rem;
-  color: var(--color-main);
-  font-weight: 500;
-  cursor: pointer;
-}
-
-/* 페이지 헤더 */
+/* ==========================================================================
+   2. 페이지 헤더 (유지)
+   ========================================================================== */
 .page-header {
   display: flex;
   align-items: center;
-  margin-bottom: 1.25rem;
-}
-
-.page-title {
-  margin: 0;
-  font-size: 1.25rem;
-  color: var(--color-main);
-  flex: 1;
-}
-
-/* 정보 섹션 (새로 추가) */
-.info-section {
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
   margin-bottom: 1rem;
 }
 
+/* ==========================================================================
+   3. 정보 섹션 카드 (✨ 시각적 요소 추가)
+   ========================================================================== */
+.info-section {
+  background-color: #ffffff;
+  border-radius: 0.75rem; /* 12px */
+  padding: 1.25rem 1rem; /* 20px 16px */
+  margin-bottom: 1rem;
+  box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.04);
+}
+
 .section-title {
-  font-size: 1.125rem;
-  margin: 0 0 0.75rem 0;
-  color: var(--color-main);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.125rem; /* 18px */
   font-weight: 600;
+  color: var(--color-main);
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 0.0625rem solid var(--color-bg-light);
 }
 
 .info-content {
-  font-size: 0.875rem;
+  font-size: 0.9375rem; /* 15px */
   color: var(--color-text);
-  line-height: 1.5;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: keep-all;
 }
 
+/* ✨ '가입 대상'과 같이 간단한 정보는 강조된 텍스트로 표시 */
+.info-content.highlight-text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-main);
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+/* ==========================================================================
+   4. 우대 조건 리스트 스타일 (✨ 시각적 개선)
+   ========================================================================== */
 .conditions-list {
-  padding-left: 1.25rem;
-  margin: 0.5rem 0;
+  padding-left: 0;
+  margin: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* 항목 간 간격 */
 }
 
 .conditions-list li {
-  margin-bottom: 0.375rem;
+  position: relative;
+  padding-left: 1.75rem; /* 아이콘을 위한 공간 확보 */
+  font-size: 0.9375rem;
 }
 
-/* 금융용어 섹션 */
-.financial-terms-section {
-  margin-top: 2rem;
+.conditions-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background-color: var(--color-main);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
-.terms-list {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-}
-
-.term-item {
-  background-color: var(--color-bg-light);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.term-item:hover {
-  background-color: #e9e9ef;
-  transform: translateY(-0.125rem);
-}
-
-.term-name {
-  font-size: 1rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  color: var(--color-main);
-}
-
-.term-preview {
-  font-size: 0.8125rem;
+/* ✨ 내용이 없는 경우를 위한 스타일 */
+.info-content.empty {
   color: var(--color-sub);
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  text-align: center;
+  padding: 1rem 0;
 }
 </style>

@@ -146,7 +146,7 @@
 <script setup>
 import { computed, ref, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import Pagination from '../Pagination.vue';
+import Pagination from '../common/Pagination.vue';
 import CompareFloatingBar from '@/components/products/compare/CompareFloatingBar.vue';
 import ActionButtons from '@/components/products/ActionButtons.vue';
 import useCompareList from '@/composables/useCompareList';

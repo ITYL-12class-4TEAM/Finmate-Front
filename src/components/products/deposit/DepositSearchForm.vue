@@ -270,259 +270,237 @@ const onReset = () => {
 </script>
 
 <style scoped>
+/* ==========================================================================
+   1. 폼 전체 레이아웃 (유지)
+   ========================================================================== */
 .deposit-search-form {
   margin-bottom: 1.5rem;
-  max-width: 430px;
-  margin-left: auto;
-  margin-right: auto;
 }
+
+/* ==========================================================================
+   2. 폼 제목 (유지)
+   ========================================================================== */
 .form-title {
-  margin-bottom: 1.3rem;
-  position: relative;
+  margin-bottom: 1.25rem;
 }
+
 .form-title h2 {
-  font-size: 1.45rem;
+  font-size: 1.5rem; /* 24px */
   font-weight: 700;
   color: var(--color-main);
-  margin-bottom: 0.5rem;
+  margin: 0 0 0.5rem 0;
 }
-.form-title h2::after {
-  content: '';
-  position: absolute;
-  bottom: -0.2rem;
-  left: 0;
-  width: 2rem;
-  height: 0.18rem;
-  background: linear-gradient(to right, var(--color-main), var(--color-sub));
-  border-radius: 1rem;
-}
+
 .title-description {
   color: var(--color-sub);
-  font-size: 0.95rem;
-  margin-top: 0.6rem;
+  font-size: 0.9375rem; /* 15px */
 }
+
+/* ==========================================================================
+   3. 필터 컨테이너 (유지)
+   ========================================================================== */
 .filter-container {
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
-  border-radius: 1rem;
-  padding: 1.1rem;
-  border: 1px solid rgba(185, 187, 204, 0.26);
-  box-shadow: 0 2px 8px -2px rgba(45, 51, 107, 0.09);
-  transition: all 0.3s;
+  background: #ffffff;
+  border-radius: 0.75rem; /* 12px */
+  padding: 1.25rem 1rem; /* 20px 16px */
+  box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.04);
 }
+
 .form-group {
-  margin-bottom: 1.18rem;
+  margin-bottom: 1.25rem;
 }
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+/* ==========================================================================
+   4. 필터 라벨 (유지)
+   ========================================================================== */
 .filter-label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.91rem;
+  font-size: 0.875rem; /* 14px */
   font-weight: 600;
   color: var(--color-main);
-  margin-bottom: 0.38rem;
+  margin-bottom: 0.625rem; /* 10px */
 }
+
 .filter-label i {
-  font-size: 0.8rem;
   color: var(--color-sub);
 }
-.input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-.form-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  font-size: 0.97rem;
-  border: 1px solid rgba(185, 187, 204, 0.37);
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.83);
-  color: var(--color-main);
-  transition: all 0.3s;
-}
-.form-input:focus {
-  outline: none;
-  border-color: var(--color-main);
-  background: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 0 0 3px rgba(45, 51, 107, 0.09);
-}
-.input-suffix {
-  position: absolute;
-  right: 1rem;
-  color: var(--color-sub);
-  font-size: 0.92rem;
-  pointer-events: none;
-}
+
+/* ==========================================================================
+   5. 입력 필드 (유지)
+   ========================================================================== */
+.input-wrapper,
 .custom-select {
   position: relative;
 }
+
+.form-input,
 .select-input {
   width: 100%;
-  padding: 0.7rem 2.5rem 0.7rem 1rem;
-  font-size: 0.97rem;
-  border: 1px solid rgba(185, 187, 204, 0.34);
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.8);
+  height: 3rem; /* 48px, 높이 통일 */
+  padding: 0 1rem;
+  font-size: 1rem; /* 16px */
+  border: 0.0625rem solid var(--color-light);
+  border-radius: 0.5rem; /* 8px */
+  background-color: var(--color-bg-light);
   color: var(--color-main);
-  cursor: pointer;
-  appearance: none;
-  transition: all 0.2s;
+  transition: all 0.2s ease-in-out;
 }
+
+.form-input:focus,
+.select-input:focus {
+  outline: none;
+  border-color: var(--color-main);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 0.1875rem rgba(45, 51, 107, 0.1); /* 3px */
+}
+
+.input-suffix,
 .select-arrow {
   position: absolute;
   right: 1rem;
   top: 50%;
   transform: translateY(-50%);
   color: var(--color-sub);
-  font-size: 0.75rem;
   pointer-events: none;
 }
+
+.select-input {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 2.5rem; /* 화살표 공간 확보 */
+}
+
+/* ==========================================================================
+   6. 버튼 및 태그 (✨ 수정)
+   - 태그 컨테이너를 4열 그리드로 고정하여 한 줄에 표시되도록 변경
+   ========================================================================== */
 .option-buttons {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
 }
+
 .option-button {
-  flex: 1;
-  padding: 0.72rem 1rem;
-  font-size: 0.95rem;
-  border: 1px solid rgba(185, 187, 204, 0.38);
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.82);
+  height: 3rem; /* 48px */
+  padding: 0 1rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border: 0.0625rem solid var(--color-light);
+  border-radius: 0.5rem;
+  background-color: #ffffff;
   color: var(--color-sub);
   cursor: pointer;
-  transition:
-    background 0.22s,
-    border 0.22s,
-    color 0.22s;
+  transition: all 0.2s ease-in-out;
 }
-.option-button:hover {
-  background: rgba(255, 255, 255, 0.97);
-  border-color: var(--color-sub);
-}
+
 .option-button.active {
   background: var(--color-main);
   color: white;
   border-color: var(--color-main);
+  font-weight: 600;
 }
+
 .tag-container {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* ✨ 4개의 컬럼으로 고정하여 한 줄에 표시 */
   gap: 0.5rem;
 }
+
 .filter-tag {
-  padding: 0.5rem 0.75rem;
-  font-size: 0.86rem;
-  border: 1px solid rgba(185, 187, 204, 0.38);
-  border-radius: 2rem;
-  background: rgba(255, 255, 255, 0.82);
+  padding: 0.625rem 0; /* 상하 여백으로 높이 조절 */
+  font-size: 0.875rem;
+  border: 0.0625rem solid var(--color-light);
+  border-radius: 0.5rem; /* 다른 버튼과 통일감 */
+  background-color: #ffffff;
   color: var(--color-sub);
   cursor: pointer;
-  transition:
-    background 0.2s,
-    color 0.2s,
-    border 0.2s;
+  transition: all 0.2s ease-in-out;
+  font-weight: 500;
+  text-align: center;
 }
-.filter-tag:hover {
-  background: rgba(255, 255, 255, 0.97);
-  border-color: var(--color-sub);
-}
+
 .filter-tag.active {
   background: var(--color-main);
   color: #fff;
   border-color: var(--color-main);
 }
-.filter-tag.all-tag {
-  background: var(--color-bg-light);
-  border: 1px solid var(--color-sub);
-  font-weight: bold;
+
+.filter-label .all-tag {
+  margin-left: auto; /* '전체' 버튼을 오른쪽 끝으로 이동 */
+  font-size: 0.8125rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--color-light);
+  color: var(--color-sub);
+  background-color: #fff;
+  border-radius: 1rem;
 }
-.filter-tag.all-tag.active {
-  background: var(--color-sub);
+
+.filter-label .all-tag.active {
+  background-color: var(--color-sub);
   color: #fff;
   border-color: var(--color-sub);
 }
+
 .bank-select-button {
   width: 100%;
+  height: 3rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1rem;
-  font-size: 0.97rem;
-  border: 1px solid rgba(185, 187, 204, 0.34);
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.84);
+  padding: 0 1rem;
+  font-size: 1rem;
+  border: 0.0625rem solid var(--color-light);
+  border-radius: 0.5rem;
+  background-color: var(--color-bg-light);
   color: var(--color-main);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease-in-out;
 }
-.bank-select-button:hover {
-  background: rgba(255, 255, 255, 0.97);
-  border-color: var(--color-main);
-}
-.bank-select-button i {
-  color: var(--color-sub);
-  font-size: 0.78rem;
-}
+
+/* ==========================================================================
+   7. 검색/초기화 버튼 (유지)
+   ========================================================================== */
 .action-buttons {
   display: flex;
   gap: 0.75rem;
-  margin-top: 1.4rem;
+  margin-top: 1.5rem;
 }
-.reset-btn {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.72rem 1.25rem;
-  font-size: 0.97rem;
-  font-weight: 500;
-  border: 1px solid rgba(185, 187, 204, 0.36);
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.8);
-  color: var(--color-sub);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.reset-btn:hover {
-  background: rgba(255, 255, 255, 0.97);
-  border-color: var(--color-sub);
-}
+
+.reset-btn,
 .search-btn {
-  flex: 1;
+  height: 3.25rem; /* 52px */
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.72rem 1.5rem;
-  font-size: 0.97rem;
+  font-size: 1rem;
   font-weight: 600;
-  border: none;
-  border-radius: 0.75rem;
-  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
-  color: #fff;
+  border-radius: 0.5rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease-in-out;
 }
+
+.reset-btn {
+  flex-basis: 35%; /* 초기화 버튼 너비 고정 */
+  background-color: #ffffff;
+  color: var(--color-sub);
+  border: 0.0625rem solid var(--color-light);
+}
+
+.search-btn {
+  flex: 1; /* 검색 버튼이 남은 공간 모두 차지 */
+  background: var(--color-main);
+  color: #fff;
+  border: none;
+}
+
 .search-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px -4px rgba(45, 51, 107, 0.14);
-}
-.search-btn i,
-.reset-btn i {
-  font-size: 0.85rem;
-}
-@media (max-width: 430px) {
-  .deposit-search-form {
-    max-width: 100vw;
-  }
-  .form-title h2 {
-    font-size: 1.18rem;
-  }
-  .form-title {
-    margin-bottom: 1rem;
-  }
-  .filter-container {
-    padding: 0.85rem;
-  }
+  filter: brightness(110%);
 }
 </style>
