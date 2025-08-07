@@ -47,9 +47,9 @@
           <li>
             <router-link to="/products/savings" @click="$emit('close')">적금</router-link>
           </li>
-          <li>
+          <!-- <li>
             <router-link to="/products/pension" @click="$emit('close')">연금 저축</router-link>
-          </li>
+          </li> -->
         </ul>
       </li>
 
@@ -75,12 +75,7 @@
             <router-link to="/wmti/basic" @click="$emit('close')">투자 성향 진단</router-link>
           </li>
           <li>
-            <router-link to="/wmti/result" @click="$emit('close')"
-              >진단 결과 보기 및 재검사</router-link
-            >
-          </li>
-          <li>
-            <router-link to="/wmti/types" @click="$emit('close')">다른 WMTI 유형 보기</router-link>
+            <router-link to="/wmti/result" @click="$emit('close')">진단 결과 보기</router-link>
           </li>
         </ul>
       </li>

@@ -89,6 +89,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useModal } from '@/composables/useModal';
 import { getPostByIdAPI, updatePostAPI } from '@/api/posts';
 import { reverseProductTagMap } from '@/constants/tags';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 import BackButton from '@/components/common/BackButton.vue';
 import BaseButton from '@/components/common/BaseButton.vue';
@@ -97,6 +98,7 @@ import CustomCheckbox from '@/components/community/CustomCheckbox.vue';
 // 상태 변수
 const route = useRoute();
 const router = useRouter();
+const authStore = useAuthStore();
 const postId = Number(route.params.id);
 
 const title = ref('');
@@ -109,7 +111,7 @@ const attaches = ref([]);
 const productTags = ['예금', '적금', '펀드', '보험'];
 
 // 전역 유저 정보
-const memberId = 1; // TODO: 전역 사용자 정보 적용
+const memberId = authStore.user.memberId;
 
 // 태그 선택 함수
 const selectProduct = (tag) => (selectedProduct.value = tag);
@@ -117,7 +119,7 @@ const selectProduct = (tag) => (selectedProduct.value = tag);
 // 게시글 정보 불러오기
 const fetchPost = async () => {
   try {
-    const res = await getPostByIdAPI(postId);
+    const res = await getPostByIdAPI(postId, memberId);
     boardId.value = res.boardId;
     title.value = res.title;
     content.value = res.content;
@@ -141,7 +143,7 @@ const fetchPost = async () => {
 onMounted(fetchPost);
 
 // 수정 요청
-const showModal = useModal();
+const { showModal } = useModal();
 
 const updatePost = async () => {
   console.log('postId:', postId);

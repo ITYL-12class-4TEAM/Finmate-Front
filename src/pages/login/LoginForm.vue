@@ -59,11 +59,14 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useToast } from '@/composables/useToast';
+
+const { showToast } = useToast();
 const router = useRouter();
 const authStore = useAuthStore();
 const loginForm = ref({
-  email: 'testuser@example.com', // 자동으로 입력 지워야함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  password: 'Test@1234',
+  email: '', // 자동으로 입력 지워야함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  password: '',
 });
 
 const showPassword = ref(false);
@@ -82,11 +85,11 @@ const togglePassword = () => {
 
 const handleLogin = async () => {
   if (!loginForm.value.email || !loginForm.value.password) {
-    alert('이메일과 비밀번호를 입력해주세요.');
+    showToast('이메일과 비밀번호를 입력해주세요.', 'warning');
     return;
   }
   if (!isValidEmail(loginForm.value.email)) {
-    alert('올바른 이메일 형식을 입력해주세요.');
+    showToast('올바른 이메일 형식을 입력해주세요.', 'warning');
     return;
   }
 
@@ -95,16 +98,16 @@ const handleLogin = async () => {
 
     if (result.success) {
       console.log('로그인 성공:', authStore.userInfo);
-      alert('로그인 성공!');
+      showToast('로그인 성공!');
       const redirectTo = router.currentRoute.value.query.redirect || '/';
       await router.push(redirectTo);
       // alert(`환영합니다! ${authStore.userInfo?.nickname || authStore.userInfo?.username || ''}님`);
     } else {
-      alert(result.message);
+      showToast(result.message, 'error');
     }
   } catch (error) {
     console.error('로그인 처리 중 오류:', error);
-    alert('로그인 처리 중 오류가 발생했습니다.');
+    showToast('로그인 처리 중 오류가 발생했습니다.', 'error');
   }
 };
 
