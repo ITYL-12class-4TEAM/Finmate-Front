@@ -207,7 +207,29 @@
       :risk-preference="analysisObject.riskPreference"
       :user-name="analysisObject.userName"
     />
-
+    <!-- 맞춤형 포트폴리오  CustomedPortfolio.vue삽입위치 -->
+    <CustomedPortfolio
+      v-if="analysisObject && analysisObject.wmtiCode && preInfoData"
+      :wmti-code="analysisObject.wmtiCode"
+      :result-type="analysisObject.resultType"
+      :risk-preference="analysisObject.riskPreference"
+      :user-name="analysisObject.userName"
+      :a-score="analysisObject.ascore"
+      :i-score="analysisObject.iscore"
+      :p-score="analysisObject.pscore"
+      :b-score="analysisObject.bscore"
+      :m-score="analysisObject.mscore"
+      :w-score="analysisObject.wscore"
+      :l-score="analysisObject.lscore"
+      :c-score="analysisObject.cscore"
+      :investment-capacity="preInfoData.investmentCapacity"
+      :investment-period="preInfoData.investmentPeriod"
+      :purpose-category="preInfoData.purposeCategory"
+      :age="preInfoData.age"
+      :monthly-income="preInfoData.monthlyIncome"
+      :savings-rate="preInfoData.savingsRate"
+      :financial-health-score="preInfoData.financialHealthScore"
+    />
     <!-- 액션 버튼 -->
     <div class="action-section">
       <h3 class="section-title action-title">🚀 다음 단계</h3>
@@ -237,8 +259,9 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import BackButton from '@/components/common/BackButton.vue';
 import ThemePortfolio from '@/components/wmti/ThemePortfolio.vue';
+import CustomedPortfolio from '@/components/wmti/CustomedPortfolio.vue';
 // import ThemePortFolioToggle from '@/components/wmti/ThemePortFolioToggle.vue';
-import { getWMTIResultAPI, getWMTIAnalysisAPI } from '@/api/wmti';
+import { getWMTIResultAPI, getWMTIAnalysisAPI, getPreInfoCalcAPI } from '@/api/wmti';
 import { useToast } from '@/composables/useToast';
 import { useAuthStore } from '@/stores/useAuthStore';
 
@@ -248,6 +271,7 @@ const authStore = useAuthStore();
 
 // ✅ 반응형 상태
 const analysisObject = ref({});
+const preInfoData = ref({});
 const analysis = ref({});
 const createdAt = ref([]);
 
@@ -283,14 +307,18 @@ const fetchResult = async () => {
   const memberId = authStore.userInfo.memberId;
 
   try {
+    // 기존 WMTI 결과 호출
     const res = await getWMTIResultAPI(memberId);
     console.log('✅ 응답 전체:', res);
-
     const data = res.body?.data;
     console.log('✅ data 내용:', data);
 
     analysisObject.value = data;
     createdAt.value = [...data.createdAt] || [];
+
+    // PreInfo 데이터 호출
+    const preInfoRes = await getPreInfoCalcAPI();
+    preInfoData.value = preInfoRes.body?.data || {};
 
     await fetchAnalysis(data.wmtiCode);
   } catch (err) {
