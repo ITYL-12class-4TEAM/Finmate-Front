@@ -65,8 +65,8 @@ const { showToast } = useToast();
 const router = useRouter();
 const authStore = useAuthStore();
 const loginForm = ref({
-  email: 'testuser@example.com', // 자동으로 입력 지워야함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  password: 'Test@1234',
+  email: '', // 자동으로 입력 지워야함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  password: '',
 });
 
 const showPassword = ref(false);
