@@ -1,13 +1,12 @@
 <template>
   <ToastProvider>
-    <ModalProvider>
-      <LayoutDefault />
-    </ModalProvider>
+    <LayoutDefault />
+    <Modal />
   </ToastProvider>
 </template>
 
 <script setup>
+import Modal from '@/components/common/Modal.vue';
 import LayoutDefault from './layouts/LayoutDefault.vue';
 import ToastProvider from '@/components/common/ToastProvider.vue';
-import ModalProvider from '@/components/common/ModalProvider.vue';
 </script>
