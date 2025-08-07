@@ -1,6 +1,6 @@
 <template>
   <section class="survey-banner">
-    <p class="title">내 투자 성향 확인하러 가기</p>
+    <p class="title">내 <FinancialTerm term="투자" /> 성향 확인하러 가기</p>
     <p class="description">나에게 맞는 금융 상품을 쉽게 비교하고 추천받으세요.</p>
     <button class="survey-button" @click="goToSurvey">검사하기</button>
   </section>
@@ -8,6 +8,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+import FinancialTerm from '@/components/common/FinancialTerm.vue';
 
 const router = useRouter();
 

@@ -145,14 +145,17 @@ import { togglePostScrapAPI } from '@/api/postScrap';
 
 import { useModal } from '@/composables/useModal';
 
+import { useAuthStore } from '@/stores/useAuthStore';
+
 import { mockComments, mockPost } from './communityMock';
 
 // 전역번수/ref 선언
 const route = useRoute();
 const router = useRouter();
 const { showModal } = useModal();
+const authStore = useAuthStore();
 
-const memberId = 1; // TODO: 로그인 사용자 ID로 교체
+const memberId = authStore.user.memberId;
 const postId = route.params.id;
 
 const post = ref(null);

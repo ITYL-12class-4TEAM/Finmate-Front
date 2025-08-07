@@ -19,4 +19,15 @@ export const recentViewAPI = {
     const res = await api.delete('/api/recent-viewed/all');
     return res.data;
   },
+
+  // 최근 본 상품 저장
+  saveRecentView: async (productId, saveTrm, intrRateType, rsrvType) => {
+    const res = await api.post('/api/recent-viewed', {
+      productId: productId,
+      saveTrm: saveTrm,
+      intrRateType: intrRateType,
+      rsrvType: rsrvType,
+    });
+    return res.data;
+  },
 };
