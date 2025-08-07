@@ -105,7 +105,7 @@ const props = defineProps({
   },
 });
 
-const showModal = useModal();
+const { showModal } = useModal();
 
 const replyContent = ref('');
 const isReplying = ref(false);

@@ -143,7 +143,7 @@ const fetchPost = async () => {
 onMounted(fetchPost);
 
 // 수정 요청
-const showModal = useModal();
+const { showModal } = useModal();
 
 const updatePost = async () => {
   console.log('postId:', postId);

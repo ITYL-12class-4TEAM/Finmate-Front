@@ -152,7 +152,7 @@ import { mockComments, mockPost } from './communityMock';
 // 전역번수/ref 선언
 const route = useRoute();
 const router = useRouter();
-const showModal = useModal();
+const { showModal } = useModal();
 const authStore = useAuthStore();
 
 const memberId = authStore.user.memberId;
