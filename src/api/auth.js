@@ -259,7 +259,7 @@ export const authAPI = {
   },
   exchangeOAuth2Token: async (code) => {
     try {
-      const response = await api.post('/auth/oauth2/token', null, {
+      const response = await api.post('/api/auth/oauth2/token', null, {
         params: { code },
       });
 

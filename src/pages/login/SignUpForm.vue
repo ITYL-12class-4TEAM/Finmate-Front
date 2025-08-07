@@ -639,8 +639,7 @@ const handleSignup = async () => {
         authStore.setTokens(authData.accessToken, authData.refreshToken);
 
         if (authData.userInfo) {
-          authStore.user = authData.userInfo;
-          localStorage.setItem('user', JSON.stringify(authData.userInfo));
+          localStorage.setItem('userInfo', JSON.stringify(authData.userInfo));
         }
 
         alert('소셜 회원가입이 완료되었습니다!');
