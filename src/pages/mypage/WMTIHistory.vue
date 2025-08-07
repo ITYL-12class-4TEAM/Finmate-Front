@@ -99,13 +99,13 @@ const expandedItems = ref([]);
 
 // 로그인 유저 ID
 const authStore = useAuthStore();
-const memberId = authStore.user.memberId;
+const memberId = authStore.userInfo.memberId;
 
 // API 호출 함수
 const fetchHistoryData = async () => {
   loading.value = true;
   try {
-    historyList.value = await getWMTIHistoryAPI(memberId.value);
+    historyList.value = await getWMTIHistoryAPI(memberId);
     historyList.value.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   } catch (e) {
     console.error('히스토리 불러오기 실패:', e);

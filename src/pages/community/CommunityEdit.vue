@@ -111,7 +111,7 @@ const attaches = ref([]);
 const productTags = ['예금', '적금', '펀드', '보험'];
 
 // 전역 유저 정보
-const memberId = authStore.user.memberId;
+const memberId = authStore.userInfo.memberId;
 
 // 태그 선택 함수
 const selectProduct = (tag) => (selectedProduct.value = tag);
