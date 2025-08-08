@@ -199,7 +199,7 @@ const navigateToLogin = () => {
 }
 
 .card-content {
-  padding: 0.625rem;
+  padding: 0.5rem;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -371,30 +371,6 @@ const navigateToLogin = () => {
   100% {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-/* 반응형 */
-@media (max-width: 576px) {
-  .service-container {
-    max-width: 100%;
-    padding: 0.375rem;
-  }
-
-  .services-grid {
-    gap: 0.375rem;
-  }
-
-  .card-content {
-    padding: 0.5rem;
-  }
-
-  .header-section {
-    padding: 0.625rem;
-  }
-
-  .guide-content {
-    padding: 0.75rem;
   }
 }
 </style>

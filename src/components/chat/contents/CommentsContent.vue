@@ -194,13 +194,13 @@ const formatDate = (dateString) => {
 .comments-container {
   max-width: 65vw;
   margin: 0 auto;
-  padding: 0.5rem;
+  padding: 0.2rem;
 }
 
 .header-section {
-  padding: 0rem 0 0rem 0;
+  padding: 0.4rem 0 0rem 0;
+  padding-left: 0.2rem;
 }
-
 .header-title {
   font-size: 0.9rem !important;
   font-weight: 600;
@@ -218,7 +218,7 @@ const formatDate = (dateString) => {
 .comments-grid {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .comment-card {
@@ -332,53 +332,38 @@ const formatDate = (dateString) => {
   transform: translateX(1px);
 }
 
-/* 더보기 버튼 */
 .more-section {
   text-align: center;
 }
-
+.more-section.mt-4 {
+  margin-top: 0.5rem !important;
+}
 .more-button {
-  position: relative;
-  padding: 0.875rem 1.25rem;
-  border: none;
-  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50px;
+  padding: 0.75rem 2rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.875rem;
-  font-weight: 500;
-  background: #f9fafb;
-  color: #374151;
-  border: 1px solid #e5e7eb;
-}
-
-.button-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.button-text {
-  font-size: 0.875rem;
-}
-
-.button-count {
-  font-size: 0.8125rem;
-  opacity: 0.7;
-}
-
-.button-arrow {
-  transition: transform 0.2s ease;
+  transition: all 0.3s ease;
+  color: var(--color-main);
+  font-weight: 600;
+  font-size: 0.8rem;
+  box-shadow: 0 4px 20px rgba(45, 51, 107, 0.12);
 }
 
 .more-button:hover {
-  background: #f3f4f6;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(45, 51, 107, 0.2);
+}
+
+.button-arrow {
+  transition: transform 0.3s ease;
 }
 
 .more-button:hover .button-arrow {
-  transform: translateX(2px);
+  transform: translateX(3px);
 }
 
 .row {

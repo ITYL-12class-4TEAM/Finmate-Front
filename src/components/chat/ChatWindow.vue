@@ -210,6 +210,7 @@ const addMessage = (
   contentType = 'text',
   data = null,
   title = '',
+  subtitle = '',
   moreUrl = ''
 ) => {
   const newMessage = {
@@ -219,6 +220,7 @@ const addMessage = (
     contentType,
     data,
     title,
+    subtitle,
     moreUrl,
     timestamp: Date.now(),
   };
@@ -549,47 +551,54 @@ const handleServiceAction = async (service) => {
 
         // 정상 데이터 처리
         if (Array.isArray(데이터) && 데이터.length > 0) {
-          let 제목, 더보기URL, 컨텐츠타입;
+          let 제목, 부제목, 더보기URL, 컨텐츠타입;
 
           switch (service.action) {
             case 'hotPosts':
               제목 = '🔥 어제 핫했던 게시물';
+              부제목 = '최신 인기 게시물 확인하기 ✨';
               더보기URL = '/posts?filter=hot';
               컨텐츠타입 = 'posts';
               break;
             case 'myLikedPosts':
               제목 = '❤️ 내가 좋아요 한 글';
+              부제목 = '내 취향을 담은 게시물 모아보기 ✨';
               더보기URL = '/mypage/my-liked';
               컨텐츠타입 = 'posts';
               break;
             case 'myScrapPosts':
               제목 = '📌 내가 스크랩한 글';
+              부제목 = '나중에 다시 보고 싶은 글들 ✨';
               더보기URL = '/mypage/my-scrap';
               컨텐츠타입 = 'posts';
               break;
             case 'myPosts':
               제목 = '✍️ 내가 쓴 글';
+              부제목 = '내가 남긴 이야기 한눈에 보기 ✨';
               더보기URL = '/mypage/my-posts';
               컨텐츠타입 = 'posts';
               break;
             case 'myComments':
               제목 = '💬 내가 쓴 댓글';
+              부제목 = '어디에 어떤 말을 남겼을까? ✨';
               더보기URL = '/mypage/my-comments';
               컨텐츠타입 = 'comments';
               break;
             case 'interestProducts':
               제목 = '⭐ 관심상품';
+              부제목 = '찜해둔 상품 다시 확인해보기 ✨';
               더보기URL = '/mypage';
               컨텐츠타입 = 'wishlist';
               break;
             case 'recentProducts':
               제목 = '👀 최근 본 상품';
+              부제목 = '최근에 둘러본 상품 한눈에 보기 ✨';
               더보기URL = '/mypage/recent-view';
               컨텐츠타입 = 'recent';
               break;
           }
 
-          addMessage('', 'bot', 컨텐츠타입, 데이터, 제목, 더보기URL);
+          addMessage('', 'bot', 컨텐츠타입, 데이터, 제목, 부제목, 더보기URL);
         } else {
           // 빈 데이터 처리
           let 빈데이터메시지;

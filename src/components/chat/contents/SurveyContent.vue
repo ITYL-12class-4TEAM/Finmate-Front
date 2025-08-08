@@ -50,7 +50,7 @@ defineEmits(['navigate-to-survey']);
 <style scoped>
 .survey-container {
   width: 100%;
-  padding: 1rem;
+  padding: 0.2rem;
   margin-bottom: 0.5rem;
 }
 
@@ -59,7 +59,7 @@ defineEmits(['navigate-to-survey']);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 1rem;
-  padding: 2rem 1.5rem;
+  padding: 1rem 1rem;
   color: #374151;
   position: relative;
   overflow: hidden;
@@ -139,6 +139,7 @@ defineEmits(['navigate-to-survey']);
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  white-space: nowrap; /* ✅ 추가 */
 }
 
 .cta-button:hover {
@@ -169,41 +170,16 @@ defineEmits(['navigate-to-survey']);
     transform: translateY(-3px);
   }
 }
-
-/* 반응형 */
-@media (max-width: 576px) {
-  .survey-container {
-    padding: 0.75rem;
-  }
-
-  .survey-card {
-    padding: 1.5rem 1rem;
-  }
-
-  .icon-wrapper {
-    width: 50px;
-    height: 50px;
-  }
-
-  .main-icon {
-    font-size: 1.5rem;
-  }
-
-  .main-title {
-    font-size: 1.1rem !important;
-  }
-
-  .sub-title {
-    font-size: 0.8rem !important;
-  }
-
-  .description-text {
-    font-size: 0.8rem !important;
-  }
-
+@media (max-width: 360px) {
   .cta-button {
-    padding: 0.625rem 1.5rem;
+    padding: 0.5rem 1.5rem;
     font-size: 0.8rem;
+    gap: 0.3rem;
+  }
+
+  .button-arrow {
+    width: 14px;
+    height: 14px;
   }
 }
 </style>

@@ -21,26 +21,18 @@
         >
           <!-- 카드 컨텐츠 -->
           <div class="card-content position-relative">
+            <!-- 날짜를 absolute로 이동 -->
+            <span class="post-date-abs">
+              {{ formatDate(post.createdAt || post.created_at || post.date) }}
+            </span>
+
             <div class="row g-0 align-items-center">
-              <!-- 메인 컨텐츠 -->
               <div class="col">
                 <div class="post-header mb-2">
-                  <!-- 게시글 제목과 날짜 -->
-                  <div
-                    class="d-flex align-items-start justify-content-between mb-1"
-                    style="width: 100%"
-                  >
-                    <h6
-                      class="post-title mb-0"
-                      style="flex: 0 1 auto; max-width: calc(100% - 3rem)"
-                    >
-                      {{ post.title }}
-                    </h6>
-                    <!-- 날짜 -->
-                    <span class="post-date" style="flex: 0 0 auto; margin-left: auto">
-                      {{ formatDate(post.createdAt || post.created_at || post.date) }}
-                    </span>
-                  </div>
+                  <!-- 제목 -->
+                  <h6 class="post-title mb-0">
+                    {{ post.title }}
+                  </h6>
 
                   <!-- 작성자 정보 -->
                   <div class="post-meta d-flex align-items-center gap-2 flex-wrap">
@@ -57,21 +49,16 @@
 
                 <!-- 상호작용 정보 -->
                 <div class="interaction-info d-flex align-items-center gap-3">
-                  <div
-                    v-if="post.likeCount || post.like_count"
-                    class="like-info d-flex align-items-center gap-1"
-                  >
+                  <div class="like-info d-flex align-items-center gap-1">
                     <i class="bi bi-heart-fill interaction-icon text-danger"></i>
-                    <span class="interaction-count">{{ post.likeCount || post.like_count }}</span>
+                    <span class="interaction-count">{{
+                      post.likeCount ?? post.like_count ?? 0
+                    }}</span>
                   </div>
-
-                  <div
-                    v-if="post.commentCount || post.comment_count"
-                    class="comment-info d-flex align-items-center gap-1"
-                  >
+                  <div class="comment-info d-flex align-items-center gap-1">
                     <i class="bi bi-chat-fill interaction-icon text-primary"></i>
                     <span class="interaction-count">{{
-                      post.commentCount || post.comment_count
+                      post.commentCount ?? post.comment_count ?? 0
                     }}</span>
                   </div>
                 </div>
@@ -199,12 +186,12 @@ const formatDate = (dateString) => {
 .posts-container {
   max-width: 65vw;
   margin: 0 auto;
-  padding: 0.5rem;
+  padding: 0.2rem;
 }
 
-/* 헤더 섹션 */
 .header-section {
-  padding: 0rem 0 0rem 0;
+  padding: 0.4rem 0 0rem 0;
+  padding-left: 0.2rem;
 }
 
 .header-title {
@@ -224,7 +211,7 @@ const formatDate = (dateString) => {
 .posts-grid {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .post-card {
@@ -250,7 +237,6 @@ const formatDate = (dateString) => {
   margin-bottom: 0.5rem !important;
 }
 
-/* 게시글 헤더 */
 .post-title {
   font-size: 0.72rem !important;
   font-weight: 600;
@@ -259,8 +245,18 @@ const formatDate = (dateString) => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  padding-right: 1rem;
 }
 
+.post-date-abs {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.6rem;
+  font-size: 0.6rem;
+  color: #9ca3af;
+  white-space: nowrap;
+  z-index: 1;
+}
 /* 날짜 스타일 */
 .post-date {
   font-size: 0.6rem;
@@ -346,51 +342,36 @@ const formatDate = (dateString) => {
 .more-section {
   text-align: center;
 }
-
+.more-section.mt-4 {
+  margin-top: 0.5rem !important;
+}
 .more-button {
-  position: relative;
-  padding: 0.875rem 1.25rem;
-  border: none;
-  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50px;
+  padding: 0.75rem 2rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.875rem;
-  font-weight: 500;
-  background: #f9fafb;
-  color: #374151;
-  border: 1px solid #e5e7eb;
-}
-
-.button-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.button-text {
-  font-size: 0.875rem;
-}
-
-.button-count {
-  font-size: 0.8125rem;
-  opacity: 0.7;
-}
-
-.button-arrow {
-  transition: transform 0.2s ease;
+  transition: all 0.3s ease;
+  color: var(--color-main);
+  font-weight: 600;
+  font-size: 0.8rem;
+  box-shadow: 0 4px 20px rgba(45, 51, 107, 0.12);
 }
 
 .more-button:hover {
-  background: #f3f4f6;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(45, 51, 107, 0.2);
+}
+
+.button-arrow {
+  transition: transform 0.3s ease;
 }
 
 .more-button:hover .button-arrow {
-  transform: translateX(2px);
+  transform: translateX(3px);
 }
-
 .row {
   flex-wrap: nowrap;
 }

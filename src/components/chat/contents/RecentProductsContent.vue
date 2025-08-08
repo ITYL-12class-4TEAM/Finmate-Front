@@ -4,7 +4,7 @@
       <!-- 헤더 섹션 -->
       <div class="header-section mb-3">
         <div class="d-flex align-items-center gap-2">
-          <div>
+          <div class="ms-2">
             <h5 class="header-title mb-0">{{ title }}</h5>
             <small class="header-subtitle">최근 관심을 보인 금융상품들</small>
           </div>
@@ -327,39 +327,29 @@ const handleExternalLink = (link) => {
   margin: 0 auto;
 }
 
-/* 헤더 섹션 */
 .header-section {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 1rem;
-  padding: 1rem;
-  box-shadow: 0 4px 20px rgba(45, 51, 107, 0.1);
-  transition: all 0.3s ease;
-}
-
-.header-section:hover {
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 6px 25px rgba(45, 51, 107, 0.15);
+  padding: 0.4rem 0 0rem 0;
+  padding-left: 0.2rem;
 }
 
 .header-title {
-  font-size: 1rem !important;
-  font-weight: 700;
-  color: var(--color-main);
-  line-height: 1.3;
+  font-size: 0.9rem !important;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.4;
 }
 
 .header-subtitle {
-  font-size: 0.75rem !important;
-  color: var(--color-sub);
-  font-weight: 500;
+  font-size: 0.7rem !important;
+  color: #6b7280;
+  font-weight: 400;
 }
 
 /* 상품 컨테이너 */
 .products-container {
   display: flex;
   overflow-x: auto;
+  overflow-y: hidden;
   scroll-snap-type: x mandatory;
   gap: 0.75rem;
   padding-bottom: 0.5rem;
@@ -380,13 +370,13 @@ const handleExternalLink = (link) => {
   min-width: 100%;
   max-width: 100%;
   scroll-snap-align: center;
-  box-shadow: 0 4px 20px rgba(45, 51, 107, 0.08);
+  box-shadow: 0 4px 24px rgba(45, 51, 107, 0.12);
 }
 
 .product-card:hover {
   transform: translateY(-3px);
   background: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 8px 30px rgba(45, 51, 107, 0.15);
+  box-shadow: 0 10px 36px rgba(45, 51, 107, 0.2);
 }
 
 .card-content {
@@ -589,7 +579,9 @@ const handleExternalLink = (link) => {
 .more-section {
   text-align: center;
 }
-
+.more-section.mt-4 {
+  margin-top: 0.5rem !important;
+}
 .more-button {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(15px);
@@ -691,4 +683,3 @@ const handleExternalLink = (link) => {
   }
 }
 </style>
-f

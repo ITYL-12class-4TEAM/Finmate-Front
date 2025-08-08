@@ -56,7 +56,7 @@ defineEmits(['close']);
 
 .chat-header {
   position: relative;
-  overflow: hidden;
+  /* overflow: hidden; */
   border-radius: 1rem 1rem 0 0;
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20px);
