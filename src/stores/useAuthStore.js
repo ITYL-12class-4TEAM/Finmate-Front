@@ -26,9 +26,8 @@ export const useAuthStore = defineStore('auth', () => {
         setTokens(loginData.accessToken, loginData.refreshToken);
 
         if (loginData.userInfo) {
-          // user.value = loginData.userInfo;
+          user.value = loginData.userInfo;
           localStorage.setItem('userInfo', JSON.stringify(loginData.userInfo));
-          localStorage.setItem('memberId', loginData.userInfo.memberId);
         }
 
         return { success: true, message: result.message };
@@ -104,7 +103,6 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('userInfo');
-    localStorage.removeItem('memberId');
   };
 
   const initialize = async () => {
@@ -112,9 +110,8 @@ export const useAuthStore = defineStore('auth', () => {
 
     const savedUserInfo = localStorage.getItem('userInfo');
     const savedAccessToken = localStorage.getItem('accessToken');
-    const savedMemberId = localStorage.getItem('memberId');
 
-    if (!savedMemberId || !savedUserInfo || !savedAccessToken) {
+    if (!savedUserInfo || !savedAccessToken) {
       console.log('로그인 필요');
       return;
     }

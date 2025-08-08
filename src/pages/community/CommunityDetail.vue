@@ -144,13 +144,15 @@ import { togglePostLikeAPI } from '@/api/postLike';
 import { togglePostScrapAPI } from '@/api/postScrap';
 
 import { useModal } from '@/composables/useModal';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 // 전역번수/ref 선언
 const route = useRoute();
 const router = useRouter();
 const { showModal } = useModal();
+const authStore = useAuthStore();
 
-const memberId = Number(localStorage.getItem('memberId')) ?? null;
+const memberId = authStore.userInfo.memberId;
 
 const postId = route.params.id;
 
