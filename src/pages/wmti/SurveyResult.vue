@@ -2,7 +2,6 @@
   <div class="result-page">
     <!-- 뒤로가기 버튼 -->
     <BackButton title="투자 성향 결과" to="/wmti/basic" />
-    <button @click="handleError">토스트</button>
 
     <!-- 헤더 섹션 -->
     <div class="result-header">
@@ -274,11 +273,6 @@ const analysisObject = ref({});
 const preInfoData = ref({});
 const analysis = ref({});
 const createdAt = ref([]);
-
-// ✅ 토스트 예시 버튼 핸들러
-const handleError = () => {
-  showToast('오류가 발생했습니다.', 'error');
-};
 
 // ✅ computed: 점수 계산  => 현재 양방향 그래프에서는 미사용. , 추후 리팩토링과정에서 사용가능성.
 // const aOrIScore = computed(() =>

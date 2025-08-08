@@ -253,7 +253,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 1rem 0;
+  margin: 2rem 0;
   position: relative;
 }
 
