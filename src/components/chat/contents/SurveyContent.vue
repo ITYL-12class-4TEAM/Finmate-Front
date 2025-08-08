@@ -19,7 +19,7 @@
           </div>
 
           <!-- CTA 버튼 -->
-          <div class="col-12 text-center">
+          <div class="col-12 d-flex justify-content-center">
             <button class="cta-button" @click="$emit('navigate-to-survey')">
               <span class="button-text">테스트 시작하기</span>
               <svg class="button-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -129,7 +129,7 @@ defineEmits(['navigate-to-survey']);
   background: rgba(255, 255, 255, 0.2);
   border: 2px solid rgba(0, 0, 0, 0.1);
   border-radius: 50px;
-  padding: 0.75rem 2rem;
+  padding: 0.75rem 1.5rem;
   color: #374151;
   font-size: 0.875rem;
   font-weight: 600;
@@ -140,6 +140,7 @@ defineEmits(['navigate-to-survey']);
   align-items: center;
   gap: 0.5rem;
   white-space: nowrap; /* ✅ 추가 */
+  width: 100%;
 }
 
 .cta-button:hover {
@@ -150,6 +151,8 @@ defineEmits(['navigate-to-survey']);
 
 .button-text {
   color: #374151;
+  text-align: center;
+  flex: 1;
 }
 
 .button-arrow {
@@ -158,6 +161,14 @@ defineEmits(['navigate-to-survey']);
 
 .cta-button:hover .button-arrow {
   transform: translateX(2px);
+}
+
+.d-flex {
+  display: flex !important;
+}
+
+.justify-content-center {
+  justify-content: center !important;
 }
 
 /* 애니메이션 */

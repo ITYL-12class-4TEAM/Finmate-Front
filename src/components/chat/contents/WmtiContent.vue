@@ -67,20 +67,19 @@
       </div>
 
       <!-- CTA 버튼 -->
-      <div class="cta-section mt-4">
-        <button class="cta-button" @click="goToSurvey">
-          <div class="button-content d-flex align-items-center justify-content-center gap-2">
-            <span class="button-text">테스트 시작</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="arrow-icon">
-              <path
-                d="M5 12h14M12 5l7 7-7 7"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </div>
+      <!-- CTA 버튼 -->
+      <div class="col-12 d-flex justify-content-center">
+        <button class="cta-button" @click="$emit('navigate-to-survey')">
+          <span class="button-text">테스트 시작하기</span>
+          <svg class="button-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M5 12h14M12 5l7 7-7 7"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
         </button>
       </div>
     </div>
@@ -300,41 +299,41 @@ const goToSurvey = () => {
 }
 
 .cta-button {
-  position: relative;
-  padding: 0.875rem 1.25rem;
-  border: none;
-  border-radius: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.875rem;
-  font-weight: 500;
-  background: #f9fafb;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50px;
+  padding: 0.75rem 1.5rem;
   color: #374151;
-  border: 1px solid #e5e7eb;
-}
-
-.button-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.button-text {
   font-size: 0.875rem;
-}
-
-.arrow-icon {
-  transition: transform 0.2s ease;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap; /* ✅ 추가 */
+  width: 100%;
+  margin-top: 1rem;
 }
 
 .cta-button:hover {
-  background: #374151;
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(0, 0, 0, 0.15);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.cta-button:hover .arrow-icon {
+.button-text {
+  color: #374151;
+  text-align: center;
+  flex: 1;
+}
+
+.button-arrow {
+  transition: transform 0.3s ease;
+}
+
+.cta-button:hover .button-arrow {
   transform: translateX(2px);
 }
 
