@@ -28,6 +28,11 @@ export const getWMTIAnalysisAPI = async (wmtiCode) => {
   const res = await api.get(`/api/wmti/analysis/${wmtiCode}`);
   return res.data;
 };
+//Preinfo 연산값 조회
+export const getPreInfoCalcAPI = async () => {
+  const res = await api.get(`/api/preinfo/my`);
+  return res.data;
+};
 
 // wmti 코드 모아보기
 export const getWMTICodesAPI = async () => {
