@@ -122,15 +122,31 @@ export const getProductsCategoriesAPI = async () => {
 // };
 
 // 필터 옵션 API 호출 함수
+
 export const getProductsFilterOptionsAPI = async (category) => {
   try {
-    const response = await fetch(`/api/products/filter-options?category=${category}`);
-    if (!response.ok) {
-      throw new Error(`API 요청 실패: ${response.status}`);
-    }
-    return await response.json();
+    console.log('필터 옵션 요청 파라미터:', { category });
+
+    // api 객체 사용 (axios 인스턴스)
+    const response = await api.get('/api/products/filter-options', {
+      params: { category },
+    });
+
+    console.log('필터 옵션 응답:', response.data.body.data);
+
+    return response.data.body.data;
   } catch (error) {
     console.error('필터 옵션 가져오기 실패:', error);
+
+    // 오류 상세 정보 로깅 (다른 함수들과 일관성 유지)
+    if (error.response) {
+      console.error('API 응답 오류 상세:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data,
+      });
+    }
+
     throw error;
   }
 };
@@ -142,7 +158,12 @@ export const getProductsFilterOptionsAPI = async (category) => {
  * @param {string} optionId - 옵션 ID (선택사항)
  * @returns {Promise<Object>} - 비교 결과
  */
-export const compareProductsAPI = async (productIds, productType = 'deposit', optionId = null) => {
+export const compareProductsAPI = async (
+  productIds,
+  productType = 'deposit',
+  saveTrm,
+  intrRateType
+) => {
   try {
     // URL 직접 구성 (파라미터 문제를 확실히 해결하기 위해)
     let url = '/api/products/compare?';
@@ -160,8 +181,12 @@ export const compareProductsAPI = async (productIds, productType = 'deposit', op
     url += `productType=${encodeURIComponent(productType)}`;
 
     // optionId 추가 (있는 경우)
-    if (optionId) {
-      url += `&optionId=${encodeURIComponent(optionId)}`;
+    if (saveTrm) {
+      url += `&optionId=${encodeURIComponent(saveTrm)}`;
+    }
+
+    if (intrRateType) {
+      url += `&optionId=${encodeURIComponent(intrRateType)}`;
     }
 
     console.log('비교 API 요청 URL:', url);
@@ -171,30 +196,7 @@ export const compareProductsAPI = async (productIds, productType = 'deposit', op
 
     console.log('비교 API 응답:', response);
 
-    // 데이터 추출 및 반환
-    if (response.data) {
-      const data = response.data;
-
-      // 응답 구조가 body.data 형태인 경우
-      if (data.body && data.body.data) {
-        return data.body.data;
-      }
-
-      // 응답 구조가 body 형태인 경우
-      if (data.body) {
-        return data.body;
-      }
-
-      // 응답이 data 자체인 경우
-      if (data.data) {
-        return data.data;
-      }
-
-      // 그 외의 경우 응답 전체 반환
-      return data;
-    }
-
-    return null;
+    return response.data.body.data;
   } catch (error) {
     console.error('상품 비교 API 오류:', error);
 
