@@ -255,7 +255,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import BackButton from '@/components/common/BackButton.vue';
 import ThemePortfolio from '@/components/wmti/ThemePortfolio.vue';
@@ -304,14 +304,20 @@ const formattedDate = computed(() => {
 
 // ✅ 결과 및 분석 데이터 불러오기
 const fetchResult = async () => {
-  const memberId = authStore.userInfo.memberId;
+  const memberId = authStore.userInfo?.memberId;
+  if (!memberId) {
+    console.warn('✅ userInfo 없음. fetchResult 중단');
+    return;
+  }
 
   try {
     // 기존 WMTI 결과 호출
     const res = await getWMTIResultAPI(memberId);
-    console.log('✅ 응답 전체:', res);
     const data = res.body?.data;
-    console.log('✅ data 내용:', data);
+    if (!data) {
+      showToast('결과 데이터를 찾을 수 없습니다.', 'warning');
+      return;
+    }
 
     analysisObject.value = data;
     createdAt.value = [...data.createdAt] || [];
@@ -396,8 +402,20 @@ const getRiskPreferenceTextClass = (risk) =>
   })[risk] || '';
 
 onMounted(() => {
-  fetchResult();
+  if (authStore.userInfo?.memberId) {
+    fetchResult();
+  }
 });
+
+// watch(
+//   () => authStore.userInfo?.memberId,
+//   (memberId) => {
+//     if (memberId) {
+//       fetchResult();
+//     }
+//   },
+//   { immediate: true }
+// );
 </script>
 
 <style scoped>

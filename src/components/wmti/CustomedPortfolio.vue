@@ -4,11 +4,11 @@
 
     <!-- 1단계: 헤더 -->
     <div class="portfolio-header">
-      <h2 class="header-title">{{ userName }}님을 위한 맞춤형 포트폴리오가 준비되었어요!</h2>
+      <h2 class="header-title">{{ userName }}님을 위한 <br />맞춤형 포트폴리오가 준비되었어요!</h2>
       <p class="user-info">
-        {{ userName }}님은 <span class="highlight">{{ wmtiCode }}</span
+        {{ userName }}님은 <br /><span class="highlight">{{ wmtiCode }}</span
         >, <span class="highlight">{{ getResultTypeLabel(resultType) }}</span
-        >, <span class="highlight">{{ getRiskPreferenceLabel(riskPreference) }}</span> 이에요.
+        >, <span class="highlight">{{ getRiskPreferenceLabel(riskPreference) }}</span> <br />이에요.
       </p>
     </div>
 
