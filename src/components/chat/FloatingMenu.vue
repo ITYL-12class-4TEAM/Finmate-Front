@@ -125,11 +125,12 @@ onBeforeUnmount(() => {
 
 .chat-window {
   position: fixed;
-  bottom: 6rem; /* 버튼 위에 위치 */
-  right: 2rem;
+  bottom: 2rem; /* 버튼 위에 위치 */
+  right: 1rem;
   width: min(24rem, 90vw); /* 최대 폭 제한 */
   height: auto;
   max-height: calc(100dvh - 8rem); /* 디바이스 높이에 맞춰 조정 */
+  min-height: 32rem;
   background: white;
   border-radius: 1.25rem;
   box-shadow:
