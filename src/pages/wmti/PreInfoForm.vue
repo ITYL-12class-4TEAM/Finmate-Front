@@ -45,7 +45,7 @@
                 min="0"
                 max="120"
                 required
-                placeholder="30"
+                placeholder="예) 30"
                 class="input-field"
               />
             </div>
@@ -86,7 +86,7 @@
                 v-model.number="form.monthlyIncome"
                 type="number"
                 required
-                placeholder="3,500,000"
+                placeholder="예) 3,500,000"
                 class="input-field"
               />
               <span class="currency-unit">원</span>
@@ -100,7 +100,7 @@
                 v-model.number="form.fixedCost"
                 type="number"
                 required
-                placeholder="1,500,000"
+                placeholder="예) 1,500,000"
                 class="input-field"
               />
               <span class="currency-unit">원</span>
@@ -532,26 +532,43 @@ const handleSubmit = async () => {
 
 /* 통화 입력 */
 .currency-input {
+  display: flex;
+  align-items: center;
   position: relative;
+  border: 0.0625rem solid var(--color-light);
+  border-radius: 0.625rem;
+  background: var(--color-white);
+  transition: all 0.2s ease;
 }
 
-.currency-unit {
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: linear-gradient(135deg, var(--color-main), var(--color-sub));
-  color: var(--color-white);
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.375rem;
-  font-weight: 600;
-  font-size: 0.75rem;
-  pointer-events: none;
-  box-shadow: 0 0.125rem 0.25rem rgba(45, 51, 107, 0.2);
+.currency-input:focus-within {
+  border-color: var(--color-main);
+  box-shadow: 0 0 0 0.1875rem rgba(45, 51, 107, 0.1);
 }
 
 .currency-input .input-field {
-  padding-right: 3rem;
+  flex: 1;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  padding-right: 0.5rem;
+}
+
+.currency-input .input-field:focus {
+  border: none;
+  box-shadow: none;
+}
+
+.currency-unit {
+  background: linear-gradient(135deg, var(--color-sub), var(--color-main));
+  color: var(--color-white);
+  padding: 0.5rem 0.75rem;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+  box-shadow: 0 0.125rem 0.25rem rgba(45, 51, 107, 0.2);
 }
 
 /* 토글 그룹 (기혼여부) - 슬라이딩 애니메이션 */

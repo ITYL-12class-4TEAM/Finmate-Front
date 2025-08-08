@@ -1,6 +1,9 @@
 <template>
   <div class="portfolio-section">
-    <h3 class="section-title">💼 {{ userName }}님에게 추천하는 테마 포트폴리오</h3>
+    <div class="section-header">
+      <div class="section-icon portfolio-icon"></div>
+      <h3 class="section-title">추천 테마 포트폴리오</h3>
+    </div>
 
     <div class="portfolios-container">
       <div
@@ -13,7 +16,7 @@
         <div class="portfolio-header">
           <div class="portfolio-badge">
             <span class="badge-text">추천 {{ index + 1 }}</span>
-            <i class="fa-solid fa-star"></i>
+            <div class="badge-icon"></div>
           </div>
           <h4 class="portfolio-name">{{ portfolio.themeName }}</h4>
           <div class="portfolio-code">{{ portfolio.portfolioCode }}</div>

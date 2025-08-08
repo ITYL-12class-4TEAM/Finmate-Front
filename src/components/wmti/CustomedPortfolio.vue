@@ -1,7 +1,5 @@
 <template>
   <div class="customed-portfolio-section">
-    <h3 class="section-title portfolio-title">🎯 맞춤형 포트폴리오</h3>
-
     <!-- 1단계: 헤더 -->
     <div class="portfolio-header">
       <h2 class="header-title">{{ userName }}님을 위한 <br />맞춤형 포트폴리오가 준비되었어요!</h2>
@@ -703,7 +701,7 @@ onMounted(() => {
 .customed-portfolio-section {
   background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.8) 100%);
   border-radius: 1rem;
-  padding: 1.25rem;
+  padding: 0 1.25rem;
   box-shadow: 0 0.25rem 1.25rem rgba(45, 51, 107, 0.08);
   animation: fadeInUp 0.6s ease-out 0.6s both;
   margin-bottom: 1.25rem;
