@@ -116,12 +116,12 @@ const userAgeGroup = ref('');
 
 // 로그인 유저 ID
 const authStore = useAuthStore();
-const memberId = authStore.user.memberId;
+const memberId = authStore.userInfo.memberId;
 
 // -------------------- API 호출 --------------------
 const fetchWMTIResult = async () => {
   try {
-    const res = await getWMTIResultAPI(memberId.value);
+    const res = await getWMTIResultAPI(memberId);
     if (res?.body?.data?.wmtiCode) {
       myWMTI.value = res.body.data.wmtiCode;
     }

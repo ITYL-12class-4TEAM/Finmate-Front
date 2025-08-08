@@ -73,14 +73,6 @@
             <li>비밀번호를 잊으셨다면 비밀번호 찾기를 이용해주세요</li>
           </ul>
         </div>
-
-        <!-- 하단 링크 -->
-        <div class="bottom-links">
-          <button class="link-btn primary" :disabled="loading" @click="forgotPassword">
-            <i class="fas fa-question-circle me-2"></i>
-            비밀번호를 잊으셨나요?
-          </button>
-        </div>
       </div>
     </div>
 
@@ -97,10 +89,32 @@
     </div>
   </div>
 </template>
-
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { memberAPI } from '../../api/member';
+import { authAPI } from '../../api/auth';
+
+// 사용자 정보
+const userInfo = ref({
+  nickname: '',
+  email: '',
+  profileImage: '',
+  phoneNumber: '',
+  birthDate: '',
+  gender: '',
+  receivePushNotification: '',
+  createdAt: '',
+  updatedAt: '',
+});
+
+onMounted(async () => {
+  console.log('API 호출 시작');
+
+  const response = await memberAPI.getMyInfo();
+
+  userInfo.value = response.data;
+});
 
 const router = useRouter();
 
@@ -111,13 +125,6 @@ const errorMessage = ref('');
 const currentPassword = ref('');
 const showPassword = ref(false);
 const showSuccessModal = ref(false);
-
-// 사용자 정보
-const userInfo = ref({
-  nickname: '테스트유저',
-  email: 'testuser@example.com',
-  profileImage: null,
-});
 
 // 비밀번호 표시/숨김 토글
 const togglePasswordVisibility = () => {
@@ -148,8 +155,8 @@ const verifyPassword = async () => {
     // 서버 요청 시뮬레이션
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    // 간단한 비밀번호 체크 (실제로는 서버에서 검증)
-    if (currentPassword.value === 'Test@1234') {
+    const response = await authAPI.checkPassword(currentPassword.value);
+    if (response.success) {
       // 인증 정보 저장
       localStorage.setItem('passwordVerified', 'true');
       localStorage.setItem('verificationTime', Date.now().toString());
@@ -179,12 +186,6 @@ const closeSuccessModal = () => {
 const proceedToEdit = () => {
   showSuccessModal.value = false;
   router.push('/mypage/settings/edit');
-};
-
-// 비밀번호 찾기
-const forgotPassword = () => {
-  // 실제로는 비밀번호 찾기 페이지로 이동
-  alert('비밀번호 찾기 기능은 준비 중입니다.');
 };
 </script>
 

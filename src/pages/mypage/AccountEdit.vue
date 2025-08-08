@@ -215,6 +215,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { memberAPI } from '../../api/member';
+import { authAPI } from '../../api/auth';
+import { useToast } from '../../composables/useToast';
+
+const { showToast } = useToast();
 
 const router = useRouter();
 
@@ -230,14 +235,16 @@ const confirmPasswordError = ref('');
 
 // 사용자 기본 정보 (수정 불가)
 const userInfo = ref({
-  email: 'testuser@example.com',
-  phoneNumber: '010-1234-5678',
-  birthDate: '1995-03-15',
-  gender: '남',
-  nickname: '테스트유저',
-  receivePushNotification: true,
+  nickname: '',
+  email: '',
+  profileImage: '',
+  phoneNumber: '',
+  birthDate: '',
+  gender: '',
+  receivePushNotification: '',
+  createdAt: '',
+  updatedAt: '',
 });
-
 // 수정 폼 데이터
 const editForm = ref({
   nickname: '',
@@ -301,12 +308,11 @@ const checkNicknameAvailability = async () => {
     // 서버 요청 시뮬레이션
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // 간단한 중복 체크
-    const unavailableNicknames = ['관리자', 'admin', '테스트', 'test'];
-    if (unavailableNicknames.includes(editForm.value.nickname.toLowerCase())) {
-      nicknameError.value = '이미 사용 중인 닉네임입니다.';
-    } else {
+    const response = await memberAPI.checkNickname(editForm.value.nickname);
+    if (response.success) {
       nicknameChecked.value = true;
+    } else {
+      nicknameError.value = response.message;
     }
   } catch (err) {
     nicknameError.value = '중복확인 중 오류가 발생했습니다.';
@@ -349,31 +355,39 @@ const updateProfile = async () => {
   loading.value = true;
 
   try {
-    // 서버 요청 시뮬레이션
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    const updateData = {
+    // 1. 전송할 데이터 확인
+    const profileData = {
+      memberId: userInfo.value.memberId,
+      nickname: editForm.value.nickname || userInfo.value.nickname,
       receivePushNotification: editForm.value.receivePushNotification,
     };
 
-    // 닉네임이 변경되었다면 추가
-    if (editForm.value.nickname && editForm.value.nickname !== userInfo.value.nickname) {
-      updateData.nickname = editForm.value.nickname;
-      userInfo.value.nickname = editForm.value.nickname;
+    // 2. 프로필 업데이트 API 호출
+    const profileResponse = await memberAPI.updateProfile(profileData);
+
+    if (!profileResponse.success) {
+      throw new Error(`프로필 업데이트 실패: ${profileResponse.message}`);
     }
 
-    // 비밀번호가 변경되었다면 추가
+    // 3. 비밀번호 변경 (선택적)
     if (changePassword.value && editForm.value.newPassword) {
-      updateData.password = editForm.value.newPassword;
+      const passwordResponse = await authAPI.resetPassword(
+        editForm.value.newPassword,
+        editForm.value.confirmPassword,
+        userInfo.value.email
+      );
+
+      if (!passwordResponse.success) {
+        throw new Error(`비밀번호 변경 실패: ${passwordResponse.message}`);
+      }
     }
 
-    userInfo.value.receivePushNotification = editForm.value.receivePushNotification;
-
-    alert('회원정보가 성공적으로 수정되었습니다.');
+    // 4. 성공 처리
+    showToast('회원정보가 성공적으로 수정되었습니다.', 'success');
+    router.push('/');
     resetForm();
-  } catch (err) {
-    alert('회원정보 수정 중 오류가 발생했습니다.');
-    console.error('Profile update error:', err);
+  } catch (error) {
+    showToast(`회원정보 수정 중 오류가 발생했습니다: ${error.message}`, 'error');
   } finally {
     loading.value = false;
   }
@@ -392,18 +406,31 @@ const resetForm = () => {
   confirmPasswordError.value = '';
 };
 
-// 컴포넌트 마운트
-onMounted(() => {
-  // 비밀번호 인증 확인
+onMounted(async () => {
+  // 1. 비밀번호 인증 확인
   const verified = localStorage.getItem('passwordVerified');
   if (!verified) {
-    alert('비밀번호 확인이 필요합니다.');
+    showToast('비밀번호 확인이 필요합니다.', 'error');
     router.push('/mypage/verify-password');
     return;
   }
 
-  // 폼 초기값 설정
-  editForm.value.receivePushNotification = userInfo.value.receivePushNotification;
+  // 2. 사용자 정보 조회
+  try {
+    const response = await memberAPI.getMyInfo();
+
+    if (response.success) {
+      userInfo.value = response.data;
+
+      // 3. 폼 초기값 설정
+      editForm.value.receivePushNotification = response.data.receivePushNotification;
+      router.push('');
+    } else {
+      showToast('사용자 정보를 불러올 수 없습니다.', 'error');
+    }
+  } catch (error) {
+    showToast('사용자 정보를 불러오는 중 오류가 발생했습니다.', 'error');
+  }
 });
 </script>
 
