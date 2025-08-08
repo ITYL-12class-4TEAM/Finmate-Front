@@ -1,9 +1,12 @@
 import { ref } from 'vue';
+import { useToast } from '@/composables/useToast';
 
 const COMPARE_LIST_KEY = 'finmate_compare_list';
 
 /** 상품 비교함 관리 (로컬스토리지+리액티브) */
 export default function useCompareList() {
+  const { showToast } = useToast();
+
   // 내부 util
   const getCompareListFromStorage = () => {
     try {
@@ -40,14 +43,16 @@ export default function useCompareList() {
         String(item.saveTrm) === String(saveTrm) &&
         item.intrRateType === intrRateType
     );
-    if (duplicate) return { success: false, message: '이미 비교함에 추가된 상품입니다.' };
+    if (duplicate) {
+      showToast('이미 비교함에 추가된 상품입니다.', 'warning');
+      return { success: false, silent: true }; // alert 표시하지 않도록 silent 플래그 추가
+    }
 
     // 최대 3개 제한
-    if (compareList.value.length >= 3)
-      return {
-        success: false,
-        message: '비교함에는 최대 3개까지만 담을 수 있습니다.\n기존 상품을 제거해주세요.',
-      };
+    if (compareList.value.length >= 3) {
+      showToast('상품은 최대 3개까지 비교할 수 있습니다', 'warning');
+      return { success: false, silent: true }; // alert 표시하지 않도록 silent 플래그 추가
+    }
 
     // 신규 아이템 객체
     const item = {
@@ -71,7 +76,8 @@ export default function useCompareList() {
 
     compareList.value = [...compareList.value, item];
     saveCompareListToStorage(compareList.value);
-    return { success: true, message: '상품이 비교함에 추가되었습니다.' };
+    showToast('상품이 비교함에 추가되었습니다.', 'success');
+    return { success: true, silent: true }; // alert 표시하지 않도록 silent 플래그 추가
   };
 
   /** 비교함에서 상품 제거 */
@@ -83,14 +89,16 @@ export default function useCompareList() {
         item.intrRateType !== intrRateType
     );
     saveCompareListToStorage(compareList.value);
-    return { success: true, message: '상품이 비교함에서 제거되었습니다.' };
+    showToast('상품이 비교함에서 제거되었습니다.', 'warning');
+    return { success: true, silent: true }; // alert 표시하지 않도록 silent 플래그 추가
   };
 
   /** 비교함 전체 비우기 */
   const clearCompareList = () => {
     compareList.value = [];
     saveCompareListToStorage([]);
-    return { success: true, message: '비교함이 비워졌습니다.' };
+    showToast('비교함이 비워졌습니다.', 'info');
+    return { success: true, silent: true }; // alert 표시하지 않도록 silent 플래그 추가
   };
 
   /** 비교함 포함 여부 체크 */
@@ -103,7 +111,10 @@ export default function useCompareList() {
     );
 
   /** 로컬스토리지 강제 삭제 */
-  const clearStorage = () => localStorage.removeItem(COMPARE_LIST_KEY);
+  const clearStorage = () => {
+    localStorage.removeItem(COMPARE_LIST_KEY);
+    showToast('저장된 비교 데이터가 삭제되었습니다.', 'info');
+  };
 
   // 외부 노출
   return {

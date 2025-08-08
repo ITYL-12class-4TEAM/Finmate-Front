@@ -9,7 +9,7 @@
         <div class="count-badge">{{ compareList.length }}<span class="max-count">/3</span></div>
         <span class="compare-text"> 비교함에 {{ compareList.length }}개의 상품이 담겼습니다 </span>
       </div>
-      <button class="compare-btn" @click="handleCompareClick">
+      <button class="compare-btn" @click="handleError">
         <span>비교하기</span>
         <i class="compare-icon">→</i>
       </button>
@@ -18,15 +18,18 @@
 </template>
 
 <script setup>
+import { useToast } from '@/composables/useToast';
+
+const { showToast } = useToast();
 const props = defineProps({
   compareList: { type: Array, default: () => [] },
   hasPagination: { type: Boolean, default: false },
 });
 const emit = defineEmits(['go-to-compare']);
 
-const handleCompareClick = () => {
+const handleError = () => {
   if (props.compareList.length < 2) {
-    alert('최소 2개 이상의 상품을 선택해주세요.');
+    showToast('최소 2개 이상의 상품을 선택해주세요.', 'warning');
     return;
   }
   emit('go-to-compare');

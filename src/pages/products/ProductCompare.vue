@@ -50,13 +50,6 @@
       @confirm="handleModalConfirm"
       @cancel="showModal = false"
     />
-
-    <!-- 비교 플로팅 바 -->
-    <CompareFloatingBar
-      :compare-list="compareList"
-      :has-pagination="false"
-      @go-to-compare="handleGoToCompare"
-    />
   </div>
 </template>
 
@@ -70,7 +63,6 @@ import CompareTable from '@/components/products/compare/CompareTable.vue';
 import CompareEmptyState from '@/components/products/compare/CompareEmptyState.vue';
 import CompareErrorState from '@/components/products/compare/CompareErrorState.vue';
 import ConfirmationModal from '@/components/products/common/ConfirmationModal.vue';
-import CompareFloatingBar from '@/components/products/compare/CompareFloatingBar.vue';
 import { compareProductsAPI } from '../../api/product';
 
 // 라우터 및 컴포저블 초기화
