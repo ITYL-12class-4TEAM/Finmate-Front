@@ -124,7 +124,7 @@ const router = createRouter({
     {
       path: '/products',
       name: 'Products',
-      component: () => import('../pages/products/ProductsLayout.vue'), // 공통 레이아웃
+      component: () => import('../layouts/ProductsLayout.vue'), // 공통 레이아웃
       children: [
         {
           path: 'deposit',
@@ -132,10 +132,28 @@ const router = createRouter({
           component: () => import('../pages/products/ProductDeposit.vue'),
         }, // 예금
         {
+          path: 'savings',
+          name: 'ProductSavings',
+          component: () => import('../pages/products/ProductSavings.vue'),
+        }, // 적금
+        {
           path: 'pension',
           name: 'ProductPension',
           component: () => import('../pages/products/ProductPension.vue'),
         }, // 연금
+        //{ path: 'fund', name: 'ProductFund', component: () => import('../pages/products/ProductFund.vue')}, // 펀드q
+        //{ path: 'loan', name: 'ProductLoan', component: () => import('../pages/products/ProductLoan.vue')}, // 대출
+        //{ path: 'insurance', name: 'ProductInsurance', component: () => import('../pages/products/ProductInsurance.vue')}, // 보험
+        {
+          path: ':category/:id',
+          name: 'ProductDetail',
+          component: () => import('../pages/products/ProductDetail.vue'),
+        }, // 상세보기
+        {
+          path: 'compare',
+          name: 'ProductCompare',
+          component: () => import('../pages/products/ProductCompare.vue'),
+        },
       ],
     },
 
