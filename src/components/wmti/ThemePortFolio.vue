@@ -1,10 +1,5 @@
 <template>
   <div class="portfolio-section">
-    <div class="section-header">
-      <div class="section-icon portfolio-icon"></div>
-      <h3 class="section-title">추천 테마 포트폴리오</h3>
-    </div>
-
     <div class="portfolios-container">
       <div
         v-for="(portfolio, index) in recommendedPortfolios"
@@ -466,7 +461,7 @@ const createDonutChart = (canvas, portfolio) => {
 
 // 페이지 이동
 const goToPortfolioList = () => {
-  router.push('/portfolios');
+  router.push('/wmti/theme-collection');
 };
 
 onMounted(() => {

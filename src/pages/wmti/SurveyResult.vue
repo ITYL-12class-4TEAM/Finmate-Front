@@ -6,7 +6,7 @@
     <!-- 헤더 섹션 -->
     <div class="result-header">
       <div class="user-greeting">
-        <span class="username-highlight">{{ analysisObject.userName }}</span
+        <span class="username-highlight">{{ userName }}</span
         >님의 투자 성향은
       </div>
       <div class="wmti-code-display">
@@ -207,26 +207,6 @@
       </div>
     </div>
 
-    <!-- 테마 포트폴리오 -->
-    <div class="theme-portfolio-card">
-      <div class="section-header">
-        <div class="section-icon theme-icon"></div>
-        <h3 class="section-title">테마 포트폴리오</h3>
-      </div>
-      <ThemePortfolio
-        v-if="
-          analysisObject &&
-          analysisObject.wmtiCode &&
-          analysisObject.resultType &&
-          analysisObject.riskPreference
-        "
-        :wmti-code="analysisObject.wmtiCode"
-        :result-type="analysisObject.resultType"
-        :risk-preference="analysisObject.riskPreference"
-        :user-name="analysisObject.userName"
-      />
-    </div>
-
     <!-- 맞춤형 포트폴리오 -->
     <div class="CustomedPortfolio-card">
       <div class="section-header">
@@ -238,7 +218,7 @@
         :wmti-code="analysisObject.wmtiCode"
         :result-type="analysisObject.resultType"
         :risk-preference="analysisObject.riskPreference"
-        :user-name="analysisObject.userName"
+        :user-name="userName"
         :a-score="analysisObject.ascore"
         :i-score="analysisObject.iscore"
         :p-score="analysisObject.pscore"
@@ -256,7 +236,25 @@
         :financial-health-score="preInfoData.financialHealthScore"
       />
     </div>
-
+    <!-- 테마 포트폴리오 -->
+    <div class="theme-portfolio-card">
+      <div class="section-header">
+        <div class="section-icon theme-icon"></div>
+        <h3 class="section-title">테마 포트폴리오</h3>
+      </div>
+      <ThemePortfolio
+        v-if="
+          analysisObject &&
+          analysisObject.wmtiCode &&
+          analysisObject.resultType &&
+          analysisObject.riskPreference
+        "
+        :wmti-code="analysisObject.wmtiCode"
+        :result-type="analysisObject.resultType"
+        :risk-preference="analysisObject.riskPreference"
+        :user-name="userName"
+      />
+    </div>
     <!-- 액션 버튼 -->
     <div class="action-section">
       <div class="section-header">
@@ -300,6 +298,11 @@ const analysisObject = ref({});
 const preInfoData = ref({});
 const analysis = ref({});
 const createdAt = ref([]);
+
+// userInfo에서 userName을 가져오는 computed 속성
+const userName = computed(() => {
+  return authStore.userInfo?.nickname || '사용자';
+});
 
 const formattedDate = computed(() => {
   if (!createdAt.value || createdAt.value.length !== 6) {
