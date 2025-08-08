@@ -15,12 +15,12 @@
         <ul class="dropdown">
           <li><router-link to="/wmti/basic">투자 성향 진단</router-link></li>
           <li>
-            <router-link to="/wmti/result">진단 결과 보기</router-link>
+            <router-link to="/wmti/result">투자 성향 결과</router-link>
           </li>
         </ul>
       </li>
       <li class="menu-item">
-        <router-link to="/community">소통</router-link>
+        <router-link to="/community">커뮤니티</router-link>
       </li>
     </ul>
   </nav>

@@ -75,13 +75,13 @@
             <router-link to="/wmti/basic" @click="$emit('close')">투자 성향 진단</router-link>
           </li>
           <li>
-            <router-link to="/wmti/result" @click="$emit('close')">진단 결과 보기</router-link>
+            <router-link to="/wmti/result" @click="$emit('close')">투자 성향 결과</router-link>
           </li>
         </ul>
       </li>
 
       <li>
-        <router-link to="/community" @click="$emit('close')">소통</router-link>
+        <router-link to="/community" @click="$emit('close')">커뮤니티</router-link>
       </li>
     </ul>
   </div>

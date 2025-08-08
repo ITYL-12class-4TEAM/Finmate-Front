@@ -15,6 +15,7 @@ export const getPostsAPI = async (boardId) => {
     comments: post.commentCount,
     tendency: 'APWC', // 임의 값 (백엔드 리팩터링 전)
     productType: productTagMap[post.productTag],
+    nickname: post.nickname,
   }));
 };
 

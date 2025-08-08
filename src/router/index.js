@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { authGuard } from '@/util/guard';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,8 +17,7 @@ const router = createRouter({
     {
       path: '/login',
       component: () => import('../pages/login/LoginLayout.vue'), // // 로그인/회원가입/아이디/비번 찾기 공통 레이아웃
-
-      // 로그인 화면에 컴포넌트만 변경해서 사용할거면 알아서 수정해도 됨.
+      meta: { guestOnly: true },
       children: [
         {
           path: '',
@@ -54,6 +54,7 @@ const router = createRouter({
       path: '/mypage',
       name: 'MyPage',
       component: () => import('../pages/mypage/MypageLayout.vue'), // 마이페이지 공통 레이아웃
+      meta: { requiresAuth: true },
       children: [
         {
           path: '',
@@ -182,6 +183,7 @@ const router = createRouter({
           path: 'result',
           name: 'SurveyResult',
           component: () => import('../pages/wmti/SurveyResult.vue'),
+          meta: { requiresAuth: true },
         }, // WMTI 성향 결과지
         //{ path: 'collection', name: 'WMTICollection', component: () => import('../pages/Wmti/WMTICollection.vue')}, // WMTI 컬렉션
       ],
@@ -196,28 +198,26 @@ const router = createRouter({
           path: '',
           name: 'CommunityList',
           component: () => import('../pages/community/CommunityList.vue'),
-        },
+        }, // 게시글 목록
         {
           path: 'write',
           name: 'CommunityWrite',
           component: () => import('../pages/community/CommunityWrite.vue'),
-        },
+          meta: { requiresAuth: true },
+        }, // 게시글 작성
         {
           path: ':id',
           name: 'CommunityDetail',
           component: () => import('../pages/community/CommunityDetail.vue'),
-        },
+        }, // 게시글 상세
         {
           path: ':id/edit',
           name: 'CommunityEdit',
           component: () => import('../pages/community/CommunityEdit.vue'),
-        },
+          meta: { requiresAuth: true },
+        }, // 게시글 수정
       ],
     },
-    // { path: '/missions', name: 'Missions', component: () => import('../pages/Missions.vue') }, // 미션
-    // { path: '/chatbot', name: 'Chatbot', component: () => import('../pages/Chatbot.vue') }, // 챗봇
-    // { path: '/terms', name: 'Terms', component: () => import('../pages/Terms.vue') }, // 이용약관
-    // { path: '/privacy', name: 'Privacy', component: () => import('../pages/Privacy.vue') }, // 개인정보 처리방침
 
     /* 404 not found 페이지 */
     {
@@ -227,5 +227,8 @@ const router = createRouter({
     },
   ],
 });
+
+// 인증 가드 적용
+router.beforeEach(authGuard);
 
 export default router;
