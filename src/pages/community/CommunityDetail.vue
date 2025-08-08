@@ -5,10 +5,45 @@
     <div v-if="post" class="post-main">
       <!-- 게시글 상단 -->
       <div class="post-header">
-        <img class="profile-img" :src="post.authorImage" alt="프로필 이미지" />
+        <div class="author-avatar">
+          {{ (post.nickname || '?').charAt(0).toUpperCase() }}
+        </div>
         <div class="author-info">
           <span class="nickname">{{ post.nickname }}</span>
           <span class="time">{{ formattedTime(post.createdAt) }}</span>
+        </div>
+
+        <!-- 수정/삭제 버튼 (작성자일 경우) -->
+        <div v-if="post.isMine" class="post-actions">
+          <button class="btn-edit" @click="goToEditPage">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+            수정
+          </button>
+          <button class="btn-delete" @click="deletePost">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"
+              />
+            </svg>
+            삭제
+          </button>
         </div>
       </div>
 
@@ -17,115 +52,118 @@
         <h2 class="title">{{ post.title }}</h2>
         <p class="body-text">{{ post.content }}</p>
 
-        <div class="tags">
+        <div v-if="post.tags && post.tags.length" class="tags">
           <span v-for="tag in post.tags" :key="tag" class="tag">#{{ tag }}</span>
         </div>
 
-        <div class="post-footer">
-          <!-- 반응 영역 -->
-          <div class="reactions">
-            <!-- 좋아요 버튼 -->
-            <button @click="toggleLike">
-              <!-- 눌린 상태 하트 (fill 있음) -->
-              <svg
-                v-if="post.liked"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218
-         25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25
-         2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052
-         5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25
-         0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17
-         15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z"
-                />
-              </svg>
-              <!-- 안 눌린 상태 하트 (stroke만 있음) -->
-              <svg
-                v-else
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5
-         -1.935 0-3.597 1.126-4.312 2.733
-         -.715-1.607-2.377-2.733-4.313-2.733
-         C5.1 3.75 3 5.765 3 8.25
-         c0 7.22 9 12 9 12s9-4.78 9-12Z"
-                />
-              </svg>
-              {{ post.likes }}
-            </button>
+        <!-- 반응 영역 -->
+        <div class="reactions">
+          <!-- 좋아요 버튼 -->
+          <button class="reaction-btn" :class="{ liked: post.liked }" @click="toggleLike">
+            <svg
+              v-if="post.liked"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              stroke="none"
+            >
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+              />
+            </svg>
+            <svg
+              v-else
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+              />
+            </svg>
+            <span class="count">{{ post.likes || 0 }}</span>
+          </button>
 
-            <!-- 스크랩 버튼 -->
-            <button @click="toggleScrap">
-              <!-- 눌린 상태 북마크 (fill 있음) -->
-              <svg
-                v-if="post.scraped"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-              <!-- 안 눌린 상태 북마크 (stroke만 있음) -->
-              <svg
-                v-else
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z"
-                />
-              </svg>
-              {{ post.scraps }}
-            </button>
-          </div>
-
-          <!-- 수정/삭제 버튼 (작성자일 경우) -->
-          <div v-if="post.isMine" class="post-actions">
-            <button class="btn-edit" @click="goToEditPage">수정</button>
-            <button class="btn-delete" @click="deletePost">삭제</button>
-          </div>
+          <!-- 스크랩 버튼 -->
+          <button class="reaction-btn" :class="{ scraped: post.scraped }" @click="toggleScrap">
+            <svg
+              v-if="post.scraped"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              stroke="none"
+            >
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+            </svg>
+            <svg
+              v-else
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+            </svg>
+            <span class="count">{{ post.scraps || 0 }}</span>
+          </button>
         </div>
       </div>
     </div>
 
     <!-- 댓글 작성 -->
     <div class="comment-write">
-      <!-- 익명 여부 선택 -->
-      <div class="anonymous-toggle">
-        <CustomCheckbox id="comment-anonymous" v-model="isAnonymous">익명</CustomCheckbox>
+      <div class="comment-write-header">
+        <CustomCheckbox id="comment-anonymous" v-model="isAnonymous">
+          <span class="checkbox-label">익명</span>
+        </CustomCheckbox>
       </div>
-      <input v-model="newComment" placeholder="댓글을 입력해주세요." class="comment-input" />
-      <button @click="submitComment">작성</button>
+      <div class="comment-input-container">
+        <input
+          v-model="newComment"
+          placeholder="댓글을 입력해주세요."
+          class="comment-input"
+          @keypress.enter="submitComment"
+        />
+        <button class="comment-submit" @click="submitComment" :disabled="!newComment.trim()">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
+            />
+          </svg>
+        </button>
+      </div>
     </div>
+
     <!-- 댓글 목록 -->
     <div class="comment-section">
-      <p class="comment-count">댓글 {{ comments.length }}개</p>
-      <CommentItem
-        v-for="comment in comments.filter((c) => !c.parentComment)"
-        :key="comment.commentId"
-        :comment="comment"
-        :comments="comments"
-        :refresh="fetchComments"
-      />
+      <div class="comment-header">
+        <h3 class="comment-count">댓글 {{ comments.length }}개</h3>
+      </div>
+      <div class="comments-list">
+        <CommentItem
+          v-for="comment in comments.filter((c) => !c.parentComment)"
+          :key="comment.commentId"
+          :comment="comment"
+          :comments="comments"
+          :refresh="fetchComments"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -194,15 +232,37 @@ const fetchComments = async () => {
 
 // 액션 핸들러
 const toggleLike = async () => {
-  const newStatus = await togglePostLikeAPI(postId);
-  post.value.liked = newStatus;
-  post.value.likes += newStatus ? 1 : -1;
+  try {
+    const newStatus = await togglePostLikeAPI(postId);
+    post.value.liked = newStatus;
+
+    // 좋아요 개수 업데이트
+    if (newStatus) {
+      post.value.likes = (post.value.likes || 0) + 1;
+    } else {
+      post.value.likes = Math.max((post.value.likes || 0) - 1, 0);
+    }
+  } catch (e) {
+    console.error('좋아요 토글 실패:', e);
+    alert('좋아요 처리에 실패했습니다.');
+  }
 };
 
 const toggleScrap = async () => {
-  const newStatus = await togglePostScrapAPI(postId);
-  post.value.scraped = newStatus;
-  post.value.scraps += newStatus ? 1 : -1;
+  try {
+    const newStatus = await togglePostScrapAPI(postId);
+    post.value.scraped = newStatus;
+
+    // 스크랩 개수 업데이트
+    if (newStatus) {
+      post.value.scraps = (post.value.scraps || 0) + 1;
+    } else {
+      post.value.scraps = Math.max((post.value.scraps || 0) - 1, 0);
+    }
+  } catch (e) {
+    console.error('스크랩 토글 실패:', e);
+    alert('스크랩 처리에 실패했습니다.');
+  }
 };
 
 const goToEditPage = () => {
@@ -252,72 +312,133 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 게시글 상단 */
+.community-detail {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* 게시글 메인 */
+.post-main {
+  background: white;
+  border-radius: 0.875rem;
+  padding: 1rem;
+  margin-top: 1rem;
+  border: 0.0625rem solid #f3f4f6;
+  box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+}
+
+.post-main:hover {
+  border-color: var(--color-light);
+  box-shadow: 0 0.25rem 1rem rgba(45, 51, 107, 0.06);
+}
+
+/* 게시글 헤더 */
 .post-header {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  justify-content: space-between;
   margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 0.0625rem solid #f3f4f6;
 }
 
-.profile-img {
-  width: 2.5rem;
-  height: 2.5rem;
+.author-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: 50%;
-  object-fit: cover;
+  background: linear-gradient(135deg, var(--color-sub), var(--color-light));
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.15);
 }
 
 .author-info {
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
+  gap: 0.125rem;
+  flex: 1;
+  margin-left: 0.75rem;
 }
 
 .nickname {
-  font-weight: bold;
-  font-size: 0.9rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--color-main);
 }
 
 .time {
-  font-size: 0.8rem;
-  color: rgba(0, 0, 0, 0.5);
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+/* 액션 버튼 */
+.post-actions {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.post-actions button {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  border: 0.0625rem solid transparent;
+}
+
+.btn-edit {
+  background: var(--color-bg-light);
+  color: var(--color-sub);
+  border-color: rgba(185, 187, 204, 0.3);
+}
+
+.btn-edit:hover {
+  background: var(--color-light);
+  color: var(--color-main);
+  border-color: var(--color-sub);
+}
+
+.btn-delete {
+  background: rgba(239, 68, 68, 0.05);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.btn-delete:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 /* 게시글 본문 */
-.post-main {
-  border: 2px solid var(--color-bg-light);
-  border-radius: 12px;
-  padding: 1rem;
-  margin-top: 1rem;
+.post-content {
+  line-height: 1.6;
 }
 
 .title {
-  font-size: 1.2rem;
+  font-size: 1.375rem;
   font-weight: 600;
-  margin-bottom: 0.8rem;
+  color: var(--color-main);
+  margin-bottom: 1rem;
+  line-height: 1.4;
 }
 
 .body-text {
-  font-size: 0.8rem;
+  font-size: 0.9375rem;
   line-height: 1.6;
-  margin-bottom: 1rem;
+  color: #374151;
+  margin-bottom: 1.5rem;
   white-space: pre-line;
-}
-
-.attach {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin: 0.4rem 0;
-  font-size: 0.8rem;
-  color: var(--color-main);
-  cursor: pointer;
-}
-
-.attach svg {
-  width: 1rem;
-  height: 1rem;
-  flex-shrink: 0;
 }
 
 /* 태그 */
@@ -325,102 +446,195 @@ onMounted(() => {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
-  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .tag {
-  background-color: var(--color-bg-light);
+  background: var(--color-bg-light);
+  color: var(--color-sub);
   font-size: 0.75rem;
-  padding: 0.2rem 0.7rem;
-  border-radius: 20px;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  border: 0.0625rem solid rgba(185, 187, 204, 0.2);
 }
 
-.post-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 1rem;
-}
-
-/* 좋아요 & 스크랩 */
+/* 반응 영역 */
 .reactions {
   display: flex;
-  gap: 0.8rem;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 0.0625rem solid #f3f4f6;
 }
 
-.reactions button {
+.reaction-btn {
   background: none;
+  border: none;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  color: rgba(0, 0, 0, 0.5);
+  gap: 0.375rem;
+  color: #9ca3af;
+  font-size: 0.875rem;
+  padding: 0.375rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
-.reactions svg {
-  height: 1.2rem;
-  width: 1.2rem;
+.reaction-btn:hover {
+  color: var(--color-sub);
 }
 
-/* 수정/삭제 버튼 */
-.post-actions {
-  display: flex;
-  gap: 0.5rem;
+.reaction-btn.liked {
+  color: #ef4444;
 }
 
-.post-actions button {
-  padding: 0.3rem 0.8rem;
-  font-size: 0.8rem;
-  border-radius: 6px;
+.reaction-btn.liked:hover {
+  color: #dc2626;
 }
 
-.btn-edit {
-  background-color: var(--color-light);
+.reaction-btn.scraped {
+  color: var(--color-main);
 }
 
-.btn-delete {
-  background-color: #ccb9b9;
+.reaction-btn.scraped:hover {
+  color: var(--color-sub);
+}
+
+.count {
+  font-weight: 500;
 }
 
 /* 댓글 작성 */
 .comment-write {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-  padding: 0.25rem;
-  border-radius: 5px;
-  background-color: var(--color-bg-light);
+  background: var(--color-bg-light);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  margin-top: 1.5rem;
+  border: 0.0625rem solid rgba(185, 187, 204, 0.25);
 }
 
-.anonymous-toggle {
+.comment-write-header {
   display: flex;
   align-items: center;
-  padding-left: 0.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.checkbox-label {
+  font-size: 0.75rem;
+  color: var(--color-sub);
+  font-weight: 500;
+}
+
+.comment-input-container {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .comment-input {
   flex: 1;
-  padding: 0.4rem;
-  font-size: 0.8rem;
+  padding: 0.75rem 1rem;
+  border: 0.0625rem solid rgba(185, 187, 204, 0.3);
+  border-radius: 1.5rem;
+  font-size: 0.875rem;
+  background: white;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.comment-input:focus {
+  border-color: var(--color-sub);
+  box-shadow: 0 0 0 0.1875rem rgba(125, 129, 162, 0.1);
+}
+
+.comment-input::placeholder {
+  color: #9ca3af;
+}
+
+.comment-submit {
+  background: var(--color-main);
   border: none;
-  border-radius: 6px;
-}
-
-.comment-write button {
-  padding: 0 1.4rem;
-  background-color: var(--color-sub);
   color: white;
-  font-size: 0.8rem;
-  border-radius: 6px;
+  padding: 0.75rem;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
 }
 
-/* 댓글 목록 */
+.comment-submit:hover:not(:disabled) {
+  background: var(--color-sub);
+  transform: scale(1.05);
+}
+
+.comment-submit:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 댓글 섹션 */
 .comment-section {
-  margin-top: 1.5rem;
+  margin-top: 2rem;
+}
+
+.comment-header {
+  margin-bottom: 1rem;
 }
 
 .comment-count {
-  font-size: 0.85rem;
-  margin-bottom: 0.2rem;
+  font-size: 1rem;
   font-weight: 600;
+  color: var(--color-main);
+  margin: 0;
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .community-detail {
+    padding: 0.75rem;
+  }
+
+  .post-main {
+    padding: 0.75rem;
+  }
+
+  .title {
+    font-size: 1rem;
+  }
+
+  .body-text {
+    font-size: 0.75rem;
+  }
+
+  .post-actions {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .post-actions button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.6875rem;
+  }
+
+  .reactions {
+    gap: 0.75rem;
+  }
+
+  .comment-submit {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
 }
 </style>
