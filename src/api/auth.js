@@ -299,4 +299,22 @@ export const authAPI = {
       };
     }
   },
+  // 비밀번호 확인
+  checkPassword: async (password) => {
+    try {
+      const response = await api.post('/api/auth/check-password', { password });
+      return {
+        success: true,
+        message: '비밀번호 확인 성공',
+        data: response.data,
+      };
+    } catch (error) {
+      console.error('비밀번호 확인 API 오류:', error);
+      return {
+        success: false,
+        message: '비밀번호 확인에 실패했습니다.',
+        data: null,
+      };
+    }
+  },
 };

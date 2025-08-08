@@ -15,6 +15,18 @@
           <div class="readonly-grid">
             <div class="readonly-item">
               <div class="readonly-icon">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="readonly-content">
+                <label class="readonly-label">닉네임</label>
+                <div class="readonly-value">{{ userInfo.nickname }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="readonly-grid">
+            <div class="readonly-item">
+              <div class="readonly-icon">
                 <i class="fas fa-envelope"></i>
               </div>
               <div class="readonly-content">
@@ -23,7 +35,8 @@
               </div>
             </div>
 
-            <div class="readonly-item">
+            <!-- 폰 번호가 null이면 제거 -->
+            <div v-if="userInfo.phoneNumber" class="readonly-item">
               <div class="readonly-icon">
                 <i class="fas fa-phone"></i>
               </div>
@@ -108,7 +121,7 @@
             </div>
 
             <!-- 비밀번호 변경 -->
-            <div class="form-group">
+            <div v-if="userInfo.phoneNumber !== null" class="form-group">
               <div class="password-toggle-section">
                 <label class="toggle-label">
                   <input v-model="changePassword" type="checkbox" class="toggle-input" />
@@ -215,6 +228,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { memberAPI } from '../../api/member';
+import { authAPI } from '../../api/auth';
+import { useToast } from '../../composables/useToast';
+
+const { showToast } = useToast();
 
 const router = useRouter();
 
@@ -230,14 +248,16 @@ const confirmPasswordError = ref('');
 
 // 사용자 기본 정보 (수정 불가)
 const userInfo = ref({
-  email: 'testuser@example.com',
-  phoneNumber: '010-1234-5678',
-  birthDate: '1995-03-15',
-  gender: '남',
-  nickname: '테스트유저',
-  receivePushNotification: true,
+  nickname: '',
+  email: '',
+  profileImage: '',
+  phoneNumber: '',
+  birthDate: '',
+  gender: '',
+  receivePushNotification: '',
+  createdAt: '',
+  updatedAt: '',
 });
-
 // 수정 폼 데이터
 const editForm = ref({
   nickname: '',
@@ -301,12 +321,11 @@ const checkNicknameAvailability = async () => {
     // 서버 요청 시뮬레이션
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // 간단한 중복 체크
-    const unavailableNicknames = ['관리자', 'admin', '테스트', 'test'];
-    if (unavailableNicknames.includes(editForm.value.nickname.toLowerCase())) {
-      nicknameError.value = '이미 사용 중인 닉네임입니다.';
-    } else {
+    const response = await memberAPI.checkNickname(editForm.value.nickname);
+    if (response.success) {
       nicknameChecked.value = true;
+    } else {
+      nicknameError.value = response.message;
     }
   } catch (err) {
     nicknameError.value = '중복확인 중 오류가 발생했습니다.';
@@ -349,31 +368,39 @@ const updateProfile = async () => {
   loading.value = true;
 
   try {
-    // 서버 요청 시뮬레이션
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    const updateData = {
+    // 1. 전송할 데이터 확인
+    const profileData = {
+      memberId: userInfo.value.memberId,
+      nickname: editForm.value.nickname || userInfo.value.nickname,
       receivePushNotification: editForm.value.receivePushNotification,
     };
 
-    // 닉네임이 변경되었다면 추가
-    if (editForm.value.nickname && editForm.value.nickname !== userInfo.value.nickname) {
-      updateData.nickname = editForm.value.nickname;
-      userInfo.value.nickname = editForm.value.nickname;
+    // 2. 프로필 업데이트 API 호출
+    const profileResponse = await memberAPI.updateProfile(profileData);
+
+    if (!profileResponse.success) {
+      throw new Error(`프로필 업데이트 실패: ${profileResponse.message}`);
     }
 
-    // 비밀번호가 변경되었다면 추가
+    // 3. 비밀번호 변경 (선택적)
     if (changePassword.value && editForm.value.newPassword) {
-      updateData.password = editForm.value.newPassword;
+      const passwordResponse = await authAPI.resetPassword(
+        editForm.value.newPassword,
+        editForm.value.confirmPassword,
+        userInfo.value.email
+      );
+
+      if (!passwordResponse.success) {
+        throw new Error(`비밀번호 변경 실패: ${passwordResponse.message}`);
+      }
     }
 
-    userInfo.value.receivePushNotification = editForm.value.receivePushNotification;
-
-    alert('회원정보가 성공적으로 수정되었습니다.');
+    // 4. 성공 처리
+    showToast('회원정보가 성공적으로 수정되었습니다.', 'success');
+    router.push('/');
     resetForm();
-  } catch (err) {
-    alert('회원정보 수정 중 오류가 발생했습니다.');
-    console.error('Profile update error:', err);
+  } catch (error) {
+    showToast(`회원정보 수정 중 오류가 발생했습니다: ${error.message}`, 'error');
   } finally {
     loading.value = false;
   }
@@ -392,18 +419,31 @@ const resetForm = () => {
   confirmPasswordError.value = '';
 };
 
-// 컴포넌트 마운트
-onMounted(() => {
-  // 비밀번호 인증 확인
+onMounted(async () => {
+  // 1. 비밀번호 인증 확인
   const verified = localStorage.getItem('passwordVerified');
   if (!verified) {
-    alert('비밀번호 확인이 필요합니다.');
+    showToast('비밀번호 확인이 필요합니다.', 'error');
     router.push('/mypage/verify-password');
     return;
   }
 
-  // 폼 초기값 설정
-  editForm.value.receivePushNotification = userInfo.value.receivePushNotification;
+  // 2. 사용자 정보 조회
+  try {
+    const response = await memberAPI.getMyInfo();
+
+    if (response.success) {
+      userInfo.value = response.data;
+
+      // 3. 폼 초기값 설정
+      editForm.value.receivePushNotification = response.data.receivePushNotification;
+      router.push('');
+    } else {
+      showToast('사용자 정보를 불러올 수 없습니다.', 'error');
+    }
+  } catch (error) {
+    showToast('사용자 정보를 불러오는 중 오류가 발생했습니다.', 'error');
+  }
 });
 </script>
 
@@ -473,7 +513,7 @@ onMounted(() => {
 }
 
 .section-title {
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--color-main);
   margin: 0;
@@ -499,8 +539,8 @@ onMounted(() => {
 }
 
 .readonly-icon {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--color-sub) 0%, var(--color-light) 100%);
   display: flex;
@@ -518,7 +558,7 @@ onMounted(() => {
 
 .readonly-label {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--color-sub);
   font-weight: 600;
   margin-bottom: 0.25rem;
@@ -527,7 +567,7 @@ onMounted(() => {
 }
 
 .readonly-value {
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--color-main);
 }
@@ -554,7 +594,7 @@ onMounted(() => {
 
 .form-input {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.5rem;
   border: 2px solid rgba(185, 187, 204, 0.3);
   border-radius: 0.75rem;
   font-size: 0.9rem;
@@ -593,7 +633,7 @@ onMounted(() => {
 
 .input-with-button {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   align-items: stretch;
 }
 
@@ -610,7 +650,7 @@ onMounted(() => {
   color: white;
   border: none;
   border-radius: 0.75rem;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -721,7 +761,7 @@ onMounted(() => {
 }
 
 .toggle-text {
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--color-main);
   display: flex;
@@ -778,7 +818,7 @@ onMounted(() => {
 
 /* 알림 설정 */
 .notification-setting {
-  padding: 1.25rem;
+  padding: 0.5rem;
   background: rgba(255, 255, 255, 0.6);
   border-radius: 0.75rem;
   border: 1px solid rgba(185, 187, 204, 0.15);
@@ -804,8 +844,8 @@ onMounted(() => {
 
 .notification-slider {
   position: relative;
-  width: 3.5rem;
-  height: 2rem;
+  width: 2.75rem;
+  height: 1.5rem;
   background: rgba(185, 187, 204, 0.3);
   border-radius: 1rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -815,10 +855,10 @@ onMounted(() => {
 .notification-slider::before {
   content: '';
   position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 1.5rem;
-  height: 1.5rem;
+  top: 0.2rem;
+  left: 0rem;
+  width: 1.1rem;
+  height: 1.1rem;
   background: white;
   border-radius: 50%;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -840,14 +880,14 @@ onMounted(() => {
 
 .notification-title {
   display: block;
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--color-main);
   margin-bottom: 0.25rem;
 }
 
 .notification-desc {
-  font-size: 0.85rem;
+  font-size: 0.7rem;
   color: var(--color-sub);
   line-height: 1.4;
 }
@@ -865,14 +905,14 @@ onMounted(() => {
   align-items: center;
   width: 100%;
   gap: 0.5rem;
-  padding: 0.875rem 1.5rem;
+  padding: 0.5rem 1rem;
   border: none;
   border-radius: 0.75rem;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-height: 56px;
+  min-height: 3rem;
 }
 
 .action-btn.primary {
