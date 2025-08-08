@@ -7,7 +7,7 @@
     </div>
 
     <!-- 회원가입 폼 -->
-    <form @submit.prevent="handleSignup">
+    <form autocomplete="off" @submit.prevent="handleSignup">
       <!-- 이름 -->
       <div class="form-group">
         <label for="name">이름</label>
@@ -26,6 +26,7 @@
         <label for="email">이메일</label>
         <div class="input-with-button">
           <input
+            autocomplete="off"
             type="email"
             id="email"
             v-model="signupForm.email"
@@ -54,6 +55,7 @@
         <label for="nickname">닉네임</label>
         <div class="input-with-button">
           <input
+            autocomplete="off"
             type="text"
             id="nickname"
             v-model="signupForm.nickname"
@@ -79,6 +81,7 @@
             :type="showPassword ? 'text' : 'password'"
             id="password"
             v-model="signupForm.password"
+            autocomplete="new-password"
             placeholder="8자 이상, 영문/숫자/특수문자 포함"
             :required="!isSocialSignup"
           />
@@ -106,6 +109,7 @@
       <div class="form-group" v-if="!isSocialSignup">
         <label for="passwordConfirm">비밀번호 확인</label>
         <input
+          autocomplete="off"
           type="password"
           id="passwordConfirm"
           v-model="signupForm.passwordConfirm"
@@ -128,6 +132,7 @@
         <label for="phone">휴대폰 번호</label>
         <div class="input-with-button">
           <input
+            autocomplete="off"
             type="tel"
             id="phone"
             v-model="signupForm.phone"
@@ -150,6 +155,7 @@
         <label for="verificationCode">인증 코드</label>
         <div class="input-with-button">
           <input
+            autocomplete="off"
             type="text"
             id="verificationCode"
             v-model="signupForm.verificationCode"
