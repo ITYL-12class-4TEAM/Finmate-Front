@@ -50,7 +50,7 @@ export default function useCompareList() {
 
     // 최대 3개 제한
     if (compareList.value.length >= 3) {
-      showToast('상품은 최대 3개까지 비교할 수 있습니다', 'warning');
+      showToast('상품은 최대 3개까지 비교할 수 있습니다.', 'warning');
       return { success: false, silent: true }; // alert 표시하지 않도록 silent 플래그 추가
     }
 

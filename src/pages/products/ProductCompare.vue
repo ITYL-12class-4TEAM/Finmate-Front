@@ -42,13 +42,17 @@
       />
     </div>
 
-    <!-- 확인 모달 -->
-    <ConfirmationModal
-      :show="showModal"
-      :title="modalData.title"
-      :message="modalData.message"
-      @confirm="handleModalConfirm"
-      @cancel="showModal = false"
+    <!-- GPT 비교 요약 버튼 (화면 하단 좌측 고정) -->
+    <div v-if="compareList.length >= 2" class="gpt-summary-btn-container">
+      <button class="gpt-summary-btn" @click="handleGptSummary">
+        <span class="gpt-icon">🤖</span>
+        <span class="btn-text">MATE 비교요약</span>
+      </button>
+    </div>
+    <GptExampleModal
+      :show="showGptModal"
+      :compare-list="compareList"
+      @close="showGptModal = false"
     />
   </div>
 </template>
@@ -56,18 +60,20 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useModal } from '@/composables/useModal';
 import axios from 'axios';
 import useCompareList from '@/composables/useCompareList';
 import BackButton from '@/components/common/BackButton.vue';
 import CompareTable from '@/components/products/compare/CompareTable.vue';
 import CompareEmptyState from '@/components/products/compare/CompareEmptyState.vue';
 import CompareErrorState from '@/components/products/compare/CompareErrorState.vue';
-import ConfirmationModal from '@/components/products/common/ConfirmationModal.vue';
 import { compareProductsAPI } from '../../api/product';
+import GptExampleModal from '@/components/products/compare/GptExampleModal.vue';
 
 // 라우터 및 컴포저블 초기화
 const router = useRouter();
 const route = useRoute();
+const { showModal } = useModal();
 const { compareList, removeFromCompareList, clearCompareList } = useCompareList();
 
 // 상태 관리
@@ -75,14 +81,12 @@ const isLoading = ref(false);
 const compareData = ref(null);
 const error = ref(null);
 
-// 모달 상태
-const showModal = ref(false);
-const modalData = ref({
-  title: '',
-  message: '',
-  action: null,
-  payload: null,
-});
+const showGptModal = ref(false);
+
+// 3. handleGptSummary 함수 수정
+const handleGptSummary = () => {
+  showGptModal.value = true;
+};
 
 // 플로팅 바에서 비교하기 버튼 클릭 시 처리
 const handleGoToCompare = () => {
@@ -310,36 +314,22 @@ const loadCompareData = async () => {
   }
 };
 
-// 모달 확인 처리
-const handleModalConfirm = () => {
-  if (modalData.value.action && modalData.value.payload) {
-    modalData.value.action(modalData.value.payload);
-  } else if (modalData.value.action) {
-    modalData.value.action();
-  }
-  showModal.value = false;
-};
-
 // 비교함에서 상품 제거
-const handleRemoveItem = (productId, saveTrm, intrRateType = 'S') => {
-  modalData.value = {
-    title: '상품 제거',
-    message: '비교함에서 해당 상품을 제거하시겠습니까?',
-    action: removeAndReload,
-    payload: { productId, saveTrm, intrRateType },
-  };
-  showModal.value = true;
+const handleRemoveItem = async (productId, saveTrm, intrRateType = 'S') => {
+  const confirmed = await showModal('비교함에서 해당 상품을 제거하시겠습니까?');
+
+  if (confirmed) {
+    removeAndReload({ productId, saveTrm, intrRateType });
+  }
 };
 
 // 비교함 비우기
-const handleClearCompare = () => {
-  modalData.value = {
-    title: '비교함 비우기',
-    message: '비교함의 모든 상품을 제거하시겠습니까?',
-    action: clearAndReload,
-    payload: null,
-  };
-  showModal.value = true;
+const handleClearCompare = async () => {
+  const confirmed = await showModal('비교함의 모든 상품을 제거하시겠습니까?');
+
+  if (confirmed) {
+    clearAndReload();
+  }
 };
 
 // 상품 제거 후 데이터 리로드
@@ -444,9 +434,9 @@ onMounted(() => {
 
 <style scoped>
 /* ==========================================================================
-   1. 페이지 기본 레이아웃
-   - 다른 페이지들과 동일한 배경색과 여백을 적용하여 통일성 유지
-   ========================================================================== */
+     1. 페이지 기본 레이아웃
+     - 다른 페이지들과 동일한 배경색과 여백을 적용하여 통일성 유지
+     ========================================================================== */
 .compare-page {
   background-color: var(--color-bg-light);
   padding: 1rem 0;
@@ -454,8 +444,8 @@ onMounted(() => {
 }
 
 /* ==========================================================================
-   2. 페이지 헤더
-   ========================================================================== */
+     2. 페이지 헤더
+     ========================================================================== */
 .page-header {
   display: flex;
   align-items: center;
@@ -463,9 +453,9 @@ onMounted(() => {
 }
 
 /* ==========================================================================
-   3. 비교함 관리 섹션
-   - 현재 비교 중인 상품 개수와 '비교함 비우기' 버튼을 포함하는 카드
-   ========================================================================== */
+     3. 비교함 관리 섹션
+     - 현재 비교 중인 상품 개수와 '비교함 비우기' 버튼을 포함하는 카드
+     ========================================================================== */
 .compare-actions {
   display: flex;
   align-items: center;
@@ -505,8 +495,8 @@ onMounted(() => {
 }
 
 /* ==========================================================================
-   4. 로딩 상태
-   ========================================================================== */
+     4. 로딩 상태
+     ========================================================================== */
 .loading-state {
   display: flex;
   flex-direction: column;
@@ -530,6 +520,71 @@ onMounted(() => {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================================
+     5. GPT 비교 요약 버튼 (화면 하단 좌측 고정)
+     ========================================================================== */
+.gpt-summary-btn-container {
+  position: fixed;
+  bottom: 2rem;
+  left: 1rem;
+  z-index: 100;
+}
+
+.gpt-summary-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, var(--color-main) 0%, #3d4785 100%);
+  color: white;
+  border: none;
+  border-radius: 2rem;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 0.5rem 1.5rem rgba(45, 51, 107, 0.3);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.gpt-summary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.75rem 2rem rgba(45, 51, 107, 0.4);
+}
+
+.gpt-summary-btn:active {
+  transform: translateY(0);
+}
+
+.gpt-icon {
+  font-size: 1.125rem;
+  animation: bounce 2s infinite;
+}
+
+.btn-text {
+  white-space: nowrap;
+}
+
+@keyframes bounce {
+  0%,
+  20%,
+  53%,
+  80%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%,
+  43% {
+    transform: translate3d(0, -8px, 0);
+  }
+  70% {
+    transform: translate3d(0, -4px, 0);
+  }
+  90% {
+    transform: translate3d(0, -2px, 0);
   }
 }
 </style>

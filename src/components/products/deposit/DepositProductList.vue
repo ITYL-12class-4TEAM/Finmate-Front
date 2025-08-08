@@ -223,7 +223,7 @@ const goToJoinPage = (product) => {
 };
 const goToCompare = () => {
   if (compareList.value.length < 2) {
-    alert('최소 2개 이상의 상품을 선택해주세요.');
+    showToast('2개 이상의 상품을 선택해주세요.', 'warning');
     return;
   }
   router.push({ path: '/products/compare' });
