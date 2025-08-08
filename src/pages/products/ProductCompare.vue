@@ -71,6 +71,7 @@ import CompareEmptyState from '@/components/products/compare/CompareEmptyState.v
 import CompareErrorState from '@/components/products/compare/CompareErrorState.vue';
 import ConfirmationModal from '@/components/products/common/ConfirmationModal.vue';
 import CompareFloatingBar from '@/components/products/compare/CompareFloatingBar.vue';
+import { compareProductsAPI } from '../../api/product';
 
 // 라우터 및 컴포저블 초기화
 const router = useRouter();
@@ -266,78 +267,53 @@ const loadCompareData = async () => {
     // 상품 타입 (모두 같은 타입이라고 가정)
     const productType = compareList.value[0].productType;
 
-    // API 호출 URL 구성
-    let url = `/api/products/compare?productType=${productType}`;
+    // 상품 ID 배열 생성
+    const productIds = compareList.value.map((item) => item.productId);
 
-    // 각 상품별 ID와 saveTrm을 URL에 추가
-    compareList.value.forEach((item) => {
-      url += `&productIds=${item.productId}`;
+    // 필요한 경우 saveTrm과 intrRateType도 전달 (첫 번째 항목 기준)
+    const saveTrm = compareList.value[0].saveTrm;
+    const intrRateType = compareList.value[0].intrRateType;
 
-      // 각 상품에 대응하는 saveTrm 추가 (있는 경우에만)
-      if (item.saveTrm) {
-        url += `&saveTrm=${item.saveTrm}`;
-      }
+    // API 호출 (필요한 모든 파라미터 전달)
+    const response = await compareProductsAPI(productIds, productType, saveTrm, intrRateType);
 
-      // 각 상품에 대응하는 intrRateType 추가 (있는 경우에만)
-      if (item.intrRateType) {
-        url += `&intrRateType=${item.intrRateType}`;
-      }
-    });
+    console.log('비교 API 응답:', response);
 
-    // API 호출
-    const response = await axios.get(url);
-    compareData.value = response.data;
+    // API 응답 저장
+    compareData.value = response;
 
-    // API에서 products 배열이 있는지 확인
-    if (response.data?.products && Array.isArray(response.data.products)) {
-      // 기존 compareList 항목을 유지하면서 필요한 필드만 추가
+    // response에 products 배열이 있는지 확인
+    if (response && response.products && Array.isArray(response.products)) {
+      // 기존 compareList 항목을 업데이트
       compareList.value = compareList.value.map((item) => {
         // API 응답에서 해당 상품 찾기
-        const apiProduct = response.data.products.find(
-          (p) =>
-            String(p.productId) === String(item.productId) ||
-            String(p.finPrdtCd) === String(item.finPrdtCd)
-        );
-
-        if (apiProduct) {
-          // 기존 항목 유지하면서 필요한 필드만 추가
-          return {
-            ...item,
-            preferentialTags: apiProduct.preferentialTags,
-            joinMember: apiProduct.joinMember,
-            // 옵션 정보 추가
-            options: apiProduct.options || [],
-          };
-        }
-        return item;
-      });
-    }
-    // data.body.data.products 경로도 확인 (API 구조가 변경될 경우 대비)
-    else if (
-      response.data?.data?.body?.data?.products &&
-      Array.isArray(response.data.data.body.data.products)
-    ) {
-      // 동일한 방식으로 필요한 필드만 추가
-      compareList.value = compareList.value.map((item) => {
-        const apiProduct = response.data.data.body.data.products.find(
-          (p) =>
-            String(p.productId) === String(item.productId) ||
-            String(p.finPrdtCd) === String(item.finPrdtCd)
+        const apiProduct = response.products.find(
+          (p) => String(p.product_id) === String(item.productId)
         );
 
         if (apiProduct) {
           return {
             ...item,
-            preferentialTags: apiProduct.preferentialTags,
-            joinMember: apiProduct.joinMember,
-            // 옵션 정보 추가
+            // API 응답의 필드명을 그대로 사용
+            preferential_tags: apiProduct.preferential_tags,
+            join_member: apiProduct.join_member,
+            // 기존 필드명도 호환성을 위해 유지
+            preferentialTags: apiProduct.preferential_tags,
+            joinMember: apiProduct.join_member,
+            // 기타 필드도 추가
+            minDepositAmount: apiProduct.minDepositAmount,
+            maxDepositAmount: apiProduct.maxDepositAmount,
+            etc_note: apiProduct.etc_note,
             options: apiProduct.options || [],
           };
         }
         return item;
       });
+
+      console.log('업데이트된 비교 목록:', compareList.value);
     }
   } catch (err) {
+    console.error('비교 데이터 로드 오류:', err);
     error.value = '비교 정보를 불러오는 중 오류가 발생했습니다.';
   } finally {
     isLoading.value = false;
@@ -477,67 +453,92 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* ==========================================================================
+   1. 페이지 기본 레이아웃
+   - 다른 페이지들과 동일한 배경색과 여백을 적용하여 통일성 유지
+   ========================================================================== */
 .compare-page {
-  max-width: 23.4375rem; /* 375px */
-  margin: 0 auto;
+  background-color: var(--color-bg-light);
   padding: 1rem 0;
-  font-family: 'Noto Sans KR', sans-serif;
-  color: var(--color-text);
+  min-height: 100vh;
 }
 
-/* 페이지 헤더 */
+/* ==========================================================================
+   2. 페이지 헤더
+   ========================================================================== */
 .page-header {
   display: flex;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-/* 비교 콘텐츠 */
-.compare-actions {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
 }
 
+/* ==========================================================================
+   3. 비교함 관리 섹션
+   - 현재 비교 중인 상품 개수와 '비교함 비우기' 버튼을 포함하는 카드
+   ========================================================================== */
+.compare-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffffff;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem; /* 8px */
+  margin-bottom: 1.25rem;
+  box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.03);
+}
+
 .compare-count {
-  font-size: 0.875rem;
+  font-size: 0.9375rem; /* 15px */
   color: var(--color-sub);
+  font-weight: 500;
+}
+
+.compare-count strong {
+  color: var(--color-main);
+  font-weight: 700;
 }
 
 .clear-btn {
   background: none;
   border: none;
   color: var(--color-sub);
-  font-size: 0.875rem;
+  font-size: 0.875rem; /* 14px */
   cursor: pointer;
+  text-decoration: none;
+  padding: 0.25rem;
+  transition: color 0.2s;
+}
+
+.clear-btn:hover {
+  color: var(--color-main);
   text-decoration: underline;
 }
 
-/* 로딩 상태 */
+/* ==========================================================================
+   4. 로딩 상태
+   ========================================================================== */
 .loading-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem 0;
+  padding: 4rem 0;
+  text-align: center;
+  color: var(--color-sub);
 }
 
 .spinner {
   width: 2.5rem;
   height: 2.5rem;
-  border: 0.25rem solid var(--color-bg-light);
-  border-top: 0.25rem solid var(--color-main);
+  border: 0.25rem solid rgba(0, 0, 0, 0.1);
+  border-top-color: var(--color-main);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
+  to {
     transform: rotate(360deg);
   }
 }

@@ -57,23 +57,49 @@ const selectedBanks = ref(route.query.banks ? route.query.banks.split(',') : [])
 const selectedBankApiCodes = ref([]);
 
 // ------ Fetch Banks ------
+// API 호출 후 데이터 변환
 const fetchBanks = async () => {
-  loading.value = true;
   try {
-    const res = await getProductsFilterOptionsAPI('deposit');
-    const bankList = res?.body?.data?.banks || [];
-    banks.value = bankList;
+    const response = await getProductsFilterOptionsAPI('deposit');
 
-    if (!route.query.banks) {
-      // 저축은행 제외 기본 선택
-      const regularBanks = bankList.filter((b) => typeof b === 'string' && !b.includes('저축은행'));
+    banks.value = response.banks;
+
+    // 기본 데이터 설정 (데이터가 없는 경우)
+    if (!banks.value.length) {
+      console.log('기본 은행 데이터 사용');
+      banks.value = [
+        'KB국민은행',
+        '신한은행',
+        'NH농협은행',
+        '우리은행',
+        '하나은행',
+        'IBK기업은행',
+        'BNK저축은행',
+        'DK저축은행',
+        'HB저축은행',
+        'IBK저축은행',
+        'JT저축은행',
+      ];
+    }
+
+    // 선택된 은행 초기화
+    if (selectedBanks.value.length === 0) {
+      const regularBanks = banks.value.filter(
+        (bank) => typeof bank === 'string' && !bank.includes('저축은행')
+      );
       selectedBanks.value = [...regularBanks];
       selectedBankApiCodes.value = [...regularBanks];
     }
-  } catch (e) {
-    banks.value = [];
-  } finally {
-    loading.value = false;
+  } catch (error) {
+    console.error('은행 목록 로딩 실패:', error);
+
+    // 오류 시 기본 데이터
+    banks.value = ['KB국민은행', '신한은행', 'NH농협은행', '우리은행', '하나은행', 'IBK기업은행'];
+
+    if (selectedBanks.value.length === 0) {
+      selectedBanks.value = [...banks.value];
+      selectedBankApiCodes.value = [...banks.value];
+    }
   }
 };
 
@@ -107,7 +133,7 @@ const fetchProducts = async () => {
     }
 
     // 은행 - 이 부분이 중요함!
-    if (selectedBankApiCodes.value.length > 0) {
+    if (selectedBankApiCodes.value.length >= 0) {
       // forEach에서 append 사용하여 각 은행을 별도 파라미터로 추가
       selectedBankApiCodes.value.forEach((bank) => {
         searchParams.append('banks', bank);
@@ -220,8 +246,16 @@ watch(
 );
 
 onMounted(async () => {
+  console.log('[타임스탬프]', new Date().toISOString(), 'ProductDeposit 마운트됨');
   await fetchBanks();
+  console.log(
+    '[타임스탬프]',
+    new Date().toISOString(),
+    'fetchBanks 완료, 데이터:',
+    banks.value.length
+  );
   await fetchProducts();
+  console.log('[타임스탬프]', new Date().toISOString(), 'fetchProducts 완료');
 });
 </script>
 
