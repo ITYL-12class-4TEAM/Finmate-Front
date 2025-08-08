@@ -15,6 +15,18 @@
           <div class="readonly-grid">
             <div class="readonly-item">
               <div class="readonly-icon">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="readonly-content">
+                <label class="readonly-label">닉네임</label>
+                <div class="readonly-value">{{ userInfo.nickname }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="readonly-grid">
+            <div class="readonly-item">
+              <div class="readonly-icon">
                 <i class="fas fa-envelope"></i>
               </div>
               <div class="readonly-content">
@@ -23,7 +35,8 @@
               </div>
             </div>
 
-            <div class="readonly-item">
+            <!-- 폰 번호가 null이면 제거 -->
+            <div v-if="userInfo.phoneNumber" class="readonly-item">
               <div class="readonly-icon">
                 <i class="fas fa-phone"></i>
               </div>
@@ -108,7 +121,7 @@
             </div>
 
             <!-- 비밀번호 변경 -->
-            <div class="form-group">
+            <div v-if="userInfo.phoneNumber !== null" class="form-group">
               <div class="password-toggle-section">
                 <label class="toggle-label">
                   <input v-model="changePassword" type="checkbox" class="toggle-input" />
@@ -500,7 +513,7 @@ onMounted(async () => {
 }
 
 .section-title {
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--color-main);
   margin: 0;
@@ -526,8 +539,8 @@ onMounted(async () => {
 }
 
 .readonly-icon {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--color-sub) 0%, var(--color-light) 100%);
   display: flex;
@@ -545,7 +558,7 @@ onMounted(async () => {
 
 .readonly-label {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--color-sub);
   font-weight: 600;
   margin-bottom: 0.25rem;
@@ -554,7 +567,7 @@ onMounted(async () => {
 }
 
 .readonly-value {
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--color-main);
 }
@@ -581,7 +594,7 @@ onMounted(async () => {
 
 .form-input {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.5rem;
   border: 2px solid rgba(185, 187, 204, 0.3);
   border-radius: 0.75rem;
   font-size: 0.9rem;
@@ -620,7 +633,7 @@ onMounted(async () => {
 
 .input-with-button {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   align-items: stretch;
 }
 
@@ -637,7 +650,7 @@ onMounted(async () => {
   color: white;
   border: none;
   border-radius: 0.75rem;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -748,7 +761,7 @@ onMounted(async () => {
 }
 
 .toggle-text {
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--color-main);
   display: flex;
@@ -805,7 +818,7 @@ onMounted(async () => {
 
 /* 알림 설정 */
 .notification-setting {
-  padding: 1.25rem;
+  padding: 0.5rem;
   background: rgba(255, 255, 255, 0.6);
   border-radius: 0.75rem;
   border: 1px solid rgba(185, 187, 204, 0.15);
@@ -831,8 +844,8 @@ onMounted(async () => {
 
 .notification-slider {
   position: relative;
-  width: 3.5rem;
-  height: 2rem;
+  width: 2.75rem;
+  height: 1.5rem;
   background: rgba(185, 187, 204, 0.3);
   border-radius: 1rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -842,10 +855,10 @@ onMounted(async () => {
 .notification-slider::before {
   content: '';
   position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 1.5rem;
-  height: 1.5rem;
+  top: 0.2rem;
+  left: 0rem;
+  width: 1.1rem;
+  height: 1.1rem;
   background: white;
   border-radius: 50%;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -867,14 +880,14 @@ onMounted(async () => {
 
 .notification-title {
   display: block;
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--color-main);
   margin-bottom: 0.25rem;
 }
 
 .notification-desc {
-  font-size: 0.85rem;
+  font-size: 0.7rem;
   color: var(--color-sub);
   line-height: 1.4;
 }
@@ -892,14 +905,14 @@ onMounted(async () => {
   align-items: center;
   width: 100%;
   gap: 0.5rem;
-  padding: 0.875rem 1.5rem;
+  padding: 0.5rem 1rem;
   border: none;
   border-radius: 0.75rem;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-height: 56px;
+  min-height: 3rem;
 }
 
 .action-btn.primary {

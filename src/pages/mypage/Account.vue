@@ -112,8 +112,26 @@ onMounted(async () => {
   console.log('API 호출 시작');
 
   const response = await memberAPI.getMyInfo();
+  console.log('사용자 정보:', response.data);
 
-  userInfo.value = response.data;
+  if (response.success) {
+    userInfo.value = response.data;
+
+    if (response.data.phoneNumber === null) {
+      console.log('일반 로그인 사용자 - 비밀번호 확인 생략');
+
+      localStorage.setItem('passwordVerified', 'true');
+      localStorage.setItem('verificationTime', Date.now().toString());
+
+      router.push('/mypage/settings/edit');
+      return;
+    }
+
+    console.log('일반 로그인 사용자 - 비밀번호 확인 필요');
+  } else {
+    console.error('사용자 정보 조회 실패:', response.message);
+    alert('사용자 정보를 불러올 수 없습니다.');
+  }
 });
 
 const router = useRouter();
