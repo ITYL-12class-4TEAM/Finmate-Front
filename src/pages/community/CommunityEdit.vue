@@ -87,9 +87,9 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useModal } from '@/composables/useModal';
+import { useToast } from '@/composables/useToast';
 import { getPostByIdAPI, updatePostAPI } from '@/api/posts';
 import { reverseProductTagMap } from '@/constants/tags';
-import { useAuthStore } from '@/stores/useAuthStore';
 
 import BackButton from '@/components/common/BackButton.vue';
 import BaseButton from '@/components/common/BaseButton.vue';
@@ -98,8 +98,9 @@ import CustomCheckbox from '@/components/community/CustomCheckbox.vue';
 // 상태 변수
 const route = useRoute();
 const router = useRouter();
-const authStore = useAuthStore();
 const postId = Number(route.params.id);
+const memberId = Number(localStorage.getItem('memberId')) ?? null;
+const { showToast } = useToast();
 
 const title = ref('');
 const content = ref('');
@@ -110,9 +111,6 @@ const attaches = ref([]);
 
 const productTags = ['예금', '적금', '펀드', '보험'];
 
-// 전역 유저 정보
-const memberId = authStore.userInfo.memberId;
-
 // 태그 선택 함수
 const selectProduct = (tag) => (selectedProduct.value = tag);
 
@@ -120,6 +118,13 @@ const selectProduct = (tag) => (selectedProduct.value = tag);
 const fetchPost = async () => {
   try {
     const res = await getPostByIdAPI(postId, memberId);
+
+    if (!res.isMine) {
+      showToast('본인 게시글만 수정할 수 있습니다.', 'warning'); // 또는 모달
+      router.replace('/community');
+      return;
+    }
+
     boardId.value = res.boardId;
     title.value = res.title;
     content.value = res.content;
@@ -146,8 +151,6 @@ onMounted(fetchPost);
 const { showModal } = useModal();
 
 const updatePost = async () => {
-  console.log('postId:', postId);
-
   if (!title.value || !content.value || !selectedProduct.value) {
     alert('모든 항목을 입력해주세요.');
     return;
