@@ -84,21 +84,28 @@ const fetchBanks = async () => {
 
     // 선택된 은행 초기화
     if (selectedBanks.value.length === 0) {
+      // URL에 은행 정보가 없을 경우, 기본값으로 초기화
       const regularBanks = banks.value.filter(
         (bank) => typeof bank === 'string' && !bank.includes('저축은행')
       );
       selectedBanks.value = [...regularBanks];
       selectedBankApiCodes.value = [...regularBanks];
+    } else {
+      // URL에서 은행 정보를 불러왔다면, API 코드도 동일하게 설정
+      // (이 부분이 중요한 수정점입니다!)
+      selectedBankApiCodes.value = [...selectedBanks.value];
     }
   } catch (error) {
     console.error('은행 목록 로딩 실패:', error);
-
     // 오류 시 기본 데이터
     banks.value = ['KB국민은행', '신한은행', 'NH농협은행', '우리은행', '하나은행', 'IBK기업은행'];
 
     if (selectedBanks.value.length === 0) {
       selectedBanks.value = [...banks.value];
       selectedBankApiCodes.value = [...banks.value];
+    } else {
+      // 마찬가지로 URL에서 불러온 경우 API 코드도 동일하게 설정
+      selectedBankApiCodes.value = [...selectedBanks.value];
     }
   }
 };
@@ -239,7 +246,13 @@ watch(
     if ('joinWays' in newQuery) joinWay.value = newQuery.joinWays.split(',');
     if ('sortBy' in newQuery) sortBy.value = newQuery.sortBy;
     if ('page' in newQuery) currentPage.value = parseInt(newQuery.page);
-    if ('banks' in newQuery) selectedBanks.value = newQuery.banks.split(',');
+    // 은행 정보 동기화
+    if ('banks' in newQuery) {
+      const bankList = newQuery.banks.split(',');
+      selectedBanks.value = bankList;
+      // API 코드도 동일하게 설정 (중요!)
+      selectedBankApiCodes.value = bankList;
+    }
     // fetch
     fetchProducts();
   }
@@ -247,6 +260,14 @@ watch(
 
 onMounted(async () => {
   console.log('[타임스탬프]', new Date().toISOString(), 'ProductDeposit 마운트됨');
+
+  // URL에서 은행 정보가 있다면 미리 설정
+  if (route.query.banks) {
+    const bankList = route.query.banks.split(',');
+    selectedBanks.value = bankList;
+    selectedBankApiCodes.value = bankList;
+  }
+
   await fetchBanks();
   console.log(
     '[타임스탬프]',
@@ -254,6 +275,7 @@ onMounted(async () => {
     'fetchBanks 완료, 데이터:',
     banks.value.length
   );
+
   await fetchProducts();
   console.log('[타임스탬프]', new Date().toISOString(), 'fetchProducts 완료');
 });
