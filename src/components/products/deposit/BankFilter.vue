@@ -47,12 +47,18 @@ const selectAllBanks = ref(false);
 const bankCategories = computed(() => {
   const regular = [],
     savings = [];
-  props.banks?.forEach((bank) => {
+
+  // 배열이면 그대로 사용, 객체면 값만 추출
+  const banksArray = Array.isArray(props.banks) ? props.banks : Object.values(props.banks || {});
+
+  // 이제 banksArray는 확실히 배열
+  banksArray.forEach((bank) => {
     if (typeof bank === 'string') {
       (bank.includes('저축은행') ? savings : regular).push(bank);
     }
   });
-  return { regularBanks: regular, savingsBanks: savings };
+
+  return { regularBanks: regular, savingsBanks: savings }; // BankFilter용
 });
 
 const regularBanks = computed(() => bankCategories.value.regularBanks);

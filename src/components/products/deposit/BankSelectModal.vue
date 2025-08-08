@@ -61,13 +61,37 @@ const activeTab = ref('bank');
 const selected = ref([]);
 const selectAll = ref(false);
 
+// 은행 데이터가 없을 때 사용할 임시 데이터
+const defaultBanks = [
+  'KB국민은행',
+  '신한은행',
+  'NH농협은행',
+  '우리은행',
+  '하나은행',
+  'IBK기업은행',
+  'BNK저축은행',
+  'DK저축은행',
+  'HB저축은행',
+  'IBK저축은행',
+  'JT저축은행',
+  'KDB저축은행',
+];
+
 // 분류된 은행 배열
 const bankCategories = computed(() => {
   const regular = [],
     savings = [];
-  props.banks.forEach((bank) =>
-    typeof bank === 'string' ? (bank.includes('저축은행') ? savings : regular).push(bank) : null
-  );
+
+  // props.banks가 비어있으면 기본 데이터 사용
+  const banksToUse = props.banks && props.banks.length > 0 ? props.banks : defaultBanks;
+
+  // 이제 banksToUse는 확실히 데이터가 있는 배열
+  banksToUse.forEach((bank) => {
+    if (typeof bank === 'string') {
+      (bank.includes('저축은행') ? savings : regular).push(bank);
+    }
+  });
+
   return { bank: regular, savings: savings };
 });
 const displayedBanks = computed(() => bankCategories.value[activeTab.value]);
@@ -130,6 +154,23 @@ const onConfirm = () => {
   closeModal();
 };
 const closeModal = () => emit('close');
+
+// 모달 오픈 시 초기화 부분 수정
+watch(
+  () => props.show,
+  (isVisible) => {
+    if (isVisible) {
+      selected.value = props.initialSelectedBanks.length
+        ? [...props.initialSelectedBanks]
+        : [...bankCategories.value.bank];
+
+      activeTab.value = 'bank';
+      nextTick(() => {
+        syncSelectAll();
+      });
+    }
+  }
+);
 </script>
 
 <style scoped>

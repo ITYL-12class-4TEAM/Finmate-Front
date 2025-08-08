@@ -131,7 +131,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import BackButton from '@/components/common/BackButton.vue';
@@ -144,10 +144,7 @@ import { togglePostLikeAPI } from '@/api/postLike';
 import { togglePostScrapAPI } from '@/api/postScrap';
 
 import { useModal } from '@/composables/useModal';
-
 import { useAuthStore } from '@/stores/useAuthStore';
-
-import { mockComments, mockPost } from './communityMock';
 
 // 전역번수/ref 선언
 const route = useRoute();
@@ -155,7 +152,7 @@ const router = useRouter();
 const { showModal } = useModal();
 const authStore = useAuthStore();
 
-const memberId = authStore.userInfo.memberId;
+const memberId = computed(() => authStore.userInfo?.memberId || null);
 
 const postId = route.params.id;
 
@@ -177,19 +174,21 @@ const formattedTime = (arr) => {
 // API 함수
 const fetchPostDetail = async () => {
   try {
-    post.value = await getPostByIdAPI(postId, memberId);
+    post.value = await getPostByIdAPI(postId, memberId.value);
     // post.value = mockPost;
   } catch (e) {
-    alert('게시물을 불러오지 못했습니다.');
+    // alert('게시물을 불러오지 못했습니다.');
+    console.error('게시글 불러오기 실패:', e);
   }
 };
 
 const fetchComments = async () => {
   try {
-    comments.value = await getCommentsByPostId(postId, memberId);
+    comments.value = await getCommentsByPostId(postId, memberId.value);
     // comments.value = mockComments;
   } catch (e) {
-    alert('댓글을 불러오지 못했습니다.');
+    // alert('댓글을 불러오지 못했습니다.');
+    console.error('댓글 불러오기 실패:', e);
   }
 };
 

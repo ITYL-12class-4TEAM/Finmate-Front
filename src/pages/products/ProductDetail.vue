@@ -81,19 +81,25 @@
       </div>
 
       <!-- 액션 섹션 -->
-      <!-- 액션 섹션 -->
-      <ActionButtons
-        :is-in-compare-list="
-          isInCompareList(
-            product.product_id,
-            selectedOption?.save_trm || selectedOption?.saveTrm,
-            selectedOption?.intr_rate_type || selectedOption?.intrRateType || 'S'
-          )
-        "
-        @add-to-compare="handleAddToCompare"
-        @remove-from-compare="handleRemoveFromCompare"
-        @join-product="joinProduct"
-      />
+      <div class="action-section">
+        <button
+          v-if="
+            isInCompareList(
+              product.product_id,
+              selectedOption?.save_trm || selectedOption?.saveTrm,
+              selectedOption?.intr_rate_type || selectedOption?.intrRateType || 'S'
+            )
+          "
+          class="compare-btn in-list"
+          @click="handleRemoveFromCompare"
+        >
+          비교함에서 제거
+        </button>
+        <button v-else class="compare-btn add-compare-btn" @click="handleAddToCompare">
+          비교함에 추가
+        </button>
+        <button class="join-btn" @click="joinProduct">가입하기</button>
+      </div>
 
       <!-- 하단 여백 (CompareFloatingBar가 가리는 콘텐츠 방지) -->
       <div v-if="compareList.length > 0" style="height: 4rem"></div>
@@ -118,6 +124,9 @@ import ProductFeatures from '@/components/products/detail/ProductFeatures.vue';
 import ActionButtons from '@/components/products/ActionButtons.vue';
 import CompareFloatingBar from '@/components/products/compare/CompareFloatingBar.vue';
 import useCompareList from '@/composables/useCompareList';
+import { useToast } from '@/composables/useToast';
+
+const { showToast } = useToast();
 
 const route = useRoute();
 const router = useRouter();
@@ -143,8 +152,6 @@ const loadProductDetail = async () => {
     const saveTrm = route.query.saveTrm;
     const intrRateType = route.query.intrRateType;
 
-    console.log(`상품 상세 정보 로드: 카테고리=${category}, ID=${productId}, saveTrm=${saveTrm}`);
-
     const response = await getProductDetailAPI(category, productId, {
       saveTrm,
       intrRateType,
@@ -154,10 +161,6 @@ const loadProductDetail = async () => {
       product.value = response;
       product.value.is_digital_only =
         product.value.join_way === 'online' || product.value.join_way === '인터넷';
-
-      // API 응답 구조 확인 (디버깅용)
-      console.log('상품 상세 정보:', response);
-      console.log('productDetail 정보:', response.productDetail);
 
       // 상품 정보 로드 성공 후 최근 본 상품으로 저장
       saveAsRecentViewed();
@@ -194,13 +197,6 @@ const saveAsRecentViewed = async () => {
         rsrvType = option.rsrv_type || option.rsrvType;
       }
     }
-
-    console.log('최근 본 상품 저장 정보:', {
-      productId,
-      saveTrm,
-      intrRateType,
-      rsrvType,
-    });
 
     if (!productId) {
       console.warn('상품 ID가 없어 최근 본 상품으로 저장할 수 없습니다.');
@@ -239,12 +235,8 @@ const parsedPreferentialConditions = computed(() => {
 // 비교함에 추가 핸들러
 const handleAddToCompare = () => {
   if (!product.value || !selectedOption.value) {
-    alert('상품 정보가 없어 비교함에 추가할 수 없습니다.');
     return;
   }
-
-  // 로컬 스토리지 디버깅 출력
-  console.log('현재 로컬 스토리지:', localStorage.getItem('finmate_compare_list'));
 
   console.log('비교함 추가 전 상품/옵션 정보:', {
     product: product.value,
@@ -252,12 +244,7 @@ const handleAddToCompare = () => {
     category: route.params.category,
   });
 
-  const result = addToCompareList(product.value, selectedOption.value, route.params.category);
-
-  alert(result.message);
-
-  // 결과 확인을 위해 로컬 스토리지 다시 출력
-  console.log('추가 후 로컬 스토리지:', localStorage.getItem('finmate_compare_list'));
+  addToCompareList(product.value, selectedOption.value, route.params.category);
 };
 
 const handleRemoveFromCompare = () => {
@@ -268,8 +255,7 @@ const handleRemoveFromCompare = () => {
   const intrRateType =
     selectedOption.value.intr_rate_type || selectedOption.value.intrRateType || 'S';
 
-  const result = removeFromCompareList(productId, saveTrm, intrRateType);
-  alert(result.message);
+  removeFromCompareList(productId, saveTrm, intrRateType);
 };
 
 // 비교 페이지로 이동
@@ -596,5 +582,48 @@ onMounted(() => {
   color: var(--color-sub);
   text-align: center;
   padding: 1rem 0;
+}
+/* 액션 버튼 스타일 */
+.action-section {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.compare-btn,
+.join-btn {
+  flex: 1;
+  height: 3rem; /* 48px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem; /* 8px */
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.add-compare-btn {
+  background: #ffffff;
+  color: var(--color-main);
+  border: 0.0625rem solid var(--color-light);
+}
+
+.compare-btn.in-list {
+  background: var(--color-main);
+  color: #fff;
+  border: 1px solid var(--color-main);
+}
+
+.join-btn {
+  background: var(--color-main);
+  color: #fff;
+}
+.join-btn:hover {
+  filter: brightness(110%);
 }
 </style>

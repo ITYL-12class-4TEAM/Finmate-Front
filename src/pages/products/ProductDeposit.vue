@@ -57,66 +57,94 @@ const selectedBanks = ref(route.query.banks ? route.query.banks.split(',') : [])
 const selectedBankApiCodes = ref([]);
 
 // ------ Fetch Banks ------
+// API 호출 후 데이터 변환
 const fetchBanks = async () => {
-  loading.value = true;
   try {
-    const res = await getProductsFilterOptionsAPI('deposit');
-    const bankList = res?.body?.data?.banks || [];
-    banks.value = bankList;
+    const response = await getProductsFilterOptionsAPI('deposit');
 
-    if (!route.query.banks) {
-      // 저축은행 제외 기본 선택
-      const regularBanks = bankList.filter((b) => typeof b === 'string' && !b.includes('저축은행'));
+    banks.value = response.banks;
+
+    // 기본 데이터 설정 (데이터가 없는 경우)
+    if (!banks.value.length) {
+      console.log('기본 은행 데이터 사용');
+      banks.value = [
+        'KB국민은행',
+        '신한은행',
+        'NH농협은행',
+        '우리은행',
+        '하나은행',
+        'IBK기업은행',
+        'BNK저축은행',
+        'DK저축은행',
+        'HB저축은행',
+        'IBK저축은행',
+        'JT저축은행',
+      ];
+    }
+
+    // 선택된 은행 초기화
+    if (selectedBanks.value.length === 0) {
+      // URL에 은행 정보가 없을 경우, 기본값으로 초기화
+      const regularBanks = banks.value.filter(
+        (bank) => typeof bank === 'string' && !bank.includes('저축은행')
+      );
       selectedBanks.value = [...regularBanks];
       selectedBankApiCodes.value = [...regularBanks];
+    } else {
+      // URL에서 은행 정보를 불러왔다면, API 코드도 동일하게 설정
+      // (이 부분이 중요한 수정점입니다!)
+      selectedBankApiCodes.value = [...selectedBanks.value];
     }
-  } catch (e) {
-    banks.value = [];
-  } finally {
-    loading.value = false;
+  } catch (error) {
+    console.error('은행 목록 로딩 실패:', error);
+    // 오류 시 기본 데이터
+    banks.value = ['KB국민은행', '신한은행', 'NH농협은행', '우리은행', '하나은행', 'IBK기업은행'];
+
+    if (selectedBanks.value.length === 0) {
+      selectedBanks.value = [...banks.value];
+      selectedBankApiCodes.value = [...banks.value];
+    } else {
+      // 마찬가지로 URL에서 불러온 경우 API 코드도 동일하게 설정
+      selectedBankApiCodes.value = [...selectedBanks.value];
+    }
   }
 };
 
 // ------ Fetch Products ------
+// ProductDeposit.vue에서 fetchProducts 함수 수정
 const fetchProducts = async () => {
   loading.value = true;
   error.value = null;
   try {
-    // 파라미터 구성 (객체 대신 URLSearchParams 직접 사용)
-    const searchParams = new URLSearchParams();
-
-    // 기본 파라미터 추가
-    searchParams.append('category', 'deposit');
-    searchParams.append('categoryId', '1');
-    searchParams.append('subCategoryId', '101');
-    searchParams.append('depositAmount', String(depositAmount.value).replace(/[^\d]/g, ''));
-    searchParams.append('saveTrm', period.value);
-    searchParams.append('page', String(currentPage.value));
-    searchParams.append('size', String(pageSize.value));
-    searchParams.append('sortBy', sortBy.value);
-    searchParams.append('sortDirection', 'desc');
-    searchParams.append('intrRateType', interestType.value);
+    // POST 요청에 맞게 객체 형태로 파라미터 구성
+    const params = {
+      category: 'deposit',
+      categoryId: '1',
+      subCategoryId: '101',
+      depositAmount: String(depositAmount.value).replace(/[^\d]/g, ''),
+      saveTrm: period.value,
+      page: String(currentPage.value),
+      size: String(pageSize.value),
+      sortBy: sortBy.value,
+      sortDirection: 'desc',
+      intrRateType: interestType.value,
+    };
 
     // 가입방식
     if (joinWay.value !== 'all') {
       if (Array.isArray(joinWay.value)) {
-        joinWay.value.forEach((way) => searchParams.append('joinWays', way));
+        params.joinWays = joinWay.value;
       } else {
-        searchParams.append('joinWays', joinWay.value);
+        params.joinWays = [joinWay.value];
       }
     }
 
-    // 은행 - 이 부분이 중요함!
+    // 은행
     if (selectedBankApiCodes.value.length > 0) {
-      // forEach에서 append 사용하여 각 은행을 별도 파라미터로 추가
-      selectedBankApiCodes.value.forEach((bank) => {
-        searchParams.append('banks', bank);
-      });
-
-      console.log('API 요청에 포함된 은행 수:', selectedBankApiCodes.value.length);
+      params.banks = selectedBankApiCodes.value;
     }
 
-    const res = await getProductsAPI(searchParams);
+    const res = await getProductsAPI(params);
     depositProducts.value = res.products || [];
     totalCount.value = res.totalCount || depositProducts.value.length || 0;
   } catch (err) {
@@ -213,13 +241,25 @@ watch(
     if ('joinWays' in newQuery) joinWay.value = newQuery.joinWays.split(',');
     if ('sortBy' in newQuery) sortBy.value = newQuery.sortBy;
     if ('page' in newQuery) currentPage.value = parseInt(newQuery.page);
-    if ('banks' in newQuery) selectedBanks.value = newQuery.banks.split(',');
+    // 은행 정보 동기화
+    if ('banks' in newQuery) {
+      const bankList = newQuery.banks.split(',');
+      selectedBanks.value = bankList;
+      // API 코드도 동일하게 설정 (중요!)
+      selectedBankApiCodes.value = bankList;
+    }
     // fetch
     fetchProducts();
   }
 );
 
 onMounted(async () => {
+  // URL에서 은행 정보가 있다면 미리 설정
+  if (route.query.banks) {
+    const bankList = route.query.banks.split(',');
+    selectedBanks.value = bankList;
+    selectedBankApiCodes.value = bankList;
+  }
   await fetchBanks();
   await fetchProducts();
 });
