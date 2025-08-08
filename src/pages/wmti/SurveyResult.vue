@@ -240,9 +240,11 @@ import ThemePortfolio from '@/components/wmti/ThemePortfolio.vue';
 // import ThemePortFolioToggle from '@/components/wmti/ThemePortFolioToggle.vue';
 import { getWMTIResultAPI, getWMTIAnalysisAPI } from '@/api/wmti';
 import { useToast } from '@/composables/useToast';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const router = useRouter();
 const { showToast } = useToast();
+const authStore = useAuthStore();
 
 // ✅ 반응형 상태
 const analysisObject = ref({});
@@ -278,7 +280,8 @@ const formattedDate = computed(() => {
 
 // ✅ 결과 및 분석 데이터 불러오기
 const fetchResult = async () => {
-  const memberId = 1; // 추후 store에서 대체 예정
+  const memberId = authStore.userInfo.memberId;
+
   try {
     const res = await getWMTIResultAPI(memberId);
     console.log('✅ 응답 전체:', res);

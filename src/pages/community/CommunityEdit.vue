@@ -87,6 +87,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useModal } from '@/composables/useModal';
+import { useToast } from '@/composables/useToast';
 import { getPostByIdAPI, updatePostAPI } from '@/api/posts';
 import { reverseProductTagMap } from '@/constants/tags';
 
@@ -98,6 +99,8 @@ import CustomCheckbox from '@/components/community/CustomCheckbox.vue';
 const route = useRoute();
 const router = useRouter();
 const postId = Number(route.params.id);
+const memberId = Number(localStorage.getItem('memberId')) ?? null;
+const { showToast } = useToast();
 
 const title = ref('');
 const content = ref('');
@@ -108,16 +111,20 @@ const attaches = ref([]);
 
 const productTags = ['예금', '적금', '펀드', '보험'];
 
-// 전역 유저 정보
-const memberId = 1; // TODO: 전역 사용자 정보 적용
-
 // 태그 선택 함수
 const selectProduct = (tag) => (selectedProduct.value = tag);
 
 // 게시글 정보 불러오기
 const fetchPost = async () => {
   try {
-    const res = await getPostByIdAPI(postId);
+    const res = await getPostByIdAPI(postId, memberId);
+
+    if (!res.isMine) {
+      showToast('본인 게시글만 수정할 수 있습니다.', 'warning'); // 또는 모달
+      router.replace('/community');
+      return;
+    }
+
     boardId.value = res.boardId;
     title.value = res.title;
     content.value = res.content;
@@ -141,11 +148,9 @@ const fetchPost = async () => {
 onMounted(fetchPost);
 
 // 수정 요청
-const showModal = useModal();
+const { showModal } = useModal();
 
 const updatePost = async () => {
-  console.log('postId:', postId);
-
   if (!title.value || !content.value || !selectedProduct.value) {
     alert('모든 항목을 입력해주세요.');
     return;

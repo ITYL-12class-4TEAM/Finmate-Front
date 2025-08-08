@@ -71,7 +71,7 @@ const paginatedProducts = computed(() => {
   return recentProducts.value.slice(start, end);
 });
 
-const clickRecent = (recent) => {
+const clickRecent = async (recent) => {
   const subcategory = recent.subcategoryName;
   const productId = recent.productId;
   const saveTrm = recent.saveTrm;
@@ -90,7 +90,17 @@ const clickRecent = (recent) => {
     routePath = `/products/unknown/${productId}`;
   }
 
-  router.push(routePath);
+  try {
+    // 상품 클릭 시 최근 본 상품으로 자동 저장
+    await recentViewAPI.saveRecentView(productId, saveTrm, intrRateType, rsrvValue);
+
+    // 페이지 이동
+    router.push(routePath);
+  } catch (err) {
+    console.error('최근 본 상품 저장 실패:', err);
+    // 저장에 실패해도 페이지는 이동
+    router.push(routePath);
+  }
 };
 
 // 최근 본 상품 가져오기

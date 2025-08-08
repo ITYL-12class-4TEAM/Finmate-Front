@@ -35,6 +35,7 @@
 import { ref, onMounted, computed } from 'vue';
 import router from '@/router';
 import { wishlistAPI } from '@/api/favorite';
+import { recentViewAPI } from '@/api/recentView'; // 최근 본 상품 API 추가
 import { useToast } from '@/composables/useToast';
 const { showToast } = useToast();
 
@@ -74,7 +75,23 @@ const getCategoryFromSubcategory = (subcategoryName) => {
   return categoryMapping[subcategoryName] || subcategoryName;
 };
 
-const clickFavorite = (favorite) => {
+// 최근 본 상품으로 저장하는 함수
+const saveAsRecentViewed = async (product) => {
+  try {
+    await recentViewAPI.saveRecentView(
+      product.productId,
+      product.saveTrm,
+      product.intrRateType,
+      product.rsrvType || product.rstvValue
+    );
+    console.log('최근 본 상품에 저장되었습니다.');
+  } catch (error) {
+    console.error('최근 본 상품 저장 실패:', error);
+    // 저장 실패해도 페이지 이동은 계속 진행
+  }
+};
+
+const clickFavorite = async (favorite) => {
   const subcategory = favorite.subcategoryName;
   const productId = favorite.productId;
   const saveTrm = favorite.saveTrm;
@@ -93,8 +110,24 @@ const clickFavorite = (favorite) => {
     routePath = `/products/unknown/${productId}`;
   }
 
-  router.push(routePath);
+  try {
+    // 즐겨찾기에서 상품 클릭 시 최근 본 상품으로 자동 저장
+    await saveAsRecentViewed({
+      productId,
+      saveTrm,
+      intrRateType,
+      rsrvType: rsrvValue,
+    });
+
+    // 페이지 이동
+    router.push(routePath);
+  } catch (err) {
+    console.error('최근 본 상품 저장 실패:', err);
+    // 저장에 실패해도 페이지는 이동
+    router.push(routePath);
+  }
 };
+
 const removeFavorite = (removedFavorite) => {
   // favorites 배열에서 해당 아이템 제거
   favorites.value = favorites.value.filter(
@@ -203,8 +236,20 @@ const changePage = (page) => {
   }
 };
 
-const viewDetail = (favorite) => {
+const viewDetail = async (favorite) => {
   if (favorite.externalLink) {
+    // 외부 링크로 이동하기 전에도 최근 본 상품으로 저장
+    try {
+      await saveAsRecentViewed({
+        productId: favorite.productId,
+        saveTrm: favorite.saveTrm,
+        intrRateType: favorite.intrRateType,
+        rsrvType: favorite.rstvValue,
+      });
+    } catch (err) {
+      console.error('최근 본 상품 저장 실패:', err);
+    }
+
     window.open(favorite.externalLink, '_blank');
   } else {
     showToast('상세 정보 링크가 없습니다.', 'error');

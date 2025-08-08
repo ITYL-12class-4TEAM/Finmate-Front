@@ -89,6 +89,8 @@ import DeleteConfirmModal from '../../components/mypage/portfolio/DeleteConfirmM
 import { portfolioAPI } from '@/api/portfolio';
 import { getWMTIResultAPI } from '@/api/wmti';
 
+import { useAuthStore } from '@/stores/useAuthStore';
+
 // -------------------- 상태 관리 --------------------
 const loading = ref(false);
 const error = ref('');
@@ -112,12 +114,14 @@ const isDeleting = ref(false);
 // 사용자 나이대
 const userAgeGroup = ref('');
 
-// TODO: 회원 아이디 받아오기
-const memberId = ref(1);
+// 로그인 유저 ID
+const authStore = useAuthStore();
+const memberId = authStore.userInfo.memberId;
+
 // -------------------- API 호출 --------------------
 const fetchWMTIResult = async () => {
   try {
-    const res = await getWMTIResultAPI(memberId.value);
+    const res = await getWMTIResultAPI(memberId);
     if (res?.body?.data?.wmtiCode) {
       myWMTI.value = res.body.data.wmtiCode;
     }

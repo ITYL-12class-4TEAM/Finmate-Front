@@ -1,11 +1,11 @@
 <template>
   <teleport to="body">
-    <div v-if="modalState.isOpen" class="modal-backdrop" @click.self="onCancel">
+    <div v-if="modalStore.isOpen" class="modal-backdrop" @click.self="modalStore.cancel">
       <div class="modal-box">
-        <p class="modal-message">{{ modalState.message }}</p>
+        <p class="modal-message">{{ modalStore.message }}</p>
         <div class="modal-actions">
-          <button class="cancel-btn" @click="onCancel">취소</button>
-          <button class="confirm-btn" @click="onConfirm">확인</button>
+          <button class="cancel-btn" @click="modalStore.cancel">취소</button>
+          <button class="confirm-btn" @click="modalStore.confirm">확인</button>
         </div>
       </div>
     </div>
@@ -13,18 +13,9 @@
 </template>
 
 <script setup>
-import { inject } from 'vue';
+import { useModalStore } from '@/stores/useModalStore';
 
-const modalState = inject('modalState');
-const modalHandlers = inject('modalHandlers');
-
-const onCancel = () => {
-  modalHandlers.resolve?.(false); // false = 취소
-};
-
-const onConfirm = () => {
-  modalHandlers.resolve?.(true); // true = 확인
-};
+const modalStore = useModalStore();
 </script>
 
 <style scoped>

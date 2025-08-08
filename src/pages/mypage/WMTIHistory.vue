@@ -88,6 +88,7 @@
 import { ref, onMounted } from 'vue';
 import { getWMTIHistoryAPI } from '@/api/wmti';
 import router from '@/router';
+import { useAuthStore } from '@/stores/useAuthStore';
 // Props
 
 // State
@@ -96,14 +97,15 @@ const historyList = ref([]);
 const loadingMessage = ref('데이터를 불러오는 중...');
 const expandedItems = ref([]);
 
-//TODO: 회원 아이디 받아오기
-const memberId = ref(1);
+// 로그인 유저 ID
+const authStore = useAuthStore();
+const memberId = authStore.userInfo.memberId;
 
 // API 호출 함수
 const fetchHistoryData = async () => {
   loading.value = true;
   try {
-    historyList.value = await getWMTIHistoryAPI(memberId.value);
+    historyList.value = await getWMTIHistoryAPI(memberId);
     historyList.value.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   } catch (e) {
     console.error('히스토리 불러오기 실패:', e);
