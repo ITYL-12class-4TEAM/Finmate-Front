@@ -317,4 +317,14 @@ export const authAPI = {
       };
     }
   },
+
+  // 회원 탈퇴
+  withdraw: async () => {
+    try {
+      const response = await api.delete('/api/auth/withdraw');
+      return response.data.body.data;
+    } catch (error) {
+      console.error('회원 탈퇴 API 오류:', error);
+    }
+  },
 };

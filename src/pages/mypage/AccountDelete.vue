@@ -246,6 +246,8 @@
 import { ref, computed, onUnmounted, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from '@/composables/useToast';
+import { authAPI } from '@/api/auth';
+
 const { showToast } = useToast();
 
 const router = useRouter();
@@ -364,17 +366,19 @@ const confirmFinalDeletion = async () => {
   processing.value = true;
 
   try {
-    // 서버 요청 시뮬레이션
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // TODO: 회원 탈퇴 백 연동
+    const response = await authAPI.withdraw();
 
-    // 탈퇴 처리 완료
-    closeFinalModal();
+    if (response) {
+      // 탈퇴 처리 완료
+      closeFinalModal();
 
-    // 로컬 스토리지 정리
-    localStorage.clear();
+      // 로컬 스토리지 정리
+      localStorage.clear();
 
-    goToMain();
-    showToast('계정 탈퇴가 완료되었습니다.\n메인 페이지로 이동합니다.', 'success');
+      goToMain();
+      showToast('계정 탈퇴가 완료되었습니다.\n메인 페이지로 이동합니다.', 'success');
+    }
   } catch (error) {
     showToast('탈퇴 처리 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.', 'error');
     console.error('Account deletion error:', error);
