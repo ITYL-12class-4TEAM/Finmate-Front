@@ -6,10 +6,28 @@ import api from './index';
  * @param {Object} params - 검색 파라미터
  * @returns {Promise<Object>} 상품 리스트 및 페이지 정보
  */
+// product.js 수정
 export const getProductsAPI = async (params = {}) => {
   try {
-    // 백엔드 API 호출
-    const response = await api.get('/api/products', { params });
+    // 만약 URLSearchParams 객체가 전달된 경우 객체로 변환
+    let requestBody = params;
+    if (params instanceof URLSearchParams) {
+      requestBody = {};
+      for (const [key, value] of params.entries()) {
+        // 배열 파라미터 처리 (같은 키가 여러 번 나올 경우)
+        if (requestBody[key]) {
+          if (!Array.isArray(requestBody[key])) {
+            requestBody[key] = [requestBody[key]];
+          }
+          requestBody[key].push(value);
+        } else {
+          requestBody[key] = value;
+        }
+      }
+    }
+
+    // 백엔드 API 호출 - 파라미터를 직접 요청 본문으로 전달
+    const response = await api.post('/api/products/search', requestBody);
 
     // 응답 로깅
     // console.log('API 원본 응답:', response.data.body.data);

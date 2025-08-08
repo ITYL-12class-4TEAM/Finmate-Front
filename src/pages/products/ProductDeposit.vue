@@ -111,43 +111,40 @@ const fetchBanks = async () => {
 };
 
 // ------ Fetch Products ------
+// ProductDeposit.vue에서 fetchProducts 함수 수정
 const fetchProducts = async () => {
   loading.value = true;
   error.value = null;
   try {
-    // 파라미터 구성 (객체 대신 URLSearchParams 직접 사용)
-    const searchParams = new URLSearchParams();
-
-    // 기본 파라미터 추가
-    searchParams.append('category', 'deposit');
-    searchParams.append('categoryId', '1');
-    searchParams.append('subCategoryId', '101');
-    searchParams.append('depositAmount', String(depositAmount.value).replace(/[^\d]/g, ''));
-    searchParams.append('saveTrm', period.value);
-    searchParams.append('page', String(currentPage.value));
-    searchParams.append('size', String(pageSize.value));
-    searchParams.append('sortBy', sortBy.value);
-    searchParams.append('sortDirection', 'desc');
-    searchParams.append('intrRateType', interestType.value);
+    // POST 요청에 맞게 객체 형태로 파라미터 구성
+    const params = {
+      category: 'deposit',
+      categoryId: '1',
+      subCategoryId: '101',
+      depositAmount: String(depositAmount.value).replace(/[^\d]/g, ''),
+      saveTrm: period.value,
+      page: String(currentPage.value),
+      size: String(pageSize.value),
+      sortBy: sortBy.value,
+      sortDirection: 'desc',
+      intrRateType: interestType.value,
+    };
 
     // 가입방식
     if (joinWay.value !== 'all') {
       if (Array.isArray(joinWay.value)) {
-        joinWay.value.forEach((way) => searchParams.append('joinWays', way));
+        params.joinWays = joinWay.value;
       } else {
-        searchParams.append('joinWays', joinWay.value);
+        params.joinWays = [joinWay.value];
       }
     }
 
-    // 은행 - 이 부분이 중요함!
-    if (selectedBankApiCodes.value.length >= 0) {
-      // forEach에서 append 사용하여 각 은행을 별도 파라미터로 추가
-      selectedBankApiCodes.value.forEach((bank) => {
-        searchParams.append('banks', bank);
-      });
+    // 은행
+    if (selectedBankApiCodes.value.length > 0) {
+      params.banks = selectedBankApiCodes.value;
     }
 
-    const res = await getProductsAPI(searchParams);
+    const res = await getProductsAPI(params);
     depositProducts.value = res.products || [];
     totalCount.value = res.totalCount || depositProducts.value.length || 0;
   } catch (err) {
