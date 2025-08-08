@@ -117,7 +117,7 @@ onMounted(async () => {
   if (response.success) {
     userInfo.value = response.data;
 
-    if (response.data.phoneNumber === null) {
+    if (response.data.socialType != 'none') {
       console.log('일반 로그인 사용자 - 비밀번호 확인 생략');
 
       localStorage.setItem('passwordVerified', 'true');
