@@ -231,11 +231,6 @@ const formatAmount = () => {
 };
 
 const openBankModal = () => {
-  console.log('은행 선택 모달 열기 - 은행 데이터 상태:', {
-    length: props.banks?.length || 0,
-    isArray: Array.isArray(props.banks),
-    sample: props.banks?.slice?.(0, 3) || [],
-  });
   showBankModal.value = true;
 };
 const closeBankModal = () => {

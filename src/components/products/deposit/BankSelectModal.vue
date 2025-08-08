@@ -155,48 +155,17 @@ const onConfirm = () => {
 };
 const closeModal = () => emit('close');
 
-// BankSelectModal.vue 스크립트 부분에 추가
-watch(
-  () => props.banks,
-  (newVal) => {
-    console.log('BankSelectModal - 은행 props 변경됨:', {
-      length: newVal?.length || 0,
-      isArray: Array.isArray(newVal),
-      sample: newVal?.slice?.(0, 3) || [],
-    });
-    console.log('분류 후 은행 카테고리:', bankCategories.value);
-  },
-  { immediate: true }
-);
-
-// 디스플레이용 은행 배열 디버깅
-watch(
-  () => displayedBanks.value,
-  (newVal) => {
-    console.log('표시할 은행 목록 변경됨:', {
-      length: newVal?.length || 0,
-      sample: newVal?.slice?.(0, 3) || [],
-    });
-  }
-);
-
 // 모달 오픈 시 초기화 부분 수정
 watch(
   () => props.show,
   (isVisible) => {
     if (isVisible) {
-      console.log('모달 열림 - 은행 데이터:', {
-        length: props.banks?.length || 0,
-        sample: props.banks?.slice?.(0, 3) || [],
-      });
-
       selected.value = props.initialSelectedBanks.length
         ? [...props.initialSelectedBanks]
         : [...bankCategories.value.bank];
 
       activeTab.value = 'bank';
       nextTick(() => {
-        console.log('nextTick 후 displayedBanks:', displayedBanks.value);
         syncSelectAll();
       });
     }

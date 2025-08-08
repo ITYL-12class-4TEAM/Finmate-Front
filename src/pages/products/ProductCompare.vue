@@ -277,8 +277,6 @@ const loadCompareData = async () => {
     // API 호출 (필요한 모든 파라미터 전달)
     const response = await compareProductsAPI(productIds, productType, saveTrm, intrRateType);
 
-    console.log('비교 API 응답:', response);
-
     // API 응답 저장
     compareData.value = response;
 
@@ -310,7 +308,7 @@ const loadCompareData = async () => {
         return item;
       });
 
-      console.log('업데이트된 비교 목록:', compareList.value);
+      // console.log('업데이트된 비교 목록:', compareList.value);
     }
   } catch (err) {
     console.error('비교 데이터 로드 오류:', err);

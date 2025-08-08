@@ -8,38 +8,14 @@ import api from './index';
  */
 export const getProductsAPI = async (params = {}) => {
   try {
-    // 요청 정보 로깅
-    console.log('API 요청 파라미터:', params);
-
     // 백엔드 API 호출
     const response = await api.get('/api/products', { params });
 
     // 응답 로깅
-    console.log('API 원본 응답:', response);
+    // console.log('API 원본 응답:', response.data.body.data);
 
     // 데이터 추출 및 반환
-    if (response.data) {
-      // API 응답 구조에 맞게 데이터 추출
-      const data = response.data;
-
-      // 응답 구조가 body.data 형태인 경우
-      if (data.body && data.body.data) {
-        return data.body.data;
-      }
-
-      // 응답 구조가 body 형태인 경우
-      if (data.body) {
-        return data.body;
-      }
-
-      // 응답이 data 자체인 경우
-      if (data.data) {
-        return data.data;
-      }
-
-      // 그 외의 경우 응답 전체 반환
-      return data;
-    }
+    return response.data.body.data;
   } catch (error) {
     console.error('상품 조회 API 오류:', error);
     throw error;
@@ -53,22 +29,14 @@ export const getProductsAPI = async (params = {}) => {
  */
 export const getProductDetailAPI = async (productType, productId, params = {}) => {
   try {
-    // 요청 로깅
-    console.log(`상품 상세 조회 요청: 유형=${productType}, ID=${productId}`);
-
     // API 호출
     const response = await api.get(`/api/products/${productType}/${productId}`, { params });
 
     // 응답 로깅
-    console.log('상품 상세 응답:', response);
+    // console.log('상품 상세 응답:', response.data.body.data);
 
     // 데이터 추출 및 반환
-    if (response.data && response.data.body && response.data.body.data) {
-      return response.data.body.data;
-    } else {
-      console.warn('예상치 못한 API 응답 구조:', response.data);
-      return null;
-    }
+    return response.data.body.data;
   } catch (error) {
     console.error('상품 상세 조회 API 오류:', error);
     throw error;
@@ -83,56 +51,19 @@ export const getProductsCategoriesAPI = async () => {
   try {
     const response = await api.get('/api/products/categories');
 
-    if (response.data && response.data.body && response.data.body.data) {
-      return response.data.body.data.categories || [];
-    } else {
-      console.warn('예상치 못한 API 응답 구조:', response.data);
-      return [];
-    }
+    return response.data.body.data.categories || [];
   } catch (error) {
     console.error('카테고리 조회 API 오류:', error);
     throw error;
   }
 };
 
-// /**
-// * 상품 비교
-// * @param {Array<string|number>} productIds - 비교할 상품 ID 목록
-// * @returns {Promise<Object>} 상품 비교 결과
-// */
-// export const getProductsCompareAPI = async (productIds = []) => {
-//  try {
-//    // 쿼리 파라미터 구성
-//    const params = {
-//      ids: Array.isArray(productIds) ? productIds.join(',') : productIds,
-//    };
-
-//    const response = await api.get('/api/products/compare', { params });
-
-//    if (response.data && response.data.body && response.data.body.data) {
-//      return response.data.body.data;
-//    } else {
-//      console.warn('예상치 못한 API 응답 구조:', response.data);
-//      return { products: [] };
-//    }
-//  } catch (error) {
-//    console.error('상품 비교 API 오류:', error);
-//    throw error;
-//  }
-// };
-
-// 필터 옵션 API 호출 함수
-
 export const getProductsFilterOptionsAPI = async (category) => {
   try {
-    console.log('필터 옵션 요청 파라미터:', { category });
-
     // api 객체 사용 (axios 인스턴스)
     const response = await api.get('/api/products/filter-options', {
       params: { category },
     });
-
-    console.log('필터 옵션 응답:', response.data.body.data);
 
     return response.data.body.data;
   } catch (error) {
@@ -189,12 +120,10 @@ export const compareProductsAPI = async (
       url += `&optionId=${encodeURIComponent(intrRateType)}`;
     }
 
-    console.log('비교 API 요청 URL:', url);
-
     // API 호출
     const response = await api.get(url);
 
-    console.log('비교 API 응답:', response);
+    // console.log('비교 API 응답:', response.data.body.data);
 
     return response.data.body.data;
   } catch (error) {

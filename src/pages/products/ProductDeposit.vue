@@ -145,8 +145,6 @@ const fetchProducts = async () => {
       selectedBankApiCodes.value.forEach((bank) => {
         searchParams.append('banks', bank);
       });
-
-      console.log('API 요청에 포함된 은행 수:', selectedBankApiCodes.value.length);
     }
 
     const res = await getProductsAPI(searchParams);
@@ -259,25 +257,14 @@ watch(
 );
 
 onMounted(async () => {
-  console.log('[타임스탬프]', new Date().toISOString(), 'ProductDeposit 마운트됨');
-
   // URL에서 은행 정보가 있다면 미리 설정
   if (route.query.banks) {
     const bankList = route.query.banks.split(',');
     selectedBanks.value = bankList;
     selectedBankApiCodes.value = bankList;
   }
-
   await fetchBanks();
-  console.log(
-    '[타임스탬프]',
-    new Date().toISOString(),
-    'fetchBanks 완료, 데이터:',
-    banks.value.length
-  );
-
   await fetchProducts();
-  console.log('[타임스탬프]', new Date().toISOString(), 'fetchProducts 완료');
 });
 </script>
 

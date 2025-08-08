@@ -143,8 +143,6 @@ const loadProductDetail = async () => {
     const saveTrm = route.query.saveTrm;
     const intrRateType = route.query.intrRateType;
 
-    console.log(`상품 상세 정보 로드: 카테고리=${category}, ID=${productId}, saveTrm=${saveTrm}`);
-
     const response = await getProductDetailAPI(category, productId, {
       saveTrm,
       intrRateType,
@@ -154,10 +152,6 @@ const loadProductDetail = async () => {
       product.value = response;
       product.value.is_digital_only =
         product.value.join_way === 'online' || product.value.join_way === '인터넷';
-
-      // API 응답 구조 확인 (디버깅용)
-      console.log('상품 상세 정보:', response);
-      console.log('productDetail 정보:', response.productDetail);
 
       // 상품 정보 로드 성공 후 최근 본 상품으로 저장
       saveAsRecentViewed();
@@ -194,13 +188,6 @@ const saveAsRecentViewed = async () => {
         rsrvType = option.rsrv_type || option.rsrvType;
       }
     }
-
-    console.log('최근 본 상품 저장 정보:', {
-      productId,
-      saveTrm,
-      intrRateType,
-      rsrvType,
-    });
 
     if (!productId) {
       console.warn('상품 ID가 없어 최근 본 상품으로 저장할 수 없습니다.');
