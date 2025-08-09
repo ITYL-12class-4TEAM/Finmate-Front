@@ -316,7 +316,7 @@ const loadCompareData = async () => {
 
 // 비교함에서 상품 제거
 const handleRemoveItem = async (productId, saveTrm, intrRateType = 'S') => {
-  const confirmed = await showModal('비교함에서 해당 상품을 제거하시겠습니까?');
+  const confirmed = await showModal('해당 상품을 제거하시겠습니까?');
 
   if (confirmed) {
     removeAndReload({ productId, saveTrm, intrRateType });
@@ -438,7 +438,7 @@ onMounted(() => {
      - 다른 페이지들과 동일한 배경색과 여백을 적용하여 통일성 유지
      ========================================================================== */
 .compare-page {
-  background-color: var(--color-bg-light);
+  /* background-color: var(--color-bg-light); */
   padding: 1rem 0;
   min-height: 100vh;
 }
