@@ -239,9 +239,9 @@ const goToCompare = () => {
   align-items: center;
   justify-content: space-between;
   background-color: #ffffff;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 0.5rem;
   border-radius: 0.5rem; /* 8px */
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.5rem;
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.03);
 }
 
