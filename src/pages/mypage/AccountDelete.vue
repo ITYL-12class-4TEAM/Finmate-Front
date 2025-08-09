@@ -246,7 +246,7 @@
 import { ref, computed, onUnmounted, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from '@/composables/useToast';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const { showToast } = useToast();
 const authStore = useAuthStore();
