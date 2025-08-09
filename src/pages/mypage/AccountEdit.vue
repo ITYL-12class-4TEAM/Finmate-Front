@@ -231,9 +231,10 @@ import { useRouter } from 'vue-router';
 import { memberAPI } from '../../api/member';
 import { authAPI } from '../../api/auth';
 import { useToast } from '../../composables/useToast';
+import { useAuthStore } from '../../stores/useAuthStore';
 
 const { showToast } = useToast();
-
+const authStore = useAuthStore();
 const router = useRouter();
 
 // 반응형 데이터
@@ -398,6 +399,7 @@ const updateProfile = async () => {
     // 4. 성공 처리
     showToast('회원정보가 성공적으로 수정되었습니다.', 'success');
     router.push('/');
+    authStore.refreshUser();
     resetForm();
   } catch (error) {
     showToast(`회원정보 수정 중 오류가 발생했습니다: ${error.message}`, 'error');

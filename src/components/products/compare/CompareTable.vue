@@ -16,7 +16,7 @@
 
     <!-- 우측 스크롤되는 '상품' 카드 영역 -->
     <div class="products-scroll-area">
-      <div class="product-column" v-for="item in items" :key="item.productId + item.saveTrm">
+      <div v-for="item in items" :key="item.productId + item.saveTrm" class="product-column">
         <div class="product-header">
           <div class="bank-name">{{ item.korCoNm }}</div>
           <div class="product-name">{{ item.productName }}</div>
