@@ -44,7 +44,7 @@
 
     <!-- GPT 비교 요약 버튼 (화면 하단 좌측 고정) -->
     <div v-if="compareList.length >= 2" class="gpt-summary-btn-container">
-      <button class="gpt-summary-btn" @click="handleGptSummary" :disabled="gptLoading">
+      <button class="gpt-summary-btn" :disabled="gptLoading" @click="handleGptSummary">
         <div v-if="gptLoading" class="btn-loading">
           <div class="mini-spinner"></div>
         </div>
@@ -100,7 +100,6 @@ const toastMessage = ref('');
 // GPT 요약 처리 (개선된 버전)
 const handleGptSummary = async () => {
   if (compareList.value.length < 2) {
-    showToast('비교할 상품이 부족합니다. 최소 2개 이상의 상품을 선택해주세요.');
     return;
   }
 
@@ -109,19 +108,9 @@ const handleGptSummary = async () => {
     showGptModal.value = true;
   } catch (error) {
     console.error('GPT 모달 열기 실패:', error);
-    showToast('요약 기능을 실행할 수 없습니다.');
   } finally {
     gptLoading.value = false;
   }
-};
-
-// 토스트 메시지 표시
-const showToast = (message) => {
-  toastMessage.value = message;
-  showSuccessToast.value = true;
-  setTimeout(() => {
-    showSuccessToast.value = false;
-  }, 3000);
 };
 
 // 플로팅 바에서 비교하기 버튼 클릭 시 처리
@@ -323,11 +312,8 @@ const handleRemoveItem = async (productId, saveTrm, intrRateType = 'S') => {
       } else {
         await loadCompareData();
       }
-
-      showToast('상품이 비교함에서 제거되었습니다.');
     } catch (error) {
       console.error('상품 제거 실패:', error);
-      showToast('상품 제거에 실패했습니다.');
     }
   }
 };
@@ -342,10 +328,8 @@ const handleClearCompare = async () => {
       clearCompareList();
       compareData.value = null;
       error.value = null;
-      showToast('비교함이 비워졌습니다.');
     } catch (err) {
       console.error('비교함 비우기 실패:', err);
-      showToast('비교함 비우기에 실패했습니다.');
     }
   }
 };
@@ -547,23 +531,6 @@ onMounted(() => {
   white-space: nowrap;
 }
 
-/* 토스트 알림 */
-.success-toast {
-  position: fixed;
-  bottom: 6rem;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(40, 167, 69, 0.95);
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  z-index: 1001;
-  animation: toastSlideIn 0.3s ease-out;
-  backdrop-filter: blur(10px);
-}
-
 @keyframes toastSlideIn {
   from {
     opacity: 0;
@@ -602,12 +569,7 @@ onMounted(() => {
 }
 
 /* 반응형 디자인 */
-@media (max-width: 768px) {
-  .gpt-summary-btn-container {
-    bottom: 1rem;
-    left: 0.5rem;
-  }
-
+/* @media (max-width: 768px) {
   .gpt-summary-btn {
     padding: 0.625rem 1rem;
     font-size: 0.8125rem;
@@ -621,5 +583,5 @@ onMounted(() => {
     transform: none;
     text-align: center;
   }
-}
+} */
 </style>
