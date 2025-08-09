@@ -41,9 +41,13 @@
         <WMTIQuestion
           v-for="(question, index) in questions"
           :key="question.id"
+          :ref="(el) => setQuestionRef(el, index)"
           v-model:value="answers[index]"
           :question="question"
           :index="index"
+          :data-question-index="index"
+          class="survey-question"
+          @update:value="handleAnswerChange(index, $event)"
         />
       </div>
 
@@ -79,12 +83,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import WMTIQuestion from '@/components/wmti/WMTIQuestion.vue';
 import BackButton from '@/components/common/BackButton.vue';
 import { getWMTIQuestionsAPI, postwmtiAPI } from '@/api/wmti';
 import { useToast } from '@/composables/useToast';
+
 const { showToast } = useToast();
 const handleError = (message) => {
   showToast(message, 'error');
@@ -99,6 +104,8 @@ const router = useRouter();
 
 const questions = ref([]);
 const answers = ref([]);
+const questionRefs = ref(new Map()); // 각 질문 컴포넌트의 ref를 저장
+const hasAnswered = ref(new Set()); // 이미 답변한 문항 추적
 
 // ✅ 진행률 계산
 const answeredCount = computed(() => answers.value.filter((a) => a !== null).length);
@@ -110,6 +117,118 @@ const progressPercentage = computed(() => {
   return (answeredCount.value / questions.value.length) * 100;
 });
 
+// ✅ 질문 컴포넌트 ref 설정
+const setQuestionRef = (el, index) => {
+  if (el) {
+    questionRefs.value.set(index, el);
+  } else {
+    questionRefs.value.delete(index);
+  }
+};
+
+// ✅ 답변 변경 처리 및 오토스크롤
+const handleAnswerChange = async (questionIndex, newValue) => {
+  const oldValue = answers.value[questionIndex];
+  answers.value[questionIndex] = newValue;
+
+  // 이전에 답변하지 않은 문항에 처음 답변하는 경우에만 오토스크롤 실행
+  const isFirstAnswer = !hasAnswered.value.has(questionIndex);
+
+  if (isFirstAnswer && newValue !== null) {
+    hasAnswered.value.add(questionIndex);
+    await scrollToNextQuestion(questionIndex);
+  }
+};
+
+// ✅ 다음 문항으로 스크롤하는 함수
+const scrollToNextQuestion = async (currentIndex) => {
+  const nextIndex = currentIndex + 1;
+
+  // 다음 문항이 있는지 확인
+  if (nextIndex >= questions.value.length) {
+    await scrollToSubmitButton();
+    return;
+  }
+
+  // DOM 업데이트 대기
+  await nextTick();
+
+  // 여러 방법으로 다음 문항 엘리먼트 찾기
+  const nextQuestionRef = questionRefs.value.get(nextIndex);
+  let targetElement = null;
+
+  if (nextQuestionRef && nextQuestionRef.$el) {
+    targetElement = nextQuestionRef.$el;
+  } else {
+    targetElement = document.querySelector(`[data-question-index="${nextIndex}"]`);
+  }
+
+  if (!targetElement) {
+    const allQuestions = document.querySelectorAll('.survey-question');
+    targetElement = allQuestions[nextIndex];
+  }
+
+  if (targetElement) {
+    const headerHeight = 140;
+    const elementRect = targetElement.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const offsetTop = elementRect.top + scrollTop - headerHeight;
+
+    window.scrollTo({
+      top: offsetTop,
+      behavior: 'smooth',
+    });
+
+    // 스크롤 후 해당 문항 하이라이트
+    setTimeout(() => {
+      highlightQuestion(nextIndex);
+    }, 500);
+  }
+};
+
+// ✅ 제출 버튼으로 스크롤
+const scrollToSubmitButton = async () => {
+  await nextTick();
+
+  const submitSection = document.querySelector('.submit-section');
+  if (submitSection) {
+    const headerHeight = 100;
+    const elementRect = submitSection.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const offsetTop = elementRect.top + scrollTop - headerHeight;
+
+    window.scrollTo({
+      top: offsetTop,
+      behavior: 'smooth',
+    });
+  }
+};
+
+// ✅ 문항 하이라이트 효과
+const highlightQuestion = (questionIndex) => {
+  let element = null;
+
+  const questionRef = questionRefs.value.get(questionIndex);
+  if (questionRef && questionRef.$el) {
+    element = questionRef.$el;
+  } else {
+    element = document.querySelector(`[data-question-index="${questionIndex}"]`);
+  }
+
+  if (!element) {
+    const allQuestions = document.querySelectorAll('.survey-question');
+    element = allQuestions[questionIndex];
+  }
+
+  if (element) {
+    element.classList.add('highlight-question');
+
+    setTimeout(() => {
+      element.classList.remove('highlight-question');
+    }, 1500);
+  }
+};
+
 // ✅ 문항 불러오기
 const loadQuestions = async () => {
   try {
@@ -117,7 +236,7 @@ const loadQuestions = async () => {
     const list = res.body.data;
     questions.value = list;
     answers.value = Array(list.length).fill(null);
-    console.log('✅ 질문 수:', list.length);
+    hasAnswered.value.clear();
   } catch (err) {
     console.error('설문 문항 로딩 실패:', err);
     handleError('설문 문항을 불러오는데 실패했습니다.', 'error');
@@ -133,15 +252,18 @@ const handleSubmit = async () => {
 
   try {
     const payload = { answers: answers.value };
-    console.log('📤 제출 payload:', payload);
     handleSuccess('제출합니다');
     const res = await postwmtiAPI(payload);
     const wmtiCode = res.body.wmtiCode;
 
-    router.push({
-      path: '/wmti/result',
-      query: { code: wmtiCode },
-    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    setTimeout(() => {
+      router.push({
+        path: '/wmti/result',
+        query: { code: wmtiCode },
+      });
+    }, 300);
   } catch (err) {
     console.error('제출 실패:', err);
     handleError('제출 중 오류가 발생했습니다.', 'error');
@@ -154,17 +276,15 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 컨테이너 설정 */
+/* 기존 스타일 유지 */
 .survey-page {
-  max-width: 26.875rem; /* 430px */
+  max-width: 26.875rem;
   margin: 0 auto;
   padding: 1rem;
   font-family: 'Inter', sans-serif;
-  /* background: linear-gradient(135deg, var(--color-bg-light) 0%, rgba(238, 238, 243, 0.5) 100%); */
   min-height: 100vh;
 }
 
-/* 헤더 섹션 */
 .survey-header {
   text-align: center;
   margin-bottom: 1.5rem;
@@ -188,7 +308,6 @@ onMounted(() => {
   margin-bottom: 1.25rem;
 }
 
-/* 진행률 섹션 */
 .progress-section {
   margin-top: 1rem;
 }
@@ -215,7 +334,6 @@ onMounted(() => {
   font-weight: 600;
 }
 
-/* 안내 카드 */
 .instruction-card {
   background: linear-gradient(135deg, rgba(230, 126, 34, 0.1), rgba(230, 126, 34, 0.05));
   border: 0.0625rem solid rgba(230, 126, 34, 0.2);
@@ -251,7 +369,6 @@ onMounted(() => {
   margin-bottom: 0;
 }
 
-/* 설문 폼 */
 .survey-form {
   display: flex;
   flex-direction: column;
@@ -261,17 +378,9 @@ onMounted(() => {
 .questions-container {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-}
-
-/* 질문 카드 - 기존 WMTIQuestion 컴포넌트 스타일과 조화 */
-.questions-container {
-  display: flex;
-  flex-direction: column;
   gap: 1rem;
 }
 
-/* 제출 섹션 */
 .submit-section {
   position: sticky;
   bottom: 1rem;
@@ -334,7 +443,6 @@ onMounted(() => {
   transform: none;
 }
 
-/* 로딩 상태 */
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -366,5 +474,30 @@ onMounted(() => {
 .loading-container p {
   color: var(--color-sub);
   font-weight: 500;
+}
+
+/* ✅ 문항 하이라이트 효과 */
+:deep(.highlight-question) {
+  transform: translateY(-0.25rem);
+  box-shadow: 0 0.75rem 2rem rgba(45, 51, 107, 0.2) !important;
+  border-color: rgba(45, 51, 107, 0.4) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(45, 51, 107, 0.05),
+    rgba(248, 249, 252, 0.95)
+  ) !important;
+  animation: questionPulse 1.5s ease-out;
+}
+
+@keyframes questionPulse {
+  0% {
+    box-shadow: 0 0.75rem 2rem rgba(45, 51, 107, 0.2);
+  }
+  50% {
+    box-shadow: 0 1rem 3rem rgba(45, 51, 107, 0.3);
+  }
+  100% {
+    box-shadow: 0 0.75rem 2rem rgba(45, 51, 107, 0.2);
+  }
 }
 </style>

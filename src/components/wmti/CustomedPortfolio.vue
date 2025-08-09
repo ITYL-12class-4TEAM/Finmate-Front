@@ -701,7 +701,7 @@ onMounted(() => {
 .customed-portfolio-section {
   background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.8) 100%);
   border-radius: 1rem;
-  padding: 0 1.25rem;
+
   box-shadow: 0 0.25rem 1.25rem rgba(45, 51, 107, 0.08);
   animation: fadeInUp 0.6s ease-out 0.6s both;
   margin-bottom: 1.25rem;
@@ -998,12 +998,12 @@ onMounted(() => {
 }
 
 /* 근거 설명 섹션 */
-.reasoning-section {
+/* .reasoning-section {
   background: linear-gradient(135deg, rgba(45, 51, 107, 0.02), rgba(125, 129, 162, 0.01));
   border-radius: 0.75rem;
   padding: 1rem;
   border-left: 0.188rem solid var(--color-main);
-}
+} */
 
 .subsection-title {
   font-size: 0.875rem;

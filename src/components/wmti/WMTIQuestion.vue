@@ -35,7 +35,7 @@
             :value="score"
             :checked="score === value"
             class="radio-input"
-            @change="$emit('update:value', Number(score))"
+            @change="handleChange(score)"
           />
           <div class="option-circle">
             <div v-if="score === value" class="option-inner">
@@ -69,7 +69,12 @@
 
 <script setup>
 import { defineProps } from 'vue';
+const emit = defineEmits(['update:value']);
 
+const handleChange = (score) => {
+  console.log(`🔘 WMTIQuestion - 문항 ${props.index + 1}에서 ${score}점 선택됨`);
+  emit('update:value', Number(score));
+};
 const props = defineProps({
   question: {
     type: Object,
