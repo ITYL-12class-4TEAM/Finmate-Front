@@ -1,7 +1,7 @@
 <template>
   <div class="survey-page">
     <!-- 뒤로가기 버튼 -->
-    <BackButton title="WMTI 검사" to="/wmti/basic" />
+    <BackButton title="돌아가기" to="/wmti/basic" />
 
     <!-- 헤더 섹션 -->
     <div class="survey-header">

@@ -73,7 +73,7 @@
           <span class="subsection-icon description-icon"></span>
           상세 분석
         </h4>
-        <p class="description-text">{{ analysis.description }}</p>
+        <p class="description-text multiline-text">{{ analysis.description }}</p>
       </div>
     </div>
 
@@ -772,6 +772,10 @@ onMounted(() => {
   color: var(--color-sub);
   margin: 0;
   font-weight: 500;
+}
+/* 줄바꿈 처리 */
+.multiline-text {
+  white-space: pre-line; /* \n을 줄바꿈으로 처리 */
 }
 
 /* 점수 그리드 */

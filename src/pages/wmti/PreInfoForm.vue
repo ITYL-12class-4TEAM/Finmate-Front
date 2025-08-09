@@ -1,6 +1,8 @@
 <template>
   <div class="preinfo-container">
     <div class="preinfo-form">
+      <!-- 뒤로가기 버튼 -->
+      <BackButton title="돌아가기" to="/wmti/basic" />
       <!-- 헤더 -->
       <div class="form-header">
         <div class="header-accent"></div>
@@ -177,6 +179,7 @@ import { useRouter } from 'vue-router';
 import { postPreinfoAPI } from '@/api/wmti';
 import { InvestmentPeriodEnum, PurposeCategoryEnum } from '../../constants/wmtienums';
 import { useToast } from '@/composables/useToast';
+import BackButton from '@/components/common/BackButton.vue';
 
 const { showToast } = useToast();
 const router = useRouter();
@@ -348,6 +351,7 @@ const handleSubmit = async () => {
 /* 헤더 */
 .form-header {
   text-align: center;
+  margin-top: 3rem;
   margin-bottom: 1.5rem;
   position: relative;
 }
