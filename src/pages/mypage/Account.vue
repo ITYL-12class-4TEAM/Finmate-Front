@@ -98,27 +98,20 @@ const userInfo = ref({
 });
 
 onMounted(async () => {
-  console.log('API 호출 시작');
-
   const response = await memberAPI.getMyInfo();
-  console.log('사용자 정보:', response.data);
 
   if (response.success) {
     userInfo.value = response.data;
 
     if (response.data.socialType != 'none') {
-      console.log('일반 로그인 사용자 - 비밀번호 확인 생략');
-
+      // 소셜 로그인 사용자 제외
       localStorage.setItem('passwordVerified', 'true');
       localStorage.setItem('verificationTime', Date.now().toString());
 
       router.push('/mypage/settings/edit');
       return;
     }
-
-    console.log('일반 로그인 사용자 - 비밀번호 확인 필요');
   } else {
-    console.error('사용자 정보 조회 실패:', response.message);
     alert('사용자 정보를 불러올 수 없습니다.');
   }
 });
@@ -177,7 +170,6 @@ const verifyPassword = async () => {
   } catch (err) {
     hasError.value = true;
     errorMessage.value = '비밀번호 확인 중 오류가 발생했습니다.';
-    console.error('Password verification error:', err);
   } finally {
     loading.value = false;
   }

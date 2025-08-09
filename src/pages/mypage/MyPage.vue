@@ -91,6 +91,8 @@ import { useRouter } from 'vue-router';
 import { memberAPI } from '../../api/member';
 // 이미지 import 방식 수정
 import defaultProfileImg from '../../assets/images/DefaultProfileImg.png';
+import { useToast } from '@/composables/useToast';
+const { showToast } = useToast();
 
 const router = useRouter();
 const userData = ref(null); // 초기값을 null로 설정
@@ -134,12 +136,11 @@ onMounted(async () => {
     const response = await memberAPI.getMyInfo();
     if (response.success) {
       userData.value = response.data;
-      console.log('사용자 정보:', userData.value);
     } else {
-      console.error('사용자 정보 조회 실패:', response);
+      showToast('사용자 정보 조회 실패:', response.message, 'error');
     }
   } catch (error) {
-    console.error('API 호출 에러:', error);
+    showToast('사용자 정보 조회 실패:', error, 'error');
   }
 });
 </script>
