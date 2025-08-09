@@ -152,7 +152,7 @@ const router = useRouter();
 const { showModal } = useModal();
 const authStore = useAuthStore();
 
-const memberId = authStore.userInfo.memberId;
+const memberId = computed(() => authStore.userInfo?.memberId || null);
 
 const postId = route.params.id;
 
@@ -174,7 +174,7 @@ const formattedTime = (arr) => {
 // API 함수
 const fetchPostDetail = async () => {
   try {
-    post.value = await getPostByIdAPI(postId, memberId);
+    post.value = await getPostByIdAPI(postId, memberId.value);
     // post.value = mockPost;
   } catch (e) {
     // alert('게시물을 불러오지 못했습니다.');
@@ -184,7 +184,7 @@ const fetchPostDetail = async () => {
 
 const fetchComments = async () => {
   try {
-    comments.value = await getCommentsByPostId(postId, memberId);
+    comments.value = await getCommentsByPostId(postId, memberId.value);
     // comments.value = mockComments;
   } catch (e) {
     // alert('댓글을 불러오지 못했습니다.');

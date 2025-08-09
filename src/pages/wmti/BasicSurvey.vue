@@ -4,7 +4,7 @@
 
     <!-- 소개 섹션 -->
     <section class="intro">
-      <h1>투자 성향 분석 서비스</h1>
+      <h1>투자 성향 진단</h1>
       <p class="note">*본 서비스는 고객님의 기본적인 정보를 입력받습니다.*</p>
       <p class="description">
         이는 고객님의 투자스타일, 투자성향, 투자여건을 <br />
@@ -59,16 +59,6 @@
         {{ step2Enabled ? '검사하기' : '기본정보 입력 후 이용 가능' }}
       </button>
     </section>
-
-    <!-- 디버깅 정보 (개발용) -->
-    <div v-if="showDebug" class="debug-info">
-      <h3>🔍 디버깅 정보</h3>
-      <p>localStorage preinfoSubmitted: {{ debugInfo.localStorage }}</p>
-      <p>step1Completed: {{ debugInfo.step1Completed }}</p>
-      <p>step2Enabled: {{ debugInfo.step2Enabled }}</p>
-      <button class="debug-button" @click="clearPreinfo">localStorage 초기화</button>
-      <button class="debug-button" @click="setPreinfo">localStorage 설정</button>
-    </div>
   </div>
 </template>
 
@@ -86,15 +76,6 @@ const router = useRouter();
 // ✅ 상태 변수들
 const step1Completed = ref(false);
 const step2Enabled = ref(false);
-
-const showDebug = true; // 개발용 - 실제 운영 시 false
-
-// ✅ 디버깅 정보
-const debugInfo = computed(() => ({
-  localStorage: localStorage.getItem('preinfoSubmitted'),
-  step1Completed: step1Completed.value,
-  step2Enabled: step2Enabled.value,
-}));
 
 // ✅ 사전정보 입력 여부 체크
 const checkPreinfoStatus = () => {
@@ -272,7 +253,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 1rem 0;
+  margin: 2rem 0;
   position: relative;
 }
 
@@ -309,33 +290,6 @@ onMounted(() => {
   color: var(--color-light);
   text-align: center;
   font-style: italic;
-}
-
-/* 디버깅 정보 스타일 */
-.debug-info {
-  background: rgba(231, 76, 60, 0.1);
-  border: 0.0625rem solid #e74c3c;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-top: 2rem;
-  font-size: 0.8rem;
-}
-
-.debug-info h3 {
-  margin: 0 0 0.5rem 0;
-  color: #e74c3c;
-}
-
-.debug-button {
-  background: #e74c3c;
-  color: white;
-  border: none;
-  padding: 0.375rem 0.75rem;
-  border-radius: 0.375rem;
-  margin-right: 0.5rem;
-  margin-top: 0.5rem;
-  cursor: pointer;
-  font-size: 0.75rem;
 }
 
 @keyframes bounce {

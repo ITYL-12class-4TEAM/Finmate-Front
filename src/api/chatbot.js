@@ -105,6 +105,28 @@ export const userDataAPI = {
   },
 
   /**
+   * 관심상품 목록 조회
+   * @returns {Promise<Array>} 관심상품 목록
+   */
+  async getWishlistProducts() {
+    const response = await api.get('/api/wishlist', {
+      timeout: 15000,
+    });
+    return this.extractData(response);
+  },
+
+  /**
+   * 최근 본 상품 목록 조회
+   * @returns {Promise<Array>} 최근 본 상품 목록
+   */
+  async getRecentViewedProducts() {
+    const response = await api.get('/api/recent-viewed', {
+      timeout: 15000,
+    });
+    return this.extractData(response);
+  },
+
+  /**
    * API 응답에서 데이터 추출
    * @param {Object} response - Axios 응답 객체
    * @returns {Array} 추출된 데이터 배열
