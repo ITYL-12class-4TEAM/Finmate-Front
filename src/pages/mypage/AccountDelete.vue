@@ -246,7 +246,7 @@
 import { ref, computed, onUnmounted, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from '@/composables/useToast';
-import { useAuthStore } from '@/stores/useAuthStore';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const { showToast } = useToast();
 const authStore = useAuthStore();
@@ -366,27 +366,17 @@ const confirmFinalDeletion = async () => {
   processing.value = true;
 
   try {
-    const withdrawData = {
-      username: userInfo.value.email, // 또는 userInfo.value.username
-      agreeToWithdraw: finalConfirm.value,
-      reason: deleteReason.value || 'not-specified',
-    };
+    // 서버 요청 시뮬레이션
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    console.log('회원탈퇴 요청 데이터:', withdrawData);
+    // 탈퇴 처리 완료
+    closeFinalModal();
 
-    const result = await authStore.withdraw(withdrawData);
+    // 로컬 스토리지 정리
+    localStorage.clear();
 
-    if (result.success) {
-      closeFinalModal();
-
-      showToast('회원탈퇴가 완료되었습니다.\n그동안 이용해주셔서 감사합니다.', 'success');
-
-      setTimeout(() => {
-        router.push('/');
-      }, 2000);
-    } else {
-      showToast(result.message || '회원탈퇴 처리 중 오류가 발생했습니다.', 'error');
-    }
+    goToMain();
+    showToast('계정 탈퇴가 완료되었습니다.\n메인 페이지로 이동합니다.', 'success');
   } catch (error) {
     console.error('회원탈퇴 처리 오류:', error);
     showToast('회원탈퇴 처리 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.', 'error');
