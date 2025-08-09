@@ -2,70 +2,129 @@
   <div class="comment">
     <!-- 댓글 헤더 (작성자, 시각, 삭제) -->
     <div class="comment-header">
-      <span class="nickname">{{ comment.nickname }}</span>
-      <span class="time">{{ formattedTime(comment.createdAt) }}</span>
+      <div class="author-info">
+        <div class="author-avatar">
+          {{ (comment.nickname || '?').charAt(0).toUpperCase() }}
+        </div>
+        <div class="author-details">
+          <span class="nickname">{{ comment.nickname }}</span>
+          <span class="time">{{ formattedTime(comment.createdAt) }}</span>
+        </div>
+      </div>
       <button v-if="comment.isMine" class="delete-btn" @click="handleDelete(comment.commentId)">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"
+          />
+        </svg>
         삭제
       </button>
     </div>
 
     <!-- 댓글 내용 -->
-    <p class="comment-content">{{ comment.content }}</p>
+    <div class="comment-content">
+      <p>{{ comment.content }}</p>
+    </div>
 
     <!-- 댓글 푸터 (좋아요, 대댓글 작성) -->
     <div class="comment-footer">
-      <button @click="toggleLike(comment.commentId)">
-        <svg
-          v-if="comment.liked"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          class="size-5"
+      <div class="action-buttons">
+        <button
+          class="like-btn"
+          :class="{ liked: comment.liked }"
+          @click="toggleLike(comment.commentId)"
         >
-          <path
-            d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218
-         25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25
-         2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052
-         5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25
-         0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17
-         15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z"
-          />
-        </svg>
-        <svg
-          v-else
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="size-5"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5
-         -1.935 0-3.597 1.126-4.312 2.733
-         -.715-1.607-2.377-2.733-4.313-2.733
-         C5.1 3.75 3 5.765 3 8.25
-         c0 7.22 9 12 9 12s9-4.78 9-12Z"
-          />
-        </svg>
-        {{ comment.likeCount }}
-      </button>
+          <svg v-if="comment.liked" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218
+           25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25
+           2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052
+           5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25
+           0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17
+           15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z"
+            />
+          </svg>
+          <svg
+            v-else
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5
+           -1.935 0-3.597 1.126-4.312 2.733
+           -.715-1.607-2.377-2.733-4.313-2.733
+           C5.1 3.75 3 5.765 3 8.25
+           c0 7.22 9 12 9 12s9-4.78 9-12Z"
+            />
+          </svg>
+          <span class="count">{{ comment.likeCount }}</span>
+        </button>
 
-      <!-- 대댓글 작성 버튼 -->
-      <button v-if="!isReply" class="reply-toggle-btn" @click="isReplying = !isReplying">
-        {{ isReplying ? '취소' : '댓글' }}
-      </button>
+        <!-- 대댓글 작성 버튼 -->
+        <button v-if="!isReply" class="reply-toggle-btn" @click="isReplying = !isReplying">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z"
+            />
+          </svg>
+          {{ isReplying ? '취소' : '댓글' }}
+        </button>
+      </div>
     </div>
 
     <!-- 대댓글 입력창 -->
     <div v-if="isReplying" class="reply-form">
-      <div class="anonymous-toggle">
-        <CustomCheckbox id="reply-anonymous" v-model="isAnonymous">익명</CustomCheckbox>
+      <div class="reply-form-header">
+        <CustomCheckbox id="reply-anonymous" v-model="isAnonymous">
+          <span class="checkbox-label">익명</span>
+        </CustomCheckbox>
       </div>
-      <input v-model="replyContent" placeholder="대댓글을 입력해주세요." class="reply-input" />
-      <button class="reply-submit" @click="handleReplySubmit">등록</button>
+      <div class="reply-input-container">
+        <input
+          v-model="replyContent"
+          placeholder="대댓글을 입력해주세요."
+          class="reply-input"
+          @keypress.enter="handleReplySubmit"
+        />
+        <button class="reply-submit" @click="handleReplySubmit" :disabled="!replyContent.trim()">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
+            />
+          </svg>
+        </button>
+      </div>
     </div>
 
     <!-- 대댓글 렌더링 -->
@@ -166,106 +225,325 @@ const formattedTime = (arr) => {
 
 <style scoped>
 .comment {
-  padding: 0.6rem 0;
-  border-bottom: 0.5px solid var(--color-light);
+  background: white;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  margin-bottom: 0.375rem;
+  border: 0.0625rem solid #f3f4f6;
+  box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+}
+
+.comment:hover {
+  border-color: var(--color-light);
+  box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.06);
 }
 
 /* 댓글 헤더 */
 .comment-header {
   display: flex;
   align-items: center;
-  margin-bottom: 0.2rem;
+  justify-content: space-between;
+  margin-bottom: 0.375rem;
 }
 
-.comment-header .nickname {
+.author-info {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.author-avatar {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-sub), var(--color-light));
+  color: white;
+  font-size: 0.5625rem;
   font-weight: 600;
-  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0.0625rem 0.1875rem rgba(45, 51, 107, 0.08);
 }
 
-.comment-header .time {
-  font-size: 0.8rem;
-  color: rgba(0, 0, 0, 0.5);
-  margin-left: 0.5rem;
+.author-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+}
+
+.nickname {
+  font-weight: 600;
+  font-size: 0.6875rem;
+  color: var(--color-main);
+}
+
+.time {
+  font-size: 0.5625rem;
+  color: #9ca3af;
 }
 
 .delete-btn {
   background: none;
-  color: #ff6b6b;
-  font-size: 0.8rem;
-  margin-left: 1rem;
+  border: none;
+  color: #ef4444;
+  font-size: 0.625rem;
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.1875rem 0.375rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
 }
 
 /* 댓글 내용 */
 .comment-content {
-  font-size: 0.8rem;
-  line-height: 1.5;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.3rem;
 }
 
-/* 댓글 푸터 (좋아요) */
+.comment-content p {
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: #374151;
+  margin: 0;
+}
+
+/* 댓글 푸터 */
 .comment-footer {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  justify-content: space-between;
 }
 
-.comment-footer button {
-  background: none;
-  color: rgba(0, 0, 0, 0.5);
+.action-buttons {
   display: flex;
   align-items: center;
-  gap: 0.2rem;
-  font-size: 0.75rem;
+  gap: 0.375rem;
 }
 
-.comment-footer svg {
-  width: 1rem;
-  height: 1rem;
-}
-
-/* 대댓글 작성 */
-.reply-form {
+.like-btn {
+  background: none;
+  border: none;
+  color: #9ca3af;
   display: flex;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  padding: 0.1875rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.like-btn:hover {
+  color: var(--color-sub);
+}
+
+.like-btn.liked {
+  color: #ef4444;
+  fill: currentColor;
+}
+
+.like-btn.liked:hover {
+  color: #dc2626;
+}
+
+.count {
+  font-weight: 500;
 }
 
 .reply-toggle-btn {
-  border: 0.2px solid var(--color-light);
-  padding: 0.1rem 0.4rem;
-  border-radius: 3px;
-}
-
-.anonymous-toggle {
+  background: none;
+  border: 0.0625rem solid var(--color-light);
+  color: var(--color-sub);
+  font-size: 0.625rem;
   display: flex;
   align-items: center;
-  padding-left: 0.3rem;
+  gap: 0.1875rem;
+  padding: 0.1875rem 0.4375rem;
+  border-radius: 1rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.reply-toggle-btn:hover {
+  background: var(--color-bg-light);
+  border-color: var(--color-sub);
+  color: var(--color-main);
+}
+
+/* 대댓글 작성 폼 */
+.reply-form {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: var(--color-bg-light);
+  border-radius: 0.5rem;
+  border: 0.0625rem solid rgba(185, 187, 204, 0.2);
+}
+
+.reply-form-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.375rem;
+}
+
+.checkbox-label {
+  font-size: 0.6875rem;
+  color: var(--color-sub);
+  font-weight: 500;
+}
+
+.reply-input-container {
+  display: flex;
+  gap: 0.375rem;
+  align-items: center;
 }
 
 .reply-input {
   flex: 1;
-  padding: 0.3rem;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  border: 0.5px solid var(--color-light);
+  padding: 0.375rem 0.5rem;
+  border: 0.0625rem solid rgba(185, 187, 204, 0.25);
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  background: white;
+  transition: all 0.2s ease;
+  resize: none;
+  outline: none;
+  height: 1.875rem;
+}
+
+.reply-input:focus {
+  border-color: var(--color-sub);
+  box-shadow: 0 0 0 0.125rem rgba(125, 129, 162, 0.06);
+}
+
+.reply-input::placeholder {
+  color: #9ca3af;
 }
 
 .reply-submit {
-  font-size: 0.8rem;
-  border-radius: 6px;
-  padding: 0 0.5rem;
+  background: var(--color-main);
+  border: none;
+  color: white;
+  font-size: 0.6875rem;
+  padding: 0.375rem;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.875rem;
+  height: 1.875rem;
+  flex-shrink: 0;
+}
+
+.reply-submit:hover:not(:disabled) {
+  background: var(--color-sub);
+  transform: scale(1.05);
+}
+
+.reply-submit:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* 대댓글 */
 .replies {
-  margin-left: 2rem;
-  margin-top: 1rem;
-  padding: 0 0.6rem;
-  background-color: var(--color-bg-light);
-  border-radius: 10px;
+  margin-top: 0.75rem;
+  margin-left: 0.75rem;
+  padding-left: 0.75rem;
+  border-left: 2px solid transparent;
+  position: relative;
+  background: linear-gradient(
+    to right,
+    rgba(125, 129, 162, 0.08) 0%,
+    rgba(125, 129, 162, 0.03) 50%,
+    transparent 100%
+  );
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.replies::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  /* background: linear-gradient(to bottom, var(--color-sub), var(--color-light), transparent); */
+  border-radius: 1px;
+}
+
+.replies .reply {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(185, 187, 204, 0.1);
+  margin-bottom: 0.375rem;
+  padding: 0.625rem;
+  backdrop-filter: blur(10px);
 }
 
 .replies .reply:last-child {
-  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.replies .reply:hover {
+  border-color: rgba(185, 187, 204, 0.2);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .comment {
+    padding: 0.4375rem;
+    border-radius: 0.4375rem;
+  }
+
+  .author-avatar {
+    width: 1.25rem;
+    height: 1.25rem;
+    font-size: 0.5625rem;
+  }
+
+  .action-buttons {
+    gap: 0.25rem;
+  }
+
+  .replies {
+    margin-left: 0.375rem;
+    padding-left: 0.375rem;
+  }
+
+  .reply-input-container {
+    gap: 0.25rem;
+  }
+
+  .reply-submit {
+    width: 1.625rem;
+    height: 1.625rem;
+  }
+
+  .nickname {
+    font-size: 0.6875rem;
+  }
+
+  .time {
+    font-size: 0.5625rem;
+  }
+
+  .comment-content p {
+    font-size: 0.6875rem;
+  }
 }
 </style>

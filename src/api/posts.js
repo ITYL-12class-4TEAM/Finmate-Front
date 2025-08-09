@@ -13,6 +13,9 @@ export const getPostsAPI = async (boardId) => {
     createdAt: post.createdAt,
     likes: post.likeCount,
     comments: post.commentCount,
+    liked: post.liked,
+    scraped: post.scraped,
+    scrapCount: post.scrapCount,
     tendency: 'APWC', // 임의 값 (백엔드 리팩터링 전)
     productType: productTagMap[post.productTag],
     nickname: post.nickname,
@@ -23,10 +26,13 @@ export const getPostsAPI = async (boardId) => {
 export const getPostByIdAPI = async (postId, memberId) => {
   const res = await api.get(`/api/posts/${postId}`);
   const post = res.data.body.data;
+  console.log('memberId from localStorage:', memberId);
+  console.log('post.memberId from API:', post.memberId);
 
   return {
     id: post.postId,
     boardId: post.boardId,
+    memberId: post.memberId,
     title: post.title,
     content: post.content,
     createdAt: post.createdAt,
