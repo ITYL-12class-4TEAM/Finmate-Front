@@ -26,10 +26,18 @@
         <!-- Card Header -->
         <div class="card-header" @click="toggleDetails(history.id)">
           <div class="card-title">
-            <span class="badge" :class="getBadgeClass(history.type)">
+            <!-- WMTI 코드는 기존 방식으로 + 새로운 색상 -->
+            <span
+              class="badge"
+              :class="getWMTIBadgeClass(history.type)"
+              :style="getWMTICodeStyle(history.wmtiCode)"
+            >
               {{ history.wmtiCode }}
             </span>
-            <span class="type-name">{{ history.typeName }}</span>
+            <!-- 위험성향은 한국어로 + 색상 적용 -->
+            <span class="type-name" :class="getBadgeClass(history.originalData.riskPreference)">
+              {{ getRiskPreferenceName(history.originalData.riskPreference) }}
+            </span>
           </div>
           <div class="card-meta">
             <span class="date">{{ formatDate(history.createdAt) }}</span>
@@ -89,7 +97,6 @@ import { ref, onMounted } from 'vue';
 import { getWMTIHistoryAPI } from '@/api/wmti';
 import router from '@/router';
 import { useAuthStore } from '@/stores/useAuthStore';
-// Props
 
 // State
 const loading = ref(false);
@@ -106,12 +113,24 @@ const fetchHistoryData = async () => {
   loading.value = true;
   try {
     historyList.value = await getWMTIHistoryAPI(memberId);
+    console.log('🔍 히스토리 데이터:', historyList.value);
     historyList.value.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   } catch (e) {
     console.error('히스토리 불러오기 실패:', e);
   } finally {
     loading.value = false;
   }
+};
+
+const getRiskPreferenceName = (riskPreference) => {
+  const nameMap = {
+    STABILITY: '안정형',
+    STABILITY_ORIENTED: '안정추구형',
+    RISK_NEUTRAL: '위험중립형',
+    ACTIVELY: '적극투자형',
+    AGGRESSIVE: '공격투자형',
+  };
+  return nameMap[riskPreference] || riskPreference;
 };
 
 const toggleDetails = (historyId) => {
@@ -144,8 +163,49 @@ const getScoreColor = (score) => {
   return 'var(--color-)';
 };
 
-const getBadgeClass = (type) => {
+// 위험성향에 따른 CSS 클래스 (색상 적용)
+const getBadgeClass = (riskPreference) => {
+  const classMap = {
+    STABILITY: 'risk-stability',
+    STABILITY_ORIENTED: 'risk-stability-oriented',
+    RISK_NEUTRAL: 'risk-neutral',
+    ACTIVELY: 'risk-actively',
+    AGGRESSIVE: 'risk-aggressive',
+  };
+  return classMap[riskPreference] || 'risk-default';
+};
+
+// WMTI 코드 배지 클래스 (기존 방식)
+const getWMTIBadgeClass = (type) => {
   return `badge-${type.toLowerCase()}`;
+};
+
+// WMTI 코드별 색상 매핑
+const getWMTICodeStyle = (wmtiCode) => {
+  const colorMap = {
+    ABWC: ['#E74C3C', '#C0392B'], // 클래식 레드
+    ABWL: ['#E67E22', '#D35400'], // 오렌지 레드
+    ABMC: ['#DC7633', '#BA4A00'], // 번트 오렌지
+    ABML: ['#CB4335', '#A93226'], // 딥 레드
+    APMW: ['#FF6B6B', '#EE5A52'], // 코랄 레드
+    APLW: ['#FF7675', '#FD79A8'], // 로즈 핑크
+    APMC: ['#FD79A8', '#E84393'], // 핫 핑크
+    APML: ['#E84393', '#D63031'], // 매젠타
+    IBWC: ['#3498DB', '#2980B9'], // 스카이 블루
+    IBWL: ['#5DADE2', '#3498DB'], // 라이트 블루
+    IBMC: ['#2E86C1', '#2471A3'], // 오션 블루
+    IBML: ['#21618C', '#1B4F72'], // 네이비 블루
+    IPMW: ['#74B9FF', '#0984E3'], // 브라이트 블루
+    IPLW: ['#81ECEC', '#00B894'], // 아쿠아
+    IPMC: ['#00B894', '#00A085'], // 틸
+    IPML: ['#00A085', '#006266'], // 다크 틸
+  };
+
+  const colors = colorMap[wmtiCode] || ['#95A5A6', '#7F8C8D']; // 기본 그레이
+  return {
+    background: `linear-gradient(135deg, ${colors[0]}, ${colors[1]})`,
+    boxShadow: `0 0.125rem 0.5rem ${colors[0]}33`, // 33은 투명도 20%
+  };
 };
 
 const formatDate = (date) => {
@@ -279,32 +339,52 @@ onMounted(() => {
   border-radius: 0.375rem;
   font-size: 0.75rem;
   font-weight: 600;
+  background-color: var(--color-main);
 }
 
 .badge-aggressive {
-  background: #dc3545;
-  color: white;
+  color: rgb(255, 255, 255);
 }
 .badge-active {
-  background: #fd7e14;
-  color: white;
+  color: rgb(255, 255, 255);
 }
 .badge-moderate {
-  background: #ffc107;
-  color: #000;
+  color: rgb(255, 255, 255);
 }
 .badge-passive {
-  background: #6c757d;
-  color: white;
+  color: rgb(255, 255, 255);
 }
 .badge-conservative {
-  background: #198754;
-  color: white;
+  color: rgb(255, 255, 255);
+}
+
+.risk-stability {
+  background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+  box-shadow: 0 0.125rem 0.5rem rgba(39, 174, 96, 0.3);
+}
+.risk-stability-oriented {
+  background: linear-gradient(135deg, #2ecc71, #58d68d) !important;
+  box-shadow: 0 0.125rem 0.5rem rgba(46, 204, 113, 0.3);
+}
+.risk-neutral {
+  background: linear-gradient(135deg, #f39c12, #f8c471) !important;
+  box-shadow: 0 0.125rem 0.5rem rgba(243, 156, 18, 0.3);
+}
+.risk-actively {
+  background: linear-gradient(135deg, #e67e22, #f8c471) !important;
+  box-shadow: 0 0.125rem 0.5rem rgba(230, 126, 34, 0.3);
+}
+.risk-aggressive {
+  background: linear-gradient(135deg, #e74c3c, #ec7063) !important;
+  box-shadow: 0 0.125rem 0.5rem rgba(231, 76, 60, 0.3);
 }
 
 .type-name {
+  padding: 0.1rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  color: var(--color-main);
+  color: rgb(255, 255, 255);
 }
 
 .card-meta {
