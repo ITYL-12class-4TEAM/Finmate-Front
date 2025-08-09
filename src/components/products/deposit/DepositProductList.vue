@@ -86,11 +86,7 @@
           >
             비교함에서 제거
           </button>
-          <button
-            v-else
-            class="compare-btn add-compare-btn"
-            @click.stop="handleAddToCompare(product)"
-          >
+          <button v-else class="compare-btn add-compare-btn" @click.stop="handleWarning(product)">
             비교함에 추가
           </button>
           <button class="join-btn" @click.stop="goToJoinPage(product)">가입하기</button>
@@ -119,6 +115,9 @@ import { useRouter } from 'vue-router';
 import Pagination from '../common/Pagination.vue';
 import CompareFloatingBar from '@/components/products/compare/CompareFloatingBar.vue';
 import useCompareList from '@/composables/useCompareList';
+import { useToast } from '@/composables/useToast';
+
+const { showToast } = useToast();
 
 const props = defineProps({
   products: { type: Array, required: true },
@@ -193,9 +192,9 @@ const onProductClick = (product) => emit('product-click', product);
 const onPageChange = (page) => emit('page-change', page);
 const onSortChange = () => emit('sort-change', { sortBy: localSortBy.value });
 
-const handleAddToCompare = (product) => {
+const handleWarning = (product) => {
   if (compareList.value.length >= 3) {
-    alert('최대 3개까지 비교할 수 있습니다.');
+    showToast('상품은 최대 3개까지 비교할 수 있습니다', 'warning');
     return;
   }
   const option = {
@@ -224,7 +223,7 @@ const goToJoinPage = (product) => {
 };
 const goToCompare = () => {
   if (compareList.value.length < 2) {
-    alert('최소 2개 이상의 상품을 선택해주세요.');
+    showToast('2개 이상의 상품을 선택해주세요.', 'warning');
     return;
   }
   router.push({ path: '/products/compare' });

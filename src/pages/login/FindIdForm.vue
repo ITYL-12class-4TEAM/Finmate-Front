@@ -274,7 +274,8 @@ const findIdByPhone = async () => {
 }
 
 .verify-btn {
-  padding: 0.75rem 0.75rem;
+  padding: 0.75rem 1rem;
+  width: 30%;
   background-color: var(--color-main);
   color: white;
   border: none;
@@ -283,8 +284,8 @@ const findIdByPhone = async () => {
   cursor: pointer;
   white-space: nowrap;
   transition: background-color 0.3s ease;
-  min-width: 4.5rem;
-  flex-shrink: 0;
+  /* min-width: 4.5rem;
+  flex-shrink: 0; */
 }
 
 .verify-btn:hover:not(:disabled) {
@@ -296,16 +297,6 @@ const findIdByPhone = async () => {
   cursor: not-allowed;
 }
 
-@media (max-width: 23.4375rem) {
-  .input-with-button {
-    flex-direction: column;
-  }
-
-  .verify-btn {
-    width: 100%;
-    min-width: auto;
-  }
-}
 .find-btn {
   width: 100%;
   padding: 0.75rem; /* 12px */
@@ -379,16 +370,5 @@ const findIdByPhone = async () => {
 .divider {
   margin: 0 0.625rem; /* 10px */
   color: var(--color-light);
-}
-
-/* 모바일 최적화 */
-@media (max-width: 375px) {
-  .input-with-button {
-    flex-direction: column;
-  }
-
-  .verify-btn {
-    width: 100%;
-  }
 }
 </style>

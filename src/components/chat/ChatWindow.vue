@@ -58,10 +58,11 @@ const router = useRouter();
 // Emits 정의
 const emit = defineEmits(['close']);
 
-// 라우터 가드 설정 - 페이지 이동 시 챗봇 자동 닫기
 let routerGuardRemover = null;
 
 const setupRouterGuard = () => {
+  if (routerGuardRemover) return; // 이미 등록되어 있으면 중복 등록 방지
+
   routerGuardRemover = router.beforeEach((to, from, next) => {
     console.log('🔄 페이지 이동 감지:', from.path, '->', to.path);
     endChatSession().finally(() => {
@@ -413,8 +414,9 @@ const navigateToLogin = () => {
   });
 };
 
-const navigateToPost = (postId) => {
+const navigateToPost = async (postId) => {
   console.log('📝 게시물로 이동:', postId);
+  await endChatSession();
   removeRouterGuard();
   emit('close');
   router.push(`/community/${postId}`).then(() => {
@@ -423,14 +425,23 @@ const navigateToPost = (postId) => {
 };
 
 const navigateToMore = (url) => {
-  if (url) {
-    console.log('➡️ 더보기 페이지로 이동:', url);
-    removeRouterGuard();
-    emit('close');
-    router.push(url).then(() => {
-      window.location.reload();
-    });
+  console.log('[더보기] 호출됨, 전달받은 URL:', url);
+
+  if (!url || typeof url !== 'string') {
+    console.warn('❌ 유효하지 않은 URL:', url);
+    return;
   }
+
+  removeRouterGuard();
+  emit('close');
+  router
+    .push(url)
+    .then(() => {
+      window.location.reload();
+    })
+    .catch((err) => {
+      console.error('❌ router.push 에러:', err);
+    });
 };
 
 const navigateToSurvey = () => {

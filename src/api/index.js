@@ -42,8 +42,8 @@ api.interceptors.response.use(
             refreshToken: refreshToken,
           });
 
-          const newAccessToken = response.data.accessToken;
-          const newRefreshToken = response.data.refreshToken;
+          const newAccessToken = response.data.body.data.accessToken;
+          const newRefreshToken = response.data.body.data.refreshToken;
           localStorage.setItem('accessToken', newAccessToken);
           localStorage.setItem('refreshToken', newRefreshToken);
 
@@ -57,8 +57,7 @@ api.interceptors.response.use(
 
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        localStorage.removeItem('memberId');
-        localStorage.removeItem('user');
+        localStorage.removeItem('userInfo');
 
         // 로그인 페이지로 리다이렉트
         window.location.href = '/login';

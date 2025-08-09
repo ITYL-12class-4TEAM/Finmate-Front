@@ -33,33 +33,59 @@
                   <h6 class="post-title mb-0">
                     {{ post.title }}
                   </h6>
-
-                  <!-- 작성자 정보 -->
-                  <div class="post-meta d-flex align-items-center gap-2 flex-wrap">
-                    <div class="d-flex align-items-center gap-1">
-                      <div class="author-avatar">
-                        {{ (post.nickname || post.author || '?').charAt(0).toUpperCase() }}
-                      </div>
-                      <span class="author-name">
-                        {{ post.nickname || post.author || '익명' }}
-                      </span>
-                    </div>
-                  </div>
                 </div>
 
-                <!-- 상호작용 정보 -->
-                <div class="interaction-info d-flex align-items-center gap-3">
-                  <div class="like-info d-flex align-items-center gap-1">
-                    <i class="bi bi-heart-fill interaction-icon text-danger"></i>
-                    <span class="interaction-count">{{
-                      post.likeCount ?? post.like_count ?? 0
-                    }}</span>
-                  </div>
-                  <div class="comment-info d-flex align-items-center gap-1">
-                    <i class="bi bi-chat-fill interaction-icon text-primary"></i>
-                    <span class="interaction-count">{{
-                      post.commentCount ?? post.comment_count ?? 0
-                    }}</span>
+                <div class="post-meta">
+                  <div class="post-stats">
+                    <!-- 좋아요 표시 (클릭 기능 제거) -->
+                    <div
+                      class="stat-item"
+                      :class="{ liked: post.isLiked || post.is_liked || post.liked }"
+                    >
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        :fill="
+                          post.isLiked || post.is_liked || post.liked ? 'currentColor' : 'none'
+                        "
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                        />
+                      </svg>
+                      <span class="stat-count">{{ post.likes || post.likeCount || 0 }}</span>
+                    </div>
+
+                    <!-- 댓글 아이콘 (Bootstrap Icons bi-chat-fill로 통일) -->
+                    <div class="stat-item">
+                      <i class="bi bi-chat" style="font-size: 0.65rem; color: #6b7280"></i>
+                      <span class="stat-count">{{ post.comments || post.commentCount || 0 }}</span>
+                    </div>
+
+                    <!-- 스크랩 표시 (클릭 기능 제거) -->
+                    <div
+                      class="stat-item"
+                      :class="{ scraped: post.isScrapped || post.is_scrapped || post.scraped }"
+                    >
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        :fill="
+                          post.isScrapped || post.is_scrapped || post.scraped
+                            ? 'currentColor'
+                            : 'none'
+                        "
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                      </svg>
+                      <span class="stat-count">{{ post.scraps || post.scrapCount || 0 }}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -123,7 +149,7 @@ const props = defineProps({
   },
 });
 
-defineEmits(['navigate-to-post', 'navigate-to-more']);
+const emit = defineEmits(['navigate-to-post', 'navigate-to-more']);
 
 const displayPosts = computed(() => {
   return props.message.data?.slice(0, 5) || [];
@@ -207,7 +233,6 @@ const formatDate = (dateString) => {
   font-weight: 400;
 }
 
-/* 게시글 그리드 */
 .posts-grid {
   display: flex;
   flex-direction: column;
@@ -257,64 +282,57 @@ const formatDate = (dateString) => {
   white-space: nowrap;
   z-index: 1;
 }
-/* 날짜 스타일 */
-.post-date {
-  font-size: 0.6rem;
-  color: #9ca3af;
-  white-space: nowrap;
-}
 
-/* 메타 정보 */
 .post-meta {
   font-size: 0.5rem;
   color: #6b7280;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
 }
 
-.author-avatar {
-  width: 1.3rem;
-  height: 1.3rem;
-  border-radius: 50%;
-  background: #e5e7eb;
-  color: #6b7280;
-  font-size: 0.625rem;
-  font-weight: 600;
+.post-stats {
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  gap: 0.25rem;
 }
 
-.author-name {
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  color: #9ca3af;
+  transition: all 0.2s ease;
+  padding: 0.1rem;
+  border-radius: 0.25rem;
+  user-select: none;
+}
+
+/* 좋아요 활성화 상태 */
+.stat-item.liked {
+  color: #ef4444;
+}
+
+/* 스크랩 활성화 상태 */
+.stat-item.scraped {
+  color: var(--color-main);
+}
+
+.stat-count {
+  font-size: 0.625rem;
   font-weight: 500;
-  color: #6b7280;
-  font-size: 0.65rem;
-  max-width: 5rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  min-width: 1rem;
+  text-align: center;
+}
+
+.post-owner {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-sub);
   white-space: nowrap;
 }
 
-.separator {
-  opacity: 0.5;
-  color: #d1d5db;
-}
-
-/* 상호작용 정보 */
-.interaction-info {
-  margin-top: 0.5rem;
-}
-
-.interaction-icon {
-  font-size: 0.65rem;
-}
-
-.interaction-count {
-  font-size: 0.65rem;
-  font-weight: 500;
-  color: #6b7280;
-}
-
-/* 화살표 */
 .arrow-wrapper {
   display: flex;
   align-items: center;
@@ -338,13 +356,11 @@ const formatDate = (dateString) => {
   transform: translateX(1px);
 }
 
-/* 더보기 버튼 */
-.more-section {
-  text-align: center;
-}
 .more-section.mt-4 {
   margin-top: 0.5rem !important;
+  text-align: center;
 }
+
 .more-button {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(15px);
@@ -372,6 +388,7 @@ const formatDate = (dateString) => {
 .more-button:hover .button-arrow {
   transform: translateX(3px);
 }
+
 .row {
   flex-wrap: nowrap;
 }
@@ -382,5 +399,20 @@ const formatDate = (dateString) => {
 
 .card-content .col {
   min-width: 0;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .stat-count {
+    font-size: 0.5625rem;
+  }
+
+  .post-owner {
+    font-size: 0.625rem;
+  }
+
+  .post-stats {
+    gap: 0.2rem;
+  }
 }
 </style>
