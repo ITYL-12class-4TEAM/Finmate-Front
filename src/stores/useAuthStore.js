@@ -148,7 +148,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     try {
-      user.value = JSON.parse(savedUserInfo); // 🔥 savedUser → savedUserInfo 수정
+      user.value = JSON.parse(savedUserInfo);
       accessToken.value = savedAccessToken;
       refreshToken.value = localStorage.getItem('refreshToken');
 
