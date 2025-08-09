@@ -84,10 +84,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useModal } from '@/composables/useModal';
 import { useToast } from '@/composables/useToast';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { getPostByIdAPI, updatePostAPI } from '@/api/posts';
 import { reverseProductTagMap } from '@/constants/tags';
 
@@ -99,8 +100,9 @@ import CustomCheckbox from '@/components/community/CustomCheckbox.vue';
 const route = useRoute();
 const router = useRouter();
 const postId = Number(route.params.id);
-const memberId = Number(localStorage.getItem('memberId')) ?? null;
+const memberId = computed(() => authStore.userInfo?.memberId || null);
 const { showToast } = useToast();
+const authStore = useAuthStore();
 
 const title = ref('');
 const content = ref('');
@@ -117,7 +119,7 @@ const selectProduct = (tag) => (selectedProduct.value = tag);
 // 게시글 정보 불러오기
 const fetchPost = async () => {
   try {
-    const res = await getPostByIdAPI(postId, memberId);
+    const res = await getPostByIdAPI(postId, memberId.value);
 
     if (!res.isMine) {
       showToast('본인 게시글만 수정할 수 있습니다.', 'warning'); // 또는 모달

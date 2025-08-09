@@ -1,5 +1,6 @@
 <template>
   <div class="input-area">
+    <!-- 서비스 메뉴 토글 -->
     <div class="service-toggle-wrapper">
       <ServiceMenuToggle
         v-if="messages.length > 0"
@@ -16,33 +17,48 @@
         @navigate-to-login="$emit('navigate-to-login')"
       />
     </div>
+
+    <!-- 메인 입력 컨테이너 -->
     <div class="input-container">
-      <input
-        ref="messageInput"
-        :value="inputMessage"
-        placeholder="메시지를 입력하세요..."
-        :disabled="isTyping"
-        class="message-input"
-        @input="$emit('update:inputMessage', $event.target.value)"
-        @keypress.enter="$emit('send-message')"
-      />
-      <button
-        :disabled="!inputMessage.trim() || isTyping"
-        class="send-btn"
-        type="button"
-        @click="$emit('send-message')"
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-          <path
-            d="M22 2L15 22L11 13L2 9L22 2Z"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-      </button>
+      <!-- 입력 영역 -->
+      <div class="input-wrapper">
+        <!-- 실제 입력 필드 -->
+        <input
+          ref="messageInput"
+          :value="inputMessage"
+          placeholder="메시지를 입력하세요..."
+          :disabled="isTyping"
+          class="message-input"
+          @input="$emit('update:inputMessage', $event.target.value)"
+          @keypress.enter="$emit('send-message')"
+        />
+
+        <!-- 전송 버튼 -->
+        <button
+          :disabled="!inputMessage.trim() || isTyping"
+          class="send-btn"
+          type="button"
+          @click="$emit('send-message')"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            class="send-icon"
+            :class="{ spinning: isTyping }"
+          >
+            <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <path
+              d="M22 2L15 22L11 13L2 9L22 2Z"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -71,39 +87,69 @@ defineEmits([
 </script>
 
 <style scoped>
+:root {
+  --color-main: #2d336b;
+  --color-sub: #7d81a2;
+  --color-light: #b9bbcc;
+  --color-bg-light: #eeeef3;
+}
+
 .input-area {
-  position: relative; /* 상대 기준 */
+  position: relative;
   padding: 1rem;
-  border-top: 1px solid var(--color-bg-light);
-  background: var(--color-white);
+  background: rgba(238, 238, 243, 0.5);
+  backdrop-filter: blur(12px) saturate(120%);
+  border-top: 1px solid rgba(185, 187, 204, 0.3);
 }
 
 .input-container {
-  position: sticky;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  background: var(--color-white);
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  z-index: 50; /* 메뉴보단 아래 */
-  height: 60px; /* 메뉴 띄울 때 bottom 기준 */
-}
-.message-input {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  border: 2px solid var(--color-light);
-  border-radius: 25px;
-  outline: none;
-  font-size: 0.875rem;
-  transition: border-color 0.2s;
+  position: relative;
+  z-index: 10;
 }
 
-.message-input:focus {
-  border-color: var(--color-main);
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50px;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 4px 20px rgba(45, 51, 107, 0.08);
+  transition: all 0.2s ease;
+}
+
+.input-wrapper:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 6px 25px rgba(45, 51, 107, 0.12);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.input-wrapper:focus-within {
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 6px 25px rgba(45, 51, 107, 0.15),
+    0 0 0 3px rgba(45, 51, 107, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.message-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-main);
+  line-height: 1.5;
+}
+
+.message-input::placeholder {
+  color: var(--color-light);
+  font-weight: 400;
 }
 
 .message-input:disabled {
@@ -112,47 +158,141 @@ defineEmits([
 }
 
 .send-btn {
-  width: 44px;
-  height: 44px;
+  position: relative;
+  width: 2.75rem;
+  height: 2.75rem;
   background: var(--color-main);
-  color: var(--color-white);
   border: none;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  color: white;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  box-shadow: 0 4px 20px rgba(45, 51, 107, 0.2);
 }
 
 .send-btn:hover:not(:disabled) {
-  background: var(--color-sub);
   transform: scale(1.05);
+  background: var(--color-sub);
+  box-shadow: 0 6px 25px rgba(45, 51, 107, 0.3);
+}
+
+.send-btn:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .send-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
   transform: none;
+  background: var(--color-light);
+  box-shadow: 0 2px 8px rgba(45, 51, 107, 0.1);
 }
+
+.send-icon {
+  transition: transform 0.2s ease;
+}
+
+.send-icon.spinning {
+  animation: spin 1s linear infinite;
+}
+
+.send-btn:hover:not(:disabled) .send-icon {
+  transform: translateX(1px);
+}
+
 .service-menu-overlay {
-  width: 100%;
-  max-width: 480px; /* 필요에 따라 조절 */
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-  max-height: 250px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 1rem;
+  box-shadow: 0 8px 30px rgba(45, 51, 107, 0.12);
+  max-height: 20rem;
   overflow-y: auto;
+  padding: 0.75rem;
 }
+
 .service-toggle-wrapper {
   position: sticky;
-  bottom: 60px; /* 입력창 높이만큼 띄우기 */
+  bottom: 5rem;
   left: 0;
   right: 0;
   display: flex;
   flex-direction: column;
-  align-items: center; /* 가운데 정렬 */
-  z-index: 110; /* 입력창 위, 서비스 메뉴보다 위 */
-  gap: 0.5rem;
+  align-items: center;
+  z-index: 110;
+  gap: 0.75rem;
+}
+
+/* 애니메이션 */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .input-area {
+    padding: 0.75rem;
+  }
+
+  .input-wrapper {
+    padding: 0.625rem 0.875rem;
+  }
+
+  .send-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .message-input {
+    font-size: 0.9rem;
+  }
+}
+
+/* 다크모드 */
+@media (prefers-color-scheme: dark) {
+  .input-area {
+    background: rgba(45, 51, 107, 0.2);
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .input-wrapper {
+    background: rgba(45, 51, 107, 0.15);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .input-wrapper:hover {
+    background: rgba(45, 51, 107, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .input-wrapper:focus-within {
+    background: rgba(45, 51, 107, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow:
+      0 6px 25px rgba(45, 51, 107, 0.2),
+      0 0 0 3px rgba(45, 51, 107, 0.2);
+  }
+
+  .message-input {
+    color: #f9fafb;
+  }
+
+  .message-input::placeholder {
+    color: var(--color-light);
+  }
+
+  .service-menu-overlay {
+    background: rgba(45, 51, 107, 0.2);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
 }
 </style>

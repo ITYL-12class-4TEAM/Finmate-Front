@@ -160,7 +160,7 @@ onMounted(() => {
   margin: 0 auto;
   padding: 1rem;
   font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, var(--color-bg-light) 0%, rgba(238, 238, 243, 0.5) 100%);
+  /* background: linear-gradient(135deg, var(--color-bg-light) 0%, rgba(238, 238, 243, 0.5) 100%); */
   min-height: 100vh;
 }
 
