@@ -2,11 +2,11 @@
   <div class="compare-page">
     <!-- 헤더 -->
     <div class="page-header">
-      <BackButton title="이전으로" />
+      <BackButton />
     </div>
 
     <!-- 비교함이 비어있는 경우 -->
-    <CompareEmptyState v-if="compareList.length === 0" @goToProducts="goToProductList" />
+    <CompareEmptyState v-if="compareList.length === 0" @go-to-products="goToProductList" />
 
     <!-- 비교 콘텐츠 -->
     <div v-else class="compare-content">
@@ -24,8 +24,8 @@
         :get-max-deposit-for-product="getMaxDepositForProduct"
         :get-interest-type-for-product="getInterestTypeForProduct"
         @remove="handleRemoveItem"
-        @viewDetail="goToDetail"
-        @joinProduct="handleJoinProduct"
+        @view-detail="goToDetail"
+        @join-product="handleJoinProduct"
       />
 
       <!-- API 비교 결과 -->
@@ -438,8 +438,8 @@ onMounted(() => {
      - 다른 페이지들과 동일한 배경색과 여백을 적용하여 통일성 유지
      ========================================================================== */
 .compare-page {
-  background-color: var(--color-bg-light);
-  padding: 1rem 0;
+  padding: 1rem;
+  padding-bottom: 5rem;
   min-height: 100vh;
 }
 
@@ -528,8 +528,9 @@ onMounted(() => {
      ========================================================================== */
 .gpt-summary-btn-container {
   position: fixed;
-  bottom: 2rem;
-  left: 1rem;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 100;
 }
 
