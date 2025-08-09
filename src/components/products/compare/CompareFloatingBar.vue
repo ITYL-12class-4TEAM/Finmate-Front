@@ -1,7 +1,7 @@
 <template>
   <div
-    class="compare-floating-bar"
     v-if="compareList.length > 0"
+    class="compare-floating-bar"
     :class="{ 'has-pagination': hasPagination }"
   >
     <div class="floating-bar-content">
@@ -10,7 +10,7 @@
         <span class="compare-text"> 비교함에 {{ compareList.length }}개의 상품이 담겼습니다 </span>
       </div>
       <button class="compare-btn" @click="handleError">
-        <span>비교하기</span>
+        <span>비교</span>
         <i class="compare-icon">→</i>
       </button>
     </div>
@@ -66,6 +66,8 @@ const handleError = () => {
   border-bottom: none;
   transition: transform 0.3s;
   padding: 0;
+  width: 370px;
+  margin: 0 auto;
 }
 .compare-floating-bar.has-pagination {
   bottom: 3rem;
@@ -75,9 +77,8 @@ const handleError = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--floating-bar-padding-y) var(--floating-bar-padding-x);
-  max-width: var(--floating-bar-max-width);
   margin: 0 auto;
+  padding: 0.75rem 1rem;
 }
 
 .compare-info {
@@ -90,8 +91,8 @@ const handleError = () => {
   color: var(--color-main);
   font-weight: 700;
   font-size: var(--badge-font);
-  width: var(--badge-size);
-  height: var(--badge-size);
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -106,7 +107,8 @@ const handleError = () => {
   opacity: 0.7;
 }
 .compare-text {
-  font-size: var(--compare-text-font);
+  font-size: 0.8125rem;
+
   font-weight: 500;
   color: var(--color-main);
 }
@@ -116,9 +118,9 @@ const handleError = () => {
   color: #fff;
   border: none;
   border-radius: 0.5rem;
-  padding: var(--compare-btn-padding-y) var(--compare-btn-padding-x);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 600;
-  font-size: var(--compare-btn-font);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -135,21 +137,5 @@ const handleError = () => {
 .compare-icon {
   font-style: normal;
   font-weight: 700;
-}
-
-/* 모바일 */
-@media (max-width: 430px) {
-  .floating-bar-content {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    max-width: 100vw;
-  }
-  .compare-text {
-    font-size: 0.8125rem;
-  }
-  .compare-btn {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.8125rem;
-  }
 }
 </style>
