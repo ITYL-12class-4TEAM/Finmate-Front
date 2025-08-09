@@ -18,18 +18,6 @@
 
     <!-- 선택지 영역 -->
     <div class="options-section">
-      <!-- 좌우 라벨 -->
-      <div class="scale-labels">
-        <span class="scale-label left">
-          <i class="fa-solid fa-arrow-left"></i>
-          {{ question.left_ans }}
-        </span>
-        <span class="scale-label right">
-          {{ question.right_ans }}
-          <i class="fa-solid fa-arrow-right"></i>
-        </span>
-      </div>
-
       <!-- 5점 척도 선택지 -->
       <div class="radio-group">
         <label
@@ -58,6 +46,18 @@
           <div class="option-label">{{ score }}</div>
         </label>
       </div>
+    </div>
+
+    <!-- 좌우 라벨 -->
+    <div class="scale-labels">
+      <span class="scale-label left">
+        <i class="fa-solid fa-arrow-left"></i>
+        {{ question.left_ans }}
+      </span>
+      <span class="scale-label right">
+        {{ question.right_ans }}
+        <i class="fa-solid fa-arrow-right"></i>
+      </span>
     </div>
 
     <!-- 진행 표시선 -->
@@ -107,7 +107,7 @@ const props = defineProps({
   left: 0;
   right: 0;
   height: 0.188rem;
-  background: linear-gradient(90deg, transparent, rgba(45, 51, 107, 0.1), transparent);
+  background: linear-gradient(90deg, var(--color-main), rgba(45, 51, 107, 0.1), var(--color-main));
   transition: all 0.4s ease;
 }
 
@@ -132,17 +132,17 @@ const props = defineProps({
 .question-number {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.08rem;
   background: linear-gradient(135deg, var(--color-main), #4a5299);
   color: var(--color-white);
-  padding: 0.5rem 0.875rem;
+  padding: 0.5rem 0.5rem;
   border-radius: 1.25rem;
   font-weight: 700;
   box-shadow: 0 0.188rem 0.75rem rgba(45, 51, 107, 0.25);
 }
 
 .q-label {
-  font-size: 0.8rem;
+  font-size: 1rem;
   opacity: 0.9;
 }
 
@@ -187,7 +187,7 @@ const props = defineProps({
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 0.5rem;
+  padding: 1rem 0.5rem 0.1rem;
 }
 
 .scale-label {
@@ -221,7 +221,7 @@ const props = defineProps({
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
-  padding: 0 0.25rem;
+  padding: 0.5rem 0.25rem 0.1rem;
 }
 
 .radio-option {

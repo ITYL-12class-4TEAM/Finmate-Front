@@ -1,90 +1,67 @@
 <template>
   <div class="community-edit">
-    <BackButton title="게시글 수정" />
-
-    <!-- 제목 입력 -->
-    <input
-      v-model="title"
-      type="text"
-      placeholder="제목을 입력해주세요."
-      class="input"
-      maxlength="40"
-    />
-
-    <!-- 내용 입력 -->
-    <textarea
-      v-model="content"
-      placeholder="내용을 입력해주세요."
-      class="textarea"
-      maxlength="120"
-    />
-    <div class="char-limit">최대 120자</div>
-
-    <!-- 이미지 파일이 있을 경우 -->
-    <!-- <div v-for="file in attaches" :key="file.no" class="attach">
-      <span>
-        {{ file.filename }}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="text-danger"
-          @click="removeFile(file.no, file.filename)"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-          />
-        </svg>
-      </span>
-    </div> -->
-
-    <!-- 파일 업로드 input 추가 -->
-    <!-- <div class="image-upload">
-      <label for="file" class="image-label">첨부파일</label>
-      <input
-        id="file"
-        type="file"
-        accept="image/*"
-        ref="files"
-        class="image-input"
-        multiple
-      />
-    </div> -->
-
-    <!-- 상품군 태그 선택 -->
-    <div class="tag-group">
-      <div class="tag-label">상품군</div>
-      <div class="tag-line"></div>
-      <div class="tags">
-        <button
-          v-for="tag in productTags"
-          :key="tag"
-          :class="['tag', selectedProduct === tag && 'active']"
-          @click="selectProduct(tag)"
-        >
-          #{{ tag }}
-        </button>
+    <!-- 상단 헤더 바 -->
+    <div class="header-bar">
+      <BackButton :to="'/community'" class="back-button" />
+      <h1 class="board-title">글수정</h1>
+      <div class="complete-section">
+        <button class="complete-btn" @click="submitPost" :disabled="!isFormValid">완료</button>
       </div>
     </div>
+    <div class="edit-form">
+      <!-- 제목 입력 -->
+      <div class="input-group">
+        <label class="input-label">제목</label>
+        <input
+          v-model="title"
+          type="text"
+          placeholder="제목을 입력해주세요."
+          class="form-input"
+          maxlength="40"
+        />
+      </div>
 
-    <!-- 익명 여부 선택 -->
-    <div class="anonymous-group">
-      <CustomCheckbox id="edit-anonymous" v-model="isAnonymous">익명</CustomCheckbox>
-    </div>
+      <!-- 내용 입력 -->
+      <div class="input-group">
+        <label class="input-label">내용</label>
+        <textarea
+          v-model="content"
+          placeholder="내용을 입력해주세요."
+          class="form-textarea"
+          maxlength="120"
+        ></textarea>
+        <div class="char-limit">{{ content.length }}/120자</div>
+      </div>
 
-    <!-- 수정 버튼 -->
-    <div class="submit-button-wrapper">
-      <BaseButton text="수정" class="submit-button" @click="updatePost" />
+      <!-- 상품군 태그 선택 -->
+      <div class="input-group">
+        <label class="input-label">상품군</label>
+        <div class="tag-container">
+          <button
+            v-for="tag in productTags"
+            :key="tag"
+            :class="['tag-btn', { active: selectedProduct === tag }]"
+            @click="selectProduct(tag)"
+          >
+            #{{ tag }}
+          </button>
+        </div>
+      </div>
+
+      <!-- 익명 여부 선택 -->
+      <div class="input-group">
+        <div class="checkbox-container">
+          <CustomCheckbox id="edit-anonymous" v-model="isAnonymous">
+            <span class="checkbox-label">익명으로 작성</span>
+          </CustomCheckbox>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useModal } from '@/composables/useModal';
 import { useToast } from '@/composables/useToast';
@@ -93,16 +70,15 @@ import { getPostByIdAPI, updatePostAPI } from '@/api/posts';
 import { reverseProductTagMap } from '@/constants/tags';
 
 import BackButton from '@/components/common/BackButton.vue';
-import BaseButton from '@/components/common/BaseButton.vue';
 import CustomCheckbox from '@/components/community/CustomCheckbox.vue';
 
-// 상태 변수
 const route = useRoute();
 const router = useRouter();
 const postId = Number(route.params.id);
+const authStore = useAuthStore();
 const memberId = computed(() => authStore.userInfo?.memberId || null);
 const { showToast } = useToast();
-const authStore = useAuthStore();
+const { showModal } = useModal();
 
 const title = ref('');
 const content = ref('');
@@ -113,16 +89,20 @@ const attaches = ref([]);
 
 const productTags = ['예금', '적금', '펀드', '보험'];
 
-// 태그 선택 함수
-const selectProduct = (tag) => (selectedProduct.value = tag);
+const isFormValid = computed(() => {
+  return title.value.trim() && content.value.trim() && selectedProduct.value;
+});
 
-// 게시글 정보 불러오기
+const selectProduct = (tag) => {
+  selectedProduct.value = tag;
+};
+
 const fetchPost = async () => {
   try {
     const res = await getPostByIdAPI(postId, memberId.value);
 
     if (!res.isMine) {
-      showToast('본인 게시글만 수정할 수 있습니다.', 'warning'); // 또는 모달
+      showToast('본인 게시글만 수정할 수 있습니다.', 'warning');
       router.replace('/community');
       return;
     }
@@ -139,21 +119,12 @@ const fetchPost = async () => {
   }
 };
 
-// const removeFile = async (no, filename) => {
-//   if (!confirm(filename + '을 삭제할까요?')) return;
-
-//   await deleteFileAPI(no);
-//   const ix = attaches.value.findIndex((f) => f.no === no);
-//   attaches.value.splice(ix, 1);
-// };
-
-onMounted(fetchPost);
-
-// 수정 요청
-const { showModal } = useModal();
+onMounted(() => {
+  fetchPost();
+});
 
 const updatePost = async () => {
-  if (!title.value || !content.value || !selectedProduct.value) {
+  if (!isFormValid.value) {
     alert('모든 항목을 입력해주세요.');
     return;
   }
@@ -173,121 +144,241 @@ const updatePost = async () => {
     await updatePostAPI(postId, editedData);
     router.push({ name: 'CommunityDetail', params: { id: postId } });
   } catch (e) {
-    console.error('수정 실패:', e);
-    alert('수정 중 오류가 발생했습니다.');
+    alert(e.response?.data?.message || '수정 중 오류가 발생했습니다.');
   }
 };
 </script>
 
 <style scoped>
-.input,
-.textarea {
+.community-edit {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.edit-form {
+  background: white;
+  border-radius: 0.875rem;
+  padding: 1.5rem;
+  margin-top: 1rem;
+  border: 0.0625rem solid #f3f4f6;
+  box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.02);
+}
+
+.input-group {
+  margin-bottom: 1.5rem;
+}
+
+.input-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-main);
+  margin-bottom: 0.5rem;
+}
+
+.form-input,
+.form-textarea {
   width: 100%;
-  border: 2px solid var(--color-light);
-  border-radius: 8px;
+  border: 0.0625rem solid var(--color-light);
+  border-radius: 0.5rem;
   padding: 0.75rem 1rem;
-  margin-top: 1.2rem;
-  font-size: 1rem;
-}
-
-.input:focus,
-.textarea:focus {
-  outline: none;
-  border: 2px solid var(--color-sub);
-}
-
-.textarea {
-  min-height: 120px;
+  font-size: 0.875rem;
+  background: white;
+  transition: all 0.2s ease;
   resize: none;
+  outline: none;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  border-color: var(--color-sub);
+  box-shadow: 0 0 0 0.1875rem rgba(125, 129, 162, 0.1);
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: #9ca3af;
+}
+
+.form-textarea {
+  min-height: 7.5rem;
+  line-height: 1.5;
 }
 
 .char-limit {
   text-align: right;
-  font-size: 0.75rem;
-  color: var(--color-light);
-  margin-top: -0.2rem;
-  margin-bottom: 1rem;
+  font-size: 0.6875rem;
+  color: #9ca3af;
+  margin-top: 0.25rem;
 }
 
-.attach {
+/* 태그 컨테이너 */
+.tag-container {
+  display: flex;
+  gap: 0.5rem;
+  background: rgba(238, 238, 243, 0.3);
+  padding: 0.75rem;
+  border-radius: 1rem;
+  overflow-x: auto;
+}
+
+.tag-btn {
+  background: white;
+  border: 0.0625rem solid rgba(185, 187, 204, 0.2);
+  color: var(--color-sub);
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 1.5rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 0.0625rem 0.25rem rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tag-btn:hover {
+  background: var(--color-bg-light);
+  border-color: var(--color-sub);
+  color: var(--color-main);
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.08);
+}
+
+.tag-btn.active {
+  background: linear-gradient(135deg, var(--color-main), var(--color-sub));
+  border-color: transparent;
+  color: white;
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.1875rem 0.75rem rgba(45, 51, 107, 0.2);
+}
+
+.tag-btn.active:hover {
+  background: linear-gradient(135deg, var(--color-sub), var(--color-light));
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.25rem 0.875rem rgba(45, 51, 107, 0.25);
+}
+
+.checkbox-container {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  margin: 0.4rem 0;
-  font-size: 0.8rem;
-  color: var(--color-main);
 }
 
-.attach svg {
-  width: 1rem;
-  height: 1rem;
-  flex-shrink: 0;
+.checkbox-label {
+  font-size: 0.8125rem;
+  color: var(--color-sub);
+  font-weight: 500;
+}
+
+.header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.25rem;
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid #f3f4f6;
+  position: relative;
+}
+.back-button {
+  position: absolute;
+  left: 1.25rem;
+}
+.complete-section {
+  position: absolute;
+  right: 1.25rem;
+}
+
+.complete-btn {
+  background: var(--color-main);
+  color: white;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  transition: all 0.2s ease;
   cursor: pointer;
 }
 
-.image-upload {
-  margin-top: 1rem;
+.complete-btn:hover:not(:disabled) {
+  background: var(--color-sub);
+  transform: translateY(-1px);
 }
-.image-label {
-  display: inline-block;
-  margin-bottom: 0.5rem;
+
+.complete-btn:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.board-title {
+  font-size: 1.125rem;
   font-weight: 600;
-  font-size: 0.9rem;
-}
-.image-input {
-  display: block;
-  margin-bottom: 2rem;
-  font-size: 0.9rem;
+  color: var(--color-main);
+  margin: 0;
 }
 
-.tag-group,
-.anonymous-group {
-  display: flex;
-  margin-bottom: 1rem;
-  align-items: center;
-}
-
-.tag-label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  width: 5rem;
-}
-
-.tag-line {
-  width: 2px;
-  height: 1rem;
-  background-color: var(--color-light);
-}
-
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-left: 1rem;
-}
-
-.tag {
-  border-radius: 20px;
-  padding: 0.4rem 1rem;
-  background-color: white;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.tag.active {
-  background-color: var(--color-light);
-  color: black;
-}
-
-.submit-button-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-top: 5rem;
-}
-
+/* 반응형 */
 @media (max-width: 768px) {
-  .tag {
-    padding: 0.3rem 0.6rem;
+  .community-edit {
+    padding: 0.75rem;
+  }
+
+  .edit-form {
+    padding: 1rem;
+  }
+
+  .input-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .form-input,
+  .form-textarea {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+
+  .form-textarea {
+    min-height: 6rem;
+  }
+
+  .tag-container {
+    gap: 0.375rem;
+  }
+
+  .tag-btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.6875rem;
+  }
+
+  .submit-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+  }
+  .board-title {
+    font-size: 1rem;
+  }
+  .header-bar {
+    padding: 0.875rem 1rem;
+  }
+
+  .back-button {
+    left: 1rem;
+  }
+  .complete-btn {
+    font-size: 0.8125rem;
+    padding: 0.375rem 0.875rem;
+  }
+  .complete-section {
+    right: 1rem;
+  }
+  .complete-btn {
+    font-size: 0.8125rem;
+    padding: 0.375rem 0.875rem;
   }
 }
 </style>

@@ -246,8 +246,10 @@
 import { ref, computed, onUnmounted, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from '@/composables/useToast';
-const { showToast } = useToast();
+import { useAuthStore } from '@/store/useAuthStore';
 
+const { showToast } = useToast();
+const authStore = useAuthStore();
 const router = useRouter();
 
 // 반응형 데이터
@@ -267,8 +269,8 @@ const emailError = ref('');
 
 // 사용자 정보
 const userInfo = ref({
-  email: 'testuser@example.com',
-  nickname: '테스트유저',
+  email: authStore.user.email,
+  nickname: authStore.user.nickname,
 });
 
 // 타이머 참조
@@ -376,8 +378,8 @@ const confirmFinalDeletion = async () => {
     goToMain();
     showToast('계정 탈퇴가 완료되었습니다.\n메인 페이지로 이동합니다.', 'success');
   } catch (error) {
-    showToast('탈퇴 처리 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.', 'error');
-    console.error('Account deletion error:', error);
+    console.error('회원탈퇴 처리 오류:', error);
+    showToast('회원탈퇴 처리 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.', 'error');
   } finally {
     processing.value = false;
   }
@@ -397,6 +399,11 @@ onUnmounted(() => {
 
 onMounted(() => {
   console.log('AccountDelete mounted');
+  if (!authStore.isAuthenticated) {
+    showToast('로그인이 필요합니다.', 'error');
+    router.push('/login');
+    return;
+  }
 });
 </script>
 
