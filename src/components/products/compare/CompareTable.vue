@@ -68,9 +68,9 @@
             class="detail-btn"
             @click="$emit('viewDetail', item.productId, item.productType, item.saveTrm)"
           >
-            상세
+            상세 보기
           </button>
-          <button class="join-btn" @click="$emit('joinProduct', item)">가입</button>
+          <button class="join-btn" @click="$emit('joinProduct', item)">가입 화면으로</button>
         </div>
       </div>
     </div>
