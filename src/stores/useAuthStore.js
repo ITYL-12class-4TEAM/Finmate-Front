@@ -56,6 +56,37 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
+  // 회원탈퇴 액션
+  const withdraw = async (withdrawData) => {
+    try {
+      isLoading.value = true;
+
+      const result = await authAPI.withdraw(withdrawData);
+
+      if (result.success) {
+        clearAuthData();
+
+        return {
+          success: true,
+          message: result.message,
+        };
+      } else {
+        return {
+          success: false,
+          message: result.message,
+        };
+      }
+    } catch (error) {
+      console.error('회원탈퇴 처리 오류:', error);
+      return {
+        success: false,
+        message: '회원탈퇴 처리 중 오류가 발생했습니다.',
+      };
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
   const refreshUser = async () => {
     if (!accessToken.value) {
       console.log('토큰이 없습니다.');
@@ -117,7 +148,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     try {
-      user.value = JSON.parse(savedUserInfo); // 🔥 savedUser → savedUserInfo 수정
+      user.value = JSON.parse(savedUserInfo);
       accessToken.value = savedAccessToken;
       refreshToken.value = localStorage.getItem('refreshToken');
 
@@ -179,6 +210,7 @@ export const useAuthStore = defineStore('auth', () => {
     // 액션
     login,
     logout,
+    withdraw,
     refreshUser,
     setTokens,
     clearAuthData,

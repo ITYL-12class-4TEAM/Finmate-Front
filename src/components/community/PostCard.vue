@@ -1,47 +1,54 @@
 <template>
   <div class="post-card" @click="$emit('click')">
     <div class="post-card-inner">
-      <h4 class="post-title">{{ post.title }}</h4>
-      <p class="post-content">{{ post.content }}</p>
-      <div class="post-meta">
-        <div class="post-stats-and-owner">
-          <div class="post-stats">
-            <span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="2"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
-                />
-              </svg>
-              {{ post.likes }}
-            </span>
-            <span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="2"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 0 1-.923 1.785A5.969 5.969 0 0 0 6 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337Z"
-                />
-              </svg>
-              {{ post.comments }}
-            </span>
-          </div>
-          <div class="post-owner">{{ post.nickname }}</div>
-        </div>
+      <div class="post-header">
+        <h4 class="post-title">{{ post.title }}</h4>
         <span class="post-date">{{ formattedDate }}</span>
+      </div>
+
+      <p class="post-content">{{ post.content }}</p>
+
+      <div class="post-meta">
+        <div class="post-stats">
+          <!-- 좋아요 버튼: @click.stop 추가하여 이벤트 전파 방지 -->
+          <div class="stat-item" :class="{ liked: isLiked }" @click.stop="handleLike">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              :fill="isLiked ? 'currentColor' : 'none'"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+              />
+            </svg>
+            <span class="stat-count">{{ post.likes || 0 }}</span>
+          </div>
+
+          <!-- 댓글 아이콘 (Bootstrap Icons bi-chat-fill로 통일) -->
+          <div class="stat-item">
+            <i class="bi bi-chat interaction-icon" style="font-size: 0.65rem; color: #6b7280"></i>
+            <span class="stat-count">{{ post.comments || 0 }}</span>
+          </div>
+
+          <!-- 스크랩 버튼: @click.stop 추가하여 이벤트 전파 방지 -->
+          <div class="stat-item" :class="{ scraped: isScrapped }" @click.stop="handleScrap">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              :fill="isScrapped ? 'currentColor' : 'none'"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+            </svg>
+            <span class="stat-count">{{ post.scraps || post.scrapCount || 0 }}</span>
+          </div>
+        </div>
+        <div class="post-owner">{{ post.nickname }}</div>
       </div>
     </div>
   </div>
@@ -55,9 +62,28 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  isLiked: {
+    type: Boolean,
+    default: false,
+  },
+  isScrapped: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-// 날짜 배열 포맷: [2024, 7, 25, 13, 45] → "07/25 13:45"
+const emit = defineEmits(['click', 'like', 'scrap']);
+
+// 좋아요 버튼 핸들러
+const handleLike = () => {
+  emit('like', props.post.id);
+};
+
+// 스크랩 버튼 핸들러
+const handleScrap = () => {
+  emit('scrap', props.post.id);
+};
+
 const formattedDate = computed(() => {
   const arr = props.post.createdAt;
   if (!arr || arr.length < 5) return '';
@@ -70,21 +96,22 @@ const formattedDate = computed(() => {
 </script>
 
 <style scoped>
+/* 기존 첫 번째 버전 스타일 유지 */
 .post-card {
-  border: 2px solid var(--color-light);
-  border-radius: 16px;
-  padding: 1rem;
-  height: 8.5rem;
+  background: white;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  border: 0.0625rem solid #f3f4f6;
+  box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.02);
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  background-color: white;
-  transition: box-shadow 0.2s ease;
+  transition: all 0.2s ease;
+  height: 7rem;
 }
 
 .post-card:hover {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  border-color: var(--color-light);
+  box-shadow: 0 0.25rem 1rem rgba(45, 51, 107, 0.08);
+  transform: translateY(-0.0625rem);
 }
 
 .post-card-inner {
@@ -94,52 +121,168 @@ const formattedDate = computed(() => {
   justify-content: space-between;
 }
 
-.post-title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0;
+.post-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
 }
 
-.post-content {
-  font-size: 0.8rem;
+.post-title {
+  font-size: 0.875rem;
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.5);
+  color: var(--color-main);
+  margin: 0;
+  line-height: 1.3;
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  padding-right: 0.5rem;
+}
+
+.post-date {
+  font-size: 0.5625rem;
+  color: #9ca3af;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.post-content {
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: #6b7280;
+  margin: 0 0 0rem 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  flex: 1;
 }
 
 .post-meta {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: rgba(0, 0, 0, 0.5);
-}
-
-.post-stats-and-owner {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  margin-top: auto;
 }
 
 .post-stats {
   display: flex;
-  gap: 0.6rem;
-}
-
-.post-stats span {
-  display: flex;
-  gap: 0.2rem;
   align-items: center;
+  gap: 1rem; /* 스크랩과 다른 버튼들 사이 간격 증가 */
 }
 
-.post-stats svg {
-  width: 1.2rem;
-  height: 1.2rem;
-  vertical-align: middle;
+/* 작성자 영역 */
+.post-author {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.author-avatar {
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-sub), var(--color-light));
+  color: white;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0.0625rem 0.1875rem rgba(45, 51, 107, 0.2);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.1875rem;
+  color: #9ca3af;
+  transition: color 0.2s ease;
+  cursor: pointer;
+  padding: 0.1875rem;
+  border-radius: 0.25rem;
+}
+
+.stat-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.stat-item.liked {
+  color: #ef4444;
+}
+
+.stat-item.scraped {
+  color: var(--color-main);
+}
+
+.post-card:hover .stat-item:not(.liked):not(.scraped) {
+  color: var(--color-sub);
+}
+
+/* 댓글 아이콘 스타일 추가 */
+.interaction-icon {
+  color: #6b7280;
+}
+
+.stat-count {
+  font-size: 0.625rem;
+  font-weight: 500;
+}
+
+.post-owner {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-sub);
+  white-space: nowrap; /* 줄바꿈 방지 */
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .post-card {
+    padding: 0.8rem;
+    height: 6.5rem;
+  }
+
+  .post-title {
+    font-size: 0.8125rem;
+  }
+
+  .post-content {
+    font-size: 0.65rem;
+  }
+
+  .post-date {
+    font-size: 0.5rem;
+  }
+
+  .stat-count {
+    font-size: 0.5625rem;
+  }
+
+  .author-avatar {
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: 0.625rem;
+  }
+
+  .author-avatar {
+    width: 1.25rem;
+    height: 1.25rem;
+    font-size: 0.5rem;
+  }
+
+  .post-owner {
+    font-size: 0.625rem;
+  }
+
+  .post-stats {
+    gap: 0.75rem; /* 모바일에서도 충분한 간격 유지 */
+  }
 }
 </style>

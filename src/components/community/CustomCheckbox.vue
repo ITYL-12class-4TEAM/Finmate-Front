@@ -7,6 +7,18 @@
       class="custom-checkbox"
       @change="$emit('update:modelValue', $event.target.checked)"
     />
+    <span class="checkmark">
+      <svg
+        width="10"
+        height="10"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="3"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+      </svg>
+    </span>
     <span class="label-text"><slot /></span>
   </label>
 </template>
@@ -29,40 +41,89 @@ defineEmits(['update:modelValue']);
 .checkbox-wrapper {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.25rem;
   cursor: pointer;
   user-select: none;
+  position: relative;
 }
 
 .custom-checkbox {
   appearance: none;
-  width: 1rem;
-  height: 1rem;
-  border: 1px solid var(--color-sub);
-  border-radius: 4px;
+  width: 0.875rem;
+  height: 0.875rem;
+  border: 0.0625rem solid var(--color-light);
+  border-radius: 0.1875rem;
   position: relative;
   background-color: white;
+  transition: all 0.2s ease;
+  margin: 0;
+}
+
+.custom-checkbox:hover {
+  border-color: var(--color-sub);
+  box-shadow: 0 0 0 0.125rem rgba(125, 129, 162, 0.1);
 }
 
 .custom-checkbox:checked {
+  background-color: var(--color-main);
+  border-color: var(--color-main);
+}
+
+.custom-checkbox:checked:hover {
   background-color: var(--color-sub);
   border-color: var(--color-sub);
 }
 
-.custom-checkbox:checked::after {
-  content: '';
+.checkmark {
   position: absolute;
-  top: 2px;
-  left: 5px;
-  width: 4px;
-  height: 9px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.875rem;
+  height: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.custom-checkbox:checked + .checkmark {
+  opacity: 1;
 }
 
 .label-text {
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--color-sub);
+  transition: color 0.2s ease;
+}
+
+.checkbox-wrapper:hover .label-text {
+  color: var(--color-main);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .custom-checkbox {
+    width: 0.8125rem;
+    height: 0.8125rem;
+  }
+
+  .checkmark {
+    width: 0.8125rem;
+    height: 0.8125rem;
+  }
+
+  .checkmark svg {
+    width: 0.5625rem;
+    height: 0.5625rem;
+  }
+
+  .label-text {
+    font-size: 0.65rem;
+  }
 }
 </style>

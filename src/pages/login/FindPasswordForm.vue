@@ -397,7 +397,8 @@ const goToLogin = () => {
 }
 
 .verify-btn {
-  padding: 12px 16px;
+  padding: 0.75rem 1rem;
+  width: 30%;
   background-color: var(--color-main);
   color: white;
   border: none;
@@ -566,32 +567,5 @@ const goToLogin = () => {
 .divider {
   margin: 0 10px;
   color: var(--color-light);
-}
-
-/* 반응형 디자인 */
-@media (max-width: 375px) {
-  .find-password-container {
-    padding: 20px 10px;
-  }
-
-  .find-password-form {
-    padding: 30px 20px;
-  }
-
-  .input-with-button {
-    flex-direction: column;
-  }
-
-  .verify-btn {
-    width: 100%;
-  }
-
-  .password-requirements {
-    grid-template-columns: 1fr;
-  }
-
-  .password-requirements-compact {
-    justify-content: center;
-  }
 }
 </style>

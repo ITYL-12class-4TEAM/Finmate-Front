@@ -31,34 +31,41 @@
                       {{ truncateText(comment.content || comment.text, 50) }}
                     </h6>
                     <!-- 날짜 -->
-                    <span class="comment-date flex-shrink-0">
+                    <span class="comment-date-abs">
                       {{ formatDate(comment.createdAt || comment.created_at || comment.date) }}
                     </span>
                   </div>
-
-                  <!-- 메타 정보와 하트를 같은 라인에 -->
-                  <div class="comment-meta d-flex align-items-center gap-2 flex-wrap">
-                    <!-- 게시글 참조 -->
+                  <div class="comment-meta">
                     <div class="post-ref-badge">
                       <i class="bi bi-file-text text-primary me-1"></i>
                       <span>게시글 #{{ comment.postId }}</span>
                     </div>
-
-                    <!-- 상호작용 정보 (게시글 번호 바로 옆) -->
-                    <div
-                      v-if="comment.likeCount || comment.like_count"
-                      class="like-info d-flex align-items-center gap-1"
-                    >
-                      <i class="bi bi-heart-fill interaction-icon text-danger"></i>
-                      <span class="interaction-count">{{
-                        comment.likeCount || comment.like_count
-                      }}</span>
-                    </div>
-
-                    <!-- 답글 배지 -->
-                    <div v-if="comment.parentComment" class="reply-badge">
-                      <i class="bi bi-reply me-1"></i>
-                      <span>답글</span>
+                    <div class="post-stats">
+                      <!-- 좋아요 표시 (클릭 기능 제거) -->
+                      <div
+                        class="stat-item"
+                        :class="{ liked: comment.isLiked || comment.is_liked || comment.liked }"
+                      >
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          :fill="
+                            comment.isLiked || comment.is_liked || comment.liked
+                              ? 'currentColor'
+                              : 'none'
+                          "
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path
+                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                          />
+                        </svg>
+                        <span class="stat-count">{{
+                          comment.likes || comment.likeCount || 0
+                        }}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -257,6 +264,15 @@ const formatDate = (dateString) => {
   color: #9ca3af;
   white-space: nowrap;
 }
+.comment-date-abs {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.6rem;
+  font-size: 0.6rem;
+  color: #9ca3af;
+  white-space: nowrap;
+  z-index: 1;
+}
 
 /* 메타 정보 */
 .comment-meta {
@@ -376,5 +392,43 @@ const formatDate = (dateString) => {
 
 .card-content .col {
   min-width: 0;
+}
+
+.comment-meta {
+  font-size: 0.5rem;
+  color: #6b7280;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.comment-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  color: #9ca3af;
+  transition: all 0.2s ease;
+  padding: 0.1rem;
+  border-radius: 0.25rem;
+  user-select: none;
+}
+
+/* 좋아요 활성화 상태 */
+.stat-item.liked {
+  color: #ef4444;
+}
+
+.stat-count {
+  font-size: 0.625rem;
+  font-weight: 500;
+  min-width: 1rem;
+  text-align: center;
 }
 </style>
