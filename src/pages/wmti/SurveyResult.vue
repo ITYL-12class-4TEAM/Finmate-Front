@@ -1,13 +1,12 @@
 <template>
   <div class="result-page">
     <!-- 뒤로가기 버튼 -->
-    <BackButton title="투자 성향 결과" to="/wmti/basic" />
-    <button @click="handleError">토스트</button>
+    <BackButton title="뒤로가기" to="/wmti/basic" />
 
     <!-- 헤더 섹션 -->
     <div class="result-header">
       <div class="user-greeting">
-        <span class="username-highlight">{{ analysisObject.userName }}</span
+        <span class="username-highlight">{{ userName }}</span
         >님의 투자 성향은
       </div>
       <div class="wmti-code-display">
@@ -41,14 +40,21 @@
 
     <!-- 성향 분석 카드 -->
     <div class="analysis-card">
-      <h3 class="section-title analysis-title">💡 투자 성향 분석</h3>
+      <div class="section-header">
+        <div class="section-icon analysis-icon"></div>
+        <h3 class="section-title">투자 성향 분석</h3>
+      </div>
+
       <div class="card-header">
         <h4 class="card-title">{{ analysis.aka }}</h4>
       </div>
 
       <!-- 태그 섹션 -->
       <div class="tags-section">
-        <h4 class="subsection-title">🏷️ 성향 키워드</h4>
+        <h4 class="subsection-title">
+          <span class="subsection-icon"></span>
+          성향 키워드
+        </h4>
         <div class="tags-marquee">
           <div v-if="analysis.tag && analysis.tag.length > 0" class="tags-track">
             <div v-for="(tag, index) in analysis.tag" :key="'first-' + index" class="tag-item">
@@ -63,14 +69,21 @@
 
       <!-- 설명 섹션 -->
       <div class="description-section">
-        <h4 class="subsection-title">📋 상세 분석</h4>
+        <h4 class="subsection-title">
+          <span class="subsection-icon description-icon"></span>
+          상세 분석
+        </h4>
         <p class="description-text">{{ analysis.description }}</p>
       </div>
     </div>
 
     <!-- 점수 차트 카드 -->
     <div class="score-card">
-      <h3 class="section-title score-title">📊 성향 분석 결과</h3>
+      <div class="section-header">
+        <div class="section-icon score-icon"></div>
+        <h3 class="section-title">성향 분석 결과</h3>
+      </div>
+
       <div class="score-grid">
         <!-- A vs I -->
         <div class="score-item">
@@ -194,34 +207,68 @@
       </div>
     </div>
 
+    <!-- 맞춤형 포트폴리오 -->
+    <div class="CustomedPortfolio-card">
+      <div class="section-header">
+        <div class="section-icon customed-icon"></div>
+        <h3 class="section-title">맞춤형 포트폴리오</h3>
+      </div>
+      <CustomedPortfolio
+        v-if="analysisObject && analysisObject.wmtiCode && preInfoData"
+        :wmti-code="analysisObject.wmtiCode"
+        :result-type="analysisObject.resultType"
+        :risk-preference="analysisObject.riskPreference"
+        :user-name="userName"
+        :a-score="analysisObject.ascore"
+        :i-score="analysisObject.iscore"
+        :p-score="analysisObject.pscore"
+        :b-score="analysisObject.bscore"
+        :m-score="analysisObject.mscore"
+        :w-score="analysisObject.wscore"
+        :l-score="analysisObject.lscore"
+        :c-score="analysisObject.cscore"
+        :investment-capacity="preInfoData.investmentCapacity"
+        :investment-period="preInfoData.investmentPeriod"
+        :purpose-category="preInfoData.purposeCategory"
+        :age="preInfoData.age"
+        :monthly-income="preInfoData.monthlyIncome"
+        :savings-rate="preInfoData.savingsRate"
+        :financial-health-score="preInfoData.financialHealthScore"
+      />
+    </div>
     <!-- 테마 포트폴리오 -->
-    <ThemePortfolio
-      v-if="
-        analysisObject &&
-        analysisObject.wmtiCode &&
-        analysisObject.resultType &&
-        analysisObject.riskPreference
-      "
-      :wmti-code="analysisObject.wmtiCode"
-      :result-type="analysisObject.resultType"
-      :risk-preference="analysisObject.riskPreference"
-      :user-name="analysisObject.userName"
-    />
-
+    <div class="theme-portfolio-card">
+      <div class="section-header">
+        <div class="section-icon theme-icon"></div>
+        <h3 class="section-title">테마 포트폴리오</h3>
+      </div>
+      <ThemePortfolio
+        v-if="
+          analysisObject &&
+          analysisObject.wmtiCode &&
+          analysisObject.resultType &&
+          analysisObject.riskPreference
+        "
+        :wmti-code="analysisObject.wmtiCode"
+        :result-type="analysisObject.resultType"
+        :risk-preference="analysisObject.riskPreference"
+        :user-name="userName"
+      />
+    </div>
     <!-- 액션 버튼 -->
     <div class="action-section">
-      <h3 class="section-title action-title">🚀 다음 단계</h3>
+      <div class="section-header">
+        <div class="section-icon action-icon"></div>
+        <h3 class="section-title">더 둘러보기</h3>
+      </div>
+
       <div class="action-buttons">
-        <!-- <button class="action-button primary" @click="goToRecommend">
-          <i class="fa-solid fa-chart-line"></i>
-          상품 추천받기
-        </button> -->
         <button class="action-button secondary" @click="goToWMTIList">
-          <i class="fa-solid fa-users"></i>
+          <div class="button-icon users-icon"></div>
           16가지 WMTI 투자성향 보기
         </button>
         <button class="action-button tertiary" @click="goToHistory">
-          <i class="fa-solid fa-clock-rotate-left"></i>
+          <div class="button-icon history-icon"></div>
           내 검사 이력 보기
         </button>
       </div>
@@ -237,8 +284,8 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import BackButton from '@/components/common/BackButton.vue';
 import ThemePortfolio from '@/components/wmti/ThemePortfolio.vue';
-// import ThemePortFolioToggle from '@/components/wmti/ThemePortFolioToggle.vue';
-import { getWMTIResultAPI, getWMTIAnalysisAPI } from '@/api/wmti';
+import CustomedPortfolio from '@/components/wmti/CustomedPortfolio.vue';
+import { getWMTIResultAPI, getWMTIAnalysisAPI, getPreInfoCalcAPI } from '@/api/wmti';
 import { useToast } from '@/composables/useToast';
 import { useAuthStore } from '@/stores/useAuthStore';
 
@@ -246,29 +293,16 @@ const router = useRouter();
 const { showToast } = useToast();
 const authStore = useAuthStore();
 
-// ✅ 반응형 상태
+// 반응형 상태
 const analysisObject = ref({});
+const preInfoData = ref({});
 const analysis = ref({});
 const createdAt = ref([]);
 
-// ✅ 토스트 예시 버튼 핸들러
-const handleError = () => {
-  showToast('오류가 발생했습니다.', 'error');
-};
-
-// ✅ computed: 점수 계산  => 현재 양방향 그래프에서는 미사용. , 추후 리팩토링과정에서 사용가능성.
-// const aOrIScore = computed(() =>
-//   analysisObject.value.a === 'A' ? analysisObject.value.ascore : analysisObject.value.iscore
-// );
-// const pOrBScore = computed(() =>
-//   analysisObject.value.p === 'P' ? analysisObject.value.pscore : analysisObject.value.bscore
-// );
-// const mOrWScore = computed(() =>
-//   analysisObject.value.m === 'M' ? analysisObject.value.mscore : analysisObject.value.wscore
-// );
-// const lOrCScore = computed(() =>
-//   analysisObject.value.l === 'L' ? analysisObject.value.lscore : analysisObject.value.cscore
-// );
+// userInfo에서 userName을 가져오는 computed 속성
+const userName = computed(() => {
+  return authStore.userInfo?.nickname || '사용자';
+});
 
 const formattedDate = computed(() => {
   if (!createdAt.value || createdAt.value.length !== 6) {
@@ -278,23 +312,31 @@ const formattedDate = computed(() => {
   return date.toLocaleString('ko-KR');
 });
 
-// ✅ 결과 및 분석 데이터 불러오기
+// 결과 및 분석 데이터 불러오기
 const fetchResult = async () => {
-  const memberId = authStore.userInfo.memberId;
+  const memberId = authStore.userInfo?.memberId;
+  if (!memberId) {
+    console.warn('userInfo 없음. fetchResult 중단');
+    return;
+  }
 
   try {
     const res = await getWMTIResultAPI(memberId);
-    console.log('✅ 응답 전체:', res);
-
     const data = res.body?.data;
-    console.log('✅ data 내용:', data);
+    if (!data) {
+      showToast('결과 데이터를 찾을 수 없습니다.', 'warning');
+      return;
+    }
 
     analysisObject.value = data;
     createdAt.value = [...data.createdAt] || [];
 
+    const preInfoRes = await getPreInfoCalcAPI();
+    preInfoData.value = preInfoRes.body?.data || {};
+
     await fetchAnalysis(data.wmtiCode);
   } catch (err) {
-    console.error('⚠️ 결과 불러오기 실패:', err);
+    console.error('결과 불러오기 실패:', err);
     showToast('결과를 불러오지 못했습니다.', 'error');
   }
 };
@@ -302,20 +344,18 @@ const fetchResult = async () => {
 const fetchAnalysis = async (wmtiCode) => {
   try {
     const res = await getWMTIAnalysisAPI(wmtiCode);
-    console.log('🔍 analysis 응답:', res);
     analysis.value = res.body?.data;
   } catch (err) {
-    console.error('⚠️ 분석 정보 불러오기 실패', err);
+    console.error('분석 정보 불러오기 실패', err);
     showToast('분석 정보 불러오기 실패', 'error');
   }
 };
 
-// ✅ 라우팅 함수
-const goToRecommend = () => router.push('/recommend');
+// 라우팅 함수
 const goToWMTIList = () => router.push('/wmti/collection');
 const goToHistory = () => router.push('/mypage/wmti-history');
 
-// ✅ 스타일 클래스 및 라벨 유틸 함수
+// 스타일 클래스 및 라벨 유틸 함수
 const getResultTypeLabel = (type) =>
   ({
     AGGRESSIVE: '고수익 지향형',
@@ -368,18 +408,19 @@ const getRiskPreferenceTextClass = (risk) =>
   })[risk] || '';
 
 onMounted(() => {
-  fetchResult();
+  if (authStore.userInfo?.memberId) {
+    fetchResult();
+  }
 });
 </script>
 
 <style scoped>
 /* 컨테이너 설정 */
 .result-page {
-  max-width: 26.875rem; /* 430px */
+  max-width: 26.875rem;
   margin: 0 auto;
   padding: 1rem;
   font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, var(--color-bg-light) 0%, rgba(238, 238, 243, 0.5) 100%);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -389,10 +430,10 @@ onMounted(() => {
 /* 헤더 섹션 */
 .result-header {
   text-align: center;
-  padding: 1.5rem 0;
-  background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.8) 100%);
-  border-radius: 1rem;
-  box-shadow: 0 0.25rem 1.25rem rgba(45, 51, 107, 0.08);
+  padding: 1.5rem;
+  background: var(--color-white);
+  border-radius: 1.25rem;
+  box-shadow: 0 1.25rem 2.5rem rgba(45, 51, 107, 0.15);
 }
 
 .user-greeting {
@@ -403,7 +444,7 @@ onMounted(() => {
 }
 
 .username-highlight {
-  background: linear-gradient(135deg, var(--color-main), #4a5299);
+  background: linear-gradient(135deg, var(--color-main), var(--color-sub));
   color: var(--color-white);
   padding: 0.3rem 0.75rem;
   border-radius: 1rem;
@@ -419,7 +460,7 @@ onMounted(() => {
 .code-text {
   font-size: 2.5rem;
   font-weight: 800;
-  background: linear-gradient(135deg, var(--color-main), #4a5299);
+  background: linear-gradient(135deg, var(--color-main), var(--color-sub));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -446,7 +487,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.2rem;
+  gap: 0.375rem;
 }
 
 .type-label {
@@ -459,7 +500,7 @@ onMounted(() => {
   font-size: 0.9rem;
   color: var(--color-white);
   font-weight: 700;
-  padding: 0.2rem 0.625rem;
+  padding: 0.375rem 0.75rem;
   background: rgba(45, 51, 107, 0.1);
   border-radius: 0.625rem;
   transition: all 0.3s ease;
@@ -474,140 +515,187 @@ onMounted(() => {
 
 /* ResultType별 색상 클래스 */
 .type-aggressive {
-  background: #483b8a !important;
-  color: var(--color-white);
-  box-shadow: 0 0.125rem 0.5rem rgba(72, 59, 138, 0.3); /* 2px 8px */
+  background: linear-gradient(135deg, #483b8a, #5b4bad) !important;
+  box-shadow: 0 0.125rem 0.5rem rgba(72, 59, 138, 0.3);
 }
 
 .type-active {
-  background: #5b4bad !important;
-  color: var(--color-white);
+  background: linear-gradient(135deg, #5b4bad, #6d59cf) !important;
   box-shadow: 0 0.125rem 0.5rem rgba(91, 75, 173, 0.3);
 }
 
 .type-balanced {
-  background: #6d59cf !important;
-  color: var(--color-white);
+  background: linear-gradient(135deg, #6d59cf, #836cfa) !important;
   box-shadow: 0 0.125rem 0.5rem rgba(109, 89, 207, 0.3);
 }
 
 .type-passive {
-  background: #836cfa !important;
-  color: var(--color-white);
+  background: linear-gradient(135deg, #836cfa, #9b8dff) !important;
   box-shadow: 0 0.125rem 0.5rem rgba(131, 108, 250, 0.3);
 }
 
 /* RiskPreference별 색상 클래스 */
 .risk-stability {
-  background: #27ae60 !important;
-  color: var(--color-white);
+  background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
   box-shadow: 0 0.125rem 0.5rem rgba(39, 174, 96, 0.3);
 }
 
 .risk-stability-oriented {
-  background: #2ecc71 !important;
-  color: var(--color-white);
+  background: linear-gradient(135deg, #2ecc71, #58d68d) !important;
   box-shadow: 0 0.125rem 0.5rem rgba(46, 204, 113, 0.3);
 }
 
 .risk-neutral {
-  background: #f39c12 !important;
-  color: var(--color-white);
+  background: linear-gradient(135deg, #f39c12, #f8c471) !important;
   box-shadow: 0 0.125rem 0.5rem rgba(243, 156, 18, 0.3);
 }
 
 .risk-actively {
-  background: #e67e22 !important;
-  color: var(--color-white);
+  background: linear-gradient(135deg, #e67e22, #f8c471) !important;
   box-shadow: 0 0.125rem 0.5rem rgba(230, 126, 34, 0.3);
 }
 
 .risk-aggressive {
-  background: #e74c3c !important;
-  color: var(--color-white);
+  background: linear-gradient(135deg, #e74c3c, #ec7063) !important;
   box-shadow: 0 0.125rem 0.5rem rgba(231, 76, 60, 0.3);
 }
 
-/* 텍스트 색상 클래스 - ResultType */
+/* 텍스트 색상 클래스 */
 .text-aggressive {
   color: #483b8a !important;
   font-weight: 600;
 }
-
 .text-active {
   color: #5b4bad !important;
   font-weight: 600;
 }
-
 .text-balanced {
   color: #6d59cf !important;
   font-weight: 600;
 }
-
 .text-passive {
   color: #836cfa !important;
   font-weight: 600;
 }
-
-/* 텍스트 색상 클래스 - RiskPreference */
 .text-stability {
   color: #27ae60 !important;
   font-weight: 600;
 }
-
 .text-stability-oriented {
   color: #2ecc71 !important;
   font-weight: 600;
 }
-
 .text-neutral {
   color: #f39c12 !important;
   font-weight: 600;
 }
-
 .text-actively {
   color: #e67e22 !important;
   font-weight: 600;
 }
-
 .text-risk-aggressive {
   color: #e74c3c !important;
   font-weight: 600;
 }
 
-/* 분석 카드 */
-.analysis-card {
-  background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.8) 100%);
-  border-radius: 1rem;
-  padding: 1.25rem;
-  box-shadow: 0 0.25rem 1.25rem rgba(45, 51, 107, 0.08);
-  animation: fadeInUp 0.6s ease-out 0.2s both;
+/* 카드 공통 스타일 */
+.analysis-card,
+.score-card,
+.CustomedPortfolio-card,
+.theme-portfolio-card {
+  background: var(--color-white);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  box-shadow: 0 1.25rem 2.5rem rgba(45, 51, 107, 0.15);
+  animation: fadeInUp 0.6s ease-out both;
 }
 
-.card-header {
+.score-card {
+  animation-delay: 0.2s;
+}
+
+/* 섹션 헤더 */
+.section-header {
   display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
+  align-items: center;
+  gap: 0.75rem;
   margin-bottom: 1.25rem;
-  flex-wrap: wrap;
-  gap: 0.625rem;
 }
 
-.card-title {
-  font-size: 1rem;
+.section-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.analysis-icon {
+  background: linear-gradient(135deg, #e67e22, #f39c12);
+}
+
+.score-icon {
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+.theme-icon {
+  background: linear-gradient(135deg, #ad44ad, #9b59b6);
+}
+.customed-icon {
+  background: linear-gradient(135deg, #3498db, #5dade2);
+}
+
+.action-icon {
+  background: linear-gradient(135deg, #8e44ad, #9b59b6);
+}
+
+.section-title {
+  font-size: 1.125rem;
   font-weight: 700;
   color: var(--color-main);
-  line-height: 1.4;
-  flex: 1;
-  min-width: 11.25rem;
   margin: 0;
 }
 
+/* 카드 헤더 */
+.card-header {
+  margin-bottom: 1.25rem;
+}
+
+.card-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-main);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* 서브섹션 */
+.subsection-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-sub);
+  margin: 0 0 0.75rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.subsection-icon {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: linear-gradient(135deg, var(--color-main), var(--color-sub));
+  border-radius: 0.125rem;
+  flex-shrink: 0;
+}
+
+.description-icon {
+  background: linear-gradient(135deg, #3498db, #5dade2);
+}
+
+/* 태그 섹션 */
 .tags-section {
   margin-bottom: 1.25rem;
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(45, 51, 107, 0.02), rgba(125, 129, 162, 0.01));
-  border-radius: 0.875rem;
+  background: rgba(45, 51, 107, 0.02);
+  border-radius: 0.75rem;
   padding: 0.875rem 0;
   position: relative;
 }
@@ -631,12 +719,12 @@ onMounted(() => {
 
 .tags-marquee::before {
   left: 0;
-  background: linear-gradient(to right, rgba(248, 249, 252, 0.9), transparent);
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.9), transparent);
 }
 
 .tags-marquee::after {
   right: 0;
-  background: linear-gradient(to left, rgba(248, 249, 252, 0.9), transparent);
+  background: linear-gradient(to left, rgba(255, 255, 255, 0.9), transparent);
 }
 
 .tags-track {
@@ -654,11 +742,11 @@ onMounted(() => {
   background: linear-gradient(135deg, rgba(45, 51, 107, 0.08), rgba(125, 129, 162, 0.05));
   color: var(--color-main);
   padding: 0.4rem 0.75rem;
-  border-radius: 1rem;
+  border-radius: 1.25rem;
   font-size: 0.75rem;
   font-weight: 600;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 0.063rem solid rgba(45, 51, 107, 0.1);
+  transition: all 0.3s ease;
+  border: 0.0625rem solid rgba(45, 51, 107, 0.1);
   white-space: nowrap;
   flex-shrink: 0;
   cursor: pointer;
@@ -666,16 +754,16 @@ onMounted(() => {
 
 .tag-item:hover {
   background: linear-gradient(135deg, rgba(45, 51, 107, 0.12), rgba(125, 129, 162, 0.08));
-  transform: translateY(-0.063rem);
+  transform: translateY(-0.0625rem);
   box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.15);
 }
 
+/* 설명 섹션 */
 .description-section {
-  border-left: 0.188rem solid var(--color-main);
-  padding-left: 0.875rem;
-  background: rgba(45, 51, 107, 0.02);
+  border-left: 0.1875rem solid var(--color-main);
   padding: 0.875rem 0.875rem 0.875rem 1.25rem;
-  border-radius: 0.625rem;
+  background: rgba(45, 51, 107, 0.02);
+  border-radius: 0.75rem;
 }
 
 .description-text {
@@ -686,70 +774,7 @@ onMounted(() => {
   font-weight: 500;
 }
 
-/* 섹션 타이틀 공통 스타일 */
-.section-title {
-  font-size: 1rem;
-  font-weight: 700;
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.analysis-title {
-  color: #e67e22;
-  background: linear-gradient(135deg, rgba(230, 126, 34, 0.1), rgba(230, 126, 34, 0.05));
-  padding: 0.4rem 0.625rem;
-  border-radius: 0.625rem;
-  border-left: 0.188rem solid #e67e22;
-}
-
-.score-title {
-  color: #27ae60;
-  background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(39, 174, 96, 0.05));
-  padding: 0.4rem 0.625rem;
-  border-radius: 0.625rem;
-  border-left: 0.188rem solid #27ae60;
-}
-
-.action-title {
-  color: #8e44ad;
-  background: linear-gradient(135deg, rgba(142, 68, 173, 0.1), rgba(142, 68, 173, 0.05));
-  padding: 0.4rem 0.625rem;
-  border-radius: 0.625rem;
-  border-left: 0.188rem solid #8e44ad;
-  text-align: center;
-  justify-content: center;
-}
-
-.portfolio-title {
-  color: #2c3e50;
-  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(44, 62, 80, 0.05));
-  padding: 0.4rem 0.625rem;
-  border-radius: 0.625rem;
-  border-left: 0.188rem solid #2c3e50;
-}
-
-/* 서브섹션 타이틀 */
-.subsection-title {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-sub);
-  margin: 0 0 0.625rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-/* 점수 카드 */
-.score-card {
-  background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.8) 100%);
-  border-radius: 1rem;
-  padding: 1.25rem;
-  box-shadow: 0 0.25rem 1.25rem rgba(45, 51, 107, 0.08);
-  animation: fadeInUp 0.6s ease-out 0.4s both;
-}
-
+/* 점수 그리드 */
 .score-grid {
   display: flex;
   flex-direction: column;
@@ -783,7 +808,7 @@ onMounted(() => {
   height: 2.25rem;
   background: rgba(185, 187, 204, 0.1);
   border-radius: 1.125rem;
-  padding: 0.2rem;
+  padding: 0.25rem;
   position: relative;
 }
 
@@ -814,7 +839,7 @@ onMounted(() => {
   color: var(--color-sub);
   background: var(--color-white);
   border-radius: 0.625rem;
-  padding: 0.2rem 0;
+  padding: 0.25rem 0;
   z-index: 2;
   border: 0.125rem solid rgba(185, 187, 204, 0.3);
 }
@@ -851,24 +876,8 @@ onMounted(() => {
 .bar-info.dominant {
   font-weight: 800;
   color: var(--color-main);
-  text-shadow: 0.063rem 0.125rem rgba(45, 51, 107, 0.2);
+  text-shadow: 0.0625rem 0.125rem rgba(45, 51, 107, 0.2);
   transform: scale(1.05);
-}
-
-/* 각 차원별 색상 */
-.bar-a,
-.bar-i {
-  background: linear-gradient(90deg, #3498db, #5dade2);
-}
-
-.bar-p,
-.bar-b {
-  background: linear-gradient(90deg, #e67e22, #f8c471);
-}
-
-.bar-m,
-.bar-w {
-  background: linear-gradient(90deg, #27ae60, #58d68d);
 }
 
 /* 각 차원별 색상 */
@@ -892,120 +901,61 @@ onMounted(() => {
   background: linear-gradient(90deg, #8e44ad, #bb8fce);
 }
 
-/* 테마 포트폴리오 섹션 */
-.thema-portfolio-section {
-  background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.8) 100%);
-  border-radius: 1rem;
-  padding: 1.25rem;
-  box-shadow: 0 0.25rem 1.25rem rgba(45, 51, 107, 0.08);
-  animation: fadeInUp 0.6s ease-out 0.5s both;
-}
-
-.portfolio-placeholder {
-  background: linear-gradient(135deg, rgba(44, 62, 80, 0.05), rgba(44, 62, 80, 0.02));
-  border: 0.125rem dashed rgba(44, 62, 80, 0.2);
-  border-radius: 0.875rem;
-  padding: 2rem 1rem;
-  text-align: center;
-}
-
-.placeholder-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.placeholder-content i {
-  font-size: 2rem;
-  color: #2c3e50;
-  opacity: 0.6;
-}
-
-.placeholder-content p {
-  font-size: 0.875rem;
-  color: var(--color-sub);
-  margin: 0;
-  font-weight: 500;
-}
-
-.coming-soon {
-  background: linear-gradient(135deg, #2c3e50, #34495e);
-  color: var(--color-white);
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.031rem;
-}
-
 /* 액션 섹션 */
 .action-section {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.875rem;
-  padding: 0.875rem 0;
-  animation: fadeInUp 0.6s ease-out 0.6s both;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--color-white);
+  border-radius: 1.25rem;
+  box-shadow: 0 1.25rem 2.5rem rgba(45, 51, 107, 0.15);
+  animation: fadeInUp 0.6s ease-out 0.4s both;
 }
 
 .action-buttons {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  width: 100%;
 }
 
 .action-button {
   border: none;
   padding: 0.875rem 1.5rem;
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.625rem;
+  gap: 0.75rem;
   font-family: inherit;
   width: 100%;
-}
-
-.action-button.primary {
-  background: linear-gradient(135deg, var(--color-main), #4a5299);
-  color: var(--color-white);
-  box-shadow: 0 0.25rem 0.9375rem rgba(45, 51, 107, 0.3); /* 4px 15px */
-}
-
-.action-button.primary:hover {
-  transform: translateY(-0.125rem); /* -2px */
-  box-shadow: 0 0.375rem 1.5625rem rgba(45, 51, 107, 0.4); /* 6px 25px */
-  background: linear-gradient(135deg, #1e2347, var(--color-main));
 }
 
 .action-button.secondary {
   background: linear-gradient(135deg, #3498db, #5dade2);
   color: var(--color-white);
-  box-shadow: 0 0.25rem 0.9375rem rgba(52, 152, 219, 0.3); /* 4px 15px */
+  box-shadow: 0 0.25rem 0.75rem rgba(52, 152, 219, 0.3);
 }
 
 .action-button.secondary:hover {
-  transform: translateY(-0.125rem); /* -2px */
-  box-shadow: 0 0.375rem 1.5625rem rgba(52, 152, 219, 0.4); /* 6px 25px */
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.5rem 1.25rem rgba(52, 152, 219, 0.4);
   background: linear-gradient(135deg, #2980b9, #3498db);
 }
 
 .action-button.tertiary {
   background: linear-gradient(135deg, #95a5a6, #bdc3c7);
   color: var(--color-white);
-  box-shadow: 0 0.25rem 0.9375rem rgba(149, 165, 166, 0.3); /* 4px 15px */
+  box-shadow: 0 0.25rem 0.75rem rgba(149, 165, 166, 0.3);
 }
 
 .action-button.tertiary:hover {
-  transform: translateY(-0.125rem); /* -2px */
-  box-shadow: 0 0.375rem 1.5625rem rgba(149, 165, 166, 0.4); /* 6px 25px */
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.5rem 1.25rem rgba(149, 165, 166, 0.4);
   background: linear-gradient(135deg, #7f8c8d, #95a5a6);
 }
 
@@ -1013,22 +963,38 @@ onMounted(() => {
   transform: translateY(0);
 }
 
-.action-button i {
-  font-size: 1rem;
+/* 버튼 아이콘 */
+.button-icon {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.125rem;
+  flex-shrink: 0;
 }
 
-/* 페이지 하단 제출 시각 */
+.users-icon {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
+  mask: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='currentColor' viewBox='0 0 24 24'%3e%3cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3e%3c/svg%3e")
+    center/contain no-repeat;
+}
+
+.history-icon {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
+  mask: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='currentColor' viewBox='0 0 24 24'%3e%3cpath d='M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z'/%3e%3c/svg%3e")
+    center/contain no-repeat;
+}
+
+/* 페이지 하단 */
 .footer-date {
   text-align: right;
   font-size: 0.7rem;
   color: var(--color-light);
   margin-top: 0.875rem;
-  padding: 0.4rem 0;
+  padding: 0.5rem 0;
   font-weight: 500;
   opacity: 0.8;
 }
 
-/* 전광판 애니메이션 */
+/* 애니메이션 */
 @keyframes marquee {
   0% {
     transform: translateX(0);
@@ -1041,7 +1007,7 @@ onMounted(() => {
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(1.25rem); /* 20px */
+    transform: translateY(1.25rem);
   }
   to {
     opacity: 1;
@@ -1052,7 +1018,7 @@ onMounted(() => {
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(1.875rem); /* 30px */
+    transform: translateY(1.875rem);
   }
   to {
     opacity: 1;
@@ -1066,24 +1032,8 @@ onMounted(() => {
   }
 }
 
-@keyframes bounce {
-  0%,
-  20%,
-  50%,
-  80%,
-  100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-0.25rem);
-  }
-  60% {
-    transform: translateY(-0.125rem);
-  }
-}
-
 /* 반응형 */
-@media (max-width: 26.875rem) {
+@media (max-width: 30rem) {
   .result-page {
     padding: 0.875rem;
     gap: 1rem;
@@ -1098,8 +1048,9 @@ onMounted(() => {
   }
 
   .analysis-card,
-  .score-card {
-    padding: 1rem;
+  .score-card,
+  .action-section {
+    padding: 1.25rem;
   }
 
   .bidirectional-bar {

@@ -1,6 +1,7 @@
 export default [
   {
     portfolioCode: 'TP01',
+    riskPreference: '공격투자형',
     themeName: '배당특급(공격투자형)',
     composition: [
       { category: '국내채권', percentage: 0 },
@@ -12,6 +13,7 @@ export default [
   },
   {
     portfolioCode: 'TP02',
+    riskPreference: '공격투자형',
     themeName: '가치주 대반란(공격투자형)',
     composition: [
       { category: '국내채권', percentage: 0 },
@@ -23,6 +25,7 @@ export default [
   },
   {
     portfolioCode: 'TP03',
+    riskPreference: '공격투자형',
     themeName: '캡틴 아메리카(공격투자형)',
     composition: [
       { category: '국내채권', percentage: 0 },
@@ -34,6 +37,7 @@ export default [
   },
   {
     portfolioCode: 'TP04',
+    riskPreference: '공격투자형',
     themeName: 'ESG 워너비',
     composition: [
       { category: '국내채권', percentage: 0 },
@@ -45,6 +49,7 @@ export default [
   },
   {
     portfolioCode: 'TP05',
+    riskPreference: '공격투자형',
     themeName: '지금은 IT시대',
     composition: [
       { category: '국내채권', percentage: 0 },
@@ -56,6 +61,7 @@ export default [
   },
   {
     portfolioCode: 'TP06',
+    riskPreference: '공격투자형',
     themeName: '글로벌 대장주',
     composition: [
       { category: '국내채권', percentage: 0 },
@@ -67,6 +73,7 @@ export default [
   },
   {
     portfolioCode: 'TP07',
+    riskPreference: '공격투자형',
     themeName: '대체불가 실물투자',
     composition: [
       { category: '국내채권', percentage: 20 },
@@ -78,6 +85,7 @@ export default [
   },
   {
     portfolioCode: 'TP08',
+    riskPreference: '공격투자형',
     themeName: '전지적 펀드시점',
     composition: [
       { category: '국내채권', percentage: 0 },
@@ -89,6 +97,7 @@ export default [
   },
   {
     portfolioCode: 'TP09',
+    riskPreference: '공격투자형',
     themeName: 'G2',
     composition: [
       { category: '국내채권', percentage: 30 },
@@ -100,6 +109,7 @@ export default [
   },
   {
     portfolioCode: 'TP10',
+    riskPreference: '공격투자형',
     themeName: '글로벌 자산배분(공격투자형)',
     composition: [
       { category: '국내채권', percentage: 30 },
@@ -111,6 +121,7 @@ export default [
   },
   {
     portfolioCode: 'TP11',
+    riskPreference: '공격투자형',
     themeName: '글로벌 바겐세일',
     composition: [
       { category: '국내채권', percentage: 0 },
@@ -122,6 +133,7 @@ export default [
   },
   {
     portfolioCode: 'TP12',
+    riskPreference: '공격투자형',
     themeName: '사계절 자산배분',
     composition: [
       { category: '국내채권', percentage: 55 },
@@ -133,6 +145,7 @@ export default [
   },
   {
     portfolioCode: 'TP13',
+    riskPreference: '공격투자형',
     themeName: '영구 자산배분',
     composition: [
       { category: '국내채권', percentage: 25 },
@@ -144,6 +157,7 @@ export default [
   },
   {
     portfolioCode: 'TP14',
+    riskPreference: '적극투자형',
     themeName: '펀린이 컬렉션(적극투자형)',
     composition: [
       { category: '국내채권', percentage: 20 },
@@ -155,6 +169,7 @@ export default [
   },
   {
     portfolioCode: 'TP15',
+    riskPreference: '적극투자형',
     themeName: '배당특급(적극투자형)',
     composition: [
       { category: '국내채권', percentage: 30 },
@@ -166,6 +181,7 @@ export default [
   },
   {
     portfolioCode: 'TP16',
+    riskPreference: '적극투자형',
     themeName: '가치주 대반란(적극투자형)',
     composition: [
       { category: '국내채권', percentage: 20 },
@@ -177,6 +193,7 @@ export default [
   },
   {
     portfolioCode: 'TP17',
+    riskPreference: '적극투자형',
     themeName: '캡틴 아메리카(적극투자형)',
     composition: [
       { category: '국내채권', percentage: 20 },
@@ -188,6 +205,7 @@ export default [
   },
   {
     portfolioCode: 'TP18',
+    riskPreference: '적극투자형',
     themeName: '글로벌 자산배분(적극투자형)',
     composition: [
       { category: '국내채권', percentage: 20 },
@@ -199,6 +217,7 @@ export default [
   },
   {
     portfolioCode: 'TP19',
+    riskPreference: '위험중립형',
     themeName: '펀린이 컬렉션(위험중립형)',
     composition: [
       { category: '국내채권', percentage: 20 },
@@ -210,6 +229,7 @@ export default [
   },
   {
     portfolioCode: 'TP20',
+    riskPreference: '위험중립형',
     themeName: '배당특급(위험중립형)',
     composition: [
       { category: '국내채권', percentage: 30 },
@@ -221,6 +241,7 @@ export default [
   },
   {
     portfolioCode: 'TP21',
+    riskPreference: '위험중립형',
     themeName: '가치주 대반란(위험중립형)',
     composition: [
       { category: '국내채권', percentage: 20 },
@@ -232,6 +253,7 @@ export default [
   },
   {
     portfolioCode: 'TP22',
+    riskPreference: '안정추구형',
     themeName: '수퍼세이브(안정추구형)',
     composition: [
       { category: '국내채권', percentage: 100 },
@@ -243,6 +265,7 @@ export default [
   },
   {
     portfolioCode: 'TP23',
+    riskPreference: '안정추구형',
     themeName: '펀린이 컬렉션(안정추구형)',
     composition: [
       { category: '국내채권', percentage: 100 },
@@ -254,6 +277,7 @@ export default [
   },
   {
     portfolioCode: 'TP24',
+    riskPreference: '안정형',
     themeName: '수퍼세이브(안정형)',
     composition: [
       { category: '국내채권', percentage: 100 },
@@ -265,6 +289,7 @@ export default [
   },
   {
     portfolioCode: 'TP25',
+    riskPreference: '안정형',
     themeName: '펀린이 컬렉션(안정형)',
     composition: [
       { category: '국내채권', percentage: 100 },
