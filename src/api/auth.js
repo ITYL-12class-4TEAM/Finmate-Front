@@ -146,6 +146,25 @@ export const authAPI = {
     }
   },
 
+  // 비밀번호 확인
+  checkPassword: async (password) => {
+    try {
+      const response = await api.post('/api/auth/check-password', { password });
+      return {
+        success: true,
+        message: '비밀번호 확인 성공',
+        data: response.data,
+      };
+    } catch (error) {
+      console.error('비밀번호 확인 API 오류:', error);
+      return {
+        success: false,
+        message: '비밀번호 확인에 실패했습니다.',
+        data: null,
+      };
+    }
+  },
+
   // 비밀번호 재설정
   resetPassword: async (newPassword, newPasswordCheck, username) => {
     try {
@@ -185,6 +204,8 @@ export const authAPI = {
       };
     }
   },
+
+  // 회원가입
   signup: async (signupData) => {
     try {
       const response = await api.post('/api/signup', signupData);
@@ -257,6 +278,8 @@ export const authAPI = {
       };
     }
   },
+
+  // OAuth토큰 교환
   exchangeOAuth2Token: async (code) => {
     try {
       const response = await api.post('/api/auth/oauth2/token', null, {
@@ -299,10 +322,12 @@ export const authAPI = {
       };
     }
   },
+
+  // 회원 탈퇴
   withdraw: async (withdrawData) => {
     try {
       const response = await api.delete('/api/auth/withdraw', {
-        data: withdrawData, // DELETE 요청에서 body 데이터 전송 (이메일, 삭제 확인사유(선택) 삭제 동의 boolean)
+        data: withdrawData,
       });
 
       const result = response.data;
@@ -343,15 +368,4 @@ export const authAPI = {
       };
     }
   },
-
-  // 회원 탈퇴
-  withdraw: async () => {
-    try {
-      const response = await api.delete('/api/auth/withdraw');
-      return response.data.body.data;
-    } catch (error) {
-      console.error('회원 탈퇴 API 오류:', error);
-    }
-  },
 };
-
