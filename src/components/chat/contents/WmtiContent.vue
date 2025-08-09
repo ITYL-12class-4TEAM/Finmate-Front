@@ -139,9 +139,9 @@ const handleClick = (code) => {
   }
 };
 
-const goToSurvey = () => {
-  window.location.href = 'http://localhost:5173/wmti/basic';
-};
+// const goToSurvey = () => {
+//   window.location.href = 'http://localhost:5173/wmti/basic';
+// };
 </script>
 
 <style scoped>

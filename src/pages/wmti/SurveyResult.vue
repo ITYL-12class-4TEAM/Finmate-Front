@@ -1,7 +1,7 @@
 <template>
   <div class="result-page">
     <!-- 뒤로가기 버튼 -->
-    <BackButton title="뒤로가기" to="/wmti/basic" />
+    <BackButton to="/wmti/basic" />
 
     <!-- 헤더 섹션 -->
     <div class="result-header">

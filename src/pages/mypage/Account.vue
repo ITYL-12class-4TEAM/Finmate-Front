@@ -3,17 +3,6 @@
     <!-- 메인 카드 -->
     <div class="verify-container">
       <div class="verify-card">
-        <!-- 사용자 정보 카드 -->
-        <div class="user-info-card">
-          <div class="user-avatar">
-            <i class="fas fa-user"></i>
-          </div>
-          <div class="user-details">
-            <div class="user-name">{{ userInfo.nickname }}</div>
-            <div class="user-email">{{ userInfo.email }}</div>
-          </div>
-        </div>
-
         <!-- 비밀번호 입력 폼 -->
         <form class="verify-form" @submit.prevent="verifyPassword">
           <div class="form-group">
@@ -82,7 +71,7 @@
         <div class="success-icon">
           <i class="fas fa-check-circle"></i>
         </div>
-        <h3>비밀번호 확인 완료</h3>
+        <h4>비밀번호 확인 완료</h4>
         <p>본인 확인이 완료되었습니다.<br />회원정보 수정 페이지로 이동합니다.</p>
         <button class="modal-btn" @click="proceedToEdit">계속하기</button>
       </div>
@@ -109,27 +98,20 @@ const userInfo = ref({
 });
 
 onMounted(async () => {
-  console.log('API 호출 시작');
-
   const response = await memberAPI.getMyInfo();
-  console.log('사용자 정보:', response.data);
 
   if (response.success) {
     userInfo.value = response.data;
 
     if (response.data.socialType != 'none') {
-      console.log('일반 로그인 사용자 - 비밀번호 확인 생략');
-
+      // 소셜 로그인 사용자 제외
       localStorage.setItem('passwordVerified', 'true');
       localStorage.setItem('verificationTime', Date.now().toString());
 
       router.push('/mypage/settings/edit');
       return;
     }
-
-    console.log('일반 로그인 사용자 - 비밀번호 확인 필요');
   } else {
-    console.error('사용자 정보 조회 실패:', response.message);
     alert('사용자 정보를 불러올 수 없습니다.');
   }
 });
@@ -188,7 +170,6 @@ const verifyPassword = async () => {
   } catch (err) {
     hasError.value = true;
     errorMessage.value = '비밀번호 확인 중 오류가 발생했습니다.';
-    console.error('Password verification error:', err);
   } finally {
     loading.value = false;
   }
@@ -501,7 +482,6 @@ const proceedToEdit = () => {
   border: 1px solid rgba(45, 51, 107, 0.1);
   border-radius: 0.75rem;
   padding: 1rem;
-  margin-bottom: 1.5rem;
 }
 
 .notice-header {
@@ -595,9 +575,9 @@ const proceedToEdit = () => {
 .modal-content {
   background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
   border-radius: 1rem;
-  padding: 2rem;
+  padding: 1rem;
   text-align: center;
-  max-width: 400px;
+  max-width: 300px;
   width: 100%;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(185, 187, 204, 0.3);
@@ -617,8 +597,8 @@ const proceedToEdit = () => {
 }
 
 .success-icon {
-  width: 3rem;
-  height: 3rem;
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: 50%;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   display: flex;
@@ -644,7 +624,7 @@ const proceedToEdit = () => {
 
 .modal-btn {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.5rem;
   background: var(--color-sub);
   color: white;
   border: none;
