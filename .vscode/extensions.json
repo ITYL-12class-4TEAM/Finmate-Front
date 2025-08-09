@@ -1,9 +1,3 @@
 {
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
-  },
-  "eslint.validate": ["vue", "javascript"],
-  "prettier.enable": true,
-  "files.eol": "\r\n"
+  "recommendations": ["Vue.volar"]
 }
