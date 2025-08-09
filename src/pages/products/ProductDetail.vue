@@ -7,13 +7,13 @@
     <div v-else-if="error" class="error-container">
       <div class="error-icon">!</div>
       <p>{{ error }}</p>
-      <BackButton title="이전으로" />
+      <BackButton />
     </div>
 
     <div v-else-if="product" class="product-container">
       <!-- 페이지 헤더 -->
       <div class="page-header">
-        <BackButton title="이전으로" />
+        <BackButton />
         <!-- GPT 상품 요약 버튼 (우측 상단) todo -->
         <!-- <button class="gpt-detail-btn" @click="handleGptDetail" title="GPT 상품 요약">
           <span class="gpt-icon">🤖</span>
@@ -451,7 +451,6 @@ onMounted(() => {
    1. 페이지 기본 레이아웃 및 로딩/에러 상태 (유지)
    ========================================================================== */
 .product-detail-page {
-  background-color: var(--color-bg-light);
   padding: 1rem;
   padding-bottom: 6rem; /* 하단 플로팅 바를 위한 여백 확보 */
   min-height: 100vh;

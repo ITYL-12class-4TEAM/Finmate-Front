@@ -271,7 +271,6 @@ onMounted(async () => {
    - 상세 페이지와 동일한 배경색과 여백을 적용하여 통일성 유지
    ========================================================================== */
 .product-deposit-page {
-  background-color: var(--color-bg-light);
   padding: 1rem;
   min-height: 100vh;
 }
