@@ -23,7 +23,6 @@ export const smsAPI = {
         };
       }
     } catch (error) {
-      console.error('인증번호 발송 API 오류:', error);
       return {
         success: false,
         message: error.response?.data?.header?.message || '인증번호 발송에 실패했습니다.',
@@ -55,7 +54,6 @@ export const smsAPI = {
         };
       }
     } catch (error) {
-      console.error('인증번호 확인 API 오류:', error);
       return {
         success: false,
         message: error.response?.data?.header?.message || '인증번호가 일치하지 않습니다.',

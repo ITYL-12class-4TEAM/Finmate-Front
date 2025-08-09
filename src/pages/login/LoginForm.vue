@@ -97,7 +97,6 @@ const handleLogin = async () => {
     const result = await authStore.login(loginForm.value.email, loginForm.value.password);
 
     if (result.success) {
-      console.log('로그인 성공:', authStore.userInfo);
       showToast('로그인 성공!');
       const redirectTo = router.currentRoute.value.query.redirect || '/';
       await router.push(redirectTo);
@@ -106,7 +105,6 @@ const handleLogin = async () => {
       showToast(result.message, 'error');
     }
   } catch (error) {
-    console.error('로그인 처리 중 오류:', error);
     showToast('로그인 처리 중 오류가 발생했습니다.', 'error');
   }
 };

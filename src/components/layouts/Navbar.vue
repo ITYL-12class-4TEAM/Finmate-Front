@@ -122,7 +122,6 @@ const handleLogout = async () => {
 
     router.push('/login');
   } catch (error) {
-    console.error('로그아웃 처리 중 오류:', error);
     showToast('로그아웃 처리 중 오류가 발생했습니다.', 'error');
   }
 };
