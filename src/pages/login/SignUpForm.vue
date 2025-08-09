@@ -419,29 +419,22 @@ const isSocialSignup = ref(false);
 
 // 컴포넌트 마운트 시 URL 파라미터 확인
 onMounted(() => {
-  console.log('SignUpForm 마운트됨');
-  console.log('route.query:', route.query);
-
   if (route.query.socialSignup === 'true') {
-    console.log('소셜 로그인 회원가입 모드');
     isSocialSignup.value = true;
 
     // URL에서 받은 정보로 폼 미리 채우기
     if (route.query.name) {
       signupForm.value.name = route.query.name;
-      console.log('이름 설정:', route.query.name);
     }
 
     if (route.query.email) {
       signupForm.value.email = route.query.email;
       emailVerified.value = true;
-      console.log('이메일 설정:', route.query.email);
     }
 
     if (route.query.phone) {
       signupForm.value.phone = route.query.phone;
       phoneVerified.value = true;
-      console.log('전화번호 설정:', route.query.phone);
     }
 
     showToast('추가 정보를 입력해주세요.');
@@ -538,7 +531,6 @@ const checkEmailDuplicate = async () => {
     }
   } catch (error) {
     emailVerified.value = false;
-    console.error('이메일 중복 확인 오류:', error);
     showToast('이메일 중복 확인 중 오류가 발생했습니다.', 'error');
   }
 };
@@ -561,7 +553,6 @@ const checkNicknameDuplicate = async () => {
     }
   } catch (error) {
     nicknameVerified.value = false;
-    console.error('닉네임 중복 확인 오류:', error);
     showToast('닉네임 중복 확인 중 오류가 발생했습니다.', 'error');
   }
 };
@@ -582,7 +573,6 @@ const sendPhoneVerification = async () => {
       showToast(response.message, 'warning');
     }
   } catch (error) {
-    console.error('인증번호 발송 오류:', error);
     showToast('인증번호 발송에 실패했습니다.', 'error');
   }
 };
@@ -608,7 +598,6 @@ const verifyPhoneCode = async () => {
     }
   } catch (error) {
     phoneVerified.value = false;
-    console.error('인증번호 확인 오류:', error);
     showToast('인증번호가 일치하지 않습니다.', 'error');
   }
 };
@@ -638,18 +627,12 @@ const handleSignup = async () => {
       signupData.phoneNumber = signupForm.value.phone;
     }
 
-    console.log('회원가입 데이터:', signupData);
-
     const response = isSocialSignup.value
       ? await authAPI.socialSignup(signupData)
       : await authAPI.signup(signupData);
 
-    console.log('회원가입 응답:', response);
-
     if (response.success) {
       if (isSocialSignup.value) {
-        console.log('소셜 회원가입 성공 처리');
-
         const authData = response.data;
 
         authStore.setTokens(authData.accessToken, authData.refreshToken);
@@ -660,7 +643,6 @@ const handleSignup = async () => {
 
         showToast('소셜 회원가입이 완료되었습니다!');
         router.push('/');
-        console.log('소셜 회원가입 완료');
       } else {
         showToast('회원가입이 완료되었습니다. 로그인해주세요.');
         router.push('/login');
@@ -669,7 +651,6 @@ const handleSignup = async () => {
       showToast(response.message, 'error');
     }
   } catch (error) {
-    console.error('회원가입 오류:', error);
     showToast('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
   }
 };
