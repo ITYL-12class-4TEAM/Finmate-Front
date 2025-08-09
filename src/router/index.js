@@ -58,6 +58,11 @@ const router = createRouter({
       children: [
         {
           path: '',
+          name: 'ShowMyPage',
+          component: () => import('../pages/mypage/MyPage.vue'),
+        },
+        {
+          path: 'favorites',
           name: 'Favorites',
           component: () => import('../pages/mypage/Favorites.vue'),
         }, // 즐겨찾기

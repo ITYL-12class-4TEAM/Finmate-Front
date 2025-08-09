@@ -29,7 +29,7 @@
             <ul class="menu-list">
               <li class="menu-item">
                 <router-link
-                  to="/mypage"
+                  to="/mypage/favorites"
                   class="menu-link"
                   exact-active-class="active"
                   @click="closeMobileMenu"
@@ -228,7 +228,7 @@ const headerTitle = computed(() => {
   const path = route.path;
 
   const map = {
-    '/mypage': '즐겨찾기',
+    '/mypage/favorites`': '즐겨찾기',
     '/mypage/recent-view': '최근 본 상품',
     '/mypage/portfolio': '포트폴리오',
     '/mypage/wmti-result': 'WMTI 결과',
