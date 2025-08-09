@@ -1,7 +1,13 @@
 <template>
   <div class="community-edit">
-    <BackButton title="게시글 수정" />
-
+    <!-- 상단 헤더 바 -->
+    <div class="header-bar">
+      <BackButton :to="'/community'" class="back-button" />
+      <h1 class="board-title">글수정</h1>
+      <div class="complete-section">
+        <button class="complete-btn" @click="submitPost" :disabled="!isFormValid">완료</button>
+      </div>
+    </div>
     <div class="edit-form">
       <!-- 제목 입력 -->
       <div class="input-group">
@@ -49,38 +55,6 @@
             <span class="checkbox-label">익명으로 작성</span>
           </CustomCheckbox>
         </div>
-      </div>
-
-      <!-- 수정 버튼 -->
-      <div class="submit-section">
-        <button class="submit-btn" @click="updatePost" :disabled="!isFormValid">
-          <svg
-            v-if="!isFormValid"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 6v6l4 2" />
-          </svg>
-          <svg
-            v-else
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-            <polyline points="17,21 17,13 7,13 7,21" />
-            <polyline points="7,3 7,8 15,8" />
-          </svg>
-          수정하기
-        </button>
       </div>
     </div>
   </div>
@@ -239,40 +213,51 @@ const updatePost = async () => {
   margin-top: 0.25rem;
 }
 
+/* 태그 컨테이너 */
 .tag-container {
   display: flex;
-  flex-wrap: wrap;
   gap: 0.5rem;
+  background: rgba(238, 238, 243, 0.3);
+  padding: 0.75rem;
+  border-radius: 1rem;
+  overflow-x: auto;
 }
 
 .tag-btn {
-  background: var(--color-bg-light);
-  border: 0.0625rem solid rgba(185, 187, 204, 0.3);
+  background: white;
+  border: 0.0625rem solid rgba(185, 187, 204, 0.2);
   color: var(--color-sub);
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   font-weight: 500;
   padding: 0.5rem 1rem;
-  border-radius: 1.25rem;
-  transition: all 0.2s ease;
+  border-radius: 1.5rem;
+  transition: all 0.3s ease;
   cursor: pointer;
+  box-shadow: 0 0.0625rem 0.25rem rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .tag-btn:hover {
-  background: var(--color-light);
+  background: var(--color-bg-light);
   border-color: var(--color-sub);
   color: var(--color-main);
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.08);
 }
 
 .tag-btn.active {
-  background: var(--color-main);
-  border-color: var(--color-main);
+  background: linear-gradient(135deg, var(--color-main), var(--color-sub));
+  border-color: transparent;
   color: white;
-  box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.2);
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.1875rem 0.75rem rgba(45, 51, 107, 0.2);
 }
 
 .tag-btn.active:hover {
-  background: var(--color-sub);
-  border-color: var(--color-sub);
+  background: linear-gradient(135deg, var(--color-sub), var(--color-light));
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.25rem 0.875rem rgba(45, 51, 107, 0.25);
 }
 
 .checkbox-container {
@@ -286,42 +271,55 @@ const updatePost = async () => {
   font-weight: 500;
 }
 
-.submit-section {
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 0.0625rem solid #f3f4f6;
+.header-bar {
   display: flex;
+  align-items: center;
   justify-content: center;
+  padding: 1rem 1.25rem;
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid #f3f4f6;
+  position: relative;
+}
+.back-button {
+  position: absolute;
+  left: 1.25rem;
+}
+.complete-section {
+  position: absolute;
+  right: 1.25rem;
 }
 
-.submit-btn {
+.complete-btn {
   background: var(--color-main);
   color: white;
   border: none;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  padding: 0.875rem 2rem;
-  border-radius: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
   transition: all 0.2s ease;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 0.25rem 0.75rem rgba(45, 51, 107, 0.2);
 }
 
-.submit-btn:hover:not(:disabled) {
+.complete-btn:hover:not(:disabled) {
   background: var(--color-sub);
-  transform: translateY(-0.0625rem);
-  box-shadow: 0 0.375rem 1rem rgba(45, 51, 107, 0.3);
+  transform: translateY(-1px);
 }
 
-.submit-btn:disabled {
+.complete-btn:disabled {
   background: #d1d5db;
-  color: #9ca3af;
   cursor: not-allowed;
   transform: none;
-  box-shadow: none;
+}
+
+.board-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-main);
+  margin: 0;
 }
 
 /* 반응형 */
@@ -360,6 +358,27 @@ const updatePost = async () => {
   .submit-btn {
     padding: 0.75rem 1.5rem;
     font-size: 0.875rem;
+  }
+  .board-title {
+    font-size: 1rem;
+  }
+  .header-bar {
+    padding: 0.875rem 1rem;
+  }
+
+  .back-button {
+    left: 1rem;
+  }
+  .complete-btn {
+    font-size: 0.8125rem;
+    padding: 0.375rem 0.875rem;
+  }
+  .complete-section {
+    right: 1rem;
+  }
+  .complete-btn {
+    font-size: 0.8125rem;
+    padding: 0.375rem 0.875rem;
   }
 }
 </style>
