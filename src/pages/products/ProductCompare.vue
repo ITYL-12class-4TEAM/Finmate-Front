@@ -1,22 +1,16 @@
 <template>
   <div class="compare-page">
-    <!-- 헤더 -->
     <div class="page-header">
       <BackButton />
-    </div>
-
-    <!-- 비교함이 비어있는 경우 -->
-    <CompareEmptyState v-if="compareList.length === 0" @go-to-products="goToProductList" />
-
-    <!-- 비교 콘텐츠 -->
-    <div v-else class="compare-content">
-      <!-- 비교함 관리 -->
       <div class="compare-actions">
         <div class="compare-count">{{ compareList.length }}/3 상품 비교 중</div>
         <button class="clear-btn" @click="handleClearCompare">비교함 비우기</button>
       </div>
+    </div>
 
-      <!-- 비교 테이블 -->
+    <CompareEmptyState v-if="compareList.length === 0" @go-to-products="goToProductList" />
+
+    <div v-else class="compare-content">
       <CompareTable
         :items="compareList"
         :compare-data="compareData"
@@ -28,7 +22,6 @@
         @join-product="handleJoinProduct"
       />
 
-      <!-- API 비교 결과 -->
       <div v-if="isLoading" class="loading-state">
         <div class="spinner"></div>
         <p>상품 비교 정보를 불러오는 중입니다...</p>
@@ -42,7 +35,6 @@
       />
     </div>
 
-    <!-- GPT 비교 요약 버튼 (화면 하단 좌측 고정) -->
     <div v-if="compareList.length >= 2" class="gpt-summary-btn-container">
       <button class="gpt-summary-btn" @click="handleGptSummary">
         <span class="gpt-icon">🤖</span>
@@ -438,7 +430,7 @@ onMounted(() => {
      - 다른 페이지들과 동일한 배경색과 여백을 적용하여 통일성 유지
      ========================================================================== */
 .compare-page {
-  padding: 1rem;
+  /* padding: 1rem 0; */
   padding-bottom: 5rem;
   min-height: 100vh;
 }
@@ -449,7 +441,7 @@ onMounted(() => {
 .page-header {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.25rem;
 }
 
 /* ==========================================================================
@@ -463,7 +455,7 @@ onMounted(() => {
   background-color: #ffffff;
   padding: 0.75rem 1rem;
   border-radius: 0.5rem; /* 8px */
-  margin-bottom: 1.25rem;
+  /* margin-bottom: 1.25rem; */
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.03);
 }
 
