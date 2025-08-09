@@ -14,6 +14,11 @@
       <!-- 페이지 헤더 -->
       <div class="page-header">
         <BackButton title="이전으로" />
+        <!-- GPT 상품 요약 버튼 (우측 상단) todo -->
+        <!-- <button class="gpt-detail-btn" @click="handleGptDetail" title="GPT 상품 요약">
+          <span class="gpt-icon">🤖</span>
+          <span class="btn-text">AI 요약</span>
+        </button> -->
       </div>
 
       <!-- 상품 기본 정보 카드 -->
@@ -107,6 +112,14 @@
 
     <!-- 비교함 플로팅 바 -->
     <CompareFloatingBar :compare-list="compareList" @go-to-compare="goToCompare" />
+
+    <!-- GPT 상품 요약 모달 -->
+    <GptDetailModal
+      :show="showGptDetailModal"
+      :product="product"
+      :selected-option="selectedOption"
+      @close="showGptDetailModal = false"
+    />
   </div>
 </template>
 
@@ -119,10 +132,8 @@ import BackButton from '@/components/common/BackButton.vue';
 import ProductInfoCard from '@/components/products/detail/ProductInfoCard.vue';
 import ProductRateInfo from '@/components/products/detail/ProductRateInfo.vue';
 import ProductFeatures from '@/components/products/detail/ProductFeatures.vue';
-// todo
-// import PreferentialConditions from '@/components/products/PreferentialConditions.vue';
-import ActionButtons from '@/components/products/ActionButtons.vue';
 import CompareFloatingBar from '@/components/products/compare/CompareFloatingBar.vue';
+import GptDetailModal from '@/components/products/detail/GptDetailModal.vue';
 import useCompareList from '@/composables/useCompareList';
 import { useToast } from '@/composables/useToast';
 
@@ -138,8 +149,16 @@ const error = ref(null);
 const showModal = ref(false);
 const selectedTerm = ref({ name: '', description: '' });
 
+// GPT 상품 요약 모달 상태
+const showGptDetailModal = ref(false);
+
 // 비교함 기능 (컴포저블 사용)
 const { compareList, addToCompareList, removeFromCompareList, isInCompareList } = useCompareList();
+
+// GPT 상품 요약 모달 열기
+const handleGptDetail = () => {
+  showGptDetailModal.value = true;
+};
 
 // 상품 정보 로드
 const loadProductDetail = async () => {
@@ -268,15 +287,6 @@ const goToCompare = () => {
     },
   });
 };
-
-// todo 상품 유형 체크 함수
-// const isDepositProduct = () => {
-//   return route.params.category === 'deposit';
-// };
-
-// const isPensionProduct = () => {
-//   return route.params.category === 'pension';
-// };
 
 // 카테고리 이름 가져오기
 const getCategoryName = () => {
@@ -494,12 +504,58 @@ onMounted(() => {
 }
 
 /* ==========================================================================
-   2. 페이지 헤더 (유지)
+   2. 페이지 헤더 (GPT 버튼 추가로 수정)
    ========================================================================== */
 .page-header {
   display: flex;
   align-items: center;
+  justify-content: space-between; /* 양쪽 끝으로 배치 */
   margin-bottom: 1rem;
+}
+
+/* GPT 상품 요약 버튼 (우측 상단) */
+.gpt-detail-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: linear-gradient(135deg, var(--color-main) 0%, #3d4785 100%);
+  color: white;
+  border: none;
+  border-radius: 1.5rem;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 0.25rem 0.75rem rgba(45, 51, 107, 0.3);
+  transition: all 0.3s ease;
+}
+
+.gpt-detail-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0.375rem 1rem rgba(45, 51, 107, 0.4);
+}
+
+.gpt-detail-btn:active {
+  transform: translateY(0);
+}
+
+.gpt-detail-btn .gpt-icon {
+  font-size: 1rem;
+  animation: pulse 2s infinite;
+}
+
+.gpt-detail-btn .btn-text {
+  white-space: nowrap;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 /* ==========================================================================
@@ -583,6 +639,7 @@ onMounted(() => {
   text-align: center;
   padding: 1rem 0;
 }
+
 /* 액션 버튼 스타일 */
 .action-section {
   display: flex;
@@ -623,6 +680,7 @@ onMounted(() => {
   background: var(--color-main);
   color: #fff;
 }
+
 .join-btn:hover {
   filter: brightness(110%);
 }
