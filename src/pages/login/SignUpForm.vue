@@ -638,6 +638,7 @@ const handleSignup = async () => {
         authStore.setTokens(authData.accessToken, authData.refreshToken);
 
         if (authData.userInfo) {
+          authStore.user.value = authData.userInfo;
           localStorage.setItem('userInfo', JSON.stringify(authData.userInfo));
         }
 

@@ -4,29 +4,20 @@
     <router-link to="/" class="navbar__logo">
       <img src="@/assets/images/logo.png" alt="FinMate 로고" />
     </router-link>
-
     <DesktopNavbar v-if="!isMobile" />
     <MobileMenu v-if="isMobile" :is-open="mobileOpen" @close="mobileOpen = false" />
-
     <div class="navbar__right">
       <template v-if="authStore.isAuthenticated">
         <!-- 알림/사용자 -->
         <div class="navbar__icons">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            width="24"
-            height="24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
-            />
-          </svg>
+          <!-- 알림 아이콘 -->
+          <NotificationButton
+            :notifications="notifications"
+            :unread-count="unreadCount"
+            @mark-all-read="markAllAsRead"
+            @mark-single-read="markSingleAsRead"
+            @notification-click="handleNotificationClick"
+          />
           <div class="user-menu" @click="toggleDropdown()">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -43,7 +34,6 @@
                 d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
               />
             </svg>
-
             <!-- 사용자 메뉴 드롭다운 -->
             <div class="user-dropdown" :class="{ open: dropdownOpen }">
               <p>{{ authStore.userInfo.nickname || '사용자' }}님</p>
@@ -53,11 +43,9 @@
           </div>
         </div>
       </template>
-
       <template v-else>
         <router-link to="/login" class="login-btn">로그인</router-link>
       </template>
-
       <!-- 모바일용 햄버거 버튼 -->
       <button v-if="isMobile" class="hamburger" @click="mobileOpen = true">
         <svg
@@ -79,23 +67,36 @@
     </div>
   </header>
 </template>
-
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useNotificationStore } from '@/stores/useNotificationStore';
 import DesktopNavbar from './DesktopNavbar.vue';
 import MobileMenu from './MobileMenu.vue';
 import { useToast } from '@/composables/useToast';
 import { useModal } from '@/composables/useModal';
+import NotificationButton from '@/components/notification/NotificationButton.vue';
 
 const { showToast } = useToast();
 const { showModal } = useModal();
 const router = useRouter();
 const authStore = useAuthStore();
+const notificationStore = useNotificationStore();
+
 const isMobile = ref(false);
 const mobileOpen = ref(false);
 const dropdownOpen = ref(false);
+
+// 읽지 않은 알림 개수 (스토어에서 가져오기)
+const unreadCount = computed(() => {
+  return notificationStore.unreadCount;
+});
+
+// 알림 데이터 (스토어에서 가져오기)
+const notifications = computed(() => {
+  return notificationStore.notifications;
+});
 
 const checkViewport = () => {
   isMobile.value = window.innerWidth <= 768;
@@ -106,20 +107,51 @@ onMounted(() => {
   window.addEventListener('resize', checkViewport);
 });
 
+// 알림 관련 이벤트 핸들러
+const markAllAsRead = async () => {
+  try {
+    const result = await notificationStore.markAllAsRead();
+    if (result.success) {
+      showToast('모든 알림을 읽음 처리했습니다.');
+    } else {
+      showToast(result.message || '알림 처리에 실패했습니다.', 'error');
+    }
+  } catch (error) {
+    showToast('알림 처리 중 오류가 발생했습니다.', 'error');
+  }
+};
+
+const markSingleAsRead = async (notification) => {
+  try {
+    const result = await notificationStore.markAsRead(notification.id);
+    if (result.success) {
+      showToast('알림을 읽음 처리했습니다.');
+    } else {
+      showToast(result.message || '알림 처리에 실패했습니다.', 'error');
+    }
+  } catch (error) {
+    showToast('알림 처리 중 오류가 발생했습니다.', 'error');
+  }
+};
+
+const handleNotificationClick = async (notification) => {
+  await markSingleAsRead(notification);
+  if (notification.link) {
+    router.push(notification.link);
+  }
+};
+
 // 로그아웃 처리 함수
 const handleLogout = async () => {
   try {
     const confirmed = await showModal('정말 로그아웃하시겠습니까?');
-
     if (!confirmed) {
       return; // 취소한 경우 함수 종료
     }
+    
     await authStore.logout();
-
     showToast('로그아웃되었습니다.');
-
     dropdownOpen.value = false;
-
     router.push('/login');
   } catch (error) {
     showToast('로그아웃 처리 중 오류가 발생했습니다.', 'error');
@@ -130,7 +162,6 @@ function toggleDropdown() {
   dropdownOpen.value = !dropdownOpen.value;
 }
 </script>
-
 <style scoped>
 .navbar {
   display: flex;
@@ -144,17 +175,14 @@ function toggleDropdown() {
   color: var(--color-main);
   z-index: 1000;
 }
-
 .navbar__logo img {
   height: 40px;
 }
-
 .navbar__right {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-
 .login-btn {
   color: var(--color-sub);
   background-color: var(--color-bg-light);
@@ -167,7 +195,6 @@ function toggleDropdown() {
   font-weight: 600;
   box-shadow: 0 1px 3px rgba(125, 129, 162, 0.1);
 }
-
 .login-btn:active {
   background-color: var(--color-light);
   color: var(--color-main);
@@ -175,7 +202,6 @@ function toggleDropdown() {
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(45, 51, 107, 0.15);
 }
-
 .hamburger {
   background: none;
   color: var(--color-main);
@@ -183,29 +209,24 @@ function toggleDropdown() {
   cursor: pointer;
   padding: 4px;
 }
-
 .navbar__icons {
   display: flex;
   gap: 16px;
   align-items: center;
 }
-
 .icon-button img {
   width: 24px;
   height: 24px;
 }
-
 .user-menu {
   position: relative;
   display: inline-block;
   cursor: pointer;
 }
-
 .user-menu img {
   width: 24px;
   height: 24px;
 }
-
 .user-dropdown {
   display: none;
   position: absolute;
@@ -223,11 +244,9 @@ function toggleDropdown() {
   z-index: 20;
   pointer-events: auto;
 }
-
 .user-dropdown.open {
   display: flex;
 }
-
 .user-dropdown button {
   background: none;
   border: none;
@@ -236,7 +255,6 @@ function toggleDropdown() {
   padding: 4px 0;
   color: var(--color-main);
 }
-
 .user-dropdown button:hover {
   color: var(--color-accent);
 }
