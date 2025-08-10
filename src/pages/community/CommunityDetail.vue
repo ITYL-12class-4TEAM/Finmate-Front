@@ -6,66 +6,21 @@
       <h1 class="board-title">게시판</h1>
       <div class="more-menu">
         <button class="more-button" @click="toggleMoreMenu">
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <circle cx="12" cy="12" r="1" />
-            <circle cx="12" cy="5" r="1" />
-            <circle cx="12" cy="19" r="1" />
-          </svg>
+          <i class="fas fa-ellipsis-v"></i>
         </button>
 
         <!-- 더보기 드롭다운 메뉴 -->
         <div v-if="showMoreMenu" class="more-dropdown" @click.stop>
           <button class="dropdown-item" @click="reportPost">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
-              />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
+            <i class="fas fa-exclamation-triangle"></i>
             신고
           </button>
           <button class="dropdown-item" @click="blockUser">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <path d="M4.93 4.93l14.14 14.14" />
-            </svg>
+            <i class="fas fa-ban"></i>
             차단
           </button>
           <button class="dropdown-item" @click="shareUrl">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-              <polyline points="16,6 12,2 8,6" />
-              <line x1="12" y1="2" x2="12" y2="15" />
-            </svg>
+            <i class="fas fa-share"></i>
             URL 공유
           </button>
         </div>
@@ -106,61 +61,17 @@
           <div class="reactions">
             <!-- 좋아요 버튼 -->
             <button class="reaction-btn" :class="{ liked: post.liked }" @click="toggleLike">
-              <svg
-                v-if="post.liked"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                stroke="none"
-              >
-                <path
-                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                />
-              </svg>
-              <svg
-                v-else
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                />
-              </svg>
+              <i class="fa-heart" :class="post.liked ? 'fas' : 'far'"></i>
               <span class="count">{{ post.likes || 0 }}</span>
             </button>
 
             <button class="reaction-btn" @click="toggleComments" aria-label="댓글 보기">
-              <i class="bi bi-chat" style="font-size: 1rem; color: currentColor"></i>
+              <i class="fas fa-comment"></i>
               <span class="count">{{ comments.length }}</span>
             </button>
             <!-- 스크랩 버튼 -->
             <button class="reaction-btn" :class="{ scraped: post.scraped }" @click="toggleScrap">
-              <svg
-                v-if="post.scraped"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                stroke="none"
-              >
-                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-              </svg>
-              <svg
-                v-else
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-              </svg>
+              <i class="fa-bookmark" :class="post.scraped ? 'fas' : 'far'"></i>
               <span class="count">{{ post.scraps || 0 }}</span>
             </button>
           </div>
@@ -288,7 +199,6 @@ const handleClickOutside = (event) => {
     showMoreMenu.value = false;
   }
 };
-
 // 더보기 메뉴 기능들
 const reportPost = async () => {
   showMoreMenu.value = false;
@@ -518,6 +428,10 @@ onUnmounted(() => {
   color: var(--color-main);
 }
 
+.more-button i {
+  font-size: 1.25rem;
+}
+
 .more-dropdown {
   position: absolute;
   top: 100%;
@@ -556,6 +470,12 @@ onUnmounted(() => {
 .dropdown-item:first-child:hover {
   background: rgba(239, 68, 68, 0.05);
   color: #ef4444;
+}
+
+.dropdown-item i {
+  font-size: 1rem;
+  width: 1rem;
+  text-align: center;
 }
 
 /* 게시글 메인 */
@@ -711,7 +631,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  color: #9ca3af;
+  color: var(--color-sub);
   font-size: 0.8125rem;
   padding: 0.375rem 0.5rem;
   border-radius: 0.375rem;
@@ -736,12 +656,16 @@ onUnmounted(() => {
 }
 
 .reaction-btn.scraped {
-  color: var(--color-main);
+  color: var(--color-sub);
 }
 
 .reaction-btn.scraped:hover {
   color: var(--color-sub);
   background: rgba(125, 129, 162, 0.05);
+}
+
+.reaction-btn i {
+  font-size: 1rem;
 }
 
 .count {
@@ -906,6 +830,10 @@ onUnmounted(() => {
     right: 1rem;
   }
 
+  .more-button i {
+    font-size: 1.125rem;
+  }
+
   .board-title {
     font-size: 1rem;
   }
@@ -978,6 +906,10 @@ onUnmounted(() => {
     padding: 0.25rem 0.375rem;
   }
 
+  .reaction-btn i {
+    font-size: 0.9375rem;
+  }
+
   .comment-section {
     margin: 1.25rem 0.75rem 1rem;
   }
@@ -990,6 +922,10 @@ onUnmounted(() => {
   .dropdown-item {
     padding: 0.625rem;
     font-size: 0.8125rem;
+  }
+
+  .dropdown-item i {
+    font-size: 0.9375rem;
   }
 
   /* 웹/모바일 표시 전환 */

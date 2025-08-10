@@ -5,14 +5,20 @@
       <BackButton :to="'/community'" class="back-button" />
       <h1 class="board-title">글쓰기</h1>
       <div class="complete-section">
-        <button class="complete-btn" @click="submitPost" :disabled="!isFormValid">완료</button>
+        <button class="complete-btn" @click="submitPost" :disabled="!isFormValid">
+          <i class="fas fa-check"></i>
+          완료
+        </button>
       </div>
     </div>
 
     <div class="write-form">
       <!-- 제목 입력 -->
       <div class="input-group">
-        <label class="input-label">제목</label>
+        <label class="input-label">
+          <i class="fas fa-heading"></i>
+          제목
+        </label>
         <input
           v-model="title"
           type="text"
@@ -24,7 +30,10 @@
 
       <!-- 내용 입력 -->
       <div class="input-group">
-        <label class="input-label">내용</label>
+        <label class="input-label">
+          <i class="fas fa-align-left"></i>
+          내용
+        </label>
         <textarea
           v-model="content"
           placeholder="내용을 입력해주세요."
@@ -36,7 +45,10 @@
 
       <!-- 상품군 선택 -->
       <div class="input-group">
-        <label class="input-label">상품군</label>
+        <label class="input-label">
+          <i class="fas fa-tags"></i>
+          상품군
+        </label>
         <div class="tag-container">
           <button
             v-for="tag in productTags"
@@ -44,16 +56,18 @@
             :class="['tag-btn', { active: selectedProduct === tag }]"
             @click="selectProduct(tag)"
           >
-            #{{ tag }}
+            <i class="fas fa-hashtag"></i>{{ tag }}
           </button>
         </div>
       </div>
 
-       <!-- 익명 여부 선택 -->
+      <!-- 익명 여부 선택 -->
       <div class="input-group">
         <div class="checkbox-container">
           <CustomCheckbox id="edit-anonymous" v-model="isAnonymous">
-            <span class="checkbox-label">익명으로 작성</span>
+            <span class="checkbox-label">
+              익명으로 작성
+            </span>
           </CustomCheckbox>
         </div>
       </div>
@@ -185,6 +199,9 @@ const submitPost = async () => {
   border-radius: 1rem;
   transition: all 0.2s ease;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
 .complete-btn:hover:not(:disabled) {
@@ -196,6 +213,10 @@ const submitPost = async () => {
   background: #d1d5db;
   cursor: not-allowed;
   transform: none;
+}
+
+.complete-btn i {
+  font-size: 0.8125rem;
 }
 
 .write-form {
@@ -213,11 +234,19 @@ const submitPost = async () => {
 }
 
 .input-label {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-main);
   margin-bottom: 0.5rem;
+}
+
+.input-label i {
+  font-size: 0.875rem;
+  color: var(--color-sub);
+  width: 1rem;
 }
 
 /* 폼 입력 필드 */
@@ -284,6 +313,13 @@ const submitPost = async () => {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   white-space: nowrap;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.tag-btn i {
+  font-size: 0.65rem;
 }
 
 .tag-btn:hover {
@@ -336,6 +372,14 @@ const submitPost = async () => {
   font-size: 0.8125rem;
   color: var(--color-sub);
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.checkbox-label i {
+  font-size: 0.875rem;
+  color: var(--color-sub);
 }
 
 /* 반응형 */
@@ -361,6 +405,10 @@ const submitPost = async () => {
     padding: 0.375rem 0.875rem;
   }
 
+  .complete-btn i {
+    font-size: 0.75rem;
+  }
+
   .write-form {
     margin: 1rem;
     padding: 1.25rem;
@@ -368,6 +416,14 @@ const submitPost = async () => {
 
   .input-group {
     margin-bottom: 1.25rem;
+  }
+
+  .input-label {
+    font-size: 0.8125rem;
+  }
+
+  .input-label i {
+    font-size: 0.8125rem;
   }
 
   .form-input,
@@ -388,6 +444,18 @@ const submitPost = async () => {
   .tag-btn {
     padding: 0.5rem 0.875rem;
     font-size: 0.6rem;
+  }
+
+  .tag-btn i {
+    font-size: 0.6rem;
+  }
+
+  .checkbox-label {
+    font-size: 0.75rem;
+  }
+
+  .checkbox-label i {
+    font-size: 0.8125rem;
   }
 }
 </style>

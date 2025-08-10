@@ -8,16 +8,7 @@
       @change="$emit('update:modelValue', $event.target.checked)"
     />
     <span class="checkmark">
-      <svg
-        width="10"
-        height="10"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="3"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-      </svg>
+      <i class="fas fa-check"></i>
     </span>
     <span class="label-text"><slot /></span>
   </label>
@@ -90,6 +81,11 @@ defineEmits(['update:modelValue']);
   pointer-events: none;
 }
 
+.checkmark i {
+  font-size: 0.625rem;
+  font-weight: 900;
+}
+
 .custom-checkbox:checked + .checkmark {
   opacity: 1;
 }
@@ -117,9 +113,8 @@ defineEmits(['update:modelValue']);
     height: 0.8125rem;
   }
 
-  .checkmark svg {
-    width: 0.5625rem;
-    height: 0.5625rem;
+  .checkmark i {
+    font-size: 0.5625rem;
   }
 
   .label-text {
