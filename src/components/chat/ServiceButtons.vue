@@ -27,7 +27,8 @@
           <!-- 카드 컨텐츠 -->
           <div class="card-content position-relative text-center">
             <div class="service-icon-wrapper mb-2">
-              <span class="service-icon">{{ service.icon }}</span>
+              <!-- v-html 사용하여 Font Awesome 아이콘 렌더링 -->
+              <span class="service-icon" v-html="service.icon"></span>
             </div>
             <div class="service-text">{{ service.text }}</div>
           </div>
@@ -41,7 +42,7 @@
           <!-- 헤더 -->
           <div class="guide-header text-center mb-2">
             <div class="guide-icon-wrapper mb-2">
-              <span class="guide-icon">🔐</span>
+              <span class="guide-icon"><i class="fas fa-lock" style="color: #4a90e2;"></i></span>
             </div>
             <h6 class="guide-title mb-1">Premium Features</h6>
             <p class="guide-subtitle mb-0">로그인하면 더 많은 기능을 이용할 수 있어요!</p>
@@ -51,7 +52,9 @@
           <div class="features-container mb-2">
             <div class="features-grid">
               <span v-for="feature in memberOnlyFeatures" :key="feature.id" class="feature-tag">
-                {{ feature.icon }} {{ feature.text }}
+                <!-- v-html 사용하여 Font Awesome 아이콘 렌더링 -->
+                <span v-html="feature.icon"></span>
+                <span>{{ feature.text }}</span>
               </span>
             </div>
           </div>
@@ -183,8 +186,7 @@ const navigateToLogin = () => {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   animation: slideInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-  /* aspect-ratio: 1; 제거 */
-  height: 4rem; /* 원하는 높이로 지정 */
+  height: 4rem;
   box-shadow: 0 4px 20px rgba(45, 51, 107, 0.08);
   display: flex;
   align-items: center;
@@ -227,10 +229,52 @@ const navigateToLogin = () => {
 .service-icon {
   font-size: 1rem;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.service-card:hover .service-icon {
+/* Font Awesome 아이콘 스타일 */
+.service-icon :deep(.fas) {
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.service-card:hover .service-icon :deep(.fas) {
   transform: scale(1.1);
+}
+
+/* 특정 아이콘별 호버 애니메이션 */
+.service-card:hover .service-icon :deep(.fa-fire) {
+  animation: flicker 0.5s ease-in-out infinite alternate;
+}
+
+.service-card:hover .service-icon :deep(.fa-heart) {
+  animation: heartbeat 1s ease-in-out infinite;
+}
+
+.service-card:hover .service-icon :deep(.fa-star) {
+  animation: twinkle 0.8s ease-in-out infinite;
+}
+
+.service-card:hover .service-icon :deep(.fa-compass) {
+  animation: spin 2s linear infinite;
+}
+
+.service-card:hover .service-icon :deep(.fa-bookmark) {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+.service-card:hover .service-icon :deep(.fa-pen-fancy) {
+  animation: wiggle 0.5s ease-in-out infinite;
+}
+
+.service-card:hover .service-icon :deep(.fa-comments) {
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.service-card:hover .service-icon :deep(.fa-eye) {
+  animation: blink 2s ease-in-out infinite;
 }
 
 .service-text {
@@ -275,6 +319,9 @@ const navigateToLogin = () => {
 
 .guide-icon {
   font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .guide-title {
@@ -319,6 +366,11 @@ const navigateToLogin = () => {
   flex-shrink: 0;
 }
 
+/* 태그 내 Font Awesome 아이콘 스타일 */
+.feature-tag :deep(.fas) {
+  font-size: 0.6rem;
+}
+
 /* 로그인 버튼 */
 .login-button {
   background: var(--color-main);
@@ -354,8 +406,7 @@ const navigateToLogin = () => {
 
 /* 애니메이션 */
 @keyframes gentle-float {
-  0%,
-  100% {
+  0%, 100% {
     transform: translateY(0);
   }
   50% {
@@ -372,5 +423,54 @@ const navigateToLogin = () => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Font Awesome 아이콘 애니메이션 */
+@keyframes flicker {
+  0% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+
+@keyframes heartbeat {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes twinkle {
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+  50% { 
+    opacity: 0.5; 
+    transform: scale(0.8); 
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes blink {
+  0%, 90%, 100% { opacity: 1; }
+  95% { opacity: 0.3; }
 }
 </style>

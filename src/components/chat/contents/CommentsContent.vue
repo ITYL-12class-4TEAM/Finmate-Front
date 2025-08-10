@@ -5,8 +5,8 @@
       <div class="header-section mb-3">
         <div class="d-flex align-items-center gap-2">
           <div>
-            <h5 class="header-title mb-0">{{ message.title }}</h5>
-            <small class="header-subtitle">{{ message.subtitle }}</small>
+            <h5 class="header-title mb-0" v-html="message.title"></h5>
+            <small class="header-subtitle" v-html="message.subtitle"></small>
           </div>
         </div>
       </div>
@@ -32,36 +32,28 @@
                     </h6>
                     <!-- 날짜 -->
                     <span class="comment-date-abs">
+                      <i class="fas fa-clock" style="color: #9ca3af; font-size: 0.5rem; margin-right: 0.25rem;"></i>
                       {{ formatDate(comment.createdAt || comment.created_at || comment.date) }}
                     </span>
                   </div>
                   <div class="comment-meta">
                     <div class="post-ref-badge">
-                      <i class="bi bi-file-text text-primary me-1"></i>
+                      <i class="fas fa-file-alt" style="color: #0284c7; font-size: 0.5rem; margin-right: 0.25rem;"></i>
                       <span>게시글 #{{ comment.postId }}</span>
                     </div>
                     <div class="post-stats">
-                      <!-- 좋아요 표시 (클릭 기능 제거) -->
+                      <!-- 좋아요 표시 (Font Awesome 아이콘 사용) -->
                       <div
                         class="stat-item"
                         :class="{ liked: comment.isLiked || comment.is_liked || comment.liked }"
                       >
-                        <svg
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          :fill="
-                            comment.isLiked || comment.is_liked || comment.liked
-                              ? 'currentColor'
-                              : 'none'
-                          "
-                          stroke="currentColor"
-                          stroke-width="2"
-                        >
-                          <path
-                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                          />
-                        </svg>
+                        <i 
+                          class="fas fa-heart" 
+                          :style="{
+                            color: (comment.isLiked || comment.is_liked || comment.liked) ? '#ef4444' : '#9ca3af',
+                            fontSize: '0.65rem'
+                          }"
+                        ></i>
                         <span class="stat-count">{{
                           comment.likes || comment.likeCount || 0
                         }}</span>
@@ -71,24 +63,10 @@
                 </div>
               </div>
 
-              <!-- 화살표 아이콘 -->
+              <!-- 화살표 아이콘 (Font Awesome으로 변경) -->
               <div class="col-auto">
                 <div class="arrow-wrapper">
-                  <svg
-                    width="1.25rem"
-                    height="1.25rem"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    class="arrow-icon"
-                  >
-                    <path
-                      d="M9 18l6-6-6-6"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
+                  <i class="fas fa-chevron-right arrow-icon" style="color: #9ca3af; font-size: 0.875rem;"></i>
                 </div>
               </div>
             </div>
@@ -103,15 +81,7 @@
             <span class="button-text">더보기</span>
             <span class="button-count">({{ remainingCount }})</span>
             <div class="button-arrow">
-              <svg width="1rem" height="1rem" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M5 12h14M12 5l7 7-7 7"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
+              <i class="fas fa-arrow-right" style="font-size: 0.75rem;"></i>
             </div>
           </div>
         </button>
@@ -188,16 +158,25 @@ const formatDate = (dateString) => {
       day: 'numeric',
     });
   } catch (error) {
-    console.error('날짜 포맷팅 에러:', error);
+    console.error('<i class="fas fa-exclamation-triangle" style="color: #ffc107;"></i> 날짜 포맷팅 에러:', error);
     return '방금';
   }
 };
 </script>
 
 <style scoped>
+:root {
+  --color-main: #2d336b;
+  --color-sub: #7d81a2;
+  --color-light: #b9bbcc;
+  --color-bg-light: #eeeef3;
+  --color-white: #ffffff;
+}
+
 .comment-header.mb-2 {
   margin-bottom: 0 !important;
 }
+
 .comments-container {
   max-width: 65vw;
   margin: 0 auto;
@@ -208,6 +187,7 @@ const formatDate = (dateString) => {
   padding: 0.4rem 0 0rem 0;
   padding-left: 0.2rem;
 }
+
 .header-title {
   font-size: 0.9rem !important;
   font-weight: 600;
@@ -215,10 +195,22 @@ const formatDate = (dateString) => {
   line-height: 1.4;
 }
 
+/* Header title Font Awesome 아이콘 스타일 */
+.header-title :deep(.fas) {
+  margin-right: 0.5rem;
+  font-size: 0.85rem;
+}
+
 .header-subtitle {
   font-size: 0.7rem !important;
   color: #6b7280;
   font-weight: 400;
+}
+
+/* Header subtitle Font Awesome 아이콘 스타일 */
+.header-subtitle :deep(.fas) {
+  margin-right: 0.25rem;
+  font-size: 0.65rem;
 }
 
 /* 댓글 그리드 */
@@ -243,6 +235,11 @@ const formatDate = (dateString) => {
   border-color: #e5e7eb;
 }
 
+.comment-card:hover .arrow-icon {
+  color: #6b7280 !important;
+  transform: translateX(2px);
+}
+
 .card-content {
   padding: 0.6rem;
 }
@@ -264,6 +261,7 @@ const formatDate = (dateString) => {
   color: #9ca3af;
   white-space: nowrap;
 }
+
 .comment-date-abs {
   position: absolute;
   top: 0.5rem;
@@ -272,12 +270,18 @@ const formatDate = (dateString) => {
   color: #9ca3af;
   white-space: nowrap;
   z-index: 1;
+  display: flex;
+  align-items: center;
 }
 
 /* 메타 정보 */
 .comment-meta {
   font-size: 0.5rem;
   color: #6b7280;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
 }
 
 .post-ref-badge {
@@ -332,6 +336,7 @@ const formatDate = (dateString) => {
   width: 1.5rem;
   height: 1.5rem;
   transition: all 0.2s ease;
+  border-radius: 50%;
 }
 
 .comment-card:hover .arrow-wrapper {
@@ -339,21 +344,17 @@ const formatDate = (dateString) => {
 }
 
 .arrow-icon {
-  color: #9ca3af;
   transition: all 0.2s ease;
-}
-
-.comment-card:hover .arrow-icon {
-  color: #6b7280;
-  transform: translateX(1px);
 }
 
 .more-section {
   text-align: center;
 }
+
 .more-section.mt-4 {
   margin-top: 0.5rem !important;
 }
+
 .more-button {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(15px);
@@ -376,10 +377,16 @@ const formatDate = (dateString) => {
 
 .button-arrow {
   transition: transform 0.3s ease;
+  display: flex;
+  align-items: center;
 }
 
 .more-button:hover .button-arrow {
   transform: translateX(3px);
+}
+
+.more-button:hover .button-arrow .fas {
+  animation: arrow-bounce 0.6s ease-in-out;
 }
 
 .row {
@@ -394,15 +401,6 @@ const formatDate = (dateString) => {
   min-width: 0;
 }
 
-.comment-meta {
-  font-size: 0.5rem;
-  color: #6b7280;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: auto;
-}
-
 .comment-stats {
   display: flex;
   align-items: center;
@@ -412,7 +410,7 @@ const formatDate = (dateString) => {
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 0.1rem;
+  gap: 0.15rem;
   color: #9ca3af;
   transition: all 0.2s ease;
   padding: 0.1rem;
@@ -425,10 +423,51 @@ const formatDate = (dateString) => {
   color: #ef4444;
 }
 
+.stat-item.liked .fas {
+  animation: heartbeat 0.6s ease-in-out;
+}
+
 .stat-count {
   font-size: 0.625rem;
   font-weight: 500;
   min-width: 1rem;
   text-align: center;
+}
+
+/* Font Awesome 아이콘 애니메이션 */
+@keyframes heartbeat {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+@keyframes arrow-bounce {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+}
+
+/* 호버 시 아이콘 색상 변경 */
+.stat-item:hover .fas {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}
+
+.stat-item:hover:not(.liked) .fa-heart {
+  color: #fca5a5 !important;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .stat-count {
+    font-size: 0.5625rem;
+  }
+
+  .comment-stats {
+    gap: 0.2rem;
+  }
+
+  .comments-container {
+    max-width: 90vw;
+  }
 }
 </style>

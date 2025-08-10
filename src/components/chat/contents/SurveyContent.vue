@@ -7,30 +7,37 @@
           <!-- 아이콘과 타이틀 섹션 -->
           <div class="col-12 text-center mb-3">
             <div class="icon-wrapper mb-2">
-              <span class="main-icon">✨</span>
+              <i class="fas fa-sparkles main-icon" style="color: #ffc107"></i>
             </div>
-            <h5 class="main-title mb-1">WMTI Check</h5>
-            <small class="sub-title">나만의 투자 성향 찾기</small>
+            <h5 class="main-title mb-1">
+              <i
+                class="fas fa-poll"
+                style="color: #4a90e2; margin-right: 0.5rem; font-size: 1.1rem"
+              ></i>
+              WMTI Check
+            </h5>
+            <small class="sub-title">
+              <i
+                class="fas fa-chart-line"
+                style="color: #6b7280; font-size: 0.75rem; margin-right: 0.25rem"
+              ></i>
+              나만의 투자 성향 찾기
+            </small>
           </div>
 
           <!-- 설명 텍스트 -->
           <div class="col-12 mb-4">
-            <p class="description-text text-center mb-0">{{ message.text }}</p>
+            <p class="description-text text-center mb-0" v-html="message.text"></p>
           </div>
 
           <!-- CTA 버튼 -->
           <div class="col-12 d-flex justify-content-center">
             <button class="cta-button" @click="$emit('navigate-to-survey')">
-              <span class="button-text">테스트 시작하기</span>
-              <svg class="button-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M5 12h14M12 5l7 7-7 7"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
+              <span class="button-text">
+                <i class="fas fa-play" style="margin-right: 0.5rem; font-size: 0.75rem"></i>
+                테스트 시작하기
+              </span>
+              <i class="fas fa-arrow-right button-arrow" style="font-size: 0.875rem"></i>
             </button>
           </div>
         </div>
@@ -48,6 +55,14 @@ defineEmits(['navigate-to-survey']);
 </script>
 
 <style scoped>
+:root {
+  --color-main: #2d336b;
+  --color-sub: #7d81a2;
+  --color-light: #b9bbcc;
+  --color-bg-light: #eeeef3;
+  --color-white: #ffffff;
+}
+
 .survey-container {
   width: 100%;
   padding: 0.2rem;
@@ -101,6 +116,10 @@ defineEmits(['navigate-to-survey']);
   animation: gentle-float 3s ease-in-out infinite;
 }
 
+.survey-card:hover .main-icon {
+  animation: sparkle-glow 1s ease-in-out infinite alternate;
+}
+
 .main-title {
   font-size: 1.25rem !important;
   font-weight: 700;
@@ -108,12 +127,18 @@ defineEmits(['navigate-to-survey']);
   letter-spacing: -0.02em;
   line-height: 1.2;
   margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sub-title {
   font-size: 0.875rem !important;
   color: #6b7280;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .description-text {
@@ -125,12 +150,18 @@ defineEmits(['navigate-to-survey']);
   margin: 0 auto;
 }
 
+/* Font Awesome 아이콘이 포함된 텍스트 스타일 */
+.description-text :deep(.fas) {
+  margin-right: 0.25rem;
+  font-size: 0.8rem;
+}
+
 .cta-button {
   background: rgba(255, 255, 255, 0.2);
-  border: 2px solid rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(45, 51, 107, 0.1);
   border-radius: 50px;
   padding: 0.75rem 1.5rem;
-  color: #374151;
+  color: var(--color-main);
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
@@ -139,28 +170,39 @@ defineEmits(['navigate-to-survey']);
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  white-space: nowrap; /* ✅ 추가 */
+  white-space: nowrap;
   width: 100%;
+  justify-content: center;
 }
 
 .cta-button:hover {
   background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(0, 0, 0, 0.15);
+  border-color: var(--color-sub);
   transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(45, 51, 107, 0.2);
 }
 
 .button-text {
-  color: #374151;
+  color: var(--color-main);
   text-align: center;
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .button-arrow {
   transition: transform 0.3s ease;
+  color: var(--color-main);
 }
 
 .cta-button:hover .button-arrow {
-  transform: translateX(2px);
+  transform: translateX(3px);
+  animation: arrow-pulse 0.6s ease-in-out;
+}
+
+.cta-button:hover .button-text .fas {
+  animation: play-pulse 0.6s ease-in-out;
 }
 
 .d-flex {
@@ -171,7 +213,7 @@ defineEmits(['navigate-to-survey']);
   justify-content: center !important;
 }
 
-/* 애니메이션 */
+/* Font Awesome 아이콘 애니메이션 */
 @keyframes gentle-float {
   0%,
   100% {
@@ -181,6 +223,67 @@ defineEmits(['navigate-to-survey']);
     transform: translateY(-3px);
   }
 }
+
+@keyframes sparkle-glow {
+  0% {
+    transform: translateY(-3px) scale(1);
+    filter: brightness(1);
+  }
+  100% {
+    transform: translateY(-6px) scale(1.1);
+    filter: brightness(1.3);
+  }
+}
+
+@keyframes arrow-pulse {
+  0%,
+  100% {
+    transform: translateX(3px) scale(1);
+  }
+  50% {
+    transform: translateX(6px) scale(1.1);
+  }
+}
+
+@keyframes play-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+/* 제목 아이콘 호버 효과 */
+.survey-card:hover .main-title .fas {
+  animation: poll-spin 1s ease-in-out;
+}
+
+.survey-card:hover .sub-title .fas {
+  animation: chart-bounce 0.8s ease-in-out;
+}
+
+@keyframes poll-spin {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(10deg) scale(1.1);
+  }
+}
+
+@keyframes chart-bounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-2px) scale(1.1);
+  }
+}
+
 @media (max-width: 360px) {
   .cta-button {
     padding: 0.5rem 1.5rem;
@@ -189,8 +292,15 @@ defineEmits(['navigate-to-survey']);
   }
 
   .button-arrow {
-    width: 14px;
-    height: 14px;
+    font-size: 0.75rem;
+  }
+
+  .main-title {
+    font-size: 1.1rem !important;
+  }
+
+  .sub-title {
+    font-size: 0.8rem !important;
   }
 }
 </style>

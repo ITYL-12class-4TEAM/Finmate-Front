@@ -5,8 +5,8 @@
       <div class="header-section mb-3">
         <div class="d-flex align-items-center gap-2">
           <div>
-            <h5 class="header-title mb-0">{{ message.title }}</h5>
-            <small class="header-subtitle">{{ message.subtitle }}</small>
+            <h5 class="header-title mb-0" v-html="message.title"></h5>
+            <small class="header-subtitle" v-html="message.subtitle"></small>
           </div>
         </div>
       </div>
@@ -27,14 +27,16 @@
               <div class="product-header mb-2">
                 <div class="badges-section">
                   <span class="category-badge">
+                    <i class="fas fa-tags" style="margin-right: 0.25rem; font-size: 0.5rem"></i>
                     {{ product.categoryName || '금융상품' }}
                   </span>
                   <span v-if="product.subcategoryName" class="subcategory-badge">
+                    <i class="fas fa-tag" style="margin-right: 0.25rem; font-size: 0.45rem"></i>
                     {{ product.subcategoryName }}
                   </span>
                 </div>
                 <div class="wishlist-info d-flex align-items-center gap-1">
-                  <i class="bi bi-star-fill star-icon"></i>
+                  <i class="fas fa-star star-icon" style="font-size: 0.7rem; color: #fbbf24"></i>
                   <span class="wishlist-count">{{ formatCount(product.wishlistCount) }}</span>
                 </div>
               </div>
@@ -44,21 +46,36 @@
                 <h6 class="product-name mb-1">
                   {{ product.productName || '상품명 없음' }}
                 </h6>
-                <p class="company-name mb-0">{{ product.korCoNm || '금융기관' }}</p>
+                <p class="company-name mb-0">
+                  <i class="fas fa-building" style="margin-right: 0.25rem; font-size: 0.6rem"></i>
+                  {{ product.korCoNm || '금융기관' }}
+                </p>
               </div>
 
               <!-- 금리 정보 -->
               <div class="rate-section mb-2">
                 <div v-if="hasBaseRate(product)" class="rate-item">
-                  <span class="rate-label">기본</span>
+                  <span class="rate-label">
+                    <i
+                      class="fas fa-percentage"
+                      style="margin-right: 0.25rem; font-size: 0.5rem"
+                    ></i>
+                    기본
+                  </span>
                   <span class="rate-value base-rate">{{ formatRate(product.baseRate) }}%</span>
                 </div>
                 <div v-if="hasMaxRate(product)" class="rate-item">
-                  <span class="rate-label">{{ getMaxRateLabel(product) }}</span>
+                  <span class="rate-label">
+                    <i class="fas fa-arrow-up" style="margin-right: 0.25rem; font-size: 0.5rem"></i>
+                    {{ getMaxRateLabel(product) }}
+                  </span>
                   <span class="rate-value max-rate">{{ formatRate(product.maxRate) }}%</span>
                 </div>
                 <div v-if="!hasBaseRate(product) && !hasMaxRate(product)" class="rate-item">
-                  <span class="rate-label">금리</span>
+                  <span class="rate-label">
+                    <i class="fas fa-phone" style="margin-right: 0.25rem; font-size: 0.5rem"></i>
+                    금리
+                  </span>
                   <span class="rate-value no-rate">문의</span>
                 </div>
               </div>
@@ -67,15 +84,21 @@
               <div v-if="hasDetailInfo(product)" class="details-section mb-2">
                 <div class="details-grid">
                   <div v-if="product.saveTrm" class="detail-tag">
-                    <i class="bi bi-calendar3 me-1"></i>
+                    <i
+                      class="fas fa-calendar-alt"
+                      style="margin-right: 0.25rem; font-size: 0.5rem"
+                    ></i>
                     {{ product.saveTrm }}개월
                   </div>
                   <div v-if="product.rstvValue" class="detail-tag">
-                    <i class="bi bi-wallet2 me-1"></i>
+                    <i class="fas fa-wallet" style="margin-right: 0.25rem; font-size: 0.5rem"></i>
                     {{ product.rstvValue }}
                   </div>
                   <div v-if="product.rstvTypeName" class="detail-tag">
-                    <i class="bi bi-tag me-1"></i>
+                    <i
+                      class="fas fa-info-circle"
+                      style="margin-right: 0.25rem; font-size: 0.5rem"
+                    ></i>
                     {{ product.rstvTypeName }}
                   </div>
                 </div>
@@ -84,7 +107,13 @@
               <!-- 하단 정보 -->
               <div class="product-footer d-flex justify-content-between align-items-center">
                 <div v-if="product.prdtTypeName" class="product-type">
-                  <span class="type-badge">{{ product.prdtTypeName }}</span>
+                  <span class="type-badge">
+                    <i
+                      class="fas fa-bookmark"
+                      style="margin-right: 0.25rem; font-size: 0.45rem"
+                    ></i>
+                    {{ product.prdtTypeName }}
+                  </span>
                 </div>
                 <div
                   v-if="product.externalLink && product.externalLink.trim()"
@@ -97,7 +126,10 @@
                     @click.stop="handleExternalLink(product.externalLink)"
                     class="link-btn"
                   >
-                    <i class="bi bi-arrow-up-right me-1"></i>
+                    <i
+                      class="fas fa-external-link-alt"
+                      style="margin-right: 0.25rem; font-size: 0.5rem"
+                    ></i>
                     상세
                   </a>
                 </div>
@@ -112,15 +144,7 @@
             <div class="button-content d-flex align-items-center justify-content-center gap-2">
               <span class="button-text">더 많은 상품 보기</span>
               <div class="button-arrow">
-                <svg width="1rem" height="1rem" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M5 12h14M12 5l7 7-7 7"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
+                <i class="fas fa-arrow-right" style="font-size: 0.875rem"></i>
               </div>
             </div>
           </button>
@@ -132,10 +156,16 @@
         <div class="empty-card">
           <div class="empty-content text-center">
             <div class="empty-icon-wrapper mb-3">
-              <span class="empty-icon">⭐</span>
+              <i class="fas fa-heart empty-icon" style="color: #fbbf24"></i>
             </div>
             <h6 class="empty-title mb-2">No Favorites Yet</h6>
-            <p class="empty-description mb-0">관심있는 금융상품을 찜해보세요!</p>
+            <p class="empty-description mb-0">
+              <i
+                class="fas fa-star"
+                style="margin-right: 0.25rem; font-size: 0.7rem; color: #fbbf24"
+              ></i>
+              관심있는 금융상품을 찜해보세요!
+            </p>
           </div>
         </div>
       </div>
@@ -165,6 +195,10 @@ const props = defineProps({
   maxDisplay: {
     type: Number,
     default: 5,
+  },
+  message: {
+    type: Object,
+    required: true,
   },
 });
 
@@ -244,7 +278,10 @@ const handleProductClick = (product) => {
 };
 
 const handleExternalLink = (link) => {
-  console.log('외부 링크 클릭:', link);
+  console.log(
+    '<i class="fas fa-external-link-alt" style="color: #4a90e2;"></i> 외부 링크 클릭:',
+    link
+  );
 };
 </script>
 
@@ -254,6 +291,7 @@ const handleExternalLink = (link) => {
   --color-sub: #7d81a2;
   --color-light: #b9bbcc;
   --color-bg-light: #eeeef3;
+  --color-white: #ffffff;
 }
 
 .wishlist-container {
@@ -264,12 +302,20 @@ const handleExternalLink = (link) => {
 .header-section {
   padding: 0.4rem 0 0rem 0;
   padding-left: 0.2rem;
+  margin-bottom: 0rem !important;
 }
+
 .header-title {
   font-size: 0.9rem !important;
   font-weight: 600;
   color: #111827;
   line-height: 1.4;
+}
+
+/* Header title Font Awesome 아이콘 스타일 */
+.header-title :deep(.fas) {
+  margin-right: 0.5rem;
+  font-size: 0.85rem;
 }
 
 .header-subtitle {
@@ -278,6 +324,22 @@ const handleExternalLink = (link) => {
   font-weight: 400;
 }
 
+.header-subtitle :deep(i.fas) {
+  margin-right: 0.25rem;
+  font-size: 0.65rem !important;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+/* v-html로 렌더링된 아이콘에 대한 스타일 */
+.header-subtitle i.fas {
+  margin-right: 0.25rem;
+  font-size: 0.65rem !important;
+  display: inline-block;
+  vertical-align: middle;
+  color: #ffc107; /* 색상도 명시적으로 지정 */
+}
 /* 상품 컨테이너 */
 .products-container {
   display: flex;
@@ -312,8 +374,12 @@ const handleExternalLink = (link) => {
   box-shadow: 0 0 30px rgba(45, 51, 107, 0.25);
 }
 
+.product-card:hover .fas {
+  animation: icon-bounce 0.6s ease-in-out;
+}
+
 .card-content {
-  padding: 1.25rem;
+  padding: 0.7rem;
   z-index: 1;
 }
 
@@ -326,7 +392,7 @@ const handleExternalLink = (link) => {
 
 .badges-section {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.2rem;
   flex-wrap: wrap;
 }
 
@@ -338,6 +404,8 @@ const handleExternalLink = (link) => {
   padding: 0.3rem 0.75rem;
   border-radius: 50px;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
 }
 
 .subcategory-badge {
@@ -349,6 +417,8 @@ const handleExternalLink = (link) => {
   border-radius: 50px;
   border: 1px solid rgba(125, 129, 162, 0.3);
   white-space: nowrap;
+  display: flex;
+  align-items: center;
 }
 
 .wishlist-info {
@@ -357,8 +427,7 @@ const handleExternalLink = (link) => {
 }
 
 .star-icon {
-  font-size: 0.7rem;
-  color: #fbbf24;
+  animation: star-twinkle 2s ease-in-out infinite;
 }
 
 .wishlist-count {
@@ -383,6 +452,8 @@ const handleExternalLink = (link) => {
   font-size: 0.7rem;
   font-weight: 500;
   color: var(--color-sub);
+  display: flex;
+  align-items: center;
 }
 
 /* 금리 섹션 */
@@ -408,6 +479,8 @@ const handleExternalLink = (link) => {
   color: var(--color-sub);
   text-transform: uppercase;
   letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
 }
 
 .rate-value {
@@ -459,6 +532,8 @@ const handleExternalLink = (link) => {
   padding: 0.2rem 0.5rem;
   border-radius: 50px;
   border: 1px solid rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
 }
 
 .link-btn {
@@ -480,13 +555,19 @@ const handleExternalLink = (link) => {
   color: white;
 }
 
+.link-btn:hover .fas {
+  animation: link-pulse 0.6s ease-in-out;
+}
+
 /* 더보기 버튼 */
 .more-section {
   text-align: center;
 }
+
 .more-section.mt-4 {
   margin-top: 0.5rem !important;
 }
+
 .more-button {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(15px);
@@ -513,6 +594,10 @@ const handleExternalLink = (link) => {
 
 .more-button:hover .button-arrow {
   transform: translateX(3px);
+}
+
+.more-button:hover .button-arrow .fas {
+  animation: arrow-pulse 0.6s ease-in-out;
 }
 
 /* 빈 상태 */
@@ -564,9 +649,12 @@ const handleExternalLink = (link) => {
   font-size: 0.75rem;
   color: var(--color-sub);
   line-height: 1.4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* 애니메이션 */
+/* Font Awesome 아이콘 애니메이션 */
 @keyframes gentle-float {
   0%,
   100% {
@@ -585,6 +673,55 @@ const handleExternalLink = (link) => {
   100% {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes star-twinkle {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(0.9);
+  }
+}
+
+@keyframes icon-bounce {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes link-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes arrow-pulse {
+  0%,
+  100% {
+    transform: translateX(3px) scale(1);
+  }
+  50% {
+    transform: translateX(6px) scale(1.1);
+  }
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .wishlist-container {
+    max-width: 90vw;
   }
 }
 </style>
