@@ -57,13 +57,13 @@
         <div class="product-details" @click="onProductClick(product)">
           <div class="detail-row">
             <span class="detail-label">기본 금리</span>
-            <span class="detail-value highlight">{{
+            <span class="detail-value">{{
               formatRate(product.intr_rate || product.intrRate)
             }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">우대 금리</span>
-            <span class="detail-value">{{
+            <span class="detail-value highlight">{{
               formatRate(product.intr_rate2 || product.intrRate2)
             }}</span>
           </div>
@@ -239,14 +239,14 @@ const goToCompare = () => {
   align-items: center;
   justify-content: space-between;
   background-color: #ffffff;
-  padding: 0.5rem 0.5rem;
+  padding: 0.3rem 0.8rem;
   border-radius: 0.5rem; /* 8px */
   margin-bottom: 0.5rem;
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.03);
 }
 
 .result-count {
-  font-size: 0.9375rem; /* 15px */
+  font-size: 0.875rem; /* 15px */
   color: var(--color-sub);
 }
 
@@ -265,7 +265,7 @@ const goToCompare = () => {
   border-radius: 0.375rem; /* 6px */
   background-color: transparent;
   color: var(--color-main);
-  font-size: 0.875rem; /* 14px */
+  font-size: 0.75rem; /* 14px */
   font-weight: 500;
   appearance: none;
   -webkit-appearance: none;
@@ -289,14 +289,14 @@ const goToCompare = () => {
 .product-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
   margin-bottom: 2rem;
 }
 
 .product-card {
   background: #fff;
   border-radius: 0.75rem; /* 12px */
-  padding: 1.25rem 1rem;
+  padding: 0.8rem 1.2rem;
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.04);
   display: flex;
   flex-direction: column;
@@ -310,7 +310,7 @@ const goToCompare = () => {
 }
 
 .product-header {
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   cursor: pointer;
 }
 
@@ -318,17 +318,17 @@ const goToCompare = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.375rem;
+  margin-bottom: 0.1rem;
 }
 
 .bank-name {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: var(--color-sub);
   font-weight: 500;
 }
 
 .rate-type-badge {
-  padding: 0.25rem 0.625rem;
+  padding: 0.2rem 0.5rem;
   border-radius: 1rem;
   font-size: 0.75rem;
   font-weight: 500;
@@ -337,7 +337,7 @@ const goToCompare = () => {
 }
 
 .product-name {
-  font-size: 1.125rem; /* 18px */
+  font-size: 1rem; /* 18px */
   font-weight: 600;
   color: var(--color-main);
   line-height: 1.4;
@@ -346,12 +346,12 @@ const goToCompare = () => {
 .product-details {
   display: flex;
   flex-direction: column;
-  gap: 0.625rem; /* 10px */
+  gap: 0.325rem; /* 10px */
   flex-grow: 1;
   cursor: pointer;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.5rem;
   border-top: 1px solid var(--color-bg-light);
-  padding-top: 1rem;
+  padding-top: 0.5rem;
 }
 
 .detail-row {
@@ -361,7 +361,7 @@ const goToCompare = () => {
 }
 
 .detail-label {
-  font-size: 0.9375rem; /* 15px */
+  font-size: 0.85rem; /* 15px */
   color: var(--color-sub);
 }
 
@@ -372,7 +372,7 @@ const goToCompare = () => {
 }
 
 .detail-value.highlight {
-  font-size: 1.125rem; /* 18px */
+  font-size: 1rem; /* 18px */
   color: var(--color-accent, #e91e63);
 }
 
@@ -387,12 +387,12 @@ const goToCompare = () => {
 .compare-btn,
 .join-btn {
   flex: 1;
-  height: 3rem; /* 48px */
+  height: 2.5rem; /* 48px */
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 0.5rem; /* 8px */
-  font-size: 0.9375rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   border: none;
