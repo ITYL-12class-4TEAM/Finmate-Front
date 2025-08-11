@@ -1,442 +1,343 @@
 <template>
-  <div class="mobile-compare-container">
-    <!-- 상품 헤더 영역 (가로 스크롤) -->
-    <div class="products-header-scroll">
-      <div v-for="item in items" :key="item.productId + item.saveTrm" class="product-header-card">
-        <div class="bank-name">{{ item.korCoNm }}</div>
-        <div class="product-name">{{ item.productName }}</div>
+  <div class="comparison-container">
+    <div class="product-headers">
+      <div v-for="item in items" :key="item.productId" class="header-item">
         <button
           class="remove-btn"
           @click="$emit('remove', item.productId, item.saveTrm, item.intrRateType || 'S')"
         >
           ×
         </button>
+        <div class="bank-name">{{ item.korCoNm }}</div>
+        <div class="product-name">{{ item.productName }}</div>
       </div>
     </div>
 
-    <!-- 비교 정보 영역 -->
-    <div class="compare-info-section">
-      <!-- 기본 금리 -->
-      <div class="info-row">
-        <div class="info-label">기본 금리</div>
-        <div class="info-values">
-          <div v-for="item in items" :key="item.productId + '_basic'" class="info-value highlight">
-            {{ formatRate(item.intrRate) }}
-          </div>
-        </div>
-      </div>
-
-      <!-- 우대 금리 -->
-      <div class="info-row">
-        <div class="info-label">우대 금리</div>
-        <div class="info-values">
+    <div class="comparison-body">
+      <div v-for="row in comparisonRows" :key="row.label" class="comparison-row">
+        <div class="row-label">{{ row.label }}</div>
+        <div class="row-values">
           <div
-            v-for="item in items"
-            :key="item.productId + '_special'"
-            class="info-value highlight special"
+            v-for="(value, index) in row.values"
+            :key="index"
+            class="value-item"
+            :class="{ 'align-left': row.alignLeft }"
           >
-            {{ formatRate(item.intrRate2) }}
-          </div>
-        </div>
-      </div>
-
-      <!-- 우대 조건 -->
-      <div class="info-row tall">
-        <div class="info-label">우대 조건</div>
-        <div class="info-values">
-          <div v-for="item in items" :key="item.productId + '_tags'" class="info-value tags-cell">
-            <div class="tags-container">
-              <template v-if="item && (item.preferential_tags || item.preferentialTags)">
-                <span
-                  v-for="(tag, tagIndex) in (
-                    item.preferential_tags ||
-                    item.preferentialTags ||
-                    ''
-                  ).split(',')"
-                  :key="tagIndex"
-                  class="tag-pill"
-                >
-                  #{{ tag.trim() }}
-                </span>
-              </template>
-              <span v-else class="no-tags">태그 없음</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 가입 기간 -->
-      <div class="info-row">
-        <div class="info-label">가입 기간</div>
-        <div class="info-values">
-          <div v-for="item in items" :key="item.productId + '_term'" class="info-value">
-            {{ item.saveTrm }}개월
-          </div>
-        </div>
-      </div>
-
-      <!-- 최소 가입금액 -->
-      <div class="info-row">
-        <div class="info-label">최소 금액</div>
-        <div class="info-values">
-          <div v-for="item in items" :key="item.productId + '_min'" class="info-value">
-            {{ getMinDepositForProduct(item.productId) }}
-          </div>
-        </div>
-      </div>
-
-      <!-- 최대 가입금액 -->
-      <div class="info-row">
-        <div class="info-label">최대 금액</div>
-        <div class="info-values">
-          <div v-for="item in items" :key="item.productId + '_max'" class="info-value">
-            {{ getMaxDepositForProduct(item.productId) }}
-          </div>
-        </div>
-      </div>
-
-      <!-- 가입 대상 -->
-      <div class="info-row">
-        <div class="info-label">가입 대상</div>
-        <div class="info-values">
-          <div v-for="item in items" :key="item.productId + '_member'" class="info-value">
-            {{ item.join_member || item.joinMember || '제한 없음' }}
-          </div>
-        </div>
-      </div>
-
-      <!-- 금리 유형 -->
-      <div class="info-row">
-        <div class="info-label">금리 유형</div>
-        <div class="info-values">
-          <div v-for="item in items" :key="item.productId + '_type'" class="info-value">
-            {{ getInterestTypeForProduct(item.productId, item.saveTrm, item.intrRateType || 'S') }}
+            <template v-if="row.type === 'rate'">
+              <span class="rate-text" :class="{ special: row.label === '우대 금리' }">{{
+                value
+              }}</span>
+            </template>
+            <template v-else-if="row.type === 'tags'">
+              <div class="tags-container">
+                <span v-for="tag in value" :key="tag" class="tag-pill">#{{ tag }}</span>
+                <span v-if="!value.length" class="no-tags">정보 없음</span>
+              </div>
+            </template>
+            <template v-else>
+              <span class="text-value">{{ value }}</span>
+            </template>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 액션 버튼 영역 -->
-    <div class="action-section">
-      <div class="action-buttons-row">
-        <div v-for="item in items" :key="item.productId + '_actions'" class="action-button-group">
-          <button
-            class="detail-btn"
-            @click="$emit('viewDetail', item.productId, item.productType, item.saveTrm)"
-          >
-            상세
-          </button>
-          <button class="join-btn" @click="$emit('joinProduct', item)">가입</button>
-        </div>
+    <div class="comparison-footer">
+      <div v-for="item in items" :key="item.productId" class="footer-item">
+        <button
+          class="btn-secondary"
+          @click="$emit('viewDetail', item.productId, item.productType, item.saveTrm)"
+        >
+          상세보기
+        </button>
+        <button class="btn-primary" @click="$emit('joinProduct', item)">가입하기</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-defineProps({
-  items: {
-    type: Array,
-    required: true,
-  },
-  compareData: {
-    type: Object,
-    default: null,
-  },
-  getMinDepositForProduct: {
-    type: Function,
-    required: true,
-  },
-  getMaxDepositForProduct: {
-    type: Function,
-    required: true,
-  },
-  getInterestTypeForProduct: {
-    type: Function,
-    required: true,
-  },
+import { computed } from 'vue';
+
+const props = defineProps({
+  items: { type: Array, required: true },
+  getMinDepositForProduct: { type: Function, required: true },
+  getMaxDepositForProduct: { type: Function, required: true },
+  getInterestTypeForProduct: { type: Function, required: true },
 });
 
+// [MODIFIED] 'remove' 이벤트를 defineEmits에 추가
 defineEmits(['remove', 'viewDetail', 'joinProduct']);
 
-// 금리 포맷팅
+const formatCurrencyKorean = (value) => {
+  const num = parseInt(String(value).replace(/,/g, ''), 10);
+  if (isNaN(num)) {
+    return typeof value === 'string' ? value : '정보 없음';
+  }
+  if (num === 0) return '0원';
+
+  const hundredMillion = Math.floor(num / 100000000);
+  if (hundredMillion > 0) {
+    return `${hundredMillion.toLocaleString()}억원`;
+  }
+
+  const tenThousand = Math.floor(num / 10000);
+  if (tenThousand > 0) {
+    return `${tenThousand.toLocaleString()}만원`;
+  }
+
+  if (num >= 1000) {
+    return `${(num / 1000).toLocaleString()}천원`;
+  }
+
+  return `${num.toLocaleString()}원`;
+};
+
 const formatRate = (rate) => {
   if (rate === null || rate === undefined) return '정보 없음';
   return parseFloat(rate).toFixed(2) + '%';
 };
+
+const comparisonRows = computed(() => {
+  if (!props.items || props.items.length === 0) return [];
+  return [
+    {
+      label: '기본 금리',
+      type: 'rate',
+      values: props.items.map((item) => formatRate(item.intrRate)),
+    },
+    {
+      label: '우대 금리',
+      type: 'rate',
+      values: props.items.map((item) => formatRate(item.intrRate2)),
+    },
+    {
+      label: '우대 조건',
+      type: 'tags',
+      alignLeft: true,
+      values: props.items.map((item) =>
+        (item.preferential_tags || item.preferentialTags || '').split(',').filter((t) => t.trim())
+      ),
+    },
+    { label: '가입 기간', type: 'text', values: props.items.map((item) => `${item.saveTrm}개월`) },
+    {
+      label: '최소 가입금액',
+      type: 'text',
+      values: props.items.map((item) =>
+        formatCurrencyKorean(props.getMinDepositForProduct(item.productId))
+      ),
+    },
+    {
+      label: '최대 가입금액',
+      type: 'text',
+      values: props.items.map((item) =>
+        formatCurrencyKorean(props.getMaxDepositForProduct(item.productId))
+      ),
+    },
+    {
+      label: '가입 대상',
+      type: 'text',
+      alignLeft: true,
+      values: props.items.map((item) => item.join_member || item.joinMember || '제한 없음'),
+    },
+    {
+      label: '금리 유형',
+      type: 'text',
+      values: props.items.map((item) =>
+        props.getInterestTypeForProduct(item.productId, item.saveTrm, item.intrRateType || 'S')
+      ),
+    },
+  ];
+});
 </script>
 
 <style scoped>
-/* FinMate Color */
-:root {
+/* Finmate 디자인 시스템 적용 (1rem = 16px)
   --color-main: #2d336b;
   --color-sub: #7d81a2;
   --color-light: #b9bbcc;
   --color-bg-light: #eeeef3;
-  --color-white: #ffffff;
-  --color-accent: #e91e63;
-}
+*/
 
-/* ==========================================================================
-   모바일 컨테이너 (앱 화면 기준 375px)
-   ========================================================================== */
-.mobile-compare-container {
-  width: 100%;
-  max-width: 23.4375rem; /* 375px */
-  background-color: var(--color-white);
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+.comparison-container {
+  max-width: 430px;
   margin: 0 auto;
+  /* background-color: var(--color-bg-light); */
+  padding: 1rem 0.75rem;
+  font-family: 'Pretendard', sans-serif; /* 예시 폰트 */
 }
 
-/* ==========================================================================
-   상품 헤더 영역 (가로 스크롤)
-   ========================================================================== */
-.products-header-scroll {
-  display: flex;
-  overflow-x: auto;
-  background-color: var(--color-bg-light);
-  padding: 0.75rem 0;
+/* --- 헤더 --- */
+.product-headers {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 0.5rem;
-  padding-left: 0.75rem;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  margin-bottom: 1rem;
 }
-
-.products-header-scroll::-webkit-scrollbar {
-  display: none;
-}
-
-.product-header-card {
-  flex: 0 0 6.25rem; /* 100px 고정 너비 */
-  background-color: var(--color-white);
-  border-radius: 0.5rem;
-  padding: 0.75rem 0.5rem;
-  position: relative;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  margin-right: 0.5rem;
-}
-
-.product-header-card:last-child {
-  margin-right: 0.75rem;
-}
-
-.bank-name {
-  font-size: 0.6875rem; /* 11px */
-  color: var(--color-sub);
-  margin-bottom: 0.25rem;
+.header-item {
+  position: relative; /* [MODIFIED] 삭제 버튼의 position: absolute 기준점 */
+  background-color: #fff;
+  padding: 0.75rem;
+  border-radius: 0.625rem; /* 10px */
+  border: 1px solid var(--color-bg-light);
   text-align: center;
 }
-
-.product-name {
+.bank-name {
   font-size: 0.75rem; /* 12px */
+  color: var(--color-sub);
+  font-weight: 500;
+}
+.product-name {
+  font-size: 0.8125rem; /* 13px */
   font-weight: 600;
   color: var(--color-main);
-  line-height: 1.3;
-  text-align: center;
-  word-break: keep-all;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+  padding: 0 0.5rem; /* 버튼 공간 확보 */
 }
 
+/* [ADDED] 삭제 버튼 스타일 */
 .remove-btn {
   position: absolute;
   top: 0.25rem;
   right: 0.25rem;
-  background: transparent;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
   border: none;
+  background-color: transparent;
   color: var(--color-light);
-  font-size: 0.875rem;
+  font-size: 1.25rem;
+  line-height: 1.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  width: 1.25rem;
-  height: 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
-
 .remove-btn:hover {
   color: var(--color-main);
-  transform: scale(1.1);
+  background-color: var(--color-bg-light);
 }
 
-/* ==========================================================================
-   비교 정보 섹션
-   ========================================================================== */
-.compare-info-section {
-  padding: 0;
+/* --- 본문 --- */
+.comparison-body {
+  background-color: #fff;
+  border-radius: 0.625rem;
+  border: 1px solid var(--color-bg-light);
 }
-
-.info-row {
-  display: flex;
-  min-height: 3rem; /* 48px */
+.comparison-row {
+  padding: 1rem 0;
   border-bottom: 1px solid var(--color-bg-light);
 }
-
-.info-row.tall {
-  min-height: 4rem; /* 64px, 우대조건용 */
+.comparison-row:last-child {
+  border-bottom: none;
 }
-
-.info-label {
-  flex: 0 0 4.5rem; /* 72px 고정 너비 */
-  background-color: #fcfdff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem; /* 12px */
+.row-label {
+  font-size: 0.8125rem; /* 13px */
   font-weight: 600;
   color: var(--color-sub);
-  border-right: 1px solid var(--color-bg-light);
   text-align: center;
-  padding: 0.5rem 0.25rem;
+  margin-bottom: 0.75rem;
 }
-
-.info-values {
-  flex: 1;
-  display: flex;
+.row-values {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: start;
 }
-
-.info-value {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8125rem; /* 13px */
-  color: var(--color-main);
-  text-align: center;
-  padding: 0.5rem 0.25rem;
-  border-right: 1px solid var(--color-bg-light);
+.value-item {
+  line-height: 1.5;
   word-break: keep-all;
+  min-height: 2.25rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0 0.5rem;
 }
-
-.info-value:last-child {
-  border-right: none;
+.value-item:not(:last-child) {
+  border-right: 1px solid var(--color-bg-light);
 }
-
-.info-value.highlight {
-  font-size: 0.9375rem; /* 15px */
+.value-item.align-left {
+  justify-content: flex-start;
+  text-align: left;
+}
+.text-value {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-main);
+}
+.rate-text {
+  font-size: 1rem;
   font-weight: 700;
   color: var(--color-main);
 }
-
-.info-value.highlight.special {
-  color: var(--color-accent);
+.rate-text.special {
+  color: var(--color-main);
+  position: relative;
 }
-
-/* 태그 셀 */
-.info-value.tags-cell {
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.5rem 0.25rem;
+.rate-text.special::after {
+  content: '';
+  position: absolute;
+  bottom: -0.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1.25rem;
+  height: 2px;
+  background-color: var(--color-main);
 }
-
 .tags-container {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.125rem;
-  justify-content: center;
-  align-items: center;
+  flex-flow: column wrap;
+  gap: 0.375rem;
+  align-items: flex-start;
 }
-
 .tag-pill {
-  background-color: var(--color-bg-light);
-  color: var(--color-main);
-  font-size: 0.625rem; /* 10px */
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.75rem;
-  white-space: nowrap;
-}
-
-.no-tags {
-  color: var(--color-light);
   font-size: 0.75rem;
+  font-weight: 500;
+  background-color: var(--color-bg-light);
+  color: var(--color-sub);
+  padding: 0.25rem 0.625rem;
+  border-radius: 1rem;
+}
+.no-tags {
+  font-size: 0.875rem;
+  color: var(--color-light);
 }
 
-/* ==========================================================================
-   액션 버튼 섹션
-   ========================================================================== */
-.action-section {
-  padding: 0.75rem;
-  background-color: #fcfdff;
-}
-
-.action-buttons-row {
-  display: flex;
+/* --- 푸터 및 버튼 --- */
+.comparison-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 0.5rem;
+  margin-top: 1rem;
 }
-
-.action-button-group {
-  flex: 1;
+.footer-item {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.5rem;
 }
-
-.detail-btn,
-.join-btn {
-  height: 2rem; /* 32px */
-  border-radius: 0.375rem;
-  font-size: 0.75rem; /* 12px */
+.btn-primary,
+.btn-secondary {
+  width: 100%;
+  padding: 0.625rem 0;
+  font-size: 0.8125rem;
   font-weight: 600;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-light);
   cursor: pointer;
-  transition: all 0.2s;
-  border: 1px solid;
+  transition: all 0.2s ease;
 }
-
-.detail-btn {
-  background-color: var(--color-white);
+.btn-secondary {
+  background-color: #fff;
   color: var(--color-main);
-  border-color: var(--color-light);
 }
-
-.detail-btn:hover {
-  background-color: var(--color-bg-light);
-  border-color: var(--color-sub);
-}
-
-.join-btn {
-  background-color: var(--color-main);
-  color: white;
+.btn-secondary:hover {
   border-color: var(--color-main);
 }
-
-.join-btn:hover {
-  filter: brightness(110%);
+.btn-primary {
+  background-color: var(--color-main);
+  color: #fff;
+  border-color: var(--color-main);
 }
-
-/* ==========================================================================
-   3개 상품일 때 최적화
-   ========================================================================== */
-@media (max-width: 23.4375rem) {
-  /* 375px */
-  .product-header-card {
-    flex: 0 0 5.5rem; /* 88px로 줄임 */
-  }
-
-  .product-name {
-    font-size: 0.6875rem; /* 11px로 줄임 */
-  }
-
-  .info-label {
-    flex: 0 0 4rem; /* 64px로 줄임 */
-    font-size: 0.6875rem; /* 11px */
-  }
-
-  .info-value {
-    font-size: 0.75rem; /* 12px */
-  }
-
-  .info-value.highlight {
-    font-size: 0.875rem; /* 14px */
-  }
-
-  .tag-pill {
-    font-size: 0.5625rem; /* 9px */
-    padding: 0.0625rem 0.25rem;
-  }
+.btn-primary:hover {
+  filter: brightness(115%);
 }
 </style>

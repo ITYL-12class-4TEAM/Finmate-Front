@@ -122,11 +122,6 @@ const router = createRouter({
           name: 'settingsDelete',
           component: () => import('../pages/mypage/AccountDelete.vue'),
         },
-        {
-          path: 'test',
-          name: 'test',
-          component: () => import('../pages/mypage/test.vue'),
-        },
       ],
     },
 
