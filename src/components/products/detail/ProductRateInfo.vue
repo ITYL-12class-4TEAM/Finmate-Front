@@ -41,7 +41,7 @@ defineProps({
 .interest-section {
   background-color: #ffffff;
   border-radius: 0.75rem; /* 12px */
-  padding: 0.75rem; /* 20px */
+  padding: 0.25rem 0.75rem; /* 20px */
   margin-bottom: 0.5rem;
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.04);
 }

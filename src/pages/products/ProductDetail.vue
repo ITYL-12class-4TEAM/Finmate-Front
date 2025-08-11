@@ -456,7 +456,7 @@ onMounted(() => {
    1. 페이지 기본 레이아웃 및 로딩/에러 상태 (유지)
    ========================================================================== */
 .product-detail-page {
-  padding: 0 0.5rem;
+  padding: 0 0.3rem;
   padding-bottom: 6rem; /* 하단 플로팅 바를 위한 여백 확보 */
   min-height: 100vh;
 }
@@ -568,7 +568,7 @@ onMounted(() => {
 .info-section {
   background-color: #ffffff;
   border-radius: 0.75rem; /* 12px */
-  padding: 0.75rem 1rem; /* 20px 16px */
+  padding: 0.5rem 1rem; /* 20px 16px */
   margin-bottom: 0.5rem;
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.04);
 }
@@ -580,8 +580,8 @@ onMounted(() => {
   font-size: 1rem; /* 18px */
   font-weight: 600;
   color: var(--color-main);
-  margin: 0 0 0.75rem 0;
-  padding-bottom: 0.75rem;
+  margin: 0 0 0.5rem 0;
+  padding-bottom: 0.25rem;
   border-bottom: 0.0625rem solid var(--color-bg-light);
 }
 

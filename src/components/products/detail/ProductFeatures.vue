@@ -23,7 +23,7 @@ const props = defineProps({
   formatDate: { type: Function, required: true },
 });
 
-// 안전하게 접근/표시
+// ✨'금리 유형' 항목을 추가하여 2x3 그리드를 채우도록 구성
 const features = computed(() => {
   const p = props.product?.productDetail || {};
   const opt = props.selectedOption || {};
@@ -31,22 +31,22 @@ const features = computed(() => {
     {
       icon: '💰',
       label: '최소 가입금액',
-      value: props.formatCurrency?.(p.minDepositAmount),
+      value: props.formatCurrency?.(p.minDepositAmount) || '0원',
     },
     {
       icon: '📈',
       label: '최대 가입금액',
-      value: props.formatCurrency?.(p.maxDepositAmount),
+      value: p.maxDepositAmount ? props.formatCurrency(p.maxDepositAmount) : '홈페이지 직접 참고',
     },
     {
       icon: '⏰',
       label: '가입 기간',
-      value: (opt.save_trm || opt.saveTrm || '-') + '개월',
+      value: opt.save_trm || opt.saveTrm ? `${opt.save_trm || opt.saveTrm}개월` : '-',
     },
     {
       icon: '📅',
       label: '공시 시작일',
-      value: props.formatDate?.(p.dcls_strt_day),
+      value: props.formatDate?.(p.dcls_strt_day) || '-',
     },
     {
       icon: '🔄',
@@ -63,8 +63,8 @@ const features = computed(() => {
    ========================================================================== */
 .key-features {
   background-color: #ffffff;
-  border-radius: 0.75rem; /* 12px */
-  padding: 0.75rem 1rem; /* 20px 16px */
+  border-radius: 0.75rem;
+  padding: 0.5rem 1rem; /* 내부 여백 상하로 조금 더 확보 */
   margin-bottom: 0.5rem;
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.04);
 }
@@ -73,38 +73,40 @@ const features = computed(() => {
    2. 섹션 제목 (유지)
    ========================================================================== */
 .section-title {
-  font-size: 1.1rem; /* 18px */
-  font-weight: 600;
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700; /* 좀 더 강조 */
   color: var(--color-main);
-  margin: 0 0 0.75rem 0;
-  padding-bottom: 0.75rem;
-  border-bottom: 0.0625rem solid var(--color-bg-light);
+  margin: 0 0 0.5rem 0; /* 하단 마진 증가 */
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #f0f1f5; /* var(--color-bg-light) 와 유사한 색상 */
 }
 
 /* ==========================================================================
-   3. 정보 리스트 (✨ 그리드 -> 세로 리스트 레이아웃으로 변경)
+   3. ✨ 정보 그리드 (2열 구조로 변경)
    ========================================================================== */
 .feature-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem; /* 각 항목 사이의 세로 간격을 넉넉하게 설정 */
+  display: grid;
+  /* 2개의 열을 만들고, 각 열이 동일한 너비를 갖도록 설정 (1fr = 1 fraction) */
+  grid-template-columns: repeat(2, 1fr);
+  row-gap: 0.75rem; /* 행(세로) 간격 */
+  column-gap: 0.5rem; /* 열(가로) 간격 */
 }
 
 .feature-item {
   display: flex;
-  align-items: flex-start; /* 아이콘과 텍스트를 상단에 정렬 */
-  gap: 0.75rem; /* 12px, 아이콘과 콘텐츠 사이 간격 */
+  align-items: flex-start;
+  gap: 0.25rem; /* 아이콘과 콘텐츠 사이 간격 */
 }
 
 /* ==========================================================================
-   4. 아이콘 및 콘텐츠 스타일 (✨ 리스트 레이아웃에 맞게 수정)
+   4. 아이콘 및 콘텐츠 스타일 (레이아웃에 맞게 유지 및 미세 조정)
    ========================================================================== */
 .feature-icon {
-  width: 2rem; /* 40px */
-  height: 2rem; /* 40px */
-  background: var(--color-bg-light);
+  width: 2.25rem; /* 36px */
+  height: 2.25rem; /* 36px */
+  background: #f0f1f5; /* var(--color-bg-light)와 유사한 색상 */
   border-radius: 50%;
-  font-size: 1.125rem; /* 18px */
+  font-size: 1.125rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -114,21 +116,21 @@ const features = computed(() => {
 .feature-content {
   flex: 1;
   min-width: 0;
-  padding-top: 0.125rem; /* 아이콘과 텍스트의 시각적 높이 조절 */
+  padding-top: 0.125rem;
 }
 
 .feature-label {
-  font-size: 0.8rem; /* 14px */
-  color: var(--color-sub);
-  margin-bottom: 0.25rem; /* 라벨과 값 사이 간격 */
+  font-size: 0.8125rem; /* 13px */
+  color: #5a607c; /* var(--color-sub)와 유사한 색상 */
+  margin-bottom: 0.25rem;
 }
 
 .feature-value {
-  font-size: 0.9rem; /* 16px */
+  font-size: 0.8rem; /* 15px */
   font-weight: 600;
   color: var(--color-main);
   white-space: normal;
-  word-break: keep-all; /* 단어 단위로 줄바꿈하여 가독성 향상 */
+  word-break: keep-all;
   line-height: 1.4;
 }
 </style>
