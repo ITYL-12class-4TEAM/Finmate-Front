@@ -58,7 +58,7 @@ const props = defineProps({
 .card-header {
   display: flex;
   align-items: flex-start;
-  padding: 1.25rem 1rem; /* 20px 16px, 다른 카드와 여백 통일 */
+  padding: 0.5rem 0.75rem; /* 20px 16px, 다른 카드와 여백 통일 */
   gap: 1rem; /* 16px */
 }
 

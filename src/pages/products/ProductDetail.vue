@@ -451,7 +451,7 @@ onMounted(() => {
    1. 페이지 기본 레이아웃 및 로딩/에러 상태 (유지)
    ========================================================================== */
 .product-detail-page {
-  padding: 1rem;
+  padding: 0 0.5rem;
   padding-bottom: 6rem; /* 하단 플로팅 바를 위한 여백 확보 */
   min-height: 100vh;
 }
