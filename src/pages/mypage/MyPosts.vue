@@ -1,97 +1,81 @@
 <template>
-  <LoadingSpinner v-if="loading" />
+  <div class="my-posts-container">
+    <LoadingSpinner v-if="loading" />
+    <ErrorAlert v-else-if="error" :message="error" />
 
-  <ErrorAlert v-else-if="error" :message="error" />
+    <div v-else class="my-posts-content">
+      <!-- 필터 섹션 -->
+      <PostFilter
+        :productTags="productTags"
+        :selectedProducts="selectedProducts"
+        @toggle-product="toggleProduct"
+      />
 
-  <div v-else>
-    <PostFilter
-      v-model:search-query="searchQuery"
-      v-model:selected-board="selectedBoard"
-      v-model:sort-by="sortBy"
-      @filter="filterAndSortPosts"
-    />
-
-    <div>
-      <PostActions :filtered-count="filteredPosts.length" />
-      <PostList :posts="paginatedPosts" @view-post="viewPost" />
-      <Pagination
-        v-if="totalPages > 1"
-        :current-page="currentPage"
-        :total-pages="totalPages"
-        @change-page="changePage"
+      <!-- 게시글 목록 섹션 -->
+      <PostList
+        :posts="filteredPosts"
+        :currentPage="currentPage"
+        :postsPerPage="postsPerPage"
+        @page-change="changePage"
+        @post-click="goToDetailPage"
+        @scrap="handleScrap"
       />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import router from '@/router';
 
 import LoadingSpinner from '@/components/mypage/common/LoadingSpinner.vue';
-import Pagination from '@/components/mypage/common/Pagination.vue';
 import ErrorAlert from '@/components/mypage/common/ErrorAlert.vue';
 import PostFilter from '@/components/mypage/mypost/PostFilter.vue';
-import PostActions from '@/components/mypage/mypost/PostAction.vue';
 import PostList from '@/components/mypage/mypost/PostList.vue';
 import { postsAPI } from '@/api/mypost';
 
 const loading = ref(false);
 const error = ref('');
 const posts = ref([]);
-const searchQuery = ref('');
-const selectedBoard = ref('');
-const sortBy = ref('date-desc');
 const currentPage = ref(1);
-const itemsPerPage = 15;
+const postsPerPage = 5;
+
+// 필터 관련 상태
+const productTags = ['예금', '적금', '펀드', '보험'];
+const selectedProducts = ref([]);
 
 const filteredPosts = computed(() => {
   let filtered = [...posts.value];
 
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase();
-    filtered = filtered.filter(
-      (post) =>
-        post.title.toLowerCase().includes(query) || post.content.toLowerCase().includes(query)
-    );
+  // 상품군 필터링
+  if (selectedProducts.value.length > 0) {
+    filtered = filtered.filter((post) => {
+      return selectedProducts.value.includes(post.productType);
+    });
   }
 
-  if (selectedBoard.value) {
-    filtered = filtered.filter((post) => post.boardType === selectedBoard.value);
+  // 최신순 정렬
+  return filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+});
+
+// 필터링 함수
+const toggleProduct = (tag) => {
+  const index = selectedProducts.value.indexOf(tag);
+  if (index === -1) {
+    selectedProducts.value.push(tag);
+  } else {
+    selectedProducts.value.splice(index, 1);
   }
-
-  switch (sortBy.value) {
-    case 'date-desc':
-      filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      break;
-    case 'date-asc':
-      filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-      break;
-    case 'like-desc':
-      filtered.sort((a, b) => b.likeCount - a.likeCount);
-      break;
-    case 'comment-desc':
-      filtered.sort((a, b) => b.commentCount - a.commentCount);
-      break;
-  }
-
-  return filtered;
-});
-
-const totalPages = computed(() => {
-  return Math.ceil(filteredPosts.value.length / itemsPerPage);
-});
-
-const paginatedPosts = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  return filteredPosts.value.slice(start, start + itemsPerPage);
-});
+  // 필터 변경 시 첫 페이지로 이동
+  currentPage.value = 1;
+};
 
 const fetchPosts = async () => {
   loading.value = true;
   error.value = '';
 
   try {
+    // 내 게시글만 가져오기
     const response = await postsAPI.getMyPosts();
     const apiData = response.body?.data || response.data;
 
@@ -101,34 +85,60 @@ const fetchPosts = async () => {
       content: post.content,
       boardType: post.boardId === 1 ? 'FREE' : post.boardId === 2 ? 'HOT' : 'NOTICE',
       isAnonymous: post.anonymous,
-      likeCount: post.likeCount,
-      commentCount: post.commentCount,
+      nickname: post.nickname || post.authorName || post.writer || '작성자',
+      likeCount: post.likeCount || 0,
+      commentCount: post.commentCount || 0,
+      scrapCount: post.scrapCount || 0,
       createdAt: convertDateArrayToISOString(post.createdAt),
+      liked: post.liked || post.isLiked || false,
+      scraped: post.scraped || post.isScrapped || false,
+      productType: post.productType || productTags[Math.floor(Math.random() * productTags.length)],
     }));
 
     currentPage.value = 1;
   } catch (err) {
-    error.value = '게시글을 불러오는데 실패했습니다.';
-    console.error('Posts fetch error:', err);
+    error.value = '내 게시글을 불러오는데 실패했습니다.';
+    console.error('My posts fetch error:', err);
   } finally {
     loading.value = false;
   }
 };
+
+// 스크랩 토글 함수
+const handleScrap = async (post) => {
+  try {
+    // 스크랩 API 호출 (실제 API 구현 필요)
+    // const response = await postsAPI.toggleScrap(post.id);
+
+    // 임시로 로컬 상태 토글
+    const postIndex = posts.value.findIndex((p) => p.postId === post.id);
+    if (postIndex !== -1) {
+      posts.value[postIndex].scraped = !posts.value[postIndex].scraped;
+      posts.value[postIndex].scrapCount += posts.value[postIndex].scraped ? 1 : -1;
+    }
+  } catch (err) {
+    console.error('스크랩 처리 실패:', err);
+  }
+};
+
 // 개별 게시글 정보 최신화
 const refreshPost = async (postId) => {
   try {
     const res = await postsAPI.getPost(postId);
+    const updated = res.data.body?.data || res.body?.data || res.data;
 
-    const updated = res.data.body?.data;
     const index = posts.value.findIndex((p) => p.postId === postId);
     if (index !== -1) {
       posts.value[index] = {
         ...posts.value[index],
         title: updated.title,
         content: updated.content,
-        likeCount: updated.likeCount,
-        commentCount: updated.commentCount,
-        createdAt: updated.createdAt,
+        likeCount: updated.likeCount || 0,
+        commentCount: updated.commentCount || 0,
+        scrapCount: updated.scrapCount || posts.value[index].scrapCount || 0,
+        liked: updated.liked || updated.isLiked || posts.value[index].liked || false,
+        scraped: updated.scraped || updated.isScrapped || posts.value[index].scraped || false,
+        createdAt: updated.createdAt || posts.value[index].createdAt,
       };
     }
   } catch (err) {
@@ -142,24 +152,52 @@ function convertDateArrayToISOString(arr) {
   return new Date(year, month - 1, day, hour, minute, second).toISOString();
 }
 
-const filterAndSortPosts = () => {
-  currentPage.value = 1;
+const goToDetailPage = (postId) => {
+  router.push(`/community/${postId}`);
 };
 
-const viewPost = (post) => {
-  router.push(`/community/${post.postId}`);
-};
-
+// 페이지 변경
 const changePage = (page) => {
-  if (page >= 1 && page <= totalPages.value && page !== currentPage.value) {
+  if (page >= 1) {
     currentPage.value = page;
+    // 페이지 변경 시 스크롤을 맨 위로
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 };
+
+// 필터 변경 시 첫 페이지로 이동하는 watcher
+watch(
+  selectedProducts,
+  () => {
+    currentPage.value = 1;
+  },
+  { deep: true }
+);
 
 onMounted(() => {
   fetchPosts();
 });
+
 defineExpose({ refreshPost });
 </script>
 
-<style scoped></style>
+<style scoped>
+.my-posts-container {
+  padding: 1rem;
+  max-width: 48rem;
+  margin: 0 auto;
+  background-color: white;
+  min-height: 100vh;
+}
+
+.my-posts-content {
+  margin: 0 auto;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 48rem) {
+  .my-posts-container {
+    padding: 0.5rem;
+  }
+}
+</style>

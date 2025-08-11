@@ -14,9 +14,7 @@
             <img v-else :src="defaultProfileImage" alt="프로필" class="avatar-image" />
           </div>
           <div class="profile-info">
-            <div class="profile-name-section">
-              <h2 class="profile-name">{{ userData?.nickname || '로딩중...' }}</h2>
-            </div>
+            <h2 class="profile-name">{{ userData?.nickname || '로딩중...' }}</h2>
             <p class="profile-username">@{{ userData?.username || '' }}</p>
           </div>
         </div>
@@ -24,61 +22,68 @@
 
       <!-- 기본 정보 -->
       <div v-if="userData" class="info-card">
-        <h3 class="card-title">
-          <i class="fa-solid fa-user"></i>
-          기본 정보
-        </h3>
+        <h3 class="card-title">기본 정보</h3>
 
         <div class="info-list">
           <div class="info-item">
-            <div class="info-label">
-              <i class="fa-solid fa-envelope"></i>
-              <span>이메일</span>
+            <div class="info-icon">
+              <i class="fas fa-envelope"></i>
             </div>
-            <span class="info-value">{{ maskEmail(userData.email) }}</span>
+            <div class="info-content">
+              <span class="info-label">이메일</span>
+              <span class="info-value">{{ maskEmail(userData.email) }}</span>
+            </div>
           </div>
 
           <div class="info-item">
-            <div class="info-label">
-              <i class="fa-solid fa-phone"></i>
-              <span>전화번호</span>
+            <div class="info-icon">
+              <i class="fas fa-mobile-alt"></i>
             </div>
-            <span class="info-value">{{ maskPhoneNumber(userData.phoneNumber) }}</span>
+            <div class="info-content">
+              <span class="info-label">전화번호</span>
+              <span class="info-value">{{ maskPhoneNumber(userData.phoneNumber) }}</span>
+            </div>
           </div>
 
           <div class="info-item">
-            <div class="info-label">
-              <i class="fa-solid fa-calendar"></i>
-              <span>생년월일</span>
+            <div class="info-icon">
+              <i class="fas fa-birthday-cake"></i>
             </div>
-            <span class="info-value">{{ formatDate(userData.birthDate) }}</span>
+            <div class="info-content">
+              <span class="info-label">생년월일</span>
+              <span class="info-value">{{ formatDate(userData.birthDate) }}</span>
+            </div>
           </div>
 
           <div class="info-item">
-            <div class="info-label">
-              <i class="fa-solid fa-venus-mars"></i>
-              <span>성별</span>
+            <div class="info-icon">
+              <i class="fas fa-venus-mars"></i>
             </div>
-            <span class="info-value">{{ userData.gender || '-' }}</span>
+            <div class="info-content">
+              <span class="info-label">성별</span>
+              <span class="info-value">{{ userData.gender || '-' }}</span>
+            </div>
           </div>
 
           <div class="info-item">
-            <div class="info-label">
-              <i class="fa-solid fa-bell"></i>
-              <span>푸시 알림</span>
+            <div class="info-icon">
+              <i class="fas fa-bell"></i>
             </div>
-            <span :class="getNotificationBadgeClass()">
-              {{ userData.receivePushNotification ? '허용' : '차단' }}
-            </span>
+            <div class="info-content">
+              <span class="info-label">푸시 알림</span>
+              <span :class="getNotificationBadgeClass()">
+                {{ userData.receivePushNotification ? '허용' : '차단' }}
+              </span>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- 정보 수정 버튼 -->
-    <div v-if="userData" class="action-buttons">
-      <button class="primary-button" @click="editProfile">
-        <i class="fa-solid fa-edit"></i>
+    <div v-if="userData" class="action-section">
+      <button class="edit-button" @click="editProfile">
+        <i class="fas fa-edit"></i>
         개인정보 수정
       </button>
     </div>
@@ -121,10 +126,10 @@ const maskEmail = (email) => {
 };
 
 const getNotificationBadgeClass = () => {
-  if (!userData.value) return 'badge notification-off';
+  if (!userData.value) return 'notification-status off';
   return userData.value.receivePushNotification
-    ? 'badge notification-on'
-    : 'badge notification-off';
+    ? 'notification-status on'
+    : 'notification-status off';
 };
 
 const editProfile = () => {
@@ -147,39 +152,66 @@ onMounted(async () => {
 
 <style scoped>
 .profile-info-container {
+  width: 100%;
   max-width: 430px;
   margin: 0 auto;
-  background: var(--color-white);
-  min-height: 100vh;
+  background: #f8f9fa;
+  padding: 1rem 1rem; 
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-height: auto;
+  overflow-x: hidden;
 }
 
-/* 카드 공통 스타일 */
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+}
+
 .profile-card,
 .info-card {
   background: var(--color-white);
-  border-radius: 1rem;
-  box-shadow: 0 4px 20px rgba(185, 187, 204, 0.1);
-  border: 1px solid rgba(185, 187, 204, 0.2);
-  padding: 1.5rem;
-  margin-bottom: 1rem;
+  border-radius: 0.75rem;
+  padding: 0.75rem; /* 기존 1rem → 0.75rem로 축소 */
+  border: none;
+  box-shadow: none;
+  flex-shrink: 0;
+}
+
+.action-section {
+  padding: 0.25rem; /* 버튼 위쪽 여백 최소화 */
+}
+
+.profile-card {
+  flex-shrink: 0;
+}
+
+.info-card {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  justify-content: flex-start;
 }
 
 /* 프로필 카드 */
 .profile-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .avatar-container {
-  width: 3rem;
-  height: 3rem;
-  background: linear-gradient(135deg, rgba(45, 51, 107, 0.1) 0%, rgba(45, 51, 107, 0.2) 100%);
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
+  background: #f1f3f4;
 }
 
 .avatar-image {
@@ -188,135 +220,270 @@ onMounted(async () => {
   object-fit: cover;
 }
 
-.avatar-icon {
-  font-size: 1.75rem;
-  color: var(--color-sub);
-}
-
 .profile-info {
   flex: 1;
 }
 
-.profile-name-section {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.25rem;
-}
-
 .profile-name {
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 700;
-  color: var(--color-main);
-  margin: 0;
+  color: #191f28;
+  margin: 0 0 0.125rem 0;
 }
 
 .profile-username {
-  color: var(--color-light);
-  font-size: 0.75rem;
-  margin: 0 0 0.25rem 0;
+  color: #8b95a1;
+  font-size: 0.6875rem;
+  margin: 0;
+  font-weight: 500;
 }
 
-/* 정보 카드 */
+/* 카드 타이틀 */
 .card-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 700;
-  color: var(--color-main);
-  margin: 0 0 1rem 0;
+  color: #191f28;
+  margin: 0 0 0.75rem 0;
+  flex-shrink: 0;
 }
 
-.card-title i {
-  color: var(--color-sub);
-  font-size: 1.25rem;
-}
-
+/* 정보 리스트 */
 .info-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0;
+  flex-shrink: 0;
+  min-height: 0;
+  justify-content: flex-start;
 }
 
 .info-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 0.625rem;
   padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(185, 187, 204, 0.1);
+  border-bottom: 1px solid #f1f3f4;
+  flex-shrink: 0;
 }
 
 .info-item:last-child {
   border-bottom: none;
 }
 
-.info-label {
+.info-icon {
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 50%;
+  background: #f1f3f4;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  font-size: 0.875rem;
-  color: var(--color-light);
-  font-weight: 500;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.info-label i {
-  color: var(--color-light);
-  width: 1.125rem;
-  font-size: 1rem;
+.info-icon i {
+  color: var(--color-sub);
+  font-size: 0.625rem;
+}
+
+.info-content {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 0;
+}
+
+.info-label {
+  font-size: 0.6875rem;
+  color: #191f28;
+  font-weight: 500;
 }
 
 .info-value {
-  color: var(--color-main);
-  font-size: 0.875rem;
+  color: #4e5968;
+  font-size: 0.6875rem;
   font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* 배지 스타일 */
-.badge {
-  padding: 0.375rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
+/* 알림 상태 */
+.notification-status {
+  font-size: 0.625rem;
   font-weight: 600;
+  padding: 0.1875rem 0.375rem;
+  border-radius: 0.625rem;
+  white-space: nowrap;
 }
 
-.notification-on {
-  background: rgba(34, 197, 94, 0.1);
-  color: #22c55e;
+.notification-status.on {
+  background: #e8f5e8;
+  color: #00c853;
 }
 
-.notification-off {
-  background: rgba(185, 187, 204, 0.1);
-  color: var(--color-light);
+.notification-status.off {
+  background: #f5f5f5;
+  color: #8b95a1;
 }
 
-/* 액션 버튼 */
-.action-buttons {
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.primary-button {
+.edit-button {
   width: 100%;
-  padding: 0.75rem;
-  border-radius: 0.75rem;
+  padding: 0.625rem;
+  border-radius: 0.625rem;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.6875rem;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.3125rem;
   border: none;
   background: var(--color-sub);
   color: white;
 }
 
-.primary-button:hover {
+.edit-button:hover {
   background: var(--color-main);
   transform: translateY(-1px);
+}
+
+.edit-button:active {
+  transform: translateY(0);
+}
+
+.edit-button i {
+  font-size: 0.625rem;
+}
+
+/* 데스크톱 */
+@media (min-width: 769px) {
+  .profile-info-container {
+    padding: 1.25rem 0.875rem;
+  }
+
+  .content-wrapper {
+    gap: 1.25rem;
+    margin-bottom: 1.75rem;
+    overflow: visible;
+  }
+
+  .profile-card,
+  .info-card {
+    border-radius: 1rem;
+    padding: 1.5rem;
+    flex-shrink: 0;
+    height: 100%;
+  }
+
+  .avatar-container {
+    width: 3.25rem;
+    height: 3.25rem;
+  }
+
+  .profile-header {
+    gap: 1rem;
+  }
+
+  .profile-name {
+    font-size: 1.125rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .profile-username {
+    font-size: 0.8125rem;
+  }
+
+  .card-title {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .info-item {
+    gap: 0.875rem;
+    padding: 1rem 0;
+  }
+
+  .info-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .info-icon i {
+    font-size: 0.8125rem;
+  }
+
+  .info-label,
+  .info-value {
+    font-size: 0.8125rem;
+  }
+
+  .notification-status {
+    font-size: 0.75rem;
+    padding: 0.3125rem 0.625rem;
+    border-radius: 0.875rem;
+  }
+
+  .action-section {
+    padding: 0 0.375rem 0 0.375rem;
+  }
+
+  .edit-button {
+    padding: 0.9375rem;
+    font-size: 0.8125rem;
+    border-radius: 0.875rem;
+    gap: 0.4375rem;
+  }
+
+  .edit-button i {
+    font-size: 0.75rem;
+  }
+}
+
+/* 큰 모바일 */
+@media (max-width: 768px) and (min-height: 700px) {
+  .info-item {
+    padding: 0.875rem 0;
+  }
+
+  .info-icon {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .info-icon i {
+    font-size: 0.75rem;
+  }
+}
+
+/* 작은 모바일 */
+@media (max-width: 430px) and (max-height: 700px) {
+  .profile-info-container {
+    padding: 0.75rem 0.625rem;
+  }
+
+  .profile-card,
+  .info-card {
+    padding: 1rem;
+  }
+
+  .content-wrapper {
+    gap: 0.75rem;
+  }
+
+  .card-title {
+    margin-bottom: 0.75rem;
+  }
+
+  .info-item {
+    padding: 0.625rem 0;
+  }
+
+  .action-section {
+    padding: 0.5rem 0.25rem 0 0.25rem;
+  }
 }
 </style>

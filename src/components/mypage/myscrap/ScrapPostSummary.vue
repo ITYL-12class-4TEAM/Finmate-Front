@@ -1,8 +1,8 @@
 <template>
   <div class="summary-section">
     <div class="summary-info">
-      <i class="fas fa-comment-dots"></i>
-      내가 댓글을 작성한 게시글 {{ totalPosts }}개
+      <i class="fas fa-bookmark"></i>
+      내가 스크랩한 게시글 {{ totalPosts }}개
     </div>
   </div>
 </template>
@@ -37,13 +37,5 @@ defineProps({
 .summary-info i {
   font-size: 0.875rem;
   color: var(--color-sub);
-}
-
-/* 반응형 디자인 */
-@media (max-width: 48rem) {
-  .summary-info {
-    font-size: 0.8125rem;
-    padding: 0.5rem 0.75rem;
-  }
 }
 </style>

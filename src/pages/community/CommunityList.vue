@@ -31,7 +31,7 @@
       <PostCard
         v-for="post in paginatedPosts"
         v-else
-        :key="post.id"
+        :key="post.postId"
         :post="post"
         :isLiked="post.liked"
         :isScrapped="post.scraped"
