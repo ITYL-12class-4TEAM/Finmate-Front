@@ -1,7 +1,13 @@
 <template>
   <div class="mypage-container">
     <!-- 모바일 헤더 -->
-    <div class="mobile-header" :class="{ scrolled: isScrolled, 'menu-open': showMobileMenu }">
+    <div
+      class="mobile-header"
+      :class="{ scrolled: isScrolled, 'menu-open': showMobileMenu }"
+      :style="{
+        transform: `translateX(-50%) translateY(${headerTranslateY}px)`,
+      }"
+    >
       <i class="fas" :class="showMobileMenu ? 'fa-times' : 'fa-bars'" @click="toggleMobileMenu"></i>
       <span class="header-title">{{ headerTitle }}</span>
     </div>
@@ -202,11 +208,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 
+const showScrollTop = ref(false);
 const showMobileMenu = ref(false);
-const isScrolled = ref(false);
+const headerTranslateY = ref(0);
+const lastScrollY = ref(0);
 
 const route = useRoute();
 const headerTitle = computed(() => {
@@ -227,42 +235,50 @@ const headerTitle = computed(() => {
   return map[path] || '마이페이지';
 });
 
-let scrollPosition = 0;
-
 const toggleMobileMenu = () => {
-  if (!showMobileMenu.value) {
-    // 열 때
-    scrollPosition = window.scrollY;
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollPosition}px`;
-    document.body.style.width = '100%';
-  } else {
-    // 닫을 때
-    document.body.style.position = '';
-    document.body.style.top = '';
-    window.scrollTo(0, scrollPosition);
-  }
   showMobileMenu.value = !showMobileMenu.value;
+  // 메뉴 열릴 때 body 스크롤 방지
+  document.body.style.overflow = showMobileMenu.value ? 'hidden' : '';
 };
 
 const closeMobileMenu = () => {
-  document.body.style.position = '';
-  document.body.style.top = '';
-  window.scrollTo(0, scrollPosition);
   showMobileMenu.value = false;
+  document.body.style.overflow = '';
 };
 
-// 스크롤 감지
 const handleScroll = () => {
-  isScrolled.value = window.scrollY > 0;
-};
+  const currentScrollY = window.scrollY;
 
+  // 스크롤 탑 버튼 표시/숨김
+  showScrollTop.value = currentScrollY > 50;
+
+  // 헤더 자연스러운 움직임 로직
+  const startHideAt = 0; // 숨기기 시작하는 스크롤 위치
+  const headerHeight = 56; // 헤더바 높이 (2.5rem = 40px)
+
+  if (currentScrollY <= startHideAt) {
+    // 상단에서는 완전히 표시
+    headerTranslateY.value = 0;
+  } else {
+    // 스크롤 위치에 따라 자연스럽게 위로 이동
+    const scrollBeyondStart = currentScrollY - startHideAt;
+    const translateValue = Math.min(scrollBeyondStart * 0.8, headerHeight);
+    headerTranslateY.value = -translateValue;
+
+    // 70% 이상 숨겨졌을 때 메뉴 닫기
+    if (translateValue >= headerHeight * 0.7 && showMobileMenu.value) {
+      closeMobileMenu();
+    }
+  }
+};
 onMounted(() => {
   window.addEventListener('scroll', handleScroll);
+  lastScrollY.value = window.scrollY;
 });
 
-onBeforeUnmount(() => {
+onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
+  document.body.style.overflow = '';
 });
 </script>
 
@@ -281,31 +297,57 @@ onBeforeUnmount(() => {
   position: relative;
 }
 
-/* 모바일 헤더 - sticky로 자연스러운 동작 */
 .mobile-header {
   position: fixed;
-  top: 3.5rem; /* 스크롤시 상단에 고정 */
-  left: 0;
+  top: 0;
+  left: 50%;
   width: 100%;
-  max-width: 100vw;
   height: 3.5rem;
   background: var(--color-white);
-  color: #191f28;
-  display: none;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 1rem;
-  font-size: 1rem;
-  font-weight: 600;
-  z-index: 1000;
-  border-bottom: 1px solid #e5e8eb;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  box-sizing: border-box;
-  margin-top: 0; /* 네비바와 붙어있게 */
-  transition: top 0.3s ease;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* 타이틀 가운데 정렬 */
+  position: relative;
+  padding: 0 3rem 0 1rem;
+  cursor: pointer;
+  transition: box-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.mobile-header i.fas.fa-bars {
+  position: absolute;
+  left: 1rem; /* 왼쪽 끝에서 1rem 떨어짐 */
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  color: #6b7280;
+  z-index: 2100;
+  background: none;
+  border-radius: 0;
+  transition: color 0.2s ease;
+}
+.mobile-header i.fas.fa-times {
+  position: absolute;
+  left: 1rem; /* 햄버거 버튼과 동일 위치 */
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  color: var(--color-sub);
+  z-index: 2100;
+  background: none;
+  border-radius: 0;
+  transition: color 0.2s ease;
 }
 .mobile-header.scrolled {
-  top: 0; /* 스크롤 시 화면 맨 위 고정 */
+  top: 0;
+  opacity: 1;
+  pointer-events: auto;
 }
 .mobile-header i:first-child {
   font-size: 1.125rem;
@@ -314,29 +356,54 @@ onBeforeUnmount(() => {
   padding: 0.5rem;
   margin: -0.5rem;
   border-radius: 0.5rem;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease;
+}
+.mobile-header i.fas {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0; /* 패딩 제거 */
+  margin: 0; /* 마진 제거 */
+  color: #6b7280;
+  z-index: 2100;
+  transition: color 0.2s ease;
+  background: none; /* 배경 제거 */
+  border-radius: 0; /* 둥근 테두리 제거 */
 }
 
 .mobile-header i:first-child:hover {
-  background: #f9fafb;
   color: var(--color-sub);
 }
 .mobile-header.menu-open {
-  top: 0 !important; /* 사이드바 열렸을 때 최우선으로 상단 고정 */
-  z-index: 1100; /* 사이드바(850)보다 위 */
+  opacity: 1; /* 전체 헤더 숨기지 말고 투명도 1 유지 */
+  pointer-events: auto;
   background: var(--color-white);
 }
+.mobile-header.menu-open i.fa-bars {
+  display: none; /* 햄버거 아이콘 숨기기 */
+}
 
+.mobile-header.menu-open i.fa-times {
+  display: inline-block; /* 닫기 아이콘 보이기 */
+  color: var(--color-sub);
+  cursor: pointer;
+  padding: 0.75rem;
+}
 .header-title {
   position: absolute;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   font-weight: 700;
   color: #191f28;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 60%;
+  max-width: 70%; /* 닫기 버튼 때문에 약간 여유 */
+  text-align: center;
+  pointer-events: none; /* 버튼 위에 마우스 이벤트 방해 안 하도록 */
 }
 
 /* 모바일 오버레이 */
@@ -349,6 +416,8 @@ onBeforeUnmount(() => {
   background: rgba(0, 0, 0, 0.4);
   z-index: 800;
   display: none;
+  pointer-events: auto; /* 클릭은 받되 */
+  overflow-y: auto;
 }
 
 /* 메인 레이아웃 */
@@ -535,8 +604,13 @@ onBeforeUnmount(() => {
 @media (max-width: 1024px) {
   .sidebar {
     width: 240px;
+    top: 7rem; /* 네비바 + 헤더 높이 합 */
+    height: calc(100vh - 7rem);
+    z-index: 850;
   }
-
+  .main-layout {
+    padding-top: 7rem;
+  }
   .content {
     margin-left: 240px;
     width: calc(100% - 240px);
@@ -573,8 +647,11 @@ onBeforeUnmount(() => {
 /* 모바일 */
 @media (max-width: 768px) {
   .mobile-header {
+    z-index: 850;
+    position: fixed;
+    top: 3.5rem;
+    transition: top 0.3s ease;
     display: flex;
-    padding: 0 1rem;
   }
 
   .mobile-header i:first-child {
@@ -601,6 +678,8 @@ onBeforeUnmount(() => {
 
   .mobile-overlay {
     display: block;
+    pointer-events: auto; /* 클릭은 받되 */
+    overflow-y: auto;
   }
 
   .main-layout {
@@ -611,7 +690,7 @@ onBeforeUnmount(() => {
 
   .sidebar {
     position: fixed;
-    top: 3.5rem; /* 네비바 + 모바일 헤더 아래에 위치 */
+    top: 3.5rem;
     left: 0;
     width: 100%;
     max-width: 100vw;
@@ -620,9 +699,7 @@ onBeforeUnmount(() => {
     padding: 2rem 0 1.5rem 0;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
-    z-index: 850;
-    border-right: none;
-    overflow-x: hidden;
+    z-index: 1100; /* 헤더(1000)보다 높음 */
     overflow-y: auto;
     box-sizing: border-box;
   }
@@ -782,7 +859,15 @@ onBeforeUnmount(() => {
 
   .content.menu-active {
     filter: blur(2px);
-    pointer-events: none;
+    /* pointer-events: none; */
+  }
+  .mobile-header.scrolled {
+    top: 0; /* 스크롤하면 상단에 붙음 */
+  }
+
+  .mobile-header.menu-open {
+    top: 0 !important; /* 메뉴 열림 시 항상 최상단 고정 */
+    z-index: 1200;
   }
 }
 
@@ -859,7 +944,7 @@ onBeforeUnmount(() => {
   @media (max-width: 768px) {
     .content.menu-active {
       filter: blur(2px);
-      pointer-events: none;
+      /* pointer-events: none; */
     }
   }
 }
