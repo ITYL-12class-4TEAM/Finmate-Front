@@ -1,6 +1,6 @@
 <template>
   <div class="back-button" @click="goBack">
-    <button class="icon">
+    <button class="icon" type="button" aria-label="뒤로가기">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
@@ -16,27 +16,56 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
+const route = useRoute();
 
 const props = defineProps({
-  title: {
-    type: String,
-    required: false,
-  },
-  to: {
-    type: String,
-    required: false,
-  },
+  title: { type: String, required: false },
+  to: { type: [String, Object], required: false }, // 히스토리 없을 때 fallback
+  preferBack: { type: Boolean, default: true }, // 가능한 경우 진짜 뒤로가기 우선
+  mypagePath: { type: String, default: '/mypage' }, // src=mypage일 때 기본 복귀지
 });
 
-const goBack = () => {
-  if (props.to) {
-    router.push(props.to);
-  } else {
-    router.back();
+const safePush = (raw) => {
+  if (!raw) return false;
+  if (typeof raw === 'string') {
+    // 외부로 튀는 것 방지 (간단 검증)
+    if (!raw.startsWith('/') || raw.startsWith('//')) return false;
+    router.push(raw);
+    return true;
   }
+  router.push(raw);
+  return true;
+};
+
+const goBack = () => {
+  const q = route.query || {};
+
+  // 1) 특정 복귀지(returnTo)가 있으면 최우선
+  if (q.returnTo && safePush(q.returnTo)) return;
+
+  // 2) 마이페이지에서 온 경우
+  if (q.src === 'mypage') {
+    router.push(props.mypagePath);
+    return;
+  }
+
+  // 3) 실제 브라우저 히스토리 사용
+  const hasHistory =
+    typeof window !== 'undefined' &&
+    window.history &&
+    ((window.history.state && window.history.state.back != null) || window.history.length > 1);
+
+  if (props.preferBack && hasHistory) {
+    router.back();
+    return;
+  }
+
+  // 4) fallback
+  if (props.to) router.push(props.to);
+  else router.push('/');
 };
 </script>
 

@@ -18,8 +18,8 @@
                 <i class="fas fa-user"></i>
               </div>
               <div class="readonly-content">
-                <label class="readonly-label">닉네임</label>
-                <div class="readonly-value">{{ userInfo.nickname }}</div>
+                <label class="readonly-label">이름</label>
+                <div class="readonly-value">{{ userInfo.username }}</div>
               </div>
             </div>
           </div>
@@ -249,6 +249,7 @@ const confirmPasswordError = ref('');
 
 // 사용자 기본 정보 (수정 불가)
 const userInfo = ref({
+  username: '',
   nickname: '',
   email: '',
   profileImage: '',
@@ -433,7 +434,7 @@ onMounted(async () => {
   // 2. 사용자 정보 조회
   try {
     const response = await memberAPI.getMyInfo();
-
+    console.log('🔍 사용자 정보 조회 결과:', response);
     if (response.success) {
       userInfo.value = response.data;
 
