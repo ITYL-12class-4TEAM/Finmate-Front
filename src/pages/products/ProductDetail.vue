@@ -13,12 +13,18 @@
     <div v-else-if="product" class="product-container">
       <!-- 페이지 헤더 -->
       <div class="page-header">
-        <BackButton />
+        <div class="header-left">
+          <BackButton />
+          <button class="favorite-btn" @click="goToFavorites" title="즐겨찾는 상품">
+            <span class="favorite-icon">★</span>
+            <span class="btn-text">즐겨찾기로 이동</span>
+          </button>
+        </div>
         <!-- GPT 상품 요약 버튼 (우측 상단) todo -->
         <!-- <button class="gpt-detail-btn" @click="handleGptDetail" title="GPT 상품 요약">
-          <span class="gpt-icon">🤖</span>
-          <span class="btn-text">AI 요약</span>
-        </button> -->
+              <span class="gpt-icon">🤖</span>
+              <span class="btn-text">AI 요약</span>
+             </button> -->
       </div>
 
       <!-- 상품 기본 정보 카드 -->
@@ -155,6 +161,11 @@ const showGptDetailModal = ref(false);
 // 비교함 기능 (컴포저블 사용)
 const { compareList, clearCompareList, addToCompareList, removeFromCompareList, isInCompareList } =
   useCompareList();
+
+// 즐겨찾기 페이지로 이동하는 함수
+const goToFavorites = () => {
+  router.push('/mypage/favorites');
+};
 
 // 비교함에 상품이 있는지 여부를 계산하는 computed 속성 추가
 const isProductInCompareList = computed(() => {
@@ -584,13 +595,53 @@ onMounted(() => {
 }
 
 /* ==========================================================================
-   2. 페이지 헤더 (GPT 버튼 추가로 수정)
+   2. 페이지 헤더 (수정)
    ========================================================================== */
 .page-header {
   display: flex;
   align-items: center;
   justify-content: space-between; /* 양쪽 끝으로 배치 */
   margin-bottom: 0.5rem;
+}
+
+/* 왼쪽 버튼 그룹 */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 6.5rem; /* 버튼 사이 간격 */
+}
+
+/* 즐겨찾기 버튼 스타일 */
+.favorite-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: #fff;
+  color: var(--color-main);
+  border: 1px solid var(--color-light);
+  border-radius: 1.5rem;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.favorite-btn:hover {
+  background-color: var(--color-bg-light);
+}
+
+.favorite-btn:active {
+  transform: translateY(1px);
+}
+
+.favorite-btn .favorite-icon {
+  color: #ffd700; /* 골드 색상의 별 아이콘 */
+  font-size: 1rem;
+}
+
+.favorite-btn .btn-text {
+  white-space: nowrap;
 }
 
 /* GPT 상품 요약 버튼 (우측 상단) */
@@ -720,7 +771,7 @@ onMounted(() => {
   padding: 1rem 0;
 }
 
-/* 액션 버튼 스타일 */
+/* 액션 섹션 스타일 */
 .action-section {
   display: flex;
   gap: 0.75rem;

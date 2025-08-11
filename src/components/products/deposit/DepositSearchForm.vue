@@ -1,7 +1,27 @@
 <template>
   <div class="deposit-search-form">
     <div class="form-title">
-      <h2>예금</h2>
+      <div class="title-navigation">
+        <h2
+          :class="{
+            'active-product': isDepositActive,
+            'alternative-product': !isDepositActive,
+          }"
+          @click="goToDepositPage"
+        >
+          예금
+        </h2>
+
+        <h2
+          :class="{
+            'active-product': isSavingActive,
+            'alternative-product': !isSavingActive,
+          }"
+          @click="goToSavingsPage"
+        >
+          적금
+        </h2>
+      </div>
       <div class="title-description">원하는 조건으로 예금 상품을 찾아보세요</div>
     </div>
 
@@ -99,7 +119,15 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, nextTick } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import BankSelectModal from './BankSelectModal.vue';
+
+const router = useRouter();
+const route = useRoute(); // 현재 라우트 정보를 가져옵니다.
+
+// 현재 경로에 따라 활성화 여부를 결정하는 computed 속성을 추가합니다.
+const isDepositActive = computed(() => route.path.includes('/deposit'));
+const isSavingActive = computed(() => route.path.includes('/savings'));
 
 const props = defineProps({
   depositAmount: { type: String, default: '100000' },
@@ -118,6 +146,16 @@ const localInterestType = ref(props.interestType);
 const availableJoinWays = ref(['영업점', '인터넷', '스마트폰', '전화']);
 const selectedJoinWays = ref([]);
 const selectAllJoinWays = ref(false);
+
+// 예금 페이지로 이동하는 함수
+const goToDepositPage = () => {
+  router.push('/products/deposit');
+};
+
+// 적금 페이지로 이동하는 함수
+const goToSavingsPage = () => {
+  router.push('/products/savings');
+};
 
 onMounted(() => {
   if (props.joinWay === 'all') {
@@ -264,6 +302,62 @@ const onReset = () => {
   color: #2d336b;
   margin: 0 0 0.35rem 0;
 }
+.title-navigation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* 예금과 적금 사이의 간격 */
+  margin-bottom: 0.25rem;
+}
+
+/* 현재 선택된 제품 (예: 적금) - 밑줄 추가 */
+.active-product {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-main);
+  margin: 0;
+  position: relative; /* 밑줄의 기준점이 되기 위해 추가 */
+}
+
+/* 활성화된 항목에 항상 밑줄이 보이도록 수정 */
+.active-product:after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 100%; /* 밑줄이 항상 꽉 차 있도록 설정 */
+  height: 2px;
+  background-color: var(--color-main);
+}
+
+/* 선택되지 않은 제품 (예: 예금) */
+.alternative-product {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: rgba(125, 129, 162, 0.5);
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+  position: relative;
+  margin: 0;
+}
+
+.alternative-product:hover {
+  color: var(--color-main);
+  transform: translateY(-1px);
+}
+
+/* 호버 시에만 밑줄 표시 */
+.alternative-product:hover:after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 100%;
+  height: 2px;
+  background-color: var(--color-main);
+}
+
 .title-description {
   color: #7d81a2;
   font-size: 0.72rem; /* 0.9rem → 0.72rem (80%) */

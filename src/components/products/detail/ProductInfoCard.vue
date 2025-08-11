@@ -164,6 +164,7 @@ const getSavingTypeClass = () => {
   padding: 0.25rem 0.625rem; /* 4px 10px */
   border-radius: 0.875rem; /* 14px, 알약 형태 */
   font-weight: 500;
+  text-align: center;
 }
 
 .tag.digital {

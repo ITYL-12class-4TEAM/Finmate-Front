@@ -1,7 +1,27 @@
 <template>
   <div class="deposit-search-form">
     <div class="form-title">
-      <h2>적금</h2>
+      <div class="title-navigation">
+        <h2
+          :class="{
+            'active-product': isDepositActive,
+            'alternative-product': !isDepositActive,
+          }"
+          @click="goToDepositPage"
+        >
+          예금
+        </h2>
+
+        <h2
+          :class="{
+            'active-product': isSavingActive,
+            'alternative-product': !isSavingActive,
+          }"
+          @click="goToSavingsPage"
+        >
+          적금
+        </h2>
+      </div>
       <div class="title-description">원하는 조건으로 적금 상품을 찾아보세요</div>
     </div>
 
@@ -119,7 +139,15 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, nextTick } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import BankSelectModal from '../deposit/BankSelectModal.vue';
+
+const router = useRouter();
+const route = useRoute(); // ✨ 1. 현재 라우트 정보를 가져옵니다.
+
+// ✨ 2. 현재 경로에 따라 활성화 여부를 결정하는 computed 속성을 추가합니다.
+const isDepositActive = computed(() => route.path.includes('/deposit'));
+const isSavingActive = computed(() => route.path.includes('/savings'));
 
 const props = defineProps({
   depositAmount: { type: String, default: '100000' },
@@ -131,6 +159,16 @@ const props = defineProps({
   selectedBanks: { type: Object, default: () => ({ uiCodes: [], apiCodes: [] }) },
 });
 const emit = defineEmits(['search', 'reset']);
+
+// 예금 페이지로 이동하는 함수
+const goToDepositPage = () => {
+  router.push('/products/deposit');
+};
+
+// ✨ [추가] 적금 페이지로 이동하는 함수
+const goToSavingsPage = () => {
+  router.push('/products/savings'); // 실제 적금 페이지 경로로 수정하세요
+};
 
 const localDepositAmount = ref(props.depositAmount);
 const localPeriod = ref(props.period);
@@ -227,7 +265,20 @@ watch(
   },
   { deep: true }
 );
-
+watch(
+  route,
+  () => {
+    console.clear(); // 콘솔을 깨끗하게 지우고 시작
+    console.log('--- 경로 변경 감지 ---');
+    console.log('현재 경로 (route.path):', route.path);
+    console.log("'/deposit' 포함 여부:", route.path.includes('/deposit'));
+    console.log("'/savings' 포함 여부:", route.path.includes('/savings'));
+    console.log('isDepositActive 값:', isDepositActive.value);
+    console.log('isSavingActive 값:', isSavingActive.value);
+    console.log('--------------------');
+  },
+  { immediate: true, deep: true }
+);
 const formatAmount = () => {
   const numeric = localDepositAmount.value.replace(/[^\d]/g, '');
   localDepositAmount.value = numeric ? new Intl.NumberFormat('ko-KR').format(numeric) : '';
@@ -291,6 +342,51 @@ const onReset = () => {
   color: #2d336b;
   margin: 0 0 0.35rem 0;
 }
+.title-navigation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* 예금과 적금 사이의 간격 */
+  margin-bottom: 0.25rem;
+}
+
+/* 현재 선택된 제품 (예: 적금) - 밑줄 추가 */
+.active-product {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-main);
+  margin: 0;
+  position: relative; /* 밑줄의 기준점이 되기 위해 추가 */
+}
+
+/* 활성화된 항목에 항상 밑줄이 보이도록 수정 */
+.active-product:after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 100%; /* 밑줄이 항상 꽉 차 있도록 설정 */
+  height: 2px;
+  background-color: var(--color-main);
+}
+
+/* 선택되지 않은 제품 (예: 예금) - 밑줄 관련 코드 제거 */
+.alternative-product {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: rgba(125, 129, 162, 0.5);
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+  position: relative;
+  margin: 0;
+}
+
+.alternative-product:hover {
+  color: var(--color-main);
+  transform: translateY(-1px);
+}
+
 .title-description {
   color: #7d81a2;
   font-size: 0.72rem; /* 0.9rem → 0.72rem (80%) */
