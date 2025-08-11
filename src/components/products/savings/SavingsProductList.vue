@@ -40,19 +40,27 @@
             getProductId(product),
             getSaveTrm(product),
             product.intr_rate_type || product.intrRateType || 'S',
-            product.rsrv_type || product.rsrvType
+            product.rsrv_type || product.rsrvType || product.options?.[0]?.rsrv_type,
+            getRealProductType(product)
           ),
         }"
       >
         <div class="product-header" @click="onProductClick(product)">
-          <div class="bank-info">
+          <div class="product-title-group">
             <span class="bank-name">{{ product.kor_co_nm || product.korCoNm }}</span>
+            <div class="product-name">{{ product.product_name || product.finPrdtNm }}</div>
+          </div>
+          <div class="badge-container">
             <span class="rate-type-badge" :class="getRateTypeClass(product)">
               {{ getRateTypeLabel(product) }}
             </span>
-          </div>
-          <div class="product-name">
-            {{ product.product_name || product.finPrdtNm }}
+            <span
+              v-if="product.rsrv_type_nm || product.rsrvTypeNm"
+              class="saving-type-badge"
+              :class="getSavingTypeClass(product)"
+            >
+              {{ product.rsrv_type_nm || product.rsrvTypeNm }}
+            </span>
           </div>
         </div>
         <div class="product-details" @click="onProductClick(product)">
@@ -80,7 +88,8 @@
                 getProductId(product),
                 getSaveTrm(product),
                 product.intr_rate_type || product.intrRateType || 'S',
-                product.rsrv_type || product.rsrvType
+                product.rsrv_type || product.rsrvType || product.options?.[0]?.rsrv_type,
+                getRealProductType(product)
               )
             "
             class="compare-btn in-list"
@@ -139,6 +148,27 @@ const router = useRouter();
 const localSortBy = ref(props.sortBy);
 const { compareList, clearCompareList, addToCompareList, removeFromCompareList, isInCompareList } =
   useCompareList();
+
+const getSavingTypeClass = (product) => {
+  const rsrvType = product.rsrv_type || product.rsrvType;
+  if (rsrvType === 'S') return 'flexible-saving'; // 자유적립식
+  if (rsrvType === 'F') return 'fixed-saving'; // 정액적립식
+  return '';
+};
+
+// 실제 상품 타입 추론 함수 추가 (템플릿에서 사용)
+const getRealProductType = (product) => {
+  // rsrvType 값 존재 여부로 적금/예금 판별
+  const hasRsrvType =
+    product.rsrv_type ||
+    product.rsrvType ||
+    (product.options &&
+      product.options.length > 0 &&
+      (product.options[0].rsrv_type || product.options[0].rsrvType));
+
+  // rsrvType이 있으면 적금, 없으면 props로 전달된 타입 사용
+  return hasRsrvType ? 'savings' : props.productType;
+};
 
 const getProductId = (product) => {
   if (!product) return null;
@@ -233,24 +263,56 @@ const handleWarning = (product) => {
     showToast('상품은 최대 3개까지 비교할 수 있습니다', 'warning');
     return;
   }
+
+  // options 배열에서 값 추출
+  const firstOption = product.options && product.options.length > 0 ? product.options[0] : null;
+
+  // rsrvType 값 추출 (적금 상품 여부 판단에 사용)
+  const extractedRsrvType =
+    product.rsrv_type || product.rsrvType || firstOption?.rsrv_type || firstOption?.rsrvType;
+
+  // 상품 타입 추론 (rsrvType이 존재하면 적금)
+  const actualProductType = extractedRsrvType ? 'savings' : props.productType;
+
   const option = {
     save_trm: product.save_trm || product.saveTrm,
-    intr_rate: product.intr_rate || product.intrRate,
-    intr_rate2: product.intr_rate2 || product.intrRate2,
-    intr_rate_type: product.intr_rate_type || product.intrRateType || 'S',
-    rsrv_type: product.rsrv_type || product.rsrvType,
-    rsrv_type_nm: product.rsrv_type_nm || product.rsrvTypeNm,
-    option_id: product.option_id || product.optionId || null,
+    intr_rate: product.intr_rate || product.intrRate || firstOption?.intr_rate,
+    intr_rate2: product.intr_rate2 || product.intrRate2 || firstOption?.intr_rate2,
+    intr_rate_type:
+      product.intr_rate_type || product.intrRateType || firstOption?.intr_rate_type || 'S',
+    option_id: product.option_id || product.optionId || firstOption?.option_id || null,
   };
-  const result = addToCompareList(product, option, props.productType);
-  if (!result.success) alert(result.message);
+
+  // 적금 상품인 경우에만 rsrvType 추가
+  if (actualProductType === 'savings') {
+    option.rsrv_type = extractedRsrvType || 'F'; // 기본값 'F'
+    option.rsrv_type_nm =
+      product.rsrv_type_nm ||
+      product.rsrvTypeNm ||
+      firstOption?.rsrv_type_nm ||
+      (option.rsrv_type === 'S' ? '정액적립식' : '자유적립식');
+  }
+
+  const result = addToCompareList(product, option, actualProductType);
+  if (!result.success && !result.silent) alert(result.message);
 };
+
 const handleRemoveFromCompare = (product) => {
+  // rsrvType 값 추출
+  const firstOption = product.options && product.options.length > 0 ? product.options[0] : null;
+
+  const extractedRsrvType =
+    product.rsrv_type || product.rsrvType || firstOption?.rsrv_type || firstOption?.rsrvType;
+
+  // 상품 타입 추론
+  const actualProductType = extractedRsrvType ? 'savings' : props.productType;
+
   removeFromCompareList(
     getProductId(product),
     getSaveTrm(product),
     product.intr_rate_type || product.intrRateType || 'S',
-    product.rsrv_type || product.rsrvType
+    extractedRsrvType,
+    actualProductType
   );
 };
 const goToJoinPage = (product) => {
@@ -349,8 +411,18 @@ const goToCompare = () => {
 }
 
 .product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* 상단 정렬 */
+  gap: 0.5rem;
   margin-bottom: 0.5rem;
   cursor: pointer;
+}
+
+/* 새로 추가된 좌측 정보 그룹 */
+.product-title-group {
+  flex: 1; /* 남는 공간을 모두 차지 */
+  min-width: 0; /* 내용이 길어져도 줄어들 수 있도록 */
 }
 
 .bank-info {
@@ -364,6 +436,18 @@ const goToCompare = () => {
   font-size: 0.75rem;
   color: var(--color-sub);
   font-weight: 500;
+  margin-bottom: 0.1rem; /* 상품명과의 간격 */
+}
+
+.product-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-main);
+  line-height: 1.4;
+  /* ✨ 길어질 경우 ... 처리 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .rate-type-badge {
@@ -495,5 +579,35 @@ const goToCompare = () => {
 
 .error {
   color: #d32f2f;
+}
+
+/* 뱃지 컨테이너 */
+.badge-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+/* 새로운 적립 방식 뱃지 */
+.saving-type-badge {
+  padding: 0.2rem 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* 자유적립식 뱃지 색상 */
+.flexible-saving {
+  background-color: #fefce8;
+  color: #ca8a04;
+}
+
+/* 정액적립식 뱃지 색상 */
+.fixed-saving {
+  background-color: #f3e8ff;
+  color: #8e24aa;
 }
 </style>

@@ -131,12 +131,15 @@ const fetchProducts = async () => {
       sortBy: sortBy.value,
       sortDirection: 'desc',
       intrRateType: interestType.value,
-      rsrvType: rsrvType.value,
-      rsrvTypeNm: rsrvTypeNm.value
     };
 
+    // 적금일 경우에만 rsrvType 파라미터 추가
+    if (params.category === 'savings') {
+      params.rsrvType = rsrvType.value;
+      params.rsrvTypeNm = rsrvTypeNm.value;
+    }
+
     console.log('API 요청 파라미터:', params);
-    console.log('rsrvType 값:', rsrvType.value);
 
     // 가입방식
     if (joinWay.value !== 'all') {
@@ -153,7 +156,67 @@ const fetchProducts = async () => {
     }
 
     const res = await getProductsAPI(params);
-    depositProducts.value = res.products || [];
+
+    // API 응답에서 상품 데이터를 가공하여 rsrvType 필드 추가
+    if (res.products && res.products.length > 0) {
+      // 디버깅: 첫 번째 상품의 모든 필드 출력
+      console.log('API 응답 첫 상품:', res.products[0]);
+
+      // 상품 데이터에 rsrvType 필드 추가 (상품 유형에 따라 다르게 처리)
+      depositProducts.value = res.products.map((product) => {
+        // 기본 상품 객체 (예금/적금 공통)
+        const processedProduct = { ...product };
+
+        // 적금인 경우에만 rsrvType 관련 필드 추가
+        if (params.category === 'savings') {
+          // options 배열에서 첫 번째 옵션의 rsrv_type과 rsrv_type_nm 추출
+          const firstOption =
+            product.options && product.options.length > 0 ? product.options[0] : null;
+
+          // rsrvType 값 추출 (옵션 > 상품 > 현재 설정 > 기본값 'F' 순)
+          const typeValue =
+            firstOption?.rsrv_type ||
+            firstOption?.rsrvType ||
+            product.rsrv_type ||
+            product.rsrvType ||
+            rsrvType.value ||
+            'F'; // 기본값은 'F'
+
+          // rsrvTypeNm 값 추출 (옵션 > 상품 > 매핑 순)
+          const typeNameValue =
+            firstOption?.rsrv_type_nm ||
+            firstOption?.rsrvTypeNm ||
+            product.rsrv_type_nm ||
+            product.rsrvTypeNm ||
+            (typeValue === 'S' ? '정액적립식' : '자유적립식');
+
+          // 적금에만 필요한 필드 추가
+          processedProduct.rsrv_type = typeValue;
+          processedProduct.rsrvType = typeValue;
+          processedProduct.rsrv_type_nm = typeNameValue;
+          processedProduct.rsrvTypeNm = typeNameValue;
+
+          // 콘솔에 로깅 (디버깅용)
+          console.log('적금 상품 가공:', {
+            productName: product.fin_prdt_nm || product.product_name,
+            finalRsrvType: typeValue,
+            finalRsrvTypeNm: typeNameValue,
+          });
+        } else {
+          // 예금인 경우 rsrvType 필드는 추가하지 않음
+          console.log('예금 상품 가공:', {
+            productName: product.fin_prdt_nm || product.product_name,
+          });
+        }
+
+        return processedProduct;
+      });
+
+      console.log('가공 후 첫 상품:', depositProducts.value[0]);
+    } else {
+      depositProducts.value = [];
+    }
+
     totalCount.value = res.totalCount || depositProducts.value.length || 0;
   } catch (err) {
     console.error('상품 검색 오류:', err);
@@ -231,7 +294,11 @@ const updateQueryAndFetch = () => {
 const goToProductDetail = (product) => {
   const productId = product.productId || product.product_id;
   const saveTrm = product.save_trm || product.saveTrm;
-  const rsrvTypeValue = product.rsrv_type || product.rsrvType || rsrvType.value;
+
+  // options 배열에서 rsrvType 값 추출
+  const firstOption = product.options && product.options.length > 0 ? product.options[0] : null;
+  const rsrvTypeValue =
+    product.rsrv_type || product.rsrvType || firstOption?.rsrv_type || firstOption?.rsrvType || 'F'; // 기본값은 'F'
 
   // 적금 페이지에서는 항상 'savings' 카테고리로 이동
   const category = 'savings';
@@ -240,7 +307,8 @@ const goToProductDetail = (product) => {
     path: `/products/${category}/${productId}`,
     query: {
       saveTrm,
-      intrRateType: product.intr_rate_type || product.intrRateType,
+      intrRateType:
+        product.intr_rate_type || product.intrRateType || firstOption?.intr_rate_type || 'S',
       rsrvType: rsrvTypeValue,
     },
   });
