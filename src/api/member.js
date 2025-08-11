@@ -13,8 +13,6 @@ export const memberAPI = {
         data: result.body?.data || null,
       };
     } catch (error) {
-      console.error('API 에러:', error);
-
       const statusMessages = {
         401: '로그인이 필요합니다.',
         403: '접근 권한이 없습니다.',
@@ -33,17 +31,7 @@ export const memberAPI = {
   // 프로필 수정 API (수정된 버전)
   updateProfile: async (data) => {
     try {
-      console.log('=== 프로필 수정 API 요청 ===');
-      console.log('URL:', '/api/auth/profile');
-      console.log('Method: PUT');
-      console.log('Data:', data);
-
       const response = await api.put('/api/auth/profile', data);
-
-      console.log('=== 프로필 수정 응답 ===');
-      console.log('Status:', response.status);
-      console.log('Response data:', response.data);
-
       const result = response.data;
 
       return {
@@ -52,7 +40,6 @@ export const memberAPI = {
         data: result.body?.data || null,
       };
     } catch (error) {
-      console.error('프로필 수정 API 에러:', error);
       throw error;
     }
   },
@@ -71,7 +58,6 @@ export const memberAPI = {
         data: result.body?.data || null,
       };
     } catch (error) {
-      console.error('API 에러:', error);
       throw error;
     }
   },
