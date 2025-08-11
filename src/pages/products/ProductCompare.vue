@@ -294,6 +294,21 @@ const loadCompareData = async () => {
   }
 };
 
+const getCorrectProductType = (item) => {
+  // 상품명 또는 다른 정보를 기반으로 타입 판별
+  if (item.productType) {
+    return item.productType; // 이미 정의된 타입이 있으면 사용
+  }
+
+  // 상품명에 '적금'이 포함되어 있으면 savings로 설정
+  if (item.productName && item.productName.includes('적금')) {
+    return 'savings';
+  }
+
+  // 기본값은 deposit
+  return 'deposit';
+};
+
 // 비교함에서 상품 제거 (개선된 버전)
 const handleRemoveItem = async (productId, saveTrm, intrRateType = 'S') => {
   const confirmed = await showModal('해당 상품을 제거하시겠습니까?');
@@ -350,10 +365,30 @@ const goToProductList = () => {
 };
 
 // 상세 페이지로 이동
-const goToDetail = (productId, productType = 'deposit', saveTrm = null) => {
+const goToDetail = (productId, productType, saveTrm = null) => {
   const query = saveTrm ? { saveTrm } : {};
+
+  // 상품 타입 확인 로직 추가
+  let correctProductType = productType;
+
+  // compareList에서 해당 상품 찾기
+  const product = compareList.value.find((item) => String(item.productId) === String(productId));
+
+  if (product) {
+    // 상품 이름으로 적금 여부 판단
+    if (product.productName && product.productName.includes('적금')) {
+      correctProductType = 'savings';
+    }
+    // 이미 저장된 productType 사용
+    else if (product.productType) {
+      correctProductType = product.productType;
+    }
+  }
+
+  console.log('상세 페이지 이동:', productId, correctProductType, saveTrm);
+
   router.push({
-    path: `/products/${productType}/${productId}`,
+    path: `/products/${correctProductType}/${productId}`,
     query,
   });
 };
