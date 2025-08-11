@@ -265,20 +265,7 @@ watch(
   },
   { deep: true }
 );
-watch(
-  route,
-  () => {
-    console.clear(); // 콘솔을 깨끗하게 지우고 시작
-    console.log('--- 경로 변경 감지 ---');
-    console.log('현재 경로 (route.path):', route.path);
-    console.log("'/deposit' 포함 여부:", route.path.includes('/deposit'));
-    console.log("'/savings' 포함 여부:", route.path.includes('/savings'));
-    console.log('isDepositActive 값:', isDepositActive.value);
-    console.log('isSavingActive 값:', isSavingActive.value);
-    console.log('--------------------');
-  },
-  { immediate: true, deep: true }
-);
+
 const formatAmount = () => {
   const numeric = localDepositAmount.value.replace(/[^\d]/g, '');
   localDepositAmount.value = numeric ? new Intl.NumberFormat('ko-KR').format(numeric) : '';

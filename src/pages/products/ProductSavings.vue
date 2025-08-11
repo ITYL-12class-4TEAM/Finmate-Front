@@ -139,8 +139,6 @@ const fetchProducts = async () => {
       params.rsrvTypeNm = rsrvTypeNm.value;
     }
 
-    console.log('API 요청 파라미터:', params);
-
     // 가입방식
     if (joinWay.value !== 'all') {
       if (Array.isArray(joinWay.value)) {
@@ -159,9 +157,6 @@ const fetchProducts = async () => {
 
     // API 응답에서 상품 데이터를 가공하여 rsrvType 필드 추가
     if (res.products && res.products.length > 0) {
-      // 디버깅: 첫 번째 상품의 모든 필드 출력
-      console.log('API 응답 첫 상품:', res.products[0]);
-
       // 상품 데이터에 rsrvType 필드 추가 (상품 유형에 따라 다르게 처리)
       depositProducts.value = res.products.map((product) => {
         // 기본 상품 객체 (예금/적금 공통)
@@ -195,13 +190,6 @@ const fetchProducts = async () => {
           processedProduct.rsrvType = typeValue;
           processedProduct.rsrv_type_nm = typeNameValue;
           processedProduct.rsrvTypeNm = typeNameValue;
-
-          // 콘솔에 로깅 (디버깅용)
-          console.log('적금 상품 가공:', {
-            productName: product.fin_prdt_nm || product.product_name,
-            finalRsrvType: typeValue,
-            finalRsrvTypeNm: typeNameValue,
-          });
         } else {
           // 예금인 경우 rsrvType 필드는 추가하지 않음
           console.log('예금 상품 가공:', {
@@ -211,8 +199,6 @@ const fetchProducts = async () => {
 
         return processedProduct;
       });
-
-      console.log('가공 후 첫 상품:', depositProducts.value[0]);
     } else {
       depositProducts.value = [];
     }

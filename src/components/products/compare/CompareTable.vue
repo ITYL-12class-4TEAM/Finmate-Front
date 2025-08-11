@@ -22,8 +22,18 @@
             </span>
           </div>
           <div class="header-pills-row">
-            <span class="header-tag product-type-pill">
+            <span
+              class="header-tag"
+              :class="[getProductTypeLabel(item) === '예금' ? 'deposit-pill' : 'savings-pill']"
+            >
               {{ getProductTypeLabel(item) }}
+            </span>
+
+            <span
+              v-if="getProductTypeLabel(item) === '적금'"
+              class="header-tag deposit-method-pill"
+            >
+              {{ getDepositMethodLabel(item) }}
             </span>
           </div>
         </div>
@@ -106,7 +116,12 @@ const getInterestTypeClass = (value) => {
   if (value === '복리') return 'compound';
   return '';
 };
-
+const getDepositMethodLabel = (item) => {
+  const rsrvType = item.rsrvType || item.rsrv_type;
+  if (rsrvType === 'F') return '자유적립식';
+  if (rsrvType === 'S') return '정액적립식'; // 'S'가 정액적립식이라고 가정합니다.
+  return ''; // 해당 없으면 빈 텍스트
+};
 // 상품 유형 라벨 결정 함수 (기존 코드)
 const getProductTypeLabel = (item) => {
   // 1. productType이 명시적으로 'savings'인 경우
@@ -312,7 +327,7 @@ const comparisonRows = computed(() => {
 }
 
 .header-tag {
-  font-size: 0.6875rem;
+  font-size: 0.65rem;
   font-weight: 500;
   padding: 0.125rem 0.375rem;
   border-radius: 0.75rem;
@@ -330,12 +345,25 @@ const comparisonRows = computed(() => {
   color: #00796b;
 }
 
-/* ✨ NEW: 예금/적금 태그 스타일 */
-.header-tag.product-type-pill {
-  background-color: #f3e8ff; /* light purple */
-  color: #6b21a8; /* dark purple */
+/* ✨ NEW: 예금 알약 스타일 (파란색 계열) */
+.header-tag.deposit-pill {
+  background-color: #e0e7ff; /* light-indigo */
+  color: #3730a3; /* dark-indigo */
   font-weight: 600;
-  padding: 0.125rem 0.5rem;
+}
+
+/* ✨ NEW: 적금 알약 스타일 (초록색 계열) */
+.header-tag.savings-pill {
+  background-color: #d1fae5; /* light-green */
+  color: #047857; /* dark-green */
+  font-weight: 600;
+}
+
+/* ✨ NEW: 적립 방식 알약 스타일 (회색 계열) */
+.header-tag.deposit-method-pill {
+  background-color: #f3f4f6; /* light-gray */
+  color: #4b5563; /* dark-gray */
+  font-size: 0.55rem;
 }
 
 /* ==========================================================================

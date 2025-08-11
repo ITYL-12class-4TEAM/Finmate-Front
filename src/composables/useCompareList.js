@@ -102,17 +102,6 @@ export default function useCompareList() {
       option?.rsrvTypeNm ??
       (rsrvType === 'S' ? '정액적립식' : rsrvType === 'F' ? '자유적립식' : null);
 
-    console.log('비교함 추가 시도:', {
-      productId,
-      saveTrm,
-      intrRateType,
-      rsrvType,
-      rsrvTypeNm,
-      productType, // 추론된 상품 타입
-      originalType: providedProductType, // 원래 제공된 타입
-      productName: product?.product_name || product?.productName,
-    });
-
     // 중복 체크 (추론된 상품 타입 사용)
     const duplicate = compareList.value.some((item) =>
       isProductMatch(item, productId, saveTrm, intrRateType, rsrvType, productType)
@@ -150,8 +139,6 @@ export default function useCompareList() {
       minDeposit: product?.min_deposit ?? product?.minDeposit ?? 0,
       addedAt: new Date().toISOString(),
     };
-
-    console.log('추가할 아이템:', item);
 
     compareList.value = [...compareList.value, item];
     saveCompareListToStorage(compareList.value);
