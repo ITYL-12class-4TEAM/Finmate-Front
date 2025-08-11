@@ -111,7 +111,11 @@
     </div>
 
     <!-- 비교함 플로팅 바 -->
-    <CompareFloatingBar :compare-list="compareList" @go-to-compare="goToCompare" />
+    <CompareFloatingBar
+      :compare-list="compareList"
+      @go-to-compare="goToCompare"
+      @clear-compare-list="clearCompareList"
+    />
 
     <!-- GPT 상품 요약 모달 -->
     <GptDetailModal
@@ -153,7 +157,8 @@ const selectedTerm = ref({ name: '', description: '' });
 const showGptDetailModal = ref(false);
 
 // 비교함 기능 (컴포저블 사용)
-const { compareList, addToCompareList, removeFromCompareList, isInCompareList } = useCompareList();
+const { compareList, clearCompareList, addToCompareList, removeFromCompareList, isInCompareList } =
+  useCompareList();
 
 // GPT 상품 요약 모달 열기
 const handleGptDetail = () => {
@@ -297,7 +302,7 @@ const getCategoryName = () => {
       return '정기예금';
     case 'pension':
       return '연금저축';
-    case 'saving':
+    case 'savings':
       return '적금';
     default:
       return '금융상품';
@@ -308,7 +313,7 @@ const getCategoryName = () => {
 const getInterestTypeName = () => {
   if (!product.value) return '';
 
-  const interestTypeCode = product.value.intr_rate_type;
+  const interestTypeCode = selectedOption.value.intr_rate_type || selectedOption.value.intrRateType;
 
   if (interestTypeCode === 'S') {
     return '단리';
@@ -451,7 +456,7 @@ onMounted(() => {
    1. 페이지 기본 레이아웃 및 로딩/에러 상태 (유지)
    ========================================================================== */
 .product-detail-page {
-  padding: 1rem;
+  padding: 0 0.3rem;
   padding-bottom: 6rem; /* 하단 플로팅 바를 위한 여백 확보 */
   min-height: 100vh;
 }
@@ -509,7 +514,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between; /* 양쪽 끝으로 배치 */
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 /* GPT 상품 요약 버튼 (우측 상단) */
@@ -563,8 +568,8 @@ onMounted(() => {
 .info-section {
   background-color: #ffffff;
   border-radius: 0.75rem; /* 12px */
-  padding: 1.25rem 1rem; /* 20px 16px */
-  margin-bottom: 1rem;
+  padding: 0.5rem 1rem; /* 20px 16px */
+  margin-bottom: 0.5rem;
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.04);
 }
 
@@ -572,16 +577,16 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1.125rem; /* 18px */
+  font-size: 1rem; /* 18px */
   font-weight: 600;
   color: var(--color-main);
-  margin: 0 0 1rem 0;
-  padding-bottom: 0.75rem;
+  margin: 0 0 0.5rem 0;
+  padding-bottom: 0.25rem;
   border-bottom: 0.0625rem solid var(--color-bg-light);
 }
 
 .info-content {
-  font-size: 0.9375rem; /* 15px */
+  font-size: 0.8rem; /* 15px */
   color: var(--color-text);
   line-height: 1.7;
   white-space: pre-wrap;

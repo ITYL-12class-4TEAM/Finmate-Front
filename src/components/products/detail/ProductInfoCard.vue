@@ -22,7 +22,13 @@
         <div class="product-tags">
           <span v-if="product.is_digital_only" class="tag digital">디지털 전용</span>
           <span v-if="categoryName" class="tag category">{{ categoryName }}</span>
-          <span v-if="interestTypeName" class="tag interest-type">{{ interestTypeName }}</span>
+          <span
+            v-if="interestTypeName"
+            class="tag interest-type"
+            :class="getInterestTypeClass(interestTypeName)"
+          >
+            {{ interestTypeName }}
+          </span>
         </div>
       </div>
       <WishButton />
@@ -40,6 +46,13 @@ const props = defineProps({
   categoryName: { type: String, default: '금융상품' },
   interestTypeName: { type: String, default: '' },
 });
+
+// 금리 유형에 따른 클래스 반환
+const getInterestTypeClass = (typeName) => {
+  if (typeName === '단리') return 'simple-interest';
+  if (typeName === '복리') return 'compound-interest';
+  return '';
+};
 </script>
 
 <style scoped>
@@ -51,14 +64,14 @@ const props = defineProps({
   background: #ffffff;
   border-radius: 0.75rem; /* 12px, 다른 컴포넌트와 통일 */
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.04);
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   overflow: hidden;
 }
 
 .card-header {
   display: flex;
   align-items: flex-start;
-  padding: 1.25rem 1rem; /* 20px 16px, 다른 카드와 여백 통일 */
+  padding: 0.5rem 0.75rem; /* 20px 16px, 다른 카드와 여백 통일 */
   gap: 1rem; /* 16px */
 }
 
@@ -112,7 +125,7 @@ const props = defineProps({
 }
 
 .product-name {
-  font-size: 1.25rem; /* 20px, 상품명 강조 */
+  font-size: 1.1rem; /* 20px, 상품명 강조 */
   margin: 0 0 0.75rem 0;
   color: var(--color-main);
   font-weight: 700;
@@ -128,7 +141,7 @@ const props = defineProps({
 
 .tag {
   display: inline-block;
-  font-size: 0.75rem; /* 12px */
+  font-size: 0.65rem; /* 12px */
   padding: 0.25rem 0.625rem; /* 4px 10px */
   border-radius: 0.875rem; /* 14px, 알약 형태 */
   font-weight: 500;
@@ -144,9 +157,28 @@ const props = defineProps({
   color: #fff;
 }
 
+/* 금리 유형 기본 스타일 (이전 스타일 제거) */
 .tag.interest-type {
+  border: 0.0625rem solid #e0e0e0;
+}
+
+/* 단리 스타일 */
+.tag.interest-type.simple-interest {
+  background-color: #f0f3ff; /* 연한 파란색 배경 */
+  color: #4c4dbd; /* 진한 파란색 글자 */
+  border-color: #d8ddff; /* 테두리 색상 조정 */
+}
+
+/* 복리 스타일 */
+.tag.interest-type.compound-interest {
+  background-color: #e0f7e6; /* 연한 초록색 배경 */
+  color: #097b68; /* 진한 초록색 글자 */
+  border-color: #c5ecd1; /* 테두리 색상 조정 */
+}
+
+/* 기본 금리 (단리/복리가 아닌 경우) */
+.tag.interest-type:not(.simple-interest):not(.compound-interest) {
   background: var(--color-bg-light);
   color: var(--color-main);
-  border: 0.0625rem solid #e0e0e0;
 }
 </style>

@@ -1,22 +1,20 @@
 <template>
   <div class="compare-page">
-    <!-- 헤더 -->
     <div class="page-header">
-      <BackButton />
-    </div>
-
-    <!-- 비교함이 비어있는 경우 -->
-    <CompareEmptyState v-if="compareList.length === 0" @go-to-products="goToProductList" />
-
-    <!-- 비교 콘텐츠 -->
-    <div v-else class="compare-content">
-      <!-- 비교함 관리 -->
-      <div class="compare-actions">
+      <div class="header-left">
+        <BackButton />
+      </div>
+      <div class="header-center">
         <div class="compare-count">{{ compareList.length }}/3 상품 비교 중</div>
+      </div>
+      <div class="header-right">
         <button class="clear-btn" @click="handleClearCompare">비교함 비우기</button>
       </div>
+    </div>
 
-      <!-- 비교 테이블 -->
+    <CompareEmptyState v-if="compareList.length === 0" @go-to-products="goToProductList" />
+
+    <div v-else class="compare-content">
       <CompareTable
         :items="compareList"
         :compare-data="compareData"
@@ -28,7 +26,6 @@
         @join-product="handleJoinProduct"
       />
 
-      <!-- API 비교 결과 -->
       <div v-if="isLoading" class="loading-state">
         <div class="spinner"></div>
         <p>상품 비교 정보를 불러오는 중입니다...</p>
@@ -42,7 +39,6 @@
       />
     </div>
 
-    <!-- GPT 비교 요약 버튼 (화면 하단 좌측 고정) -->
     <div v-if="compareList.length >= 2" class="gpt-summary-btn-container">
       <button class="gpt-summary-btn" :disabled="gptLoading" @click="handleGptSummary">
         <div v-if="gptLoading" class="btn-loading">
@@ -298,6 +294,21 @@ const loadCompareData = async () => {
   }
 };
 
+const getCorrectProductType = (item) => {
+  // 상품명 또는 다른 정보를 기반으로 타입 판별
+  if (item.productType) {
+    return item.productType; // 이미 정의된 타입이 있으면 사용
+  }
+
+  // 상품명에 '적금'이 포함되어 있으면 savings로 설정
+  if (item.productName && item.productName.includes('적금')) {
+    return 'savings';
+  }
+
+  // 기본값은 deposit
+  return 'deposit';
+};
+
 // 비교함에서 상품 제거 (개선된 버전)
 const handleRemoveItem = async (productId, saveTrm, intrRateType = 'S') => {
   const confirmed = await showModal('해당 상품을 제거하시겠습니까?');
@@ -354,10 +365,30 @@ const goToProductList = () => {
 };
 
 // 상세 페이지로 이동
-const goToDetail = (productId, productType = 'deposit', saveTrm = null) => {
+const goToDetail = (productId, productType, saveTrm = null) => {
   const query = saveTrm ? { saveTrm } : {};
+
+  // 상품 타입 확인 로직 추가
+  let correctProductType = productType;
+
+  // compareList에서 해당 상품 찾기
+  const product = compareList.value.find((item) => String(item.productId) === String(productId));
+
+  if (product) {
+    // 상품 이름으로 적금 여부 판단
+    if (product.productName && product.productName.includes('적금')) {
+      correctProductType = 'savings';
+    }
+    // 이미 저장된 productType 사용
+    else if (product.productType) {
+      correctProductType = product.productType;
+    }
+  }
+
+  console.log('상세 페이지 이동:', productId, correctProductType, saveTrm);
+
   router.push({
-    path: `/products/${productType}/${productId}`,
+    path: `/products/${correctProductType}/${productId}`,
     query,
   });
 };
@@ -397,7 +428,7 @@ onMounted(() => {
 <style scoped>
 /* 기존 스타일 유지 */
 .compare-page {
-  padding: 1rem;
+  /* padding: 1rem 0; */
   padding-bottom: 5rem;
   min-height: 100vh;
 }
@@ -405,7 +436,33 @@ onMounted(() => {
 .page-header {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+  background-color: #ffffff;
+  padding: 0.55rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.03);
+}
+
+.header-left {
+  /* 좌측 영역 - 뒤로가기 버튼 */
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.header-center {
+  /* 중앙 영역 - 상품 비교 중 텍스트 */
+  flex: 1.5;
+  display: flex;
+  justify-content: center;
+}
+
+.header-right {
+  /* 우측 영역 - 비교함 비우기 버튼 */
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .compare-actions {
@@ -413,9 +470,9 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   background-color: #ffffff;
-  padding: 0.75rem 1rem;
+  padding: 0.55rem 1.5rem;
   border-radius: 0.5rem;
-  margin-bottom: 1.25rem;
+  /* margin-bottom: 1.25rem; */
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.03);
 }
 
@@ -437,7 +494,7 @@ onMounted(() => {
   font-size: 0.875rem;
   cursor: pointer;
   text-decoration: none;
-  padding: 0.25rem;
+  padding: 0;
   transition: color 0.2s;
 }
 
