@@ -207,7 +207,6 @@ const sendPhoneVerification = async () => {
       showToast(result.message, 'error');
     }
   } catch (error) {
-    console.error('인증번호 발송 오류:', error);
     showToast('인증번호 발송에 실패했습니다.', 'error');
   }
 };
@@ -232,7 +231,6 @@ const verifyPhoneCode = async () => {
     }
   } catch (error) {
     phoneVerified.value = false;
-    console.error('인증번호 확인 오류:', error);
     showToast('인증번호가 일치하지 않습니다.', 'error');
   }
 };
@@ -273,7 +271,6 @@ const findPasswordByPhone = async () => {
       currentStep.value = 1;
     }
   } catch (error) {
-    console.error('비밀번호 찾기 오류:', error);
     showToast('입력하신 정보와 일치하는 계정을 찾을 수 없습니다.', 'error');
   } finally {
     isLoading.value = false;
@@ -297,7 +294,6 @@ const resetPassword = async () => {
       showToast(response.message, 'error');
     }
   } catch (error) {
-    console.error('비밀번호 재설정 오류:', error);
     showToast('비밀번호 변경에 실패했습니다.', 'error');
   } finally {
     isLoading.value = false;

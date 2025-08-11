@@ -18,7 +18,7 @@
 
         <form class="add-form" @submit.prevent="handleSubmit">
           <div class="form-grid">
-            <!-- 상품명 -->
+            <!-- 상품명 (항상 표시) -->
             <div class="form-group">
               <label class="form-label required">
                 <i class="fas fa-tag"></i>
@@ -35,7 +35,7 @@
               />
             </div>
 
-            <!-- 회사명 -->
+            <!-- 회사명 (항상 표시) -->
             <div class="form-group">
               <label class="form-label required">
                 <i class="fas fa-building"></i>
@@ -57,7 +57,7 @@
               </datalist>
             </div>
 
-            <!-- 카테고리 -->
+            <!-- 카테고리 (항상 표시) -->
             <div class="form-group">
               <label class="form-label required">
                 <i class="fas fa-th-large"></i>
@@ -70,12 +70,11 @@
                 <option value="보험">보험</option>
                 <option value="연금">연금</option>
                 <option value="주식">주식</option>
-                <option value="대출">대출</option>
                 <option value="기타">기타</option>
               </select>
             </div>
 
-            <!-- 세부 카테고리 -->
+            <!-- 세부 카테고리 (항상 표시) -->
             <div class="form-group">
               <label class="form-label">
                 <i class="fas fa-tags"></i>
@@ -97,73 +96,199 @@
               </select>
             </div>
 
-            <!-- 투자금액 -->
-            <div class="form-group">
-              <label class="form-label required">
-                <i class="fas fa-coins"></i>
-                투자금액
-              </label>
-              <div class="input-with-unit">
-                <input
-                  v-model.number="formData.amount"
-                  type="number"
-                  class="form-input"
-                  placeholder="0"
-                  min="0"
-                  step="10000"
-                  required
-                />
-                <span class="input-unit">원</span>
+            <!-- 동적 필드들 -->
+            <template v-if="formData.category">
+              <!-- 투자금액/월납입금액 등 -->
+              <div v-if="shouldShowField('amount')" class="form-group">
+                <label class="form-label" :class="{ required: isRequiredField('amount') }">
+                  <i class="fas fa-coins"></i>
+                  {{ getFieldLabel('amount') }}
+                </label>
+                <div class="input-with-unit">
+                  <input
+                    v-model.number="formData.amount"
+                    type="number"
+                    class="form-input"
+                    placeholder="0"
+                    min="0"
+                    step="10000"
+                    :required="isRequiredField('amount')"
+                  />
+                  <span class="input-unit">원</span>
+                </div>
               </div>
-            </div>
 
-            <!-- 금리 -->
-            <div class="form-group">
-              <label class="form-label">
-                <i class="fas fa-percent"></i>
-                연 금리 (%)
-              </label>
-              <div class="input-with-unit">
-                <input
-                  v-model.number="formData.customRate"
-                  type="number"
-                  class="form-input"
-                  placeholder="0.00"
-                  min="0"
-                  max="50"
-                  step="0.01"
-                />
-                <span class="input-unit">%</span>
+              <!-- 금리 (예금, 적금, 연금에만 표시) -->
+              <div v-if="shouldShowField('customRate')" class="form-group">
+                <label class="form-label" :class="{ required: isRequiredField('customRate') }">
+                  <i class="fas fa-percent"></i>
+                  {{ getFieldLabel('customRate') }}
+                </label>
+                <div class="input-with-unit">
+                  <input
+                    v-model.number="formData.customRate"
+                    type="number"
+                    class="form-input"
+                    placeholder="0.00"
+                    min="0"
+                    max="50"
+                    step="0.01"
+                    :required="isRequiredField('customRate')"
+                  />
+                  <span class="input-unit">%</span>
+                </div>
               </div>
-            </div>
 
-            <!-- 저축 기간 -->
-            <div class="form-group">
-              <label class="form-label">
-                <i class="fas fa-calendar-alt"></i>
-                저축 기간
-              </label>
-              <div class="input-with-unit">
-                <input
-                  v-model.number="formData.saveTrm"
-                  type="number"
-                  class="form-input"
-                  placeholder="0"
-                  min="0"
-                  max="1200"
-                />
-                <span class="input-unit">개월</span>
+              <!-- 기간 (상품별로 다른 라벨) -->
+              <div v-if="shouldShowField('saveTrm')" class="form-group">
+                <label class="form-label" :class="{ required: isRequiredField('saveTrm') }">
+                  <i class="fas fa-calendar-alt"></i>
+                  {{ getFieldLabel('saveTrm') }}
+                </label>
+                <div class="input-with-unit">
+                  <input
+                    v-model.number="formData.saveTrm"
+                    type="number"
+                    class="form-input"
+                    placeholder="0"
+                    min="0"
+                    max="1200"
+                    :required="isRequiredField('saveTrm')"
+                  />
+                  <span class="input-unit">개월</span>
+                </div>
               </div>
-            </div>
 
-            <!-- 가입일 -->
-            <div class="form-group">
-              <label class="form-label">
-                <i class="fas fa-calendar-plus"></i>
-                가입일
-              </label>
-              <input v-model="formData.joinDate" type="date" class="form-input" :max="todayDate" />
-            </div>
+              <!-- 주식 전용 필드들 -->
+              <template v-if="formData.category === '주식'">
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-chart-line"></i>
+                    현재가
+                  </label>
+                  <div class="input-with-unit">
+                    <input
+                      v-model.number="formData.currentPrice"
+                      type="number"
+                      class="form-input"
+                      placeholder="0"
+                      min="0"
+                    />
+                    <span class="input-unit">원</span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-cubes"></i>
+                    보유 수량
+                  </label>
+                  <div class="input-with-unit">
+                    <input
+                      v-model.number="formData.quantity"
+                      type="number"
+                      class="form-input"
+                      placeholder="0"
+                      min="0"
+                    />
+                    <span class="input-unit">주</span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-globe"></i>
+                    시장 구분
+                  </label>
+                  <select v-model="formData.marketType" class="form-input form-select">
+                    <option value="">시장 선택</option>
+                    <option value="코스피">코스피</option>
+                    <option value="코스닥">코스닥</option>
+                    <option value="해외">해외</option>
+                    <option value="기타">기타</option>
+                  </select>
+                </div>
+              </template>
+
+              <!-- 보험 전용 필드들 -->
+              <template v-if="formData.category === '보험'">
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-shield-alt"></i>
+                    보장금액
+                  </label>
+                  <div class="input-with-unit">
+                    <input
+                      v-model.number="formData.coverage"
+                      type="number"
+                      class="form-input"
+                      placeholder="0"
+                      min="0"
+                    />
+                    <span class="input-unit">원</span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-user-friends"></i>
+                    수익자
+                  </label>
+                  <input
+                    v-model="formData.beneficiary"
+                    type="text"
+                    class="form-input"
+                    placeholder="수익자 이름"
+                    maxlength="50"
+                  />
+                </div>
+              </template>
+
+              <!-- 연금 전용 필드들 -->
+              <template v-if="formData.category === '연금'">
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-coins"></i>
+                    연금 종류
+                  </label>
+                  <select v-model="formData.pensionType" class="form-input form-select">
+                    <option value="">종류 선택</option>
+                    <option value="연금저축">연금저축</option>
+                    <option value="개인연금">개인연금</option>
+                    <option value="IRP">IRP</option>
+                    <option value="DC형">DC형</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-receipt"></i>
+                    세제혜택
+                  </label>
+                  <select v-model="formData.taxBenefit" class="form-input form-select">
+                    <option value="">혜택 선택</option>
+                    <option value="세액공제">세액공제</option>
+                    <option value="소득공제">소득공제</option>
+                    <option value="비과세">비과세</option>
+                    <option value="해당없음">해당없음</option>
+                  </select>
+                </div>
+              </template>
+
+              <!-- 가입일 -->
+              <div v-if="shouldShowField('joinDate')" class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-calendar-plus"></i>
+                  가입일
+                </label>
+                <input
+                  v-model="formData.joinDate"
+                  type="date"
+                  class="form-input"
+                  :max="todayDate"
+                />
+              </div>
+            </template>
 
             <!-- 메모 -->
             <div class="form-group full-width">
@@ -192,12 +317,19 @@
             </div>
             <div class="preview-content">
               <div class="preview-item">
-                <span class="preview-label">투자금액</span>
+                <span class="preview-label">{{ getFieldLabel('amount') }}</span>
                 <span class="preview-value">
                   {{ formatCurrency(formData.amount) }}
                 </span>
               </div>
-              <div v-if="formData.customRate && formData.saveTrm" class="preview-item">
+              <div
+                v-if="
+                  formData.customRate &&
+                  formData.saveTrm &&
+                  ['예금', '적금'].includes(formData.category)
+                "
+                class="preview-item"
+              >
                 <span class="preview-label">예상 이자</span>
                 <span class="preview-value profit">
                   {{ formatCurrency(calculateEstimatedInterest()) }}
@@ -207,6 +339,23 @@
                 <span class="preview-label">예상 만기일</span>
                 <span class="preview-value">
                   {{ calculateMaturityDate() }}
+                </span>
+              </div>
+              <!-- 주식 미리보기 -->
+              <div
+                v-if="formData.category === '주식' && formData.currentPrice && formData.quantity"
+                class="preview-item"
+              >
+                <span class="preview-label">예상 평가금액</span>
+                <span class="preview-value">
+                  {{ formatCurrency(formData.currentPrice * formData.quantity) }}
+                </span>
+              </div>
+              <!-- 보험 미리보기 -->
+              <div v-if="formData.category === '보험' && formData.coverage" class="preview-item">
+                <span class="preview-label">보장금액</span>
+                <span class="preview-value">
+                  {{ formatCurrency(formData.coverage) }}
                 </span>
               </div>
             </div>
@@ -251,9 +400,8 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-import { useModal } from '@/composables/useModal';
 import { useToast } from '@/composables/useToast';
-const { showModal } = useModal();
+
 const { showToast } = useToast();
 
 const props = defineProps({
@@ -302,8 +450,61 @@ const subcategoryMapping = {
   보험: ['종신보험', '정기보험', '연금보험', '변액보험'],
   연금: ['연금저축', '개인연금', 'IRP', 'DC형'],
   주식: ['국내주식', '해외주식', 'ETF', 'ETN'],
-  대출: ['신용대출', '담보대출', '전세자금대출', '주택담보대출'],
   기타: ['부동산', '채권', '금', '암호화폐', '기타투자'],
+};
+
+// 상품군별 필드 설정
+const productFieldConfig = {
+  예금: {
+    required: ['customProductName', 'customCompanyName', 'amount', 'customRate'],
+    hidden: [],
+    labels: {
+      amount: '예치금액',
+      customRate: '연 금리 (%)',
+      saveTrm: '예치 기간 (개월)',
+    },
+  },
+  적금: {
+    required: ['customProductName', 'customCompanyName', 'amount', 'customRate', 'saveTrm'],
+    hidden: [],
+    labels: {
+      amount: '월 적립금액',
+      customRate: '연 금리 (%)',
+      saveTrm: '적립 기간 (개월)',
+    },
+  },
+  보험: {
+    required: ['customProductName', 'customCompanyName', 'amount'],
+    hidden: ['customRate'],
+    labels: {
+      amount: '월 보험료',
+      saveTrm: '납입 기간 (개월)',
+    },
+  },
+  연금: {
+    required: ['customProductName', 'customCompanyName', 'amount'],
+    hidden: [],
+    labels: {
+      amount: '월 납입금액',
+      saveTrm: '납입 기간 (개월)',
+    },
+  },
+  주식: {
+    required: ['customProductName', 'customCompanyName', 'amount'],
+    hidden: ['customRate', 'saveTrm'],
+    labels: {
+      amount: '투자금액',
+    },
+  },
+  기타: {
+    required: ['customProductName', 'customCompanyName', 'amount'],
+    hidden: [],
+    labels: {
+      amount: '투자금액',
+      customRate: '예상 수익률 (%)',
+      saveTrm: '투자 기간 (개월)',
+    },
+  },
 };
 
 // 사용 가능한 세부 카테고리
@@ -311,75 +512,112 @@ const availableSubcategories = computed(() => {
   return subcategoryMapping[formData.value.category] || [];
 });
 
-// 폼 데이터
+// 폼 데이터 (기존 필드명 유지)
 const formData = ref({
   customProductName: '',
   customCompanyName: '',
   category: '',
   subcategory: '',
   amount: null,
-  riskLevel: '',
   customRate: null,
   saveTrm: null,
   joinDate: todayDate,
   memo: '',
+  // 주식 관련 (기존 riskLevel 필드 재활용)
+  currentPrice: null, // riskLevel 대신 사용
+  quantity: null, // 새 필드
+  marketType: '', // 새 필드
+  // 보험 관련
+  coverage: null, // 새 필드
+  beneficiary: '', // 새 필드
+  // 연금 관련
+  pensionType: '', // 새 필드
+  taxBenefit: '', // 새 필드
 });
+
+// 필드 표시 여부 확인
+const shouldShowField = (fieldName) => {
+  const config = productFieldConfig[formData.value.category];
+  if (!config) return true;
+  return !config.hidden.includes(fieldName);
+};
+
+// 필수 필드 여부 확인
+const isRequiredField = (fieldName) => {
+  const config = productFieldConfig[formData.value.category];
+  if (!config) return false;
+  return config.required.includes(fieldName);
+};
+
+// 필드 라벨 가져오기
+const getFieldLabel = (fieldName) => {
+  const config = productFieldConfig[formData.value.category];
+  if (!config || !config.labels || !config.labels[fieldName]) {
+    // 기본 라벨
+    const defaultLabels = {
+      amount: '투자금액',
+      customRate: '연 금리 (%)',
+      saveTrm: '저축 기간 (개월)',
+    };
+    return defaultLabels[fieldName] || fieldName;
+  }
+  return config.labels[fieldName];
+};
 
 // 폼 유효성 검사
 const isFormValid = computed(() => {
-  return (
-    formData.value.customProductName.trim().length > 0 &&
-    formData.value.customCompanyName.trim().length > 0 &&
-    formData.value.category.trim().length > 0 &&
-    formData.value.amount > 0
-  );
+  const config = productFieldConfig[formData.value.category];
+  if (!config) return false;
+
+  // 필수 필드 검사
+  return config.required.every((field) => {
+    const value = formData.value[field];
+    if (typeof value === 'string') {
+      return value.trim().length > 0;
+    }
+    return value !== null && value !== undefined && value > 0;
+  });
 });
 
 // 미리보기 표시 여부
 const canShowPreview = computed(() => {
   return (
     formData.value.amount > 0 &&
-    (formData.value.customRate > 0 || formData.value.saveTrm > 0 || formData.value.joinDate)
+    (formData.value.customRate > 0 ||
+      formData.value.saveTrm > 0 ||
+      formData.value.joinDate ||
+      (formData.value.category === '주식' &&
+        formData.value.currentPrice &&
+        formData.value.quantity) ||
+      (formData.value.category === '보험' && formData.value.coverage))
   );
 });
 
 // 통화 포맷팅
 const formatCurrency = (amount) => {
   if (!amount || amount === 0) return '0원';
-
   if (amount >= 100000000) {
     const eok = Math.floor(amount / 100000000);
     const remainder = amount % 100000000;
-    if (remainder === 0) {
-      return `${eok}억원`;
-    } else {
-      const man = Math.floor(remainder / 10000);
-      return `${eok}억 ${man}만원`;
-    }
+    if (remainder === 0) return `${eok}억원`;
+    const man = Math.floor(remainder / 10000);
+    return `${eok}억 ${man}만원`;
   }
-
   if (amount >= 10000) {
     const man = Math.floor(amount / 10000);
     const remainder = amount % 10000;
-    if (remainder === 0) {
-      return `${man}만원`;
-    } else {
-      return `${man}만 ${remainder.toLocaleString()}원`;
-    }
+    if (remainder === 0) return `${man}만원`;
+    return `${man}만 ${remainder.toLocaleString()}원`;
   }
-
   return new Intl.NumberFormat('ko-KR').format(amount) + '원';
 };
 
 // 예상 이자 계산
 const calculateEstimatedInterest = () => {
   if (!formData.value.amount || !formData.value.customRate || !formData.value.saveTrm) return 0;
-
   const principal = formData.value.amount;
   const rate = formData.value.customRate / 100;
   const months = formData.value.saveTrm;
-
-  // 월 복리 계산
   const futureValue = principal * Math.pow(1 + rate / 12, months);
   return Math.round(futureValue - principal);
 };
@@ -387,20 +625,43 @@ const calculateEstimatedInterest = () => {
 // 만기일 계산
 const calculateMaturityDate = () => {
   if (!formData.value.joinDate || !formData.value.saveTrm) return '';
-
   const joinDate = new Date(formData.value.joinDate);
   const maturityDate = new Date(joinDate);
   maturityDate.setMonth(maturityDate.getMonth() + formData.value.saveTrm);
-
   return maturityDate.toLocaleDateString('ko-KR');
 };
 
-// 카테고리 변경 시 세부 카테고리 초기화
+// 카테고리 변경 시 처리
 watch(
   () => formData.value.category,
   (newCategory) => {
+    // 세부 카테고리 초기화
     if (newCategory && !availableSubcategories.value.includes(formData.value.subcategory)) {
       formData.value.subcategory = '';
+    }
+
+    // 숨김 필드 초기화
+    const config = productFieldConfig[newCategory];
+    if (config && config.hidden) {
+      config.hidden.forEach((field) => {
+        if (field === 'customRate') formData.value.customRate = null;
+        if (field === 'saveTrm') formData.value.saveTrm = null;
+      });
+    }
+
+    // 카테고리별 특수 필드 초기화
+    if (newCategory !== '주식') {
+      formData.value.currentPrice = null;
+      formData.value.quantity = null;
+      formData.value.marketType = '';
+    }
+    if (newCategory !== '보험') {
+      formData.value.coverage = null;
+      formData.value.beneficiary = '';
+    }
+    if (newCategory !== '연금') {
+      formData.value.pensionType = '';
+      formData.value.taxBenefit = '';
     }
   }
 );
@@ -413,11 +674,17 @@ const resetForm = () => {
     category: '',
     subcategory: '',
     amount: null,
-    riskLevel: '',
     customRate: null,
     saveTrm: null,
     joinDate: todayDate,
     memo: '',
+    currentPrice: null,
+    quantity: null,
+    marketType: '',
+    coverage: null,
+    beneficiary: '',
+    pensionType: '',
+    taxBenefit: '',
   };
 };
 
@@ -436,6 +703,19 @@ const handleClose = () => {
   }
 };
 
+// 위험도 매핑 함수
+const getRiskLevel = (category) => {
+  const riskMapping = {
+    예금: 'LOW',
+    적금: 'LOW',
+    보험: 'LOW',
+    연금: 'MEDIUM',
+    주식: 'HIGH',
+    기타: 'MEDIUM',
+  };
+  return riskMapping[category] || 'MEDIUM';
+};
+
 // 폼 제출
 const handleSubmit = async () => {
   if (!isFormValid.value || isProcessing.value) return;
@@ -443,39 +723,98 @@ const handleSubmit = async () => {
   isProcessing.value = true;
 
   try {
-    // 새 상품 데이터 준비
+    // API 명세에 맞는 데이터 구조로 변환
     const newProduct = {
-      customProductName: formData.value.customProductName.trim(),
-      customCompanyName: formData.value.customCompanyName.trim(),
-      category: formData.value.category,
-      subcategory: formData.value.subcategory || null,
       amount: formData.value.amount,
-      riskLevel: formData.value.riskLevel || null,
+      category: formData.value.category,
+      customCompanyName: formData.value.customCompanyName.trim(),
+      customProductName: formData.value.customProductName.trim(),
+      subcategory: formData.value.subcategory || null,
+
+      // 금리 관련 - 상품에 따라 다른 필드 사용
       customRate: formData.value.customRate || null,
+      interestRate: formData.value.customRate || null, // API에서 요구하는 필드
+      expectedReturn: (() => {
+        // 상품별로 다른 expectedReturn 계산
+        if (
+          formData.value.category === '주식' &&
+          formData.value.currentPrice &&
+          formData.value.quantity
+        ) {
+          // 주식: 현재가 대비 투자금액 차이를 수익률로 계산
+          const totalValue = formData.value.currentPrice * formData.value.quantity;
+          return formData.value.amount > 0
+            ? ((totalValue - formData.value.amount) / formData.value.amount) * 100
+            : null;
+        } else if (formData.value.category === '기타' && formData.value.customRate) {
+          // 기타: 입력한 수익률 사용
+          return formData.value.customRate;
+        } else if (
+          ['예금', '적금'].includes(formData.value.category) &&
+          formData.value.customRate
+        ) {
+          // 예금/적금: 금리를 수익률로 사용
+          return formData.value.customRate;
+        }
+        return null;
+      })(),
+
+      // 기간 관련
       saveTrm: formData.value.saveTrm || null,
       joinDate: formData.value.joinDate || null,
-      memo: formData.value.memo.trim() || null,
-      // 자동 계산된 값들
-      estimatedInterest: calculateEstimatedInterest() || null,
-      maturityDate:
-        formData.value.joinDate && formData.value.saveTrm
-          ? new Date(
-              new Date(formData.value.joinDate).getTime() +
-                formData.value.saveTrm * 30 * 24 * 60 * 60 * 1000
-            )
-              .toISOString()
-              .split('T')[0]
-          : null,
+      maturityDate: (() => {
+        if (formData.value.joinDate && formData.value.saveTrm) {
+          const joinDate = new Date(formData.value.joinDate);
+          const maturityDate = new Date(joinDate);
+          maturityDate.setMonth(maturityDate.getMonth() + formData.value.saveTrm);
+          return maturityDate.toISOString().split('T')[0];
+        }
+        return null;
+      })(),
+
+      // 위험도 자동 설정
+      riskLevel: getRiskLevel(formData.value.category),
+
+      // 메모에 추가 정보 포함
+      memo: (() => {
+        let memo = formData.value.memo.trim();
+
+        // 상품별 특수 정보를 메모에 추가
+        const additionalInfo = [];
+
+        if (formData.value.category === '주식') {
+          if (formData.value.currentPrice)
+            additionalInfo.push(`현재가: ${formData.value.currentPrice.toLocaleString()}원`);
+          if (formData.value.quantity)
+            additionalInfo.push(`보유수량: ${formData.value.quantity}주`);
+          if (formData.value.marketType) additionalInfo.push(`시장: ${formData.value.marketType}`);
+        } else if (formData.value.category === '보험') {
+          if (formData.value.coverage)
+            additionalInfo.push(`보장금액: ${formData.value.coverage.toLocaleString()}원`);
+          if (formData.value.beneficiary)
+            additionalInfo.push(`수익자: ${formData.value.beneficiary}`);
+        } else if (formData.value.category === '연금') {
+          if (formData.value.pensionType)
+            additionalInfo.push(`연금종류: ${formData.value.pensionType}`);
+          if (formData.value.taxBenefit)
+            additionalInfo.push(`세제혜택: ${formData.value.taxBenefit}`);
+        }
+
+        if (additionalInfo.length > 0) {
+          memo = memo
+            ? `${memo}\n\n[추가정보]\n${additionalInfo.join(', ')}`
+            : `[추가정보]\n${additionalInfo.join(', ')}`;
+        }
+
+        return memo || null;
+      })(),
     };
 
     emit('add-product', newProduct);
     showToast('저장되었습니다!', 'success');
-
-    // 성공 시 폼 초기화하고 모달 닫기
     resetForm();
   } catch (error) {
     showToast('저장에 실패했습니다.', 'error');
-    console.error('상품 추가 실패:', error);
   } finally {
     isProcessing.value = false;
   }

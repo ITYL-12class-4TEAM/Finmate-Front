@@ -14,6 +14,11 @@
       <!-- 페이지 헤더 -->
       <div class="page-header">
         <BackButton />
+        <!-- GPT 상품 요약 버튼 (우측 상단) todo -->
+        <!-- <button class="gpt-detail-btn" @click="handleGptDetail" title="GPT 상품 요약">
+          <span class="gpt-icon">🤖</span>
+          <span class="btn-text">AI 요약</span>
+        </button> -->
       </div>
 
       <!-- 상품 기본 정보 카드 -->
@@ -106,7 +111,19 @@
     </div>
 
     <!-- 비교함 플로팅 바 -->
-    <CompareFloatingBar :compare-list="compareList" @go-to-compare="goToCompare" />
+    <CompareFloatingBar
+      :compare-list="compareList"
+      @go-to-compare="goToCompare"
+      @clear-compare-list="clearCompareList"
+    />
+
+    <!-- GPT 상품 요약 모달 -->
+    <GptDetailModal
+      :show="showGptDetailModal"
+      :product="product"
+      :selected-option="selectedOption"
+      @close="showGptDetailModal = false"
+    />
   </div>
 </template>
 
@@ -119,10 +136,8 @@ import BackButton from '@/components/common/BackButton.vue';
 import ProductInfoCard from '@/components/products/detail/ProductInfoCard.vue';
 import ProductRateInfo from '@/components/products/detail/ProductRateInfo.vue';
 import ProductFeatures from '@/components/products/detail/ProductFeatures.vue';
-// todo
-// import PreferentialConditions from '@/components/products/PreferentialConditions.vue';
-import ActionButtons from '@/components/products/ActionButtons.vue';
 import CompareFloatingBar from '@/components/products/compare/CompareFloatingBar.vue';
+import GptDetailModal from '@/components/products/detail/GptDetailModal.vue';
 import useCompareList from '@/composables/useCompareList';
 import { useToast } from '@/composables/useToast';
 
@@ -138,8 +153,17 @@ const error = ref(null);
 const showModal = ref(false);
 const selectedTerm = ref({ name: '', description: '' });
 
+// GPT 상품 요약 모달 상태
+const showGptDetailModal = ref(false);
+
 // 비교함 기능 (컴포저블 사용)
-const { compareList, addToCompareList, removeFromCompareList, isInCompareList } = useCompareList();
+const { compareList, clearCompareList, addToCompareList, removeFromCompareList, isInCompareList } =
+  useCompareList();
+
+// GPT 상품 요약 모달 열기
+const handleGptDetail = () => {
+  showGptDetailModal.value = true;
+};
 
 // 상품 정보 로드
 const loadProductDetail = async () => {
@@ -269,15 +293,6 @@ const goToCompare = () => {
   });
 };
 
-// todo 상품 유형 체크 함수
-// const isDepositProduct = () => {
-//   return route.params.category === 'deposit';
-// };
-
-// const isPensionProduct = () => {
-//   return route.params.category === 'pension';
-// };
-
 // 카테고리 이름 가져오기
 const getCategoryName = () => {
   const category = route.params.category;
@@ -287,7 +302,7 @@ const getCategoryName = () => {
       return '정기예금';
     case 'pension':
       return '연금저축';
-    case 'saving':
+    case 'savings':
       return '적금';
     default:
       return '금융상품';
@@ -298,7 +313,7 @@ const getCategoryName = () => {
 const getInterestTypeName = () => {
   if (!product.value) return '';
 
-  const interestTypeCode = product.value.intr_rate_type;
+  const interestTypeCode = selectedOption.value.intr_rate_type || selectedOption.value.intrRateType;
 
   if (interestTypeCode === 'S') {
     return '단리';
@@ -441,7 +456,7 @@ onMounted(() => {
    1. 페이지 기본 레이아웃 및 로딩/에러 상태 (유지)
    ========================================================================== */
 .product-detail-page {
-  padding: 1rem;
+  padding: 0 0.3rem;
   padding-bottom: 6rem; /* 하단 플로팅 바를 위한 여백 확보 */
   min-height: 100vh;
 }
@@ -493,12 +508,58 @@ onMounted(() => {
 }
 
 /* ==========================================================================
-   2. 페이지 헤더 (유지)
+   2. 페이지 헤더 (GPT 버튼 추가로 수정)
    ========================================================================== */
 .page-header {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
+  justify-content: space-between; /* 양쪽 끝으로 배치 */
+  margin-bottom: 0.5rem;
+}
+
+/* GPT 상품 요약 버튼 (우측 상단) */
+.gpt-detail-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: linear-gradient(135deg, var(--color-main) 0%, #3d4785 100%);
+  color: white;
+  border: none;
+  border-radius: 1.5rem;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 0.25rem 0.75rem rgba(45, 51, 107, 0.3);
+  transition: all 0.3s ease;
+}
+
+.gpt-detail-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0.375rem 1rem rgba(45, 51, 107, 0.4);
+}
+
+.gpt-detail-btn:active {
+  transform: translateY(0);
+}
+
+.gpt-detail-btn .gpt-icon {
+  font-size: 1rem;
+  animation: pulse 2s infinite;
+}
+
+.gpt-detail-btn .btn-text {
+  white-space: nowrap;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 /* ==========================================================================
@@ -507,8 +568,8 @@ onMounted(() => {
 .info-section {
   background-color: #ffffff;
   border-radius: 0.75rem; /* 12px */
-  padding: 1.25rem 1rem; /* 20px 16px */
-  margin-bottom: 1rem;
+  padding: 0.5rem 1rem; /* 20px 16px */
+  margin-bottom: 0.5rem;
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.04);
 }
 
@@ -516,16 +577,16 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1.125rem; /* 18px */
+  font-size: 1rem; /* 18px */
   font-weight: 600;
   color: var(--color-main);
-  margin: 0 0 1rem 0;
-  padding-bottom: 0.75rem;
+  margin: 0 0 0.5rem 0;
+  padding-bottom: 0.25rem;
   border-bottom: 0.0625rem solid var(--color-bg-light);
 }
 
 .info-content {
-  font-size: 0.9375rem; /* 15px */
+  font-size: 0.8rem; /* 15px */
   color: var(--color-text);
   line-height: 1.7;
   white-space: pre-wrap;
@@ -582,6 +643,7 @@ onMounted(() => {
   text-align: center;
   padding: 1rem 0;
 }
+
 /* 액션 버튼 스타일 */
 .action-section {
   display: flex;
@@ -622,6 +684,7 @@ onMounted(() => {
   background: var(--color-main);
   color: #fff;
 }
+
 .join-btn:hover {
   filter: brightness(110%);
 }

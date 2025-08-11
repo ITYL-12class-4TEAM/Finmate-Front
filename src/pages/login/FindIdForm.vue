@@ -169,7 +169,6 @@ const verifyPhoneCode = async () => {
     }
   } catch (error) {
     phoneVerified.value = false;
-    console.error('인증번호 확인 오류:', error);
     showToast('인증번호가 일치하지 않습니다.', 'error');
   }
 };
@@ -189,12 +188,10 @@ const findIdByPhone = async () => {
     if (result.success) {
       foundId.value = result.data.email;
       foundDate.value = result.data.joinDate || '정보 없음';
-      console.log('아이디 찾기 성공:', result.message);
     } else {
       showToast(result.message, 'error');
     }
   } catch (error) {
-    console.error('아이디 찾기 오류:', error);
     showToast('입력하신 정보와 일치하는 아이디를 찾을 수 없습니다.', 'error');
   } finally {
     isLoading.value = false;
@@ -203,8 +200,6 @@ const findIdByPhone = async () => {
 </script>
 
 <style scoped>
-/* LoginLayout에서 컨테이너 스타일 처리 */
-
 .header {
   text-align: center;
   margin-bottom: 1.875rem; /* 30px */

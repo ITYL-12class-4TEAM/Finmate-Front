@@ -35,7 +35,6 @@ export const useAuthStore = defineStore('auth', () => {
         return { success: false, message: result.message };
       }
     } catch (error) {
-      console.error('예상치 못한 로그인 에러:', error);
       return { success: false, message: '네트워크 연결을 확인해주세요.' };
     } finally {
       isLoading.value = false;
@@ -47,10 +46,13 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       if (accessToken.value) {
         const result = await authAPI.logout();
-        console.log('로그아웃:', result.message);
+        if (result.success) {
+          clearAuthData();
+          return { success: true, message: result.message };
+        } else {
+          return { success: false, message: result.message };
+        }
       }
-    } catch (error) {
-      console.error('로그아웃 실패:', error);
     } finally {
       clearAuthData();
     }
@@ -77,7 +79,6 @@ export const useAuthStore = defineStore('auth', () => {
         };
       }
     } catch (error) {
-      console.error('회원탈퇴 처리 오류:', error);
       return {
         success: false,
         message: '회원탈퇴 처리 중 오류가 발생했습니다.',
@@ -89,7 +90,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   const refreshUser = async () => {
     if (!accessToken.value) {
-      console.log('토큰이 없습니다.');
       return false;
     }
     try {
@@ -98,14 +98,11 @@ export const useAuthStore = defineStore('auth', () => {
       if (result.success) {
         user.value = result.data;
         localStorage.setItem('userInfo', JSON.stringify(result.data));
-        console.log('사용자 정보 새로고침 성공');
         return true;
       } else {
-        console.warn('사용자 정보 새로고침 실패:', result.message);
         return false;
       }
     } catch (error) {
-      console.error('사용자 정보 새로고침 에러:', error);
       return false;
     }
   };
@@ -125,8 +122,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   // 인증 데이터 초기화
   const clearAuthData = () => {
-    console.log('인증 데이터 초기화');
-
     user.value = null;
     accessToken.value = null;
     refreshToken.value = null;
@@ -137,13 +132,10 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   const initialize = async () => {
-    console.log('Auth Store 초기화 시작');
-
     const savedUserInfo = localStorage.getItem('userInfo');
     const savedAccessToken = localStorage.getItem('accessToken');
 
     if (!savedUserInfo || !savedAccessToken) {
-      console.log('로그인 필요');
       return;
     }
 
@@ -152,28 +144,16 @@ export const useAuthStore = defineStore('auth', () => {
       accessToken.value = savedAccessToken;
       refreshToken.value = localStorage.getItem('refreshToken');
 
-      console.log('인증 정보 복원 완료:', {
-        hasUser: !!user.value,
-        hasAccessToken: !!accessToken.value,
-        hasRefreshToken: !!refreshToken.value,
-      });
-
       const shouldValidateToken = false;
 
       if (shouldValidateToken) {
-        console.log('토큰 유효성 확인 중...');
         const isValid = await refreshUser();
 
         if (!isValid) {
-          console.log('토큰이 유효하지 않음');
           clearAuthData();
-        } else {
-          console.log('토큰 유효성 확인 완료');
         }
       }
     } catch (error) {
-      console.error('초기화 중 오류 발생:', error);
-      console.log('오류로 인한 인증 정보 초기화');
       clearAuthData();
     }
   };
@@ -188,11 +168,9 @@ export const useAuthStore = defineStore('auth', () => {
     const publicPages = ['/', '/login', '/register', '/about'];
 
     if (publicPages.includes(currentPath)) {
-      console.log('공개 페이지 - 토큰 검증 생략');
       return false;
     }
 
-    console.log('로그인이 필요한 페이지 입니다.');
     return true;
   };
 

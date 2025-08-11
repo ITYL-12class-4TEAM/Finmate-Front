@@ -23,7 +23,6 @@ export const validationAPI = {
         };
       }
     } catch (error) {
-      console.error('이메일 중복 확인 API 오류:', error);
       return {
         success: false,
         message:
@@ -54,7 +53,6 @@ export const validationAPI = {
         };
       }
     } catch (error) {
-      console.error('닉네임 중복 확인 API 오류:', error);
       return {
         success: false,
         message:

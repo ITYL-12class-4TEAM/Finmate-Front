@@ -145,19 +145,15 @@ const props = defineProps({
   },
 });
 
-// 이벤트 정의 - 메인 템플릿과 동일하게 맞춤
 const emit = defineEmits([
   'start-edit',
   'save-edit',
   'cancel-edit',
   'delete-product',
   'add-new-product',
-  'refresh-portfolio',
 ]);
 
-// 반응형 데이터
 const isProcessing = ref(false);
-const isRefreshing = ref(false);
 const viewMode = ref('list'); // 'card' or 'list'
 const selectedCategory = ref('');
 const sortBy = ref('amount-desc');
@@ -278,17 +274,6 @@ const handleAddNewProduct = () => {
   emit('add-new-product');
 };
 
-const handleRefreshPortfolio = async () => {
-  isRefreshing.value = true;
-  try {
-    emit('refresh-portfolio');
-    // 새로고침 애니메이션을 위한 최소 시간
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-  } finally {
-    isRefreshing.value = false;
-  }
-};
-
 const handleStartEdit = (item) => {
   if (!isProcessing.value) {
     emit('start-edit', item);
@@ -296,13 +281,9 @@ const handleStartEdit = (item) => {
 };
 
 const handleSaveProduct = (updatedItem) => {
-  console.log('🔷 ProductList: save-product 이벤트 받음');
-  console.log('받은 데이터:', updatedItem);
-
   if (!isProcessing.value) {
     isProcessing.value = true;
     emit('save-edit', updatedItem); // 메인 컴포넌트로 전달
-    console.log('🔷 ProductList: save-edit 이벤트 emit 완료');
 
     // 처리 완료 후 상태 초기화
     setTimeout(() => {

@@ -22,9 +22,6 @@ const authStore = useAuthStore();
 
 onMounted(async () => {
   try {
-    console.log('OAuth2 리다이렉트 페이지 로드됨');
-    console.log('현재 URL:', window.location.href);
-
     const urlParams = new URLSearchParams(window.location.search);
 
     const error = urlParams.get('error');
@@ -37,16 +34,7 @@ onMounted(async () => {
       ? decodeURIComponent(urlParams.get('profileImage'))
       : '';
 
-    console.log('받은 파라미터들:');
-    console.log('code:', code);
-    console.log('isNewMember:', isNewMember, '(타입:', typeof isNewMember, ')');
-    console.log('email:', email);
-    console.log('username:', username);
-    console.log('profileImage:', profileImage);
-
     if (error === 'oauth2_failed' && errorMessage) {
-      console.error('OAuth2 로그인 실패:', errorMessage);
-
       const decodedMessage = decodeURIComponent(errorMessage);
       showToast(decodedMessage, 'error');
 
@@ -55,8 +43,6 @@ onMounted(async () => {
     }
 
     if (isNewMember) {
-      console.log('신규 회원 - 회원가입 폼으로 이동');
-
       router.push({
         path: '/login/signup',
         query: {
@@ -70,38 +56,29 @@ onMounted(async () => {
       return;
     }
 
-    console.log('토큰 교환 요청 시작');
     const result = await authAPI.exchangeOAuth2Token(code);
-
-    console.log('토큰 교환 결과:', result);
 
     if (result.success) {
       const authResult = result.data;
 
-      console.log('authResult:', authResult);
-
       if (authResult && authResult.accessToken && authResult.refreshToken) {
-        console.log('기존 회원 - 토큰 저장 후 홈으로 이동');
         authStore.setTokens(authResult.accessToken, authResult.refreshToken);
 
         if (authResult.userInfo) {
+          authStore.user = authResult.userInfo;
           localStorage.setItem('userInfo', JSON.stringify(authResult.userInfo));
         }
-        console.log('토큰 저장 완료');
         showToast('로그인 성공!');
         router.push('/');
       } else {
-        console.error('토큰 정보가 없습니다:', authResult);
         showToast('로그인 정보 저장에 실패했습니다.', 'error');
         router.push('/login');
       }
     } else {
-      console.error('토큰 교환 실패:', result.message);
       showToast(result.message, 'error');
       router.push('/login');
     }
   } catch (error) {
-    console.error('OAuth2 리다이렉트 처리 오류:', error);
     showToast('로그인 처리 중 오류가 발생했습니다.', 'error');
     router.push('/login');
   }

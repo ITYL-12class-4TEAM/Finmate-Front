@@ -87,11 +87,12 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import DesktopNavbar from './DesktopNavbar.vue';
 import MobileMenu from './MobileMenu.vue';
 import { useToast } from '@/composables/useToast';
+import { useModal } from '@/composables/useModal';
 
 const { showToast } = useToast();
+const { showModal } = useModal();
 const router = useRouter();
 const authStore = useAuthStore();
-
 const isMobile = ref(false);
 const mobileOpen = ref(false);
 const dropdownOpen = ref(false);
@@ -108,21 +109,19 @@ onMounted(() => {
 // 로그아웃 처리 함수
 const handleLogout = async () => {
   try {
-    console.log('로그아웃 시작...');
+    const confirmed = await showModal('정말 로그아웃하시겠습니까?');
 
-    // Auth Store의 로그아웃 함수 호출
+    if (!confirmed) {
+      return; // 취소한 경우 함수 종료
+    }
     await authStore.logout();
 
-    console.log('로그아웃 완료');
     showToast('로그아웃되었습니다.');
 
-    // 드롭다운 닫기
     dropdownOpen.value = false;
 
-    // 로그인 페이지로 이동
     router.push('/login');
   } catch (error) {
-    console.error('로그아웃 처리 중 오류:', error);
     showToast('로그아웃 처리 중 오류가 발생했습니다.', 'error');
   }
 };
