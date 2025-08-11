@@ -99,32 +99,7 @@ const fetchNotifications = async () => {
 
   try {
     // 임시 데이터 - 실제로는 API에서 가져와야 함
-    const mockNotifications = [
-      {
-        id: 1,
-        title: '로그인 실패 알림',
-        message: '인식되지 않은 기기에서 계정에 접근을 시도했습니다.',
-        type: 'error',
-        isRead: false,
-        createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-      },
-      {
-        id: 2,
-        title: '비밀번호 만료 예정',
-        message: '비밀번호가 3일 후 만료됩니다. 보안을 위해 업데이트하세요.',
-        type: 'warning',
-        isRead: true,
-        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      },
-      {
-        id: 3,
-        title: '주간 리포트 준비 완료',
-        message: '주간 분석 리포트를 다운로드할 수 있습니다.',
-        type: 'info',
-        isRead: false,
-        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      },
-    ];
+    const mockNotifications = [];
 
     notifications.value = mockNotifications;
     currentPage.value = 1;

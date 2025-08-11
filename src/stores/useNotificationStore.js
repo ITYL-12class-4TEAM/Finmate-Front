@@ -11,6 +11,7 @@ export const useNotificationStore = defineStore('notification', () => {
   const currentPage = ref(1);
   const eventSource = ref(null);
   const isConnected = ref(false);
+
   // 알림 목록 조회
   const fetchNotifications = async (page = 1, size = 20, type = null, isRead = null) => {
     try {
@@ -30,6 +31,7 @@ export const useNotificationStore = defineStore('notification', () => {
       isLoading.value = false;
     }
   };
+
   // 읽지 않은 알림 수만 조회
   const fetchUnreadCount = async () => {
     try {
@@ -43,13 +45,14 @@ export const useNotificationStore = defineStore('notification', () => {
       return { success: false, message: '읽지 않은 알림 수 조회에 실패했습니다.' };
     }
   };
-  // 특정 알림 읽음 처리
+
+  // 특정 알림 읽음 처리 (수정)
   const markAsRead = async (notificationId) => {
     try {
       const result = await notificationAPI.markAsRead(notificationId);
       if (result.success) {
-        // 로컬 상태 업데이트
-        const notification = notifications.value.find((n) => n.id === notificationId);
+        // 로컬 상태 업데이트 - notificationId로 찾기
+        const notification = notifications.value.find((n) => n.notificationId === notificationId);
         if (notification && !notification.isRead) {
           notification.isRead = true;
           unreadCount.value = Math.max(0, unreadCount.value - 1);
@@ -61,6 +64,7 @@ export const useNotificationStore = defineStore('notification', () => {
       return { success: false, message: '알림 읽음 처리에 실패했습니다.' };
     }
   };
+
   // 모든 알림 읽음 처리
   const markAllAsRead = async () => {
     try {
@@ -76,6 +80,7 @@ export const useNotificationStore = defineStore('notification', () => {
       return { success: false, message: '모든 알림 읽음 처리에 실패했습니다.' };
     }
   };
+
   // 알림 설정 조회
   const getNotificationSettings = async () => {
     try {
@@ -86,6 +91,7 @@ export const useNotificationStore = defineStore('notification', () => {
       return { success: false, message: '알림 설정 조회에 실패했습니다.' };
     }
   };
+
   // 알림 설정 업데이트
   const updateNotificationSettings = async (settings) => {
     try {
@@ -96,6 +102,7 @@ export const useNotificationStore = defineStore('notification', () => {
       return { success: false, message: '알림 설정 업데이트에 실패했습니다.' };
     }
   };
+
   // 새 알림 추가 (실시간 알림용)
   const addNotification = (notification) => {
     notifications.value.unshift(notification);
@@ -104,10 +111,19 @@ export const useNotificationStore = defineStore('notification', () => {
     }
   };
 
+  // 브라우저 알림 권한 요청 함수 추가
+  const requestNotificationPermission = async () => {
+    if (Notification.permission === 'default') {
+      const permission = await Notification.requestPermission();
+      return permission === 'granted';
+    }
+    return Notification.permission === 'granted';
+  };
+
   // SSE 연결 설정
   const connectSSE = () => {
     const authStore = useAuthStore();
-    
+
     if (eventSource.value) {
       eventSource.value.close();
     }
@@ -120,9 +136,9 @@ export const useNotificationStore = defineStore('notification', () => {
 
     // URL에 토큰을 쿼리 파라미터로 추가
     const sseUrl = `/api/notifications/stream?token=${encodeURIComponent(authStore.accessToken)}`;
-    
+
     eventSource.value = new EventSource(sseUrl, {
-      withCredentials: true
+      withCredentials: true,
     });
 
     eventSource.value.onopen = () => {
@@ -130,17 +146,32 @@ export const useNotificationStore = defineStore('notification', () => {
       isConnected.value = true;
     };
 
+    // SSE onmessage 개선
     eventSource.value.onmessage = (event) => {
       try {
+        console.log('🔔 실시간 알림 수신:', event.data);
         const notification = JSON.parse(event.data);
+        console.log('📩 파싱된 알림:', notification);
+
         addNotification(notification);
-        
+
         // 브라우저 알림 표시
         if (Notification.permission === 'granted') {
           new Notification(notification.title, {
             body: notification.message,
             icon: '/favicon.ico',
-            tag: notification.id
+            tag: notification.notificationId, // id 대신 notificationId 사용
+          });
+        } else if (Notification.permission === 'default') {
+          // 권한 요청
+          Notification.requestPermission().then((permission) => {
+            if (permission === 'granted') {
+              new Notification(notification.title, {
+                body: notification.message,
+                icon: '/favicon.ico',
+                tag: notification.notificationId,
+              });
+            }
           });
         }
       } catch (error) {
@@ -151,13 +182,13 @@ export const useNotificationStore = defineStore('notification', () => {
     eventSource.value.onerror = (error) => {
       console.error('SSE 연결 오류:', error);
       isConnected.value = false;
-      
+
       // 401 Unauthorized인 경우 재연결하지 않음
       if (error.target.readyState === EventSource.CLOSED) {
         console.log('SSE 연결이 서버에 의해 종료되었습니다.');
         return;
       }
-      
+
       // 토큰이 유효한 경우에만 재연결 시도 (5초 후)
       setTimeout(() => {
         if (!isConnected.value && authStore.accessToken) {
@@ -178,6 +209,15 @@ export const useNotificationStore = defineStore('notification', () => {
     }
   };
 
+  // 상태 초기화 (로그아웃 시 사용)
+  const clearNotifications = () => {
+    notifications.value = [];
+    unreadCount.value = 0;
+    totalPages.value = 0;
+    currentPage.value = 1;
+    disconnectSSE();
+  };
+
   return {
     notifications,
     isLoading,
@@ -193,7 +233,9 @@ export const useNotificationStore = defineStore('notification', () => {
     getNotificationSettings,
     updateNotificationSettings,
     addNotification,
+    requestNotificationPermission,
     connectSSE,
     disconnectSSE,
+    clearNotifications,
   };
 });

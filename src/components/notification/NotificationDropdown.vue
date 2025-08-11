@@ -4,7 +4,13 @@
       <!-- 헤더 -->
       <div class="dropdown-header">
         <h3>알림</h3>
-        <button @click="$emit('markAllAsRead')" class="mark-all-read-btn">모두 읽음</button>
+        <button
+          @click="handleMarkAllAsRead"
+          :disabled="unreadCount === 0"
+          class="mark-all-read-btn"
+        >
+          모두 읽음
+        </button>
       </div>
 
       <!-- 읽지 않은 알림 수 -->
@@ -37,7 +43,7 @@
         <div v-else class="notification-items">
           <div
             v-for="notification in limitedNotifications"
-            :key="notification.id"
+            :key="notification.notificationId"
             class="dropdown-notification-item"
             :class="{ unread: !notification.isRead }"
             @click="handleNotificationClick(notification)"
@@ -49,6 +55,13 @@
             <div class="item-content">
               <div class="item-header">
                 <h4>{{ notification.title }}</h4>
+                <button
+                  v-if="!notification.isRead"
+                  @click.stop="handleMarkAsRead(notification)"
+                  class="mark-read-btn"
+                >
+                  읽음
+                </button>
               </div>
               <p class="item-message">
                 {{ truncateMessage(notification.message) }}
@@ -71,6 +84,11 @@
 
 <script setup>
 import { computed } from 'vue';
+import { useNotificationStore } from '@/stores/useNotificationStore';
+import { useToast } from '@/composables/useToast';
+
+const { showToast } = useToast();
+const notificationStore = useNotificationStore();
 
 const props = defineProps({
   isOpen: {
@@ -87,25 +105,77 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['close', 'markAllAsRead', 'markAsRead', 'viewAll', 'notificationClick']);
+const emit = defineEmits(['close', 'viewAll']);
 
 // 최대 5개까지만 표시
 const limitedNotifications = computed(() => {
   return props.notifications.slice(0, 5);
 });
 
-const handleNotificationClick = (notification) => {
-  emit('notificationClick', notification);
+const handleNotificationClick = async (notification) => {
+  console.log('🔔 알림 클릭:', notification);
+
+  // 읽지 않은 알림인 경우 읽음 처리
+  if (!notification.isRead) {
+    await handleMarkAsRead(notification);
+  }
+
+  // 알림 링크로 이동 (있는 경우)
+  if (notification.targetUrl) {
+    // router.push(notification.targetUrl);
+    console.log('이동할 URL:', notification.targetUrl);
+  }
+
+  emit('close');
+};
+
+const handleMarkAsRead = async (notification) => {
+  try {
+    console.log('📖 알림 읽음 처리 시도:', notification.notificationId);
+
+    const result = await notificationStore.markAsRead(notification.notificationId);
+
+    if (result.success) {
+      console.log('✅ 알림 읽음 처리 성공');
+      showToast('알림을 읽음 처리했습니다.');
+    } else {
+      console.error('❌ 알림 읽음 처리 실패:', result.message);
+      showToast(result.message || '알림 읽음 처리에 실패했습니다.', 'error');
+    }
+  } catch (error) {
+    console.error('❌ 알림 읽음 처리 오류:', error);
+    showToast('알림 읽음 처리 중 오류가 발생했습니다.', 'error');
+  }
+};
+
+const handleMarkAllAsRead = async () => {
+  try {
+    console.log('📖 모든 알림 읽음 처리 시도');
+
+    const result = await notificationStore.markAllAsRead();
+
+    if (result.success) {
+      console.log('✅ 모든 알림 읽음 처리 성공');
+      showToast('모든 알림을 읽음 처리했습니다.');
+    } else {
+      console.error('❌ 모든 알림 읽음 처리 실패:', result.message);
+      showToast(result.message || '모든 알림 읽음 처리에 실패했습니다.', 'error');
+    }
+  } catch (error) {
+    console.error('❌ 모든 알림 읽음 처리 오류:', error);
+    showToast('모든 알림 읽음 처리 중 오류가 발생했습니다.', 'error');
+  }
 };
 
 const getTypeIcon = (type) => {
   const icons = {
-    success: '✓',
-    warning: '⚠',
-    error: '✕',
-    info: 'ℹ',
+    POST_COMMENT: '💬',
+    POST_LIKE: '❤️',
+    HOT_POST: '🔥',
+    SYSTEM: '⚙️',
+    INFO: 'ℹ️',
   };
-  return icons[type] || 'ℹ';
+  return icons[type] || 'ℹ️';
 };
 
 const truncateMessage = (message) => {
@@ -199,6 +269,11 @@ const formatTime = (dateString) => {
 
 .mark-all-read-btn:hover {
   color: #6b7280;
+}
+
+.mark-all-read-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .unread-count {
@@ -346,6 +421,21 @@ const formatTime = (dateString) => {
   font-size: 0.7rem;
 }
 
+.mark-read-btn {
+  background: var(--color-main);
+  color: white;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mark-read-btn:hover {
+  background: var(--color-sub);
+}
+
 .dropdown-footer {
   padding: 1rem;
   border-top: 1px solid var(--color-light);
@@ -386,3 +476,4 @@ const formatTime = (dateString) => {
   }
 }
 </style>
+```

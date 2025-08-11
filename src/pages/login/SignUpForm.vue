@@ -617,7 +617,7 @@ const handleSignup = async () => {
       gender: genderMapping[signupForm.value.gender] || signupForm.value.gender,
       termsRequired1: agreements.value.terms,
       termsRequired2: agreements.value.privacy,
-      receive_push_notification: agreements.value.marketing,
+      receivePushNotification: agreements.value.marketing,
     };
 
     // 일반 회원가입인 경우에만 비밀번호와 휴대폰 정보 추가
@@ -638,7 +638,7 @@ const handleSignup = async () => {
         authStore.setTokens(authData.accessToken, authData.refreshToken);
 
         if (authData.userInfo) {
-          authStore.user.value = authData.userInfo;
+          authStore.user = authData.userInfo;
           localStorage.setItem('userInfo', JSON.stringify(authData.userInfo));
         }
 
