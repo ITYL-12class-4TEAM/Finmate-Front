@@ -324,7 +324,7 @@ const proceedToDelete = () => {
     return;
   }
 
-  if (confirmEmail.value.toLowerCase().trim() !== userInfo.value.email.toLowerCase().trim()) {
+  if (confirmEmail.value.trim() !== userInfo.value.email.trim()) {
     emailError.value = '이메일이 일치하지 않습니다.';
     return;
   }
@@ -361,25 +361,38 @@ const closeFinalModal = () => {
   countdown.value = 0;
 };
 
-// 최종 삭제 확인
 const confirmFinalDeletion = async () => {
   processing.value = true;
 
   try {
-    // 서버 요청 시뮬레이션
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // 실제 회원탈퇴 API 호출
+    const withdrawData = {
+      username: userInfo.value.email,
+      withdrawReason: deleteReason.value,
+      agreeToWithdraw: finalConfirm.value,
+    };
 
-    // 탈퇴 처리 완료
-    closeFinalModal();
+    const result = await authStore.withdraw(withdrawData);
 
-    // 로컬 스토리지 정리
-    localStorage.clear();
+    if (result.success) {
+      // 탈퇴 처리 완료
+      closeFinalModal();
 
-    goToMain();
-    showToast('계정 탈퇴가 완료되었습니다.\n메인 페이지로 이동합니다.', 'success');
+      showToast('계정 탈퇴가 완료되었습니다.\n메인 페이지로 이동합니다.', 'success');
+
+      // 메인 페이지로 이동
+      setTimeout(() => {
+        goToMain();
+      }, 2000);
+    } else {
+      throw new Error(result.message || '회원탈퇴에 실패했습니다.');
+    }
   } catch (error) {
     console.error('회원탈퇴 처리 오류:', error);
-    showToast('회원탈퇴 처리 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.', 'error');
+    showToast(
+      error.message || '회원탈퇴 처리 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.',
+      'error'
+    );
   } finally {
     processing.value = false;
   }
@@ -403,6 +416,12 @@ onMounted(() => {
     showToast('로그인이 필요합니다.', 'error');
     router.push('/login');
     return;
+  }
+  if (authStore.userInfo) {
+    userInfo.value = {
+      email: authStore.userInfo.email || '',
+      nickname: authStore.userInfo.nickname || '',
+    };
   }
 });
 </script>
