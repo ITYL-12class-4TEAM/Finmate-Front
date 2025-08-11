@@ -1,9 +1,13 @@
 <template>
   <div class="compare-page">
     <div class="page-header">
-      <BackButton />
-      <div class="compare-actions">
+      <div class="header-left">
+        <BackButton />
+      </div>
+      <div class="header-center">
         <div class="compare-count">{{ compareList.length }}/3 상품 비교 중</div>
+      </div>
+      <div class="header-right">
         <button class="clear-btn" @click="handleClearCompare">비교함 비우기</button>
       </div>
     </div>
@@ -397,7 +401,33 @@ onMounted(() => {
 .page-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 0.25rem;
+  background-color: #ffffff;
+  padding: 0.55rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.03);
+}
+
+.header-left {
+  /* 좌측 영역 - 뒤로가기 버튼 */
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.header-center {
+  /* 중앙 영역 - 상품 비교 중 텍스트 */
+  flex: 1.5;
+  display: flex;
+  justify-content: center;
+}
+
+.header-right {
+  /* 우측 영역 - 비교함 비우기 버튼 */
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .compare-actions {
@@ -405,9 +435,9 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   background-color: #ffffff;
-  padding: 0.75rem 1rem;
+  padding: 0.55rem 1.5rem;
   border-radius: 0.5rem;
-  margin-bottom: 1.25rem;
+  /* margin-bottom: 1.25rem; */
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.03);
 }
 
@@ -429,7 +459,7 @@ onMounted(() => {
   font-size: 0.875rem;
   cursor: pointer;
   text-decoration: none;
-  padding: 0.25rem;
+  padding: 0;
   transition: color 0.2s;
 }
 

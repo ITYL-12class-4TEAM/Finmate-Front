@@ -275,11 +275,11 @@ const onReset = () => {
 .filter-container.grid-layout {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 0.8rem 1rem;
+  gap: 0.6rem 1rem;
   align-items: center;
   background: #ffffff;
   border-radius: 0.75rem;
-  padding: 1.3rem;
+  padding: 0.8rem 1.3rem;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
 }
 
