@@ -42,7 +42,7 @@ defineProps({
   background-color: #ffffff;
   border-radius: 0.75rem; /* 12px */
   padding: 0.75rem; /* 20px */
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.04);
 }
 
@@ -53,7 +53,7 @@ defineProps({
   display: flex;
   align-items: stretch;
   justify-content: space-around; /* 공간을 균등하게 분배 */
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.75rem;
 }
 
 .rate-item {
@@ -67,13 +67,13 @@ defineProps({
 
 .rate-label {
   display: block;
-  font-size: 0.9375rem; /* 15px */
+  font-size: 0.8rem; /* 15px */
   color: var(--color-sub);
   margin-bottom: 0.375rem; /* 6px */
 }
 
 .rate-value {
-  font-size: 1.75rem; /* 28px */
+  font-size: 1.25rem; /* 28px */
   font-weight: 700;
   color: var(--color-main);
   line-height: 1.2;
@@ -100,9 +100,9 @@ defineProps({
   background: var(--color-bg-light);
   border-radius: 0.5rem; /* 8px */
   padding: 0.75rem 1rem; /* 12px 16px */
-  font-size: 0.8125rem; /* 13px */
+  font-size: 0.75rem; /* 13px */
   color: var(--color-sub);
-  line-height: 1.5;
+  line-height: 1.3;
 }
 
 .notice-icon {

@@ -69,8 +69,8 @@ const features = computed(() => {
 .key-features {
   background-color: #ffffff;
   border-radius: 0.75rem; /* 12px */
-  padding: 1.25rem 1rem; /* 20px 16px */
-  margin-bottom: 1rem;
+  padding: 0.75rem 1rem; /* 20px 16px */
+  margin-bottom: 0.5rem;
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.04);
 }
 
@@ -78,10 +78,10 @@ const features = computed(() => {
    2. 섹션 제목 (유지)
    ========================================================================== */
 .section-title {
-  font-size: 1.125rem; /* 18px */
+  font-size: 1.1rem; /* 18px */
   font-weight: 600;
   color: var(--color-main);
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.75rem 0;
   padding-bottom: 0.75rem;
   border-bottom: 0.0625rem solid var(--color-bg-light);
 }
@@ -92,7 +92,7 @@ const features = computed(() => {
 .feature-grid {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem; /* 각 항목 사이의 세로 간격을 넉넉하게 설정 */
+  gap: 0.6rem; /* 각 항목 사이의 세로 간격을 넉넉하게 설정 */
 }
 
 .feature-item {
@@ -105,8 +105,8 @@ const features = computed(() => {
    4. 아이콘 및 콘텐츠 스타일 (✨ 리스트 레이아웃에 맞게 수정)
    ========================================================================== */
 .feature-icon {
-  width: 2.5rem; /* 40px */
-  height: 2.5rem; /* 40px */
+  width: 2rem; /* 40px */
+  height: 2rem; /* 40px */
   background: var(--color-bg-light);
   border-radius: 50%;
   font-size: 1.125rem; /* 18px */
@@ -123,13 +123,13 @@ const features = computed(() => {
 }
 
 .feature-label {
-  font-size: 0.875rem; /* 14px */
+  font-size: 0.8rem; /* 14px */
   color: var(--color-sub);
   margin-bottom: 0.25rem; /* 라벨과 값 사이 간격 */
 }
 
 .feature-value {
-  font-size: 1rem; /* 16px */
+  font-size: 0.9rem; /* 16px */
   font-weight: 600;
   color: var(--color-main);
   white-space: normal;
