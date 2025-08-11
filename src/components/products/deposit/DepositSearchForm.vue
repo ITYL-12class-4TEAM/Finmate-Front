@@ -1,8 +1,8 @@
 <template>
   <div class="deposit-search-form">
     <div class="form-title">
-      <h2>정기예금</h2>
-      <div class="title-description">원하는 조건으로 정기예금 상품을 찾아보세요</div>
+      <h2>예금</h2>
+      <div class="title-description">원하는 조건으로 예금 상품을 찾아보세요</div>
     </div>
 
     <form @submit.prevent="onSearch" class="filter-container grid-layout">

@@ -49,11 +49,6 @@ const features = computed(() => {
       value: props.formatDate?.(p.dcls_strt_day),
     },
     {
-      icon: '💼',
-      label: '금리 유형',
-      value: opt.intr_rate_type_nm || '정보 없음',
-    },
-    {
       icon: '🔄',
       label: '가입 방법',
       value: p.join_way || '제한 없음',

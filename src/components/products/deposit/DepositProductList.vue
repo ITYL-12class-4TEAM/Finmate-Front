@@ -11,7 +11,7 @@
         >개
       </div>
       <div class="sort-dropdown">
-        <select v-model="localSortBy" @change="onSortChange" class="sort-select">
+        <select v-model="localSortBy" class="sort-select" @change="onSortChange">
           <option value="intrRate">기본금리순</option>
           <option value="intrRate2">우대금리순</option>
         </select>
@@ -103,8 +103,9 @@
 
     <CompareFloatingBar
       v-if="compareList.length > 0"
-      :compareList="compareList"
+      :compare-list="compareList"
       @go-to-compare="goToCompare"
+      @clear-compare-list="clearCompareList"
     />
   </div>
 </template>
@@ -134,7 +135,8 @@ const emit = defineEmits(['product-click', 'page-change', 'sort-change']);
 const router = useRouter();
 
 const localSortBy = ref(props.sortBy);
-const { compareList, addToCompareList, removeFromCompareList, isInCompareList } = useCompareList();
+const { compareList, clearCompareList, addToCompareList, removeFromCompareList, isInCompareList } =
+  useCompareList();
 
 const getProductId = (product) => {
   if (!product) return null;
@@ -366,6 +368,18 @@ const goToCompare = () => {
   font-weight: 500;
   background: var(--color-bg-light);
   color: var(--color-main);
+}
+
+/* 단리 뱃지 스타일 */
+.simple-interest {
+  background-color: #f0f3ff; /* 이미지에서 보이는 연한 파란색 */
+  color: #4c4dbd; /* 진한 파란색(메인 색상) */
+}
+
+/* 복리 뱃지 스타일 */
+.compound-interest {
+  background-color: #e0f7e6; /* 연한 초록색 배경 */
+  color: #097b68; /* 진한 초록색 텍스트 */
 }
 
 .product-name {

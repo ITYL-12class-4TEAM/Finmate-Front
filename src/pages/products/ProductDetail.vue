@@ -111,7 +111,11 @@
     </div>
 
     <!-- 비교함 플로팅 바 -->
-    <CompareFloatingBar :compare-list="compareList" @go-to-compare="goToCompare" />
+    <CompareFloatingBar
+      :compare-list="compareList"
+      @go-to-compare="goToCompare"
+      @clear-compare-list="clearCompareList"
+    />
 
     <!-- GPT 상품 요약 모달 -->
     <GptDetailModal
@@ -153,7 +157,8 @@ const selectedTerm = ref({ name: '', description: '' });
 const showGptDetailModal = ref(false);
 
 // 비교함 기능 (컴포저블 사용)
-const { compareList, addToCompareList, removeFromCompareList, isInCompareList } = useCompareList();
+const { compareList, clearCompareList, addToCompareList, removeFromCompareList, isInCompareList } =
+  useCompareList();
 
 // GPT 상품 요약 모달 열기
 const handleGptDetail = () => {
@@ -308,7 +313,7 @@ const getCategoryName = () => {
 const getInterestTypeName = () => {
   if (!product.value) return '';
 
-  const interestTypeCode = product.value.intr_rate_type;
+  const interestTypeCode = selectedOption.value.intr_rate_type || selectedOption.value.intrRateType;
 
   if (interestTypeCode === 'S') {
     return '단리';
