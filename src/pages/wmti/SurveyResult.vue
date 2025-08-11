@@ -254,25 +254,7 @@
           :financial-health-score="preInfoData.financialHealthScore"
         />
       </div>
-      <!-- 테마 포트폴리오 -->
-      <div class="theme-portfolio-card">
-        <div class="section-header">
-          <div class="section-icon theme-icon"></div>
-          <h3 class="section-title">테마 포트폴리오</h3>
-        </div>
-        <ThemePortfolio
-          v-if="
-            analysisObject &&
-            analysisObject.wmtiCode &&
-            analysisObject.resultType &&
-            analysisObject.riskPreference
-          "
-          :wmti-code="analysisObject.wmtiCode"
-          :result-type="analysisObject.resultType"
-          :risk-preference="analysisObject.riskPreference"
-          :user-name="userName"
-        />
-      </div>
+
       <!-- 액션 버튼 -->
       <div class="action-section">
         <div class="section-header">
@@ -306,7 +288,6 @@ import { useToast } from '@/composables/useToast';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 import BackButton from '@/components/common/BackButton.vue';
-import ThemePortfolio from '@/components/wmti/ThemePortfolio.vue';
 import CustomedPortfolio from '@/components/wmti/CustomedPortfolio.vue';
 import WMTIHeroCard from '@/components/wmti/WMTIHeroCard.vue';
 
@@ -738,8 +719,7 @@ onMounted(async () => {
 /* 카드 공통 스타일 */
 .analysis-card,
 .score-card,
-.CustomedPortfolio-card,
-.theme-portfolio-card {
+.CustomedPortfolio-card {
   background: var(--color-white);
   border-radius: 1.25rem;
   padding: 1.5rem;
@@ -773,9 +753,7 @@ onMounted(async () => {
 .score-icon {
   background: linear-gradient(135deg, #27ae60, #2ecc71);
 }
-.theme-icon {
-  background: linear-gradient(135deg, #ad44ad, #9b59b6);
-}
+
 .customed-icon {
   background: linear-gradient(135deg, #3498db, #5dade2);
 }
