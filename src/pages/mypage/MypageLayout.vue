@@ -355,7 +355,7 @@ onBeforeUnmount(() => {
 .main-layout {
   display: flex;
   min-height: 100vh;
-  padding-top: 4rem;
+  padding-top: 0rem;
   width: 100%;
   max-width: 100vw;
   overflow-x: hidden;
@@ -524,7 +524,7 @@ onBeforeUnmount(() => {
   flex: 1;
   margin-left: 280px;
   padding: 2rem;
-  background: #fafafa;
+  /* background: #fafafa; */
   min-height: calc(100vh - 4rem);
   width: calc(100% - 280px);
   box-sizing: border-box;
@@ -604,7 +604,7 @@ onBeforeUnmount(() => {
   }
 
   .main-layout {
-    padding-top: 4rem; /* 네비바만큼만 */
+    padding-top: 0rem; /* 네비바만큼만 */
     width: 100%;
     max-width: 100vw;
   }
