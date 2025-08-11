@@ -12,7 +12,7 @@
       <BackButton to="/wmti/basic" />
 
       <!-- 헤더 섹션 -->
-      <div class="result-header">
+      <div class="result-header card-header">
         <div class="user-greeting">
           <span class="username-highlight">{{ userName }}</span
           >님의 투자 성향은
@@ -50,16 +50,12 @@
       </div>
 
       <!-- 성향 분석 카드 -->
-      <div class="analysis-card">
+      <div class="analysis-card card-header">
         <div class="section-header">
           <div class="section-icon analysis-icon"></div>
           <h3 class="section-title">투자 성향 분석</h3>
         </div>
 
-        <!-- <div class="card-header">
-        <h4 class="card-title">{{ analysis.aka }}</h4>
-      </div> -->
-        <!-- 기존 analysis-card를 WMTIHeroCard로 교체 -->
         <WMTIHeroCard
           v-if="analysisObject.wmtiCode && analysis.aka"
           :wmti-code="analysisObject.wmtiCode"
@@ -96,137 +92,30 @@
       </div>
 
       <!-- 점수 차트 카드 -->
-      <div class="score-card">
+      <div class="score-card card-header">
         <div class="section-header">
           <div class="section-icon score-icon"></div>
           <h3 class="section-title">성향 분석 결과</h3>
         </div>
 
-        <div class="score-grid">
-          <!-- A vs I -->
-          <div class="score-item">
-            <div class="dimension-header">
-              <span class="dimension-label">A vs I</span>
-            </div>
-            <div class="bidirectional-bar">
-              <div class="bar-left">
-                <span class="bar-info" :class="{ dominant: analysisObject.a === 'A' }">
-                  A {{ Math.round(analysisObject.ascore) }}%
-                </span>
-                <div
-                  v-if="analysisObject.a === 'A'"
-                  class="bar-progress left bar-a"
-                  :style="{ width: analysisObject.ascore + '%' }"
-                ></div>
-              </div>
-              <div class="bar-center">50</div>
-              <div class="bar-right">
-                <div
-                  v-if="analysisObject.a === 'I'"
-                  class="bar-progress right bar-i"
-                  :style="{ width: analysisObject.iscore + '%' }"
-                ></div>
-                <span class="bar-info" :class="{ dominant: analysisObject.a === 'I' }">
-                  I {{ Math.round(analysisObject.iscore) }}%
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <!-- P vs B -->
-          <div class="score-item">
-            <div class="dimension-header">
-              <span class="dimension-label">P vs B</span>
-            </div>
-            <div class="bidirectional-bar">
-              <div class="bar-left">
-                <span class="bar-info" :class="{ dominant: analysisObject.p === 'P' }">
-                  P {{ Math.round(analysisObject.pscore) }}%
-                </span>
-                <div
-                  v-if="analysisObject.p === 'P'"
-                  class="bar-progress left bar-p"
-                  :style="{ width: analysisObject.pscore + '%' }"
-                ></div>
-              </div>
-              <div class="bar-center">50</div>
-              <div class="bar-right">
-                <div
-                  v-if="analysisObject.p === 'B'"
-                  class="bar-progress right bar-b"
-                  :style="{ width: analysisObject.bscore + '%' }"
-                ></div>
-                <span class="bar-info" :class="{ dominant: analysisObject.p === 'B' }">
-                  B {{ Math.round(analysisObject.bscore) }}%
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <!-- M vs W -->
-          <div class="score-item">
-            <div class="dimension-header">
-              <span class="dimension-label">M vs W</span>
-            </div>
-            <div class="bidirectional-bar">
-              <div class="bar-left">
-                <span class="bar-info" :class="{ dominant: analysisObject.m === 'M' }">
-                  M {{ Math.round(analysisObject.mscore) }}%
-                </span>
-                <div
-                  v-if="analysisObject.m === 'M'"
-                  class="bar-progress left bar-m"
-                  :style="{ width: analysisObject.mscore + '%' }"
-                ></div>
-              </div>
-              <div class="bar-center">50</div>
-              <div class="bar-right">
-                <div
-                  v-if="analysisObject.m === 'W'"
-                  class="bar-progress right bar-w"
-                  :style="{ width: analysisObject.wscore + '%' }"
-                ></div>
-                <span class="bar-info" :class="{ dominant: analysisObject.m === 'W' }">
-                  W {{ Math.round(analysisObject.wscore) }}%
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <!-- L vs C -->
-          <div class="score-item">
-            <div class="dimension-header">
-              <span class="dimension-label">L vs C</span>
-            </div>
-            <div class="bidirectional-bar">
-              <div class="bar-left">
-                <span class="bar-info" :class="{ dominant: analysisObject.l === 'L' }">
-                  L {{ Math.round(analysisObject.lscore) }}%
-                </span>
-                <div
-                  v-if="analysisObject.l === 'L'"
-                  class="bar-progress left bar-l"
-                  :style="{ width: analysisObject.lscore + '%' }"
-                ></div>
-              </div>
-              <div class="bar-center">50</div>
-              <div class="bar-right">
-                <div
-                  v-if="analysisObject.l === 'C'"
-                  class="bar-progress right bar-c"
-                  :style="{ width: analysisObject.cscore + '%' }"
-                ></div>
-                <span class="bar-info" :class="{ dominant: analysisObject.l === 'C' }">
-                  C {{ Math.round(analysisObject.cscore) }}%
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ScoreChart
+          :a-score="analysisObject.ascore || 0"
+          :i-score="analysisObject.iscore || 0"
+          :p-score="analysisObject.pscore || 0"
+          :b-score="analysisObject.bscore || 0"
+          :m-score="analysisObject.mscore || 0"
+          :w-score="analysisObject.wscore || 0"
+          :l-score="analysisObject.lscore || 0"
+          :c-score="analysisObject.cscore || 0"
+          :a-letter="analysisObject.a || 'A'"
+          :p-letter="analysisObject.p || 'P'"
+          :m-letter="analysisObject.m || 'M'"
+          :l-letter="analysisObject.l || 'L'"
+        />
       </div>
 
       <!-- 맞춤형 포트폴리오 -->
-      <div class="CustomedPortfolio-card">
+      <div class="CustomedPortfolio-card card-header">
         <div class="section-header">
           <div class="section-icon customed-icon"></div>
           <h3 class="section-title">맞춤형 포트폴리오</h3>
@@ -286,7 +175,7 @@ import { useRouter } from 'vue-router';
 import { getWMTIResultAPI, getWMTIAnalysisAPI, getPreInfoCalcAPI } from '@/api/wmti';
 import { useToast } from '@/composables/useToast';
 import { useAuthStore } from '@/stores/useAuthStore';
-
+import ScoreChart from '@/components/wmti/ScoreChart.vue';
 import BackButton from '@/components/common/BackButton.vue';
 import CustomedPortfolio from '@/components/wmti/CustomedPortfolio.vue';
 import WMTIHeroCard from '@/components/wmti/WMTIHeroCard.vue';
@@ -599,6 +488,7 @@ onMounted(async () => {
   justify-content: center;
   gap: 1.5rem;
   margin-top: 1.25rem;
+  flex-wrap: wrap;
 }
 
 .type-item {
@@ -894,133 +784,6 @@ onMounted(async () => {
   white-space: pre-line; /* \n을 줄바꿈으로 처리 */
 }
 
-/* 점수 그리드 */
-.score-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.score-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.dimension-header {
-  text-align: center;
-}
-
-.dimension-label {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--color-main);
-  background: rgba(45, 51, 107, 0.1);
-  padding: 0.375rem 0.875rem;
-  border-radius: 0.875rem;
-  display: inline-block;
-}
-
-/* 양방향 막대그래프 */
-.bidirectional-bar {
-  display: flex;
-  align-items: center;
-  height: 2.25rem;
-  background: rgba(185, 187, 204, 0.1);
-  border-radius: 1.125rem;
-  padding: 0.25rem;
-  position: relative;
-}
-
-.bar-left,
-.bar-right {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  height: 100%;
-  position: relative;
-}
-
-.bar-left {
-  justify-content: flex-start;
-  padding-left: 0.75rem;
-}
-
-.bar-right {
-  justify-content: flex-end;
-  padding-right: 0.75rem;
-}
-
-.bar-center {
-  width: 1.75rem;
-  text-align: center;
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--color-sub);
-  background: var(--color-white);
-  border-radius: 0.625rem;
-  padding: 0.25rem 0;
-  z-index: 2;
-  border: 0.125rem solid rgba(185, 187, 204, 0.3);
-}
-
-.bar-progress {
-  height: 1.375rem;
-  border-radius: 0.625rem;
-  transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-  position: absolute;
-  animation: progressLoad 1.2s ease-out 0.6s both;
-}
-
-.bar-progress.left {
-  right: 0;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.bar-progress.right {
-  left: 0;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.bar-info {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--color-sub);
-  z-index: 3;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.bar-info.dominant {
-  font-weight: 800;
-  color: var(--color-main);
-  text-shadow: 0.0625rem 0.125rem rgba(45, 51, 107, 0.2);
-  transform: scale(1.05);
-}
-
-/* 각 차원별 색상 */
-.bar-a,
-.bar-i {
-  background: linear-gradient(90deg, #3498db, #5dade2);
-}
-
-.bar-p,
-.bar-b {
-  background: linear-gradient(90deg, #e67e22, #f8c471);
-}
-
-.bar-m,
-.bar-w {
-  background: linear-gradient(90deg, #27ae60, #58d68d);
-}
-
-.bar-l,
-.bar-c {
-  background: linear-gradient(90deg, #8e44ad, #bb8fce);
-}
-
 /* 액션 섹션 */
 .action-section {
   display: flex;
@@ -1146,12 +909,6 @@ onMounted(async () => {
   }
 }
 
-@keyframes progressLoad {
-  from {
-    width: 0;
-  }
-}
-
 /* 반응형 */
 @media (max-width: 30rem) {
   .result-page {
@@ -1164,7 +921,16 @@ onMounted(async () => {
   }
 
   .type-summary {
-    gap: 1.25rem;
+    gap: 0.75rem;
+  }
+
+  .type-value {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .type-description {
+    font-size: 0.55rem;
   }
 
   .analysis-card,
