@@ -4,6 +4,7 @@
       :deposit-amount="depositAmount"
       :period="period"
       :interest-type="interestType"
+      :rsrv-type="rsrvType"
       :join-way="joinWay"
       :banks="banks"
       :selected-banks="{
@@ -44,6 +45,8 @@ const route = useRoute();
 const depositAmount = ref(route.query.amount ? route.query.amount : '100000');
 const period = ref(route.query.saveTrm || '6');
 const interestType = ref(route.query.intrRateType || 'S');
+const rsrvType = ref(route.query.rsrvType || 'F');
+const rsrvTypeNm = ref(route.query.rsrvTypeNm || '자유적립식');
 const joinWay = ref(route.query.joinWays ? route.query.joinWays.split(',') : 'all');
 const sortBy = ref(route.query.sortBy || 'intrRate');
 const depositProducts = ref([]);
@@ -128,7 +131,12 @@ const fetchProducts = async () => {
       sortBy: sortBy.value,
       sortDirection: 'desc',
       intrRateType: interestType.value,
+      rsrvType: rsrvType.value,
+      rsrvTypeNm: rsrvTypeNm.value
     };
+
+    console.log('API 요청 파라미터:', params);
+    console.log('rsrvType 값:', rsrvType.value);
 
     // 가입방식
     if (joinWay.value !== 'all') {
@@ -162,6 +170,7 @@ const onSearch = (formData) => {
   depositAmount.value = formData.depositAmount;
   period.value = formData.period;
   interestType.value = formData.interestType;
+  rsrvType.value = formData.rsrvType;
   joinWay.value = formData.joinWays ?? 'all';
 
   selectedBanks.value = formData.selectedBanks?.uiCodes || [];
@@ -175,6 +184,7 @@ const onReset = () => {
   depositAmount.value = '100000';
   period.value = '6';
   interestType.value = 'S';
+  rsrvType.value = 'F';
   joinWay.value = 'all';
   sortBy.value = 'intrRate';
   currentPage.value = 1;
@@ -207,6 +217,7 @@ const updateQueryAndFetch = () => {
     query.amount = depositAmount.value.replace(/,/g, '');
   if (period.value !== '6') query.saveTrm = period.value;
   if (interestType.value !== 'S') query.intrRateType = interestType.value;
+  if (rsrvType.value !== 'F') query.rsrvType = rsrvType.value;
   if (joinWay.value !== 'all' && joinWay.value.length > 0)
     query.joinWays = [].concat(joinWay.value).join(',');
   if (sortBy.value !== 'intrRate') query.sortBy = sortBy.value;
@@ -220,6 +231,7 @@ const updateQueryAndFetch = () => {
 const goToProductDetail = (product) => {
   const productId = product.productId || product.product_id;
   const saveTrm = product.save_trm || product.saveTrm;
+  const rsrvTypeValue = product.rsrv_type || product.rsrvType || rsrvType.value;
 
   // 적금 페이지에서는 항상 'savings' 카테고리로 이동
   const category = 'savings';
@@ -229,6 +241,7 @@ const goToProductDetail = (product) => {
     query: {
       saveTrm,
       intrRateType: product.intr_rate_type || product.intrRateType,
+      rsrvType: rsrvTypeValue,
     },
   });
 };
@@ -242,6 +255,7 @@ watch(
       depositAmount.value = new Intl.NumberFormat('ko-KR').format(newQuery.amount);
     if ('saveTrm' in newQuery) period.value = newQuery.saveTrm;
     if ('intrRateType' in newQuery) interestType.value = newQuery.intrRateType;
+    if ('rsrvType' in newQuery) rsrvType.value = newQuery.rsrvType;
     if ('joinWays' in newQuery) joinWay.value = newQuery.joinWays.split(',');
     if ('sortBy' in newQuery) sortBy.value = newQuery.sortBy;
     if ('page' in newQuery) currentPage.value = parseInt(newQuery.page);
@@ -263,6 +277,11 @@ onMounted(async () => {
     const bankList = route.query.banks.split(',');
     selectedBanks.value = bankList;
     selectedBankApiCodes.value = bankList;
+  }
+
+  // URL에서 적립 방식 정보가 있다면 미리 설정
+  if (route.query.rsrvType) {
+    rsrvType.value = route.query.rsrvType;
   }
   await fetchBanks();
   await fetchProducts();

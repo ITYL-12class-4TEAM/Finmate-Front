@@ -5,17 +5,17 @@
       <div class="title-description">원하는 조건으로 적금 상품을 찾아보세요</div>
     </div>
 
-    <form @submit.prevent="onSearch" class="filter-container grid-layout">
+    <form class="filter-container grid-layout" @submit.prevent="onSearch">
       <label class="filter-label"><i class="fa-solid fa-coins"></i> 월 납입 금액</label>
       <div class="input-wrapper">
         <input
-          type="text"
           v-model="localDepositAmount"
+          type="text"
           class="form-input"
-          @input="formatAmount"
           placeholder="100,000"
           autocomplete="off"
           inputmode="numeric"
+          @input="formatAmount"
         />
         <span class="input-suffix">원</span>
       </div>
@@ -53,6 +53,26 @@
         </button>
       </div>
 
+      <label class="filter-label"><i class="fa-solid fa-money-bill-wave"></i> 적립 방식</label>
+      <div class="option-buttons">
+        <button
+          type="button"
+          class="option-button"
+          :class="{ active: localRsrvType === 'F' }"
+          @click="localRsrvType = 'F'"
+        >
+          자유적립식
+        </button>
+        <button
+          type="button"
+          class="option-button"
+          :class="{ active: localRsrvType === 'S' }"
+          @click="localRsrvType = 'S'"
+        >
+          정액적립식
+        </button>
+      </div>
+
       <div class="join-way-label-group">
         <label class="filter-label"><i class="fa-solid fa-laptop"></i> 가입 방식</label>
         <div
@@ -81,7 +101,7 @@
         <i class="fa-solid fa-chevron-right"></i>
       </button>
 
-      <button type="button" @click="onReset" class="reset-btn">
+      <button type="button" class="reset-btn" @click="onReset">
         <i class="fa-solid fa-rotate"></i> 초기화
       </button>
       <button type="submit" class="search-btn"><i class="fa-solid fa-search"></i> 검색</button>
@@ -105,6 +125,7 @@ const props = defineProps({
   depositAmount: { type: String, default: '100000' },
   period: { type: String, default: '6' },
   interestType: { type: String, default: 'S' },
+  rsrvType: { type: String, default: 'F' },
   joinWay: { type: [String, Array], default: 'all' },
   banks: { type: Array, default: () => [] },
   selectedBanks: { type: Object, default: () => ({ uiCodes: [], apiCodes: [] }) },
@@ -114,7 +135,7 @@ const emit = defineEmits(['search', 'reset']);
 const localDepositAmount = ref(props.depositAmount);
 const localPeriod = ref(props.period);
 const localInterestType = ref(props.interestType);
-
+const localRsrvType = ref(props.rsrvType);
 const availableJoinWays = ref(['영업점', '인터넷', '스마트폰', '전화']);
 const selectedJoinWays = ref([]);
 const selectAllJoinWays = ref(false);
@@ -180,6 +201,10 @@ watch(
   (v) => (localInterestType.value = v)
 );
 watch(
+  () => props.rsrvType,
+  (v) => (localRsrvType.value = v)
+);
+watch(
   () => props.joinWay,
   (v) => {
     if (v === 'all') {
@@ -225,6 +250,7 @@ const onSearch = () => {
     depositAmount: localDepositAmount.value,
     period: localPeriod.value,
     interestType: localInterestType.value,
+    rsrvType: localRsrvType.value,
     joinWays: joinWaysParam,
     selectedBanks: selectedBanks.value,
   });
@@ -234,6 +260,7 @@ const onReset = () => {
   localDepositAmount.value = '100,000';
   localPeriod.value = '6';
   localInterestType.value = 'S';
+  localRsrvType.value = 'F';
   selectedJoinWays.value = [...availableJoinWays.value];
   selectAllJoinWays.value = true;
   const regularBanks = props.banks.filter(

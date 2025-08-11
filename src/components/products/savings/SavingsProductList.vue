@@ -39,7 +39,8 @@
           'in-compare': isInCompareList(
             getProductId(product),
             getSaveTrm(product),
-            product.intr_rate_type || product.intrRateType || 'S'
+            product.intr_rate_type || product.intrRateType || 'S',
+            product.rsrv_type || product.rsrvType
           ),
         }"
       >
@@ -78,7 +79,8 @@
               isInCompareList(
                 getProductId(product),
                 getSaveTrm(product),
-                product.intr_rate_type || product.intrRateType || 'S'
+                product.intr_rate_type || product.intrRateType || 'S',
+                product.rsrv_type || product.rsrvType
               )
             "
             class="compare-btn in-list"
@@ -236,6 +238,8 @@ const handleWarning = (product) => {
     intr_rate: product.intr_rate || product.intrRate,
     intr_rate2: product.intr_rate2 || product.intrRate2,
     intr_rate_type: product.intr_rate_type || product.intrRateType || 'S',
+    rsrv_type: product.rsrv_type || product.rsrvType,
+    rsrv_type_nm: product.rsrv_type_nm || product.rsrvTypeNm,
     option_id: product.option_id || product.optionId || null,
   };
   const result = addToCompareList(product, option, props.productType);
@@ -245,7 +249,8 @@ const handleRemoveFromCompare = (product) => {
   removeFromCompareList(
     getProductId(product),
     getSaveTrm(product),
-    product.intr_rate_type || product.intrRateType || 'S'
+    product.intr_rate_type || product.intrRateType || 'S',
+    product.rsrv_type || product.rsrvType
   );
 };
 const goToJoinPage = (product) => {
