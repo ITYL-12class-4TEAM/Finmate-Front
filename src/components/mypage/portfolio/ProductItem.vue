@@ -7,6 +7,7 @@
       'first-item': index === 0,
       'last-item': index === totalItems - 1,
       [viewMode]: true,
+      [`category-${item.category}`]: true,
     }"
     @click="openModal"
   >
@@ -26,6 +27,7 @@
       <div class="product-summary">
         <div class="amount-display">
           <div class="amount-value">{{ formatCurrency(item.amount) }}</div>
+          <div class="amount-label">{{ getAmountLabel() }}</div>
           <div v-if="totalAmount" class="amount-ratio">
             {{ getAmountRatio() }}
           </div>
@@ -39,30 +41,133 @@
               class="category-badge"
               :style="{ backgroundColor: getCategoryColor(item.category) }"
             >
-              <i class="fas fa-tag"></i>
+              <i :class="getCategoryIcon(item.category)"></i>
               {{ item.category }}
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 주요 정보 미리보기 -->
+      <!-- 상품별 특화 정보 미리보기 -->
       <div class="product-preview">
-        <div
-          v-if="item.interestRate || item.customRate || item.expectedReturn"
-          class="preview-item"
-        >
-          <i class="fas fa-percent"></i>
-          <span>{{ getBestRate() }}%</span>
-        </div>
-        <div v-if="item.maturityDate" class="preview-item">
-          <i class="fas fa-calendar-alt"></i>
-          <span>{{ formatDateShort(item.maturityDate) }} 만기</span>
-        </div>
-        <div v-if="item.saveTrm" class="preview-item">
-          <i class="fas fa-clock"></i>
-          <span>{{ item.saveTrm }}개월</span>
-        </div>
+        <!-- 예금/적금 정보 -->
+        <template v-if="['예금', '적금'].includes(item.category)">
+          <div v-if="getBestRate()" class="preview-item rate-item">
+            <i class="fas fa-percent"></i>
+            <span>{{ getBestRate() }}%</span>
+          </div>
+          <div v-if="item.maturityDate" class="preview-item">
+            <i class="fas fa-calendar-alt"></i>
+            <span>{{ formatDateShort(item.maturityDate) }} 만기</span>
+          </div>
+          <div v-if="item.saveTrm" class="preview-item">
+            <i class="fas fa-clock"></i>
+            <span>{{ item.saveTrm }}개월</span>
+          </div>
+          <div v-if="item.estimatedInterest" class="preview-item profit-item">
+            <i class="fas fa-coins"></i>
+            <span>예상이자 {{ formatCurrency(item.estimatedInterest) }}</span>
+          </div>
+        </template>
+
+        <!-- 주식 정보 -->
+        <template v-if="item.category === '주식'">
+          <div v-if="stockInfo.currentPrice" class="preview-item">
+            <i class="fas fa-chart-line"></i>
+            <span>{{ stockInfo.currentPrice.toLocaleString() }}원</span>
+          </div>
+          <div v-if="stockInfo.quantity" class="preview-item">
+            <i class="fas fa-cubes"></i>
+            <span>{{ stockInfo.quantity }}주</span>
+          </div>
+          <div v-if="stockInfo.marketType" class="preview-item">
+            <i class="fas fa-globe"></i>
+            <span>{{ stockInfo.marketType }}</span>
+          </div>
+          <div
+            v-if="stockInfo.returnRate !== null"
+            class="preview-item"
+            :class="stockInfo.returnRate >= 0 ? 'profit-item' : 'loss-item'"
+          >
+            <i :class="stockInfo.returnRate >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+            <span
+              >{{ stockInfo.returnRate >= 0 ? '+' : ''
+              }}{{ stockInfo.returnRate.toFixed(1) }}%</span
+            >
+          </div>
+        </template>
+
+        <!-- 보험 정보 -->
+        <template v-if="item.category === '보험'">
+          <div v-if="insuranceInfo.coverage" class="preview-item coverage-item">
+            <i class="fas fa-shield-alt"></i>
+            <span>{{ formatCurrency(insuranceInfo.coverage) }} 보장</span>
+          </div>
+          <div v-if="insuranceInfo.beneficiary" class="preview-item">
+            <i class="fas fa-user-friends"></i>
+            <span>{{ insuranceInfo.beneficiary }}</span>
+          </div>
+          <div v-if="item.maturityDate" class="preview-item">
+            <i class="fas fa-calendar-alt"></i>
+            <span>{{ formatDateShort(item.maturityDate) }} 만기</span>
+          </div>
+          <div v-else class="preview-item">
+            <i class="fas fa-infinity"></i>
+            <span>종신보장</span>
+          </div>
+        </template>
+
+        <!-- 연금 정보 -->
+        <template v-if="item.category === '연금'">
+          <div v-if="pensionInfo.pensionType" class="preview-item">
+            <i class="fas fa-university"></i>
+            <span>{{ pensionInfo.pensionType }}</span>
+          </div>
+          <div v-if="pensionInfo.taxBenefit" class="preview-item tax-item">
+            <i class="fas fa-receipt"></i>
+            <span>{{ pensionInfo.taxBenefit }}</span>
+          </div>
+          <div v-if="getBestRate()" class="preview-item rate-item">
+            <i class="fas fa-percent"></i>
+            <span>{{ getBestRate() }}%</span>
+          </div>
+          <div v-if="item.saveTrm" class="preview-item">
+            <i class="fas fa-clock"></i>
+            <span>{{ item.saveTrm }}개월</span>
+          </div>
+        </template>
+
+        <!-- 대출 정보 -->
+        <template v-if="item.category === '대출'">
+          <div v-if="getBestRate()" class="preview-item rate-item loan-rate">
+            <i class="fas fa-percent"></i>
+            <span>{{ getBestRate() }}% 금리</span>
+          </div>
+          <div v-if="item.maturityDate" class="preview-item">
+            <i class="fas fa-calendar-check"></i>
+            <span>{{ formatDateShort(item.maturityDate) }} 상환</span>
+          </div>
+          <div v-if="item.saveTrm" class="preview-item">
+            <i class="fas fa-clock"></i>
+            <span>{{ item.saveTrm }}개월</span>
+          </div>
+        </template>
+
+        <!-- 기타 투자 정보 -->
+        <template v-if="item.category === '기타'">
+          <div v-if="getBestRate()" class="preview-item rate-item">
+            <i class="fas fa-chart-area"></i>
+            <span>{{ getBestRate() }}% 수익률</span>
+          </div>
+          <div v-if="item.saveTrm" class="preview-item">
+            <i class="fas fa-clock"></i>
+            <span>{{ item.saveTrm }}개월</span>
+          </div>
+          <div v-if="item.maturityDate" class="preview-item">
+            <i class="fas fa-flag"></i>
+            <span>{{ formatDateShort(item.maturityDate) }} 목표</span>
+          </div>
+        </template>
       </div>
     </div>
 
@@ -95,7 +200,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import ProductDetailsModal from './ProductDetails.vue';
 import ProductEditModal from './ProductEditForm.vue';
 import ProductStatus from './ProductStatusBadge.vue';
@@ -143,20 +248,111 @@ const emit = defineEmits(['start-edit', 'save-product', 'cancel-edit', 'delete-p
 const showDetailModal = ref(false);
 const showEditModal = ref(false);
 
-// 6개 메인 카테고리에 맞춘 색상 팔레트
-const CATEGORY_COLORS = {
-  예금: '#2d336b', // 진한 네이비
-  적금: '#5a6085', // 미디엄 네이비
-  보험: '#6b7394', // 그레이 네이비
-  대출: '#9ca0b8', // 라이트 그레이
-  주식: '#7d81a2', // 퍼플 그레이
-  기타: '#8a8ea6', // 중간 그레이
-  연금: '#5a6085', // 연금 (적금과 동일하게 처리)
+// 카테고리별 색상과 아이콘
+const CATEGORY_CONFIG = {
+  예금: { color: '#059669', icon: 'fas fa-piggy-bank' },
+  적금: { color: '#0891b2', icon: 'fas fa-coins' },
+  보험: { color: '#7c3aed', icon: 'fas fa-shield-alt' },
+  연금: { color: '#dc2626', icon: 'fas fa-university' },
+  주식: { color: '#ea580c', icon: 'fas fa-chart-line' },
+  대출: { color: '#6b7280', icon: 'fas fa-credit-card' },
+  기타: { color: '#4338ca', icon: 'fas fa-cube' },
 };
+
+// 메모에서 추가 정보 파싱
+const parseAdditionalInfo = (memo) => {
+  if (!memo) return {};
+
+  const info = {};
+  const lines = memo.split('\n');
+
+  for (const line of lines) {
+    if (line.includes('현재가:')) {
+      const match = line.match(/현재가:\s*([\d,]+)원/);
+      if (match) info.currentPrice = parseInt(match[1].replace(/,/g, ''));
+    }
+    if (line.includes('보유수량:')) {
+      const match = line.match(/보유수량:\s*(\d+)주/);
+      if (match) info.quantity = parseInt(match[1]);
+    }
+    if (line.includes('시장:')) {
+      const match = line.match(/시장:\s*(.+?)(?:,|$)/);
+      if (match) info.marketType = match[1].trim();
+    }
+    if (line.includes('보장금액:')) {
+      const match = line.match(/보장금액:\s*([\d,]+)원/);
+      if (match) info.coverage = parseInt(match[1].replace(/,/g, ''));
+    }
+    if (line.includes('수익자:')) {
+      const match = line.match(/수익자:\s*(.+?)(?:,|$)/);
+      if (match) info.beneficiary = match[1].trim();
+    }
+    if (line.includes('연금종류:')) {
+      const match = line.match(/연금종류:\s*(.+?)(?:,|$)/);
+      if (match) info.pensionType = match[1].trim();
+    }
+    if (line.includes('세제혜택:')) {
+      const match = line.match(/세제혜택:\s*(.+?)(?:,|$)/);
+      if (match) info.taxBenefit = match[1].trim();
+    }
+  }
+
+  return info;
+};
+
+// 주식 정보 계산
+const stockInfo = computed(() => {
+  if (props.item.category !== '주식') return {};
+
+  const additionalInfo = parseAdditionalInfo(props.item.memo);
+  const info = { ...additionalInfo };
+
+  // 수익률 계산
+  if (info.currentPrice && info.quantity && props.item.amount) {
+    const currentValue = info.currentPrice * info.quantity;
+    info.returnRate = ((currentValue - props.item.amount) / props.item.amount) * 100;
+  } else {
+    info.returnRate = null;
+  }
+
+  return info;
+});
+
+// 보험 정보
+const insuranceInfo = computed(() => {
+  if (props.item.category !== '보험') return {};
+  return parseAdditionalInfo(props.item.memo);
+});
+
+// 연금 정보
+const pensionInfo = computed(() => {
+  if (props.item.category !== '연금') return {};
+  return parseAdditionalInfo(props.item.memo);
+});
 
 // 색상 가져오기
 const getCategoryColor = (categoryName) => {
-  return CATEGORY_COLORS[categoryName] || CATEGORY_COLORS['기타'];
+  return CATEGORY_CONFIG[categoryName]?.color || CATEGORY_CONFIG['기타'].color;
+};
+
+// 아이콘 가져오기
+const getCategoryIcon = (categoryName) => {
+  return CATEGORY_CONFIG[categoryName]?.icon || CATEGORY_CONFIG['기타'].icon;
+};
+
+// 금액 라벨 가져오기
+const getAmountLabel = () => {
+  const category = props.item.category;
+  const labels = {
+    예금: '예치금액',
+    적금: '월 적립금액',
+    보험: '월 보험료',
+    연금: '월 납입금액',
+    주식: '투자금액',
+    대출: '대출금액',
+    기타: '투자금액',
+  };
+  return labels[category] || '투자금액';
 };
 
 // 통화 포맷팅
@@ -200,7 +396,7 @@ const getBestRate = () => {
     (rate) => rate && rate > 0
   );
 
-  if (rates.length === 0) return '0.0';
+  if (rates.length === 0) return null;
   return Math.max(...rates).toFixed(1);
 };
 
@@ -239,13 +435,6 @@ const closeEditModal = () => {
 const openEditModal = () => {
   showDetailModal.value = false; // 상세 모달 닫기
   showEditModal.value = true; // 편집 모달 열기
-};
-
-// 이벤트 핸들러
-const handleEdit = () => {
-  if (!props.isEditing && !props.isProcessing) {
-    emit('start-edit', props.item);
-  }
 };
 
 const handleSave = (updatedItem) => {
@@ -293,11 +482,6 @@ const handleDelete = () => {
   transform: translateY(-1px);
 }
 
-.product-item:hover::before,
-.product-item.expanded::before {
-  background: linear-gradient(to bottom, var(--color-main) 0%, var(--color-sub) 100%);
-}
-
 .product-item.expanded {
   background: rgba(255, 255, 255, 0.98);
   border-radius: 0.75rem;
@@ -305,6 +489,10 @@ const handleDelete = () => {
   border: 1px solid rgba(185, 187, 204, 0.4);
   box-shadow: 0 8px 25px rgba(45, 51, 107, 0.12);
   transform: translateY(-2px);
+}
+
+.product-item.expanded::before {
+  background: linear-gradient(to bottom, var(--color-main) 0%, var(--color-sub) 100%);
 }
 
 .product-item.editing {
@@ -392,6 +580,14 @@ const handleDelete = () => {
   margin-bottom: 0.25rem;
 }
 
+.amount-label {
+  font-size: 0.7rem;
+  color: var(--color-sub);
+  font-weight: 500;
+  opacity: 0.8;
+  margin-bottom: 0.15rem;
+}
+
 .amount-ratio {
   font-size: 0.75rem;
   color: var(--color-sub);
@@ -465,10 +661,41 @@ const handleDelete = () => {
   opacity: 0.8;
 }
 
-.product-item.expanded .expand-indicator {
-  background: var(--color-main);
-  color: white;
-  border-color: var(--color-main);
+/* 특수 스타일 */
+.preview-item.rate-item {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #1d4ed8;
+}
+
+.preview-item.profit-item {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #047857;
+}
+
+.preview-item.loss-item {
+  background: rgba(220, 38, 38, 0.1);
+  border-color: rgba(220, 38, 38, 0.3);
+  color: #b91c1c;
+}
+
+.preview-item.coverage-item {
+  background: rgba(124, 58, 237, 0.1);
+  border-color: rgba(124, 58, 237, 0.3);
+  color: #6d28d9;
+}
+
+.preview-item.tax-item {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #047857;
+}
+
+.preview-item.loan-rate {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #d97706;
 }
 
 /* 순서 표시 */

@@ -1,7 +1,7 @@
 <template>
   <div class="comparison-container">
     <div class="product-headers">
-      <div class="header-item" v-for="item in items" :key="item.productId">
+      <div v-for="item in items" :key="item.productId" class="header-item">
         <button
           class="remove-btn"
           @click="$emit('remove', item.productId, item.saveTrm, item.intrRateType || 'S')"
@@ -14,14 +14,14 @@
     </div>
 
     <div class="comparison-body">
-      <div class="comparison-row" v-for="row in comparisonRows" :key="row.label">
+      <div v-for="row in comparisonRows" :key="row.label" class="comparison-row">
         <div class="row-label">{{ row.label }}</div>
         <div class="row-values">
           <div
-            class="value-item"
-            :class="{ 'align-left': row.alignLeft }"
             v-for="(value, index) in row.values"
             :key="index"
+            class="value-item"
+            :class="{ 'align-left': row.alignLeft }"
           >
             <template v-if="row.type === 'rate'">
               <span class="rate-text" :class="{ special: row.label === '우대 금리' }">{{
@@ -30,7 +30,7 @@
             </template>
             <template v-else-if="row.type === 'tags'">
               <div class="tags-container">
-                <span class="tag-pill" v-for="tag in value" :key="tag">#{{ tag }}</span>
+                <span v-for="tag in value" :key="tag" class="tag-pill">#{{ tag }}</span>
                 <span v-if="!value.length" class="no-tags">정보 없음</span>
               </div>
             </template>
@@ -43,7 +43,7 @@
     </div>
 
     <div class="comparison-footer">
-      <div class="footer-item" v-for="item in items" :key="item.productId">
+      <div v-for="item in items" :key="item.productId" class="footer-item">
         <button
           class="btn-secondary"
           @click="$emit('viewDetail', item.productId, item.productType, item.saveTrm)"
