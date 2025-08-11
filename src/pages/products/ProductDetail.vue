@@ -297,7 +297,7 @@ const getCategoryName = () => {
       return '정기예금';
     case 'pension':
       return '연금저축';
-    case 'saving':
+    case 'savings':
       return '적금';
     default:
       return '금융상품';
@@ -509,7 +509,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between; /* 양쪽 끝으로 배치 */
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 /* GPT 상품 요약 버튼 (우측 상단) */

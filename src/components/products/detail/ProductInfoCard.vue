@@ -51,7 +51,7 @@ const props = defineProps({
   background: #ffffff;
   border-radius: 0.75rem; /* 12px, 다른 컴포넌트와 통일 */
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.04);
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   overflow: hidden;
 }
 

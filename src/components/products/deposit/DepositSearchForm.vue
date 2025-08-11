@@ -6,7 +6,7 @@
     </div>
 
     <form @submit.prevent="onSearch" class="filter-container grid-layout">
-      <label class="filter-label"><i class="fa-solid fa-coins"></i> 예치 금액</label>
+      <label class="filter-label"><i class="fa-solid fa-coins"></i> 총 예치 금액</label>
       <div class="input-wrapper">
         <input
           type="text"
@@ -438,7 +438,7 @@ const onReset = () => {
    ========================================================================== */
 .reset-btn,
 .search-btn {
-  margin-top: 0.5rem;
+  margin-top: 0.25rem;
   height: 2.8rem;
   display: flex;
   align-items: center;

@@ -164,12 +164,16 @@ const getRateTypeClass = (product) => {
   return rateType === 'S' ? 'simple-interest' : 'compound-interest';
 };
 
+// filteredProducts computed 속성을 수정
 const filteredProducts = computed(() => {
   if (!props.products?.length) return [];
+
   const userAmount = props.depositAmount
     ? Number(String(props.depositAmount).replace(/[^\d]/g, ''))
     : 0;
-  return props.products.filter((product) => {
+
+  // 금액 필터링
+  let filtered = props.products.filter((product) => {
     const minDeposit = Number(
       product.min_deposit || product.minDeposit || product.minDepositAmount || 0
     );
@@ -178,6 +182,34 @@ const filteredProducts = computed(() => {
       Number.MAX_SAFE_INTEGER;
     return userAmount >= minDeposit && userAmount <= maxLimit;
   });
+
+  // 정렬 로직 추가
+  filtered.sort((a, b) => {
+    // 기본금리 추출
+    const intrRateA = parseFloat(a.intr_rate || a.intrRate || 0);
+    const intrRateB = parseFloat(b.intr_rate || b.intrRate || 0);
+
+    // 우대금리 추출
+    const intrRate2A = parseFloat(a.intr_rate2 || a.intrRate2 || 0);
+    const intrRate2B = parseFloat(b.intr_rate2 || b.intrRate2 || 0);
+
+    // localSortBy에 따라 정렬
+    if (localSortBy.value === 'intrRate') {
+      // 기본금리순 정렬, 같으면 우대금리 높은순
+      if (intrRateA === intrRateB) {
+        return intrRate2B - intrRate2A; // 우대금리 내림차순
+      }
+      return intrRateB - intrRateA; // 기본금리 내림차순
+    } else {
+      // 우대금리순 정렬, 같으면 기본금리 높은순
+      if (intrRate2A === intrRate2B) {
+        return intrRateB - intrRateA; // 기본금리 내림차순
+      }
+      return intrRate2B - intrRate2A; // 우대금리 내림차순
+    }
+  });
+
+  return filtered;
 });
 
 watch(
