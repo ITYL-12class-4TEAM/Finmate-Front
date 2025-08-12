@@ -23,7 +23,6 @@ export const useNotificationStore = defineStore('notification', () => {
 
     const result = await notificationAPI.getNotifications();
     notifications.value = result.data.notifications.data;
-    console.log('알림 조회 결과:', notifications.value);
 
     isLoading.value = false;
     return notifications.value;
@@ -35,7 +34,7 @@ export const useNotificationStore = defineStore('notification', () => {
     if (result.success) {
       unreadCount.value = result.data.data;
     }
-    return result;
+    return result.data.data;
   };
 
   // 특정 알림 읽음 처리
@@ -139,12 +138,12 @@ export const useNotificationStore = defineStore('notification', () => {
 
       // 연결 확인 이벤트
       eventSource.value.addEventListener('connected', (event) => {
-        console.log('SSE 연결 확인:', event.data);
+        console.log('SSE 연결 확인');
       });
 
       // 하트비트 이벤트
       eventSource.value.addEventListener('heartbeat', (event) => {
-        console.log('하트비트 수신:', event.data);
+        console.log('하트비트 수신');
       });
 
       // 알림 이벤트 처리

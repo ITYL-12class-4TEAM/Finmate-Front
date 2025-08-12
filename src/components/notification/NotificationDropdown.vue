@@ -87,7 +87,6 @@ const props = defineProps({
   notifications: { type: Array, default: () => [] },
   unreadCount: { type: Number, default: 0 },
 });
-console.log('🔔 알림 드롭다운 컴포넌트 초기화', props);
 
 const emit = defineEmits(['close']);
 
@@ -122,7 +121,7 @@ const handleMarkAsRead = async (notification) => {
 };
 
 const handleMarkAllAsRead = async () => {
-  if (isMarkingAllAsRead.value || unreadCount.value === 0) return;
+  if (isMarkingAllAsRead.value || props.unreadCount === 0) return;
 
   isMarkingAllAsRead.value = true;
   const unreadNotifications = props.notifications.filter((n) => !n.isRead);
@@ -152,8 +151,6 @@ const getTypeIcon = (type) => {
     POST_COMMENT: '💬',
     POST_LIKE: '❤️',
     HOT_POST: '🔥',
-    SYSTEM: '⚙️',
-    INFO: 'ℹ️',
   };
   return icons[type] || 'ℹ️';
 };
