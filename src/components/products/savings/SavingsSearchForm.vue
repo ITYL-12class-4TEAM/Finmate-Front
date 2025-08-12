@@ -11,7 +11,6 @@
         >
           예금
         </h2>
-
         <h2
           :class="{
             'active-product': isSavingActive,
@@ -26,7 +25,7 @@
     </div>
 
     <form class="filter-container grid-layout" @submit.prevent="onSearch">
-      <label class="filter-label"><i class="fa-solid fa-coins"></i> 월 납입 금액</label>
+      <label class="filter-label"> <i class="fa-solid fa-coins"></i> 월 납입 금액 </label>
       <div class="input-wrapper">
         <input
           v-model="localDepositAmount"
@@ -40,7 +39,7 @@
         <span class="input-suffix">원</span>
       </div>
 
-      <label class="filter-label"><i class="fa-solid fa-calendar-alt"></i> 기간</label>
+      <label class="filter-label"> <i class="fa-solid fa-calendar-alt"></i> 기간 </label>
       <div class="custom-select">
         <select v-model="localPeriod" class="select-input">
           <option value="1">1개월</option>
@@ -53,7 +52,7 @@
         <i class="fa-solid fa-chevron-down select-arrow"></i>
       </div>
 
-      <label class="filter-label"><i class="fa-solid fa-percentage"></i> 금리 유형</label>
+      <label class="filter-label"> <i class="fa-solid fa-percentage"></i> 금리 유형 </label>
       <div class="option-buttons">
         <button
           type="button"
@@ -73,7 +72,7 @@
         </button>
       </div>
 
-      <label class="filter-label"><i class="fa-solid fa-money-bill-wave"></i> 적립 방식</label>
+      <label class="filter-label"> <i class="fa-solid fa-money-bill-wave"></i> 적립 방식 </label>
       <div class="option-buttons">
         <button
           type="button"
@@ -93,33 +92,45 @@
         </button>
       </div>
 
-      <div class="join-way-label-group">
-        <label class="filter-label"><i class="fa-solid fa-laptop"></i> 가입 방식</label>
-        <div
-          class="filter-tag all-tag"
-          :class="{ active: selectAllJoinWays }"
-          @click="toggleAllJoinWays(!selectAllJoinWays)"
-        >
-          전체
+      <div class="custom-join-bank-section">
+        <div class="labels-row">
+          <div class="left-labels">
+            <label class="filter-label"> <i class="fa-solid fa-laptop"></i> 가입 방식 </label>
+            <div
+              class="all-tag-improved"
+              :class="{ active: selectAllJoinWays }"
+              @click="toggleAllJoinWays(!selectAllJoinWays)"
+            >
+              <i v-if="selectAllJoinWays" class="fa-solid fa-check"></i>
+              전체
+            </div>
+          </div>
+          <label class="filter-label">
+            <i class="fa-solid fa-building-columns"></i> 은행 선택
+          </label>
         </div>
-      </div>
-      <div class="tag-container">
-        <div
-          v-for="way in availableJoinWays"
-          :key="way"
-          class="filter-tag"
-          :class="{ active: selectedJoinWays.includes(way) }"
-          @click="toggleJoinWay(way)"
-        >
-          {{ way }}
-        </div>
-      </div>
 
-      <label class="filter-label"><i class="fa-solid fa-building-columns"></i> 은행 선택</label>
-      <button type="button" class="bank-select-button" @click="openBankModal">
-        <span>{{ getBankSelectionText() }}</span>
-        <i class="fa-solid fa-chevron-right"></i>
-      </button>
+        <div class="content-row">
+          <div class="join-way-tags-grid">
+            <div
+              v-for="way in availableJoinWays"
+              :key="way"
+              class="filter-tag"
+              :class="{ active: selectedJoinWays.includes(way) }"
+              @click="toggleJoinWay(way)"
+            >
+              {{ way }}
+            </div>
+          </div>
+
+          <div class="bank-button-area">
+            <button type="button" class="bank-select-button" @click="openBankModal">
+              <span>{{ getBankSelectionText() }}</span>
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
 
       <button type="button" class="reset-btn" @click="onReset">
         <i class="fa-solid fa-rotate"></i> 초기화
@@ -143,9 +154,8 @@ import { useRouter, useRoute } from 'vue-router';
 import BankSelectModal from '../deposit/BankSelectModal.vue';
 
 const router = useRouter();
-const route = useRoute(); // ✨ 1. 현재 라우트 정보를 가져옵니다.
+const route = useRoute();
 
-// ✨ 2. 현재 경로에 따라 활성화 여부를 결정하는 computed 속성을 추가합니다.
 const isDepositActive = computed(() => route.path.includes('/deposit'));
 const isSavingActive = computed(() => route.path.includes('/savings'));
 
@@ -160,14 +170,12 @@ const props = defineProps({
 });
 const emit = defineEmits(['search', 'reset']);
 
-// 예금 페이지로 이동하는 함수
 const goToDepositPage = () => {
   router.push('/products/deposit');
 };
 
-// ✨ [추가] 적금 페이지로 이동하는 함수
 const goToSavingsPage = () => {
-  router.push('/products/savings'); // 실제 적금 페이지 경로로 수정하세요
+  router.push('/products/savings');
 };
 
 const localDepositAmount = ref(props.depositAmount);
@@ -198,12 +206,14 @@ const toggleAllJoinWays = (state) => {
   selectAllJoinWays.value = state;
   selectedJoinWays.value = state ? [...availableJoinWays.value] : [];
 };
+
 const toggleJoinWay = (way) => {
   const idx = selectedJoinWays.value.indexOf(way);
   if (idx === -1) selectedJoinWays.value.push(way);
   else selectedJoinWays.value.splice(idx, 1);
   updateSelectAllState();
 };
+
 const updateSelectAllState = () => {
   selectAllJoinWays.value = selectedJoinWays.value.length === availableJoinWays.value.length;
 };
@@ -226,6 +236,7 @@ const getBankSelectionText = () => {
   return `${selectedBanks.value.uiCodes[0]} 외 ${selectedBankCount.value - 1}개`;
 };
 
+// Watch 함수들
 watch(
   () => props.depositAmount,
   (v) => (localDepositAmount.value = v)
@@ -313,9 +324,7 @@ const onReset = () => {
 </script>
 
 <style scoped>
-/* ==========================================================================
-   1. 폼 전체 레이아웃
-   ========================================================================== */
+/* 기존 스타일들... */
 .deposit-search-form {
   margin-bottom: 0.5rem;
 }
@@ -324,7 +333,7 @@ const onReset = () => {
   padding: 0 0.5rem;
 }
 .form-title h2 {
-  font-size: 1.2rem; /* 1.3rem → 1.04rem (80%) */
+  font-size: 1.2rem;
   font-weight: 700;
   color: #2d336b;
   margin: 0 0 0.35rem 0;
@@ -332,31 +341,28 @@ const onReset = () => {
 .title-navigation {
   display: flex;
   align-items: center;
-  gap: 0.5rem; /* 예금과 적금 사이의 간격 */
+  gap: 0.5rem;
   margin-bottom: 0.25rem;
 }
 
-/* 현재 선택된 제품 (예: 적금) - 밑줄 추가 */
 .active-product {
   font-size: 1.4rem;
   font-weight: 700;
   color: var(--color-main);
   margin: 0;
-  position: relative; /* 밑줄의 기준점이 되기 위해 추가 */
+  position: relative;
 }
 
-/* 활성화된 항목에 항상 밑줄이 보이도록 수정 */
 .active-product:after {
   content: '';
   position: absolute;
   left: 0;
   bottom: -3px;
-  width: 100%; /* 밑줄이 항상 꽉 차 있도록 설정 */
+  width: 100%;
   height: 2px;
   background-color: var(--color-main);
 }
 
-/* 선택되지 않은 제품 (예: 예금) - 밑줄 관련 코드 제거 */
 .alternative-product {
   font-size: 1.2rem;
   font-weight: 500;
@@ -376,60 +382,169 @@ const onReset = () => {
 
 .title-description {
   color: #7d81a2;
-  font-size: 0.72rem; /* 0.9rem → 0.72rem (80%) */
+  font-size: 0.72rem;
 }
 
-/* ==========================================================================
-   2. 필터 컨테이너 & Grid 레이아웃
-   ========================================================================== */
 .filter-container.grid-layout {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 0.6rem 1rem;
-  align-items: center;
+  align-items: start; /* center에서 start로 변경 */
   background: #ffffff;
   border-radius: 0.75rem;
   padding: 0.8rem 1.3rem;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
 }
 
-/* ==========================================================================
-   3. 필터 라벨 (왼쪽 컬럼)
-   ========================================================================== */
 .filter-label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.75rem; /* 0.9375rem → 0.75rem (80%) */
+  font-size: 0.75rem;
   font-weight: 600;
   color: #2d336b;
   white-space: nowrap;
 }
 .filter-label i {
   color: #7d81a2;
-  font-size: 0.8rem; /* 1rem → 0.8rem (80%) */
+  font-size: 0.8rem;
 }
 
-/* ==========================================================================
-   4. 입력 필드 및 버튼 (오른쪽 컬럼)
-   ========================================================================== */
+/* ✨ 커스텀 가입방식 + 은행선택 레이아웃 (그리드 벗어남) */
+.custom-join-bank-section {
+  grid-column: 1 / -1; /* 그리드의 모든 컬럼을 차지 */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+/* 상단: 라벨들이 한 줄로 배치 */
+.labels-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.left-labels {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+/* 하단: 컨텐츠 영역 */
+.content-row {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.join-way-tags-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.4rem;
+}
+
+.bank-button-area {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+}
+
+.all-tag-improved {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.35rem 0.7rem;
+  border-radius: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  /* 🎨 새로운 색상 스키마 */
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+  color: #6366f1;
+  border: 1.5px solid #e0e7ff;
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.1);
+}
+
+.all-tag-improved:hover {
+  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+  border-color: #c7d2fe;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(99, 102, 241, 0.15);
+}
+
+.all-tag-improved.active {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: #ffffff;
+  border-color: #4f46e5;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.all-tag-improved.active:hover {
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+  transform: translateY(-1px);
+}
+
+.all-tag-improved i {
+  font-size: 0.6rem;
+  animation: checkIn 0.3s ease;
+}
+
+@keyframes checkIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.filter-tag {
+  height: 2rem;
+  font-size: 0.65rem;
+  border-radius: 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.4rem;
+  background-color: #ffffff;
+  color: #7d81a2;
+  border: 1px solid #dcdce4;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-weight: 500;
+}
+
+.filter-tag.active {
+  background: #2d336b;
+  color: #fff;
+  border-color: #2d336b;
+}
+
+/* 기타 스타일들은 기존과 동일... */
 .input-wrapper,
 .custom-select,
 .option-buttons,
-.bank-select-button,
-.tag-container {
+.bank-select-button {
   min-width: 0;
 }
+
 .input-wrapper,
 .custom-select {
   position: relative;
 }
+
 .form-input,
 .select-input {
   width: 100%;
-  height: 2.2rem; /* 2.5rem → 2.2rem */
+  height: 2.2rem;
   padding: 0 1rem;
-  font-size: 0.8rem; /* 1rem → 0.8rem (80%) */
+  font-size: 0.8rem;
   font-weight: 500;
   border: 1px solid #dcdce4;
   border-radius: 0.5rem;
@@ -437,6 +552,7 @@ const onReset = () => {
   color: #2d336b;
   transition: all 0.2s ease-in-out;
 }
+
 .input-suffix,
 .select-arrow {
   position: absolute;
@@ -446,24 +562,23 @@ const onReset = () => {
   color: #7d81a2;
   pointer-events: none;
 }
+
 .select-input {
   appearance: none;
   -webkit-appearance: none;
   padding-right: 2.5rem;
 }
 
-/* ==========================================================================
-   5. 버튼 및 태그
-   ========================================================================== */
 .option-buttons {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
 }
+
 .option-button {
-  height: 2.2rem; /* 2.5rem → 2.2rem */
+  height: 2.2rem;
   padding: 0 1rem;
-  font-size: 0.7rem; /* 0.9375rem → 0.75rem (80%) */
+  font-size: 0.7rem;
   font-weight: 500;
   border-radius: 0.5rem;
   background-color: #f7f7fa;
@@ -472,6 +587,7 @@ const onReset = () => {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 }
+
 .option-button.active {
   background: #2d336b;
   color: #fff;
@@ -479,62 +595,13 @@ const onReset = () => {
   font-weight: 600;
 }
 
-/* ✨ 가입 방식 (최종 레이아웃) ✨ */
-.join-way-label-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* 라벨과 전체 버튼을 가운데 정렬 */
-  gap: 0.5rem; /* 라벨과 전체 버튼 사이 간격 */
-  justify-self: center; /* Grid 셀 내에서 스스로 가운데 정렬 */
-}
-.all-tag {
-  font-size: 0.65rem; /* 0.8125rem → 0.65rem (80%) */
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  background-color: #f0f2f5;
-  color: #7d81a2;
-  border: 1px solid transparent;
-  cursor: pointer;
-}
-.all-tag.active {
-  background-color: #7d81a2;
-  color: #fff;
-}
-.tag-container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2x2 Grid로 변경 */
-  gap: 0.5rem;
-}
-.filter-tag {
-  /* ✨ height를 2.2rem으로 명시적으로 설정 */
-  height: 2.2rem; /* 2.5rem → 2.2rem */
-  font-size: 0.7rem; /* 0.875rem → 0.7rem (80%) */
-  border-radius: 0.5rem;
-  /* ✨ flexbox를 이용해 텍스트를 완벽하게 중앙 정렬 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 0.5rem; /* 좌우 여백 추가 */
-  background-color: #ffffff;
-  color: #7d81a2;
-  border: 1px solid #dcdce4;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  font-weight: 500;
-}
-.filter-tag.active {
-  background: #2d336b;
-  color: #fff;
-  border-color: #2d336b;
-}
-
 .bank-select-button {
-  height: 2.2rem; /* 2.5rem → 2.2rem */
+  height: 2.2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 1rem;
-  font-size: 0.8rem; /* 1rem → 0.8rem (80%) */
+  font-size: 0.8rem;
   font-weight: 500;
   border-radius: 0.5rem;
   background-color: #f7f7fa;
@@ -543,9 +610,6 @@ const onReset = () => {
   cursor: pointer;
 }
 
-/* ==========================================================================
-   6. 검색/초기화 버튼
-   ========================================================================== */
 .reset-btn,
 .search-btn {
   margin-top: 0.25rem;
@@ -554,19 +618,21 @@ const onReset = () => {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  font-size: 0.8rem; /* 1rem → 0.8rem (80%) */
+  font-size: 0.8rem;
   font-weight: 600;
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   border: 1px solid;
 }
+
 .reset-btn {
   grid-column: 1;
   background-color: #f8f8f8;
   color: #7d81a2;
   border-color: #dcdce4;
 }
+
 .search-btn {
   grid-column: 2;
   background: #2d336b;
