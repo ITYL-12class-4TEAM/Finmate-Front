@@ -307,7 +307,6 @@ const fetchAnalysis = async (wmtiCode) => {
     analysis.value = res.body?.data;
     return res.body?.data;
   } catch (err) {
-    console.error('분석 정보 불러오기 실패', err);
     showToast('분석 정보 불러오기 실패', 'error');
     return null;
   }
