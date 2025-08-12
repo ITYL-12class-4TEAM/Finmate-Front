@@ -1,36 +1,27 @@
 <template>
-  <div class="favorites-actions">
-    <div class="actions-container">
+  <div class="recent-view-summary">
+    <div class="summary-container">
       <!-- 결과 정보 -->
       <div class="results-section">
-        <div class="count-display">
-          <span class="count-text">
-            총 <strong>{{ formatCount(count) }}개</strong> 상품
-          </span>
-        </div>
+        <span class="count-text">
+          총 <strong>{{ formatCount(count) }}개</strong>
+        </span>
       </div>
 
       <!-- 액션 버튼들 -->
       <div class="actions-section">
         <!-- 선택된 항목이 있을 때 -->
-        <div v-if="selectedCount > 0" class="selected-actions">
-          <div class="selection-indicator">
-            <i class="fa-solid fa-check-circle"></i>
-            <span>{{ selectedCount }}개 선택됨</span>
-          </div>
-          <button class="action-btn delete-selected" @click="$emit('delete-selected')">
-            <i class="fa-solid fa-trash"></i>
-            <span>선택 삭제</span>
-          </button>
-        </div>
+        <template v-if="selectedCount > 0">
+          <div class="selection-indicator">{{ selectedCount }}개 선택</div>
+          <button class="action-btn delete-selected" @click="$emit('delete-selected')">삭제</button>
+        </template>
 
         <!-- 선택된 항목이 없을 때 -->
-        <div v-else class="default-actions">
+        <template v-else>
           <button class="action-btn delete-all" :disabled="count === 0" @click="handleClearAll">
-            <i class="fa-solid fa-trash-can"></i>
-            <span>전체 삭제</span>
+            전체 삭제
           </button>
-        </div>
+        </template>
       </div>
     </div>
   </div>
@@ -50,28 +41,9 @@ const props = defineProps({
 
 const emit = defineEmits(['delete-selected', 'delete-all']);
 
-// 숫자 포맷팅 함수 (일관성 유지)
+// 숫자 포맷팅 함수
 const formatCount = (count) => {
   if (!count || count === 0) return '0';
-
-  if (count >= 10000) {
-    const man = Math.floor(count / 10000);
-    const remainder = count % 10000;
-    if (remainder === 0) {
-      return `${man}만`;
-    } else if (remainder >= 1000) {
-      const thousand = Math.floor(remainder / 1000);
-      return `${man}만${thousand}천`;
-    } else {
-      return `${man}만`;
-    }
-  }
-
-  if (count >= 1000) {
-    const thousand = Math.floor(count / 1000);
-    return `${thousand}천`;
-  }
-
   return new Intl.NumberFormat('ko-KR').format(count);
 };
 
@@ -79,41 +51,24 @@ const handleClearAll = () => emit('delete-all');
 </script>
 
 <style scoped>
-.favorites-actions {
-  margin-bottom: 1.5rem;
-  position: relative;
+.recent-view-summary {
+  margin-bottom: 1rem;
 }
 
-.actions-container {
+.summary-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0.75rem;
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
-  border-radius: 1rem;
-  border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow: 0 2px 8px -2px rgba(45, 51, 107, 0.1);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 1rem 1.25rem;
+  background: var(--color-white);
+  border-radius: 0.75rem;
+  border: 1px solid #f1f5f9;
   gap: 1rem;
-}
-
-.actions-container:hover {
-  border-color: rgba(185, 187, 204, 0.4);
-  box-shadow: 0 4px 12px -2px rgba(45, 51, 107, 0.15);
 }
 
 /* 결과 정보 섹션 */
 .results-section {
   flex: 1;
-}
-
-.count-display {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.05rem;
-  transition: all 0.3s ease;
 }
 
 .count-text {
@@ -124,101 +79,119 @@ const handleClearAll = () => emit('delete-all');
 
 .count-text strong {
   color: var(--color-main);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 /* 액션 섹션 */
 .actions-section {
-  flex-shrink: 0;
-}
-
-.selected-actions,
-.default-actions {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex-shrink: 0;
 }
 
 .selection-indicator {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.375rem 0.5rem;
+  padding: 0.375rem 0.75rem;
   background: var(--color-main);
-  color: white;
-  border-radius: 1.5rem;
-  font-size: 0.6rem;
+  color: var(--color-white);
+  border-radius: 1rem;
+  font-size: 0.75rem;
   font-weight: 500;
-  animation: slideInRight 0.3s ease;
-}
-
-.selection-indicator i {
-  font-size: 0.6rem;
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
 }
 
 /* 액션 버튼 공통 스타일 */
 .action-btn {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
+  padding: 0.5rem 1rem;
   border: none;
-  border-radius: 0.75rem;
-  font-size: 0.6rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  text-decoration: none;
-}
-
-.action-btn i {
-  font-size: 0.6rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .action-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
-  transform: none !important;
 }
 
 /* 선택 삭제 버튼 */
 .delete-selected {
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-  color: white;
-  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+  background: #ef4444;
+  color: var(--color-white);
 }
 
 .delete-selected:hover:not(:disabled) {
-  background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+  background: #dc2626;
 }
 
 /* 전체 삭제 버튼 */
 .delete-all {
-  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
-  color: white;
-  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+  background: var(--color-bg-light);
+  color: var(--color-sub);
+  border: 1px solid #e2e8f0;
 }
 
 .delete-all:hover:not(:disabled) {
-  background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+  background: #e2e8f0;
+  color: var(--color-main);
 }
 
 .action-btn:active:not(:disabled) {
-  transform: translateY(0);
+  transform: scale(0.98);
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .summary-container {
+    padding: 0.875rem 1rem;
+    gap: 0.75rem;
+  }
+
+  .count-text {
+    font-size: 0.8125rem;
+  }
+
+  .selection-indicator {
+    padding: 0.3125rem 0.625rem;
+    font-size: 0.6875rem;
+  }
+
+  .action-btn {
+    padding: 0.4375rem 0.875rem;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .summary-container {
+    padding: 0.75rem 0.875rem;
+    gap: 0.5rem;
+  }
+
+  .count-text {
+    font-size: 0.75rem;
+  }
+
+  .selection-indicator {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.625rem;
+  }
+
+  .action-btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.6875rem;
+  }
+}
+
+/* 포커스 상태 */
+.action-btn:focus-visible {
+  outline: 2px solid var(--color-main);
+  outline-offset: 1px;
 }
 </style>

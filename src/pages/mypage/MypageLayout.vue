@@ -683,7 +683,7 @@ onUnmounted(() => {
   }
 
   .main-layout {
-    padding-top: 0rem; /* 네비바만큼만 */
+    padding-top: 3.5rem; /* 네비바만큼만 */
     width: 100%;
     max-width: 100vw;
   }
