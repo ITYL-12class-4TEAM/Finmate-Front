@@ -11,7 +11,7 @@
         >개
       </div>
       <div class="sort-dropdown">
-        <select v-model="localSortBy" @change="onSortChange" class="sort-select">
+        <select v-model="localSortBy" class="sort-select" @change="onSortChange">
           <option value="intrRate">기본금리순</option>
           <option value="intrRate2">우대금리순</option>
         </select>
@@ -57,13 +57,13 @@
         <div class="product-details" @click="onProductClick(product)">
           <div class="detail-row">
             <span class="detail-label">기본 금리</span>
-            <span class="detail-value highlight">{{
+            <span class="detail-value">{{
               formatRate(product.intr_rate || product.intrRate)
             }}</span>
           </div>
           <div class="detail-row">
             <span class="detail-label">우대 금리</span>
-            <span class="detail-value">{{
+            <span class="detail-value highlight">{{
               formatRate(product.intr_rate2 || product.intrRate2)
             }}</span>
           </div>
@@ -103,8 +103,9 @@
 
     <CompareFloatingBar
       v-if="compareList.length > 0"
-      :compareList="compareList"
+      :compare-list="compareList"
       @go-to-compare="goToCompare"
+      @clear-compare-list="clearCompareList"
     />
   </div>
 </template>
@@ -134,7 +135,8 @@ const emit = defineEmits(['product-click', 'page-change', 'sort-change']);
 const router = useRouter();
 
 const localSortBy = ref(props.sortBy);
-const { compareList, addToCompareList, removeFromCompareList, isInCompareList } = useCompareList();
+const { compareList, clearCompareList, addToCompareList, removeFromCompareList, isInCompareList } =
+  useCompareList();
 
 const getProductId = (product) => {
   if (!product) return null;
@@ -164,12 +166,16 @@ const getRateTypeClass = (product) => {
   return rateType === 'S' ? 'simple-interest' : 'compound-interest';
 };
 
+// filteredProducts computed 속성을 수정
 const filteredProducts = computed(() => {
   if (!props.products?.length) return [];
+
   const userAmount = props.depositAmount
     ? Number(String(props.depositAmount).replace(/[^\d]/g, ''))
     : 0;
-  return props.products.filter((product) => {
+
+  // 금액 필터링
+  let filtered = props.products.filter((product) => {
     const minDeposit = Number(
       product.min_deposit || product.minDeposit || product.minDepositAmount || 0
     );
@@ -178,6 +184,34 @@ const filteredProducts = computed(() => {
       Number.MAX_SAFE_INTEGER;
     return userAmount >= minDeposit && userAmount <= maxLimit;
   });
+
+  // 정렬 로직 추가
+  filtered.sort((a, b) => {
+    // 기본금리 추출
+    const intrRateA = parseFloat(a.intr_rate || a.intrRate || 0);
+    const intrRateB = parseFloat(b.intr_rate || b.intrRate || 0);
+
+    // 우대금리 추출
+    const intrRate2A = parseFloat(a.intr_rate2 || a.intrRate2 || 0);
+    const intrRate2B = parseFloat(b.intr_rate2 || b.intrRate2 || 0);
+
+    // localSortBy에 따라 정렬
+    if (localSortBy.value === 'intrRate') {
+      // 기본금리순 정렬, 같으면 우대금리 높은순
+      if (intrRateA === intrRateB) {
+        return intrRate2B - intrRate2A; // 우대금리 내림차순
+      }
+      return intrRateB - intrRateA; // 기본금리 내림차순
+    } else {
+      // 우대금리순 정렬, 같으면 기본금리 높은순
+      if (intrRate2A === intrRate2B) {
+        return intrRateB - intrRateA; // 기본금리 내림차순
+      }
+      return intrRate2B - intrRate2A; // 우대금리 내림차순
+    }
+  });
+
+  return filtered;
 });
 
 watch(
@@ -239,14 +273,14 @@ const goToCompare = () => {
   align-items: center;
   justify-content: space-between;
   background-color: #ffffff;
-  padding: 0.75rem 1rem;
+  padding: 0.3rem 0.8rem;
   border-radius: 0.5rem; /* 8px */
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.5rem;
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.03);
 }
 
 .result-count {
-  font-size: 0.9375rem; /* 15px */
+  font-size: 0.875rem; /* 15px */
   color: var(--color-sub);
 }
 
@@ -265,7 +299,7 @@ const goToCompare = () => {
   border-radius: 0.375rem; /* 6px */
   background-color: transparent;
   color: var(--color-main);
-  font-size: 0.875rem; /* 14px */
+  font-size: 0.75rem; /* 14px */
   font-weight: 500;
   appearance: none;
   -webkit-appearance: none;
@@ -289,14 +323,14 @@ const goToCompare = () => {
 .product-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
   margin-bottom: 2rem;
 }
 
 .product-card {
   background: #fff;
   border-radius: 0.75rem; /* 12px */
-  padding: 1.25rem 1rem;
+  padding: 0.8rem 1.2rem;
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.04);
   display: flex;
   flex-direction: column;
@@ -310,7 +344,7 @@ const goToCompare = () => {
 }
 
 .product-header {
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   cursor: pointer;
 }
 
@@ -318,17 +352,17 @@ const goToCompare = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.375rem;
+  margin-bottom: 0.1rem;
 }
 
 .bank-name {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: var(--color-sub);
   font-weight: 500;
 }
 
 .rate-type-badge {
-  padding: 0.25rem 0.625rem;
+  padding: 0.2rem 0.5rem;
   border-radius: 1rem;
   font-size: 0.75rem;
   font-weight: 500;
@@ -336,8 +370,20 @@ const goToCompare = () => {
   color: var(--color-main);
 }
 
+/* 단리 뱃지 스타일 */
+.simple-interest {
+  background-color: #f0f3ff; /* 이미지에서 보이는 연한 파란색 */
+  color: #4c4dbd; /* 진한 파란색(메인 색상) */
+}
+
+/* 복리 뱃지 스타일 */
+.compound-interest {
+  background-color: #e0f7e6; /* 연한 초록색 배경 */
+  color: #097b68; /* 진한 초록색 텍스트 */
+}
+
 .product-name {
-  font-size: 1.125rem; /* 18px */
+  font-size: 1rem; /* 18px */
   font-weight: 600;
   color: var(--color-main);
   line-height: 1.4;
@@ -346,12 +392,12 @@ const goToCompare = () => {
 .product-details {
   display: flex;
   flex-direction: column;
-  gap: 0.625rem; /* 10px */
+  gap: 0.325rem; /* 10px */
   flex-grow: 1;
   cursor: pointer;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.5rem;
   border-top: 1px solid var(--color-bg-light);
-  padding-top: 1rem;
+  padding-top: 0.5rem;
 }
 
 .detail-row {
@@ -361,7 +407,7 @@ const goToCompare = () => {
 }
 
 .detail-label {
-  font-size: 0.9375rem; /* 15px */
+  font-size: 0.85rem; /* 15px */
   color: var(--color-sub);
 }
 
@@ -372,7 +418,7 @@ const goToCompare = () => {
 }
 
 .detail-value.highlight {
-  font-size: 1.125rem; /* 18px */
+  font-size: 1rem; /* 18px */
   color: var(--color-accent, #e91e63);
 }
 
@@ -387,12 +433,12 @@ const goToCompare = () => {
 .compare-btn,
 .join-btn {
   flex: 1;
-  height: 3rem; /* 48px */
+  height: 2.5rem; /* 48px */
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 0.5rem; /* 8px */
-  font-size: 0.9375rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   border: none;

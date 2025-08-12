@@ -117,7 +117,6 @@ const verifyPassword = async () => {
 
     const response = await authAPI.checkPassword(currentPassword.value);
     if (response.success) {
-      // 인증 정보 저장
       localStorage.setItem('passwordVerified', 'true');
       localStorage.setItem('verificationTime', Date.now().toString());
 

@@ -25,8 +25,6 @@ export const authAPI = {
         };
       }
     } catch (error) {
-      console.error('로그인 API 오류:', error);
-
       let errorMessage = '로그인에 실패했습니다.';
 
       if (error.response?.data?.header?.message) {
@@ -57,7 +55,6 @@ export const authAPI = {
         data: response.data,
       };
     } catch (error) {
-      console.error('로그아웃 오류:', error);
       return {
         success: true,
         message: '로그아웃 되었습니다.',
@@ -90,8 +87,6 @@ export const authAPI = {
         };
       }
     } catch (error) {
-      console.error('아이디 찾기 API 오류:', error);
-
       let errorMessage = '입력하신 정보와 일치하는 아이디를 찾을 수 없습니다.';
 
       if (error.response?.data?.header?.message) {
@@ -130,8 +125,6 @@ export const authAPI = {
         };
       }
     } catch (error) {
-      console.error('비밀번호 찾기 API 오류:', error);
-
       let errorMessage = '입력하신 정보와 일치하는 계정을 찾을 수 없습니다.';
 
       if (error.response?.data?.header?.message) {
@@ -141,25 +134,6 @@ export const authAPI = {
       return {
         success: false,
         message: errorMessage,
-        data: null,
-      };
-    }
-  },
-
-  // 비밀번호 확인
-  checkPassword: async (password) => {
-    try {
-      const response = await api.post('/api/auth/check-password', { password });
-      return {
-        success: true,
-        message: '비밀번호 확인 성공',
-        data: response.data,
-      };
-    } catch (error) {
-      console.error('비밀번호 확인 API 오류:', error);
-      return {
-        success: false,
-        message: '비밀번호 확인에 실패했습니다.',
         data: null,
       };
     }
@@ -189,8 +163,6 @@ export const authAPI = {
         };
       }
     } catch (error) {
-      console.error('비밀번호 재설정 API 오류:', error);
-
       let errorMessage = '비밀번호 변경에 실패했습니다.';
 
       if (error.response?.data?.header?.message) {
@@ -225,8 +197,6 @@ export const authAPI = {
         };
       }
     } catch (error) {
-      console.error('회원가입 API 오류:', error);
-
       let errorMessage = '회원가입 중 오류가 발생했습니다.';
       if (error.response?.data?.header?.message) {
         errorMessage = error.response.data.header.message;
@@ -264,8 +234,6 @@ export const authAPI = {
         };
       }
     } catch (error) {
-      console.error('소셜 회원가입 API 오류:', error);
-
       let errorMessage = '소셜 회원가입 중 오류가 발생했습니다.';
       if (error.response?.data?.header?.message) {
         errorMessage = error.response.data.header.message;
@@ -301,8 +269,6 @@ export const authAPI = {
         };
       }
     } catch (error) {
-      console.error('OAuth2 토큰 교환 API 오류:', error);
-
       let errorMessage = 'OAuth2 토큰 교환 중 오류가 발생했습니다.';
 
       if (error.response?.data?.header?.message) {
@@ -345,8 +311,6 @@ export const authAPI = {
         };
       }
     } catch (error) {
-      console.error('회원탈퇴 API 오류:', error);
-
       let errorMessage = '회원탈퇴 중 오류가 발생했습니다.';
 
       if (error.response?.data?.header?.message) {
@@ -364,6 +328,24 @@ export const authAPI = {
       return {
         success: false,
         message: errorMessage,
+        data: null,
+      };
+    }
+  },
+  // 비밀번호 확인
+  checkPassword: async (password) => {
+    try {
+      const response = await api.post('/api/auth/check-password', { password });
+      return {
+        success: true,
+        message: '비밀번호 확인 성공',
+        data: response.data,
+      };
+    } catch (error) {
+      console.error('비밀번호 확인 API 오류:', error);
+      return {
+        success: false,
+        message: '비밀번호 확인에 실패했습니다.',
         data: null,
       };
     }

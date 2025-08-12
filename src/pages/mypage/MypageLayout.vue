@@ -353,7 +353,7 @@ onUnmounted(() => {
   padding: 0 3rem 0 1rem;
   cursor: pointer;
   transition: box-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-  display: none;
+  display:none;
 }
 .mobile-header i.fas.fa-bars {
   position: absolute;

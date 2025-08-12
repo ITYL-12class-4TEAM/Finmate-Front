@@ -54,6 +54,7 @@ const confirmPasswordError = ref('');
 
 // 사용자 기본 정보 (수정 불가)
 const userInfo = ref({
+  username: '',
   nickname: '',
   email: '',
   profileImage: '',
@@ -233,7 +234,7 @@ onMounted(async () => {
   // 2. 사용자 정보 조회
   try {
     const response = await memberAPI.getMyInfo();
-
+    console.log('🔍 사용자 정보 조회 결과:', response);
     if (response.success) {
       userInfo.value = response.data;
 
