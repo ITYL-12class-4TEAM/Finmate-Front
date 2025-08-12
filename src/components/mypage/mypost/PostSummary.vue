@@ -38,4 +38,11 @@ defineProps({
   font-size: 0.875rem;
   color: var(--color-sub);
 }
+
+@media (max-width: 48rem) {
+  .summary-info {
+    font-size: 0.8125rem;
+    padding: 0.5rem 0.75rem;
+  }
+}
 </style>

@@ -237,6 +237,29 @@ const headerTitle = computed(() => {
 
 const toggleMobileMenu = () => {
   showMobileMenu.value = !showMobileMenu.value;
+  
+  // 메뉴를 열 때 헤더를 즉시 상단에 고정
+  if (showMobileMenu.value) {
+    headerTranslateY.value = 0;
+  } else {
+    // 메뉴를 닫을 때 현재 스크롤 위치에 따라 헤더 위치 계산
+    const currentScrollY = window.scrollY;
+    const startHideAt = 0;
+    const headerHeight = 56;
+    
+    console.log('토글로 메뉴 닫기 - 현재 스크롤:', currentScrollY);
+    
+    if (currentScrollY <= startHideAt) {
+      headerTranslateY.value = 0;
+      console.log('토글 상단 - 헤더 표시:', headerTranslateY.value);
+    } else {
+      const scrollBeyondStart = currentScrollY - startHideAt;
+      const translateValue = Math.min(scrollBeyondStart * 0.8, headerHeight);
+      headerTranslateY.value = -translateValue;
+      console.log('토글 아래 - 헤더 숨김:', headerTranslateY.value, 'translateValue:', translateValue);
+    }
+  }
+  
   // 메뉴 열릴 때 body 스크롤 방지
   document.body.style.overflow = showMobileMenu.value ? 'hidden' : '';
 };
@@ -244,6 +267,25 @@ const toggleMobileMenu = () => {
 const closeMobileMenu = () => {
   showMobileMenu.value = false;
   document.body.style.overflow = '';
+  
+  // 메뉴 닫은 후 즉시 현재 스크롤 위치에 따라 헤더 위치 계산
+  const currentScrollY = window.scrollY;
+  const startHideAt = 0;
+  const headerHeight = 56;
+  
+  console.log('메뉴 닫기 - 현재 스크롤:', currentScrollY);
+  
+  if (currentScrollY <= startHideAt) {
+    // 상단에 있으면 헤더 완전히 표시
+    headerTranslateY.value = 0;
+    console.log('상단 - 헤더 표시:', headerTranslateY.value);
+  } else {
+    // 아래에 있으면 스크롤 위치에 맞게 헤더 숨기기
+    const scrollBeyondStart = currentScrollY - startHideAt;
+    const translateValue = Math.min(scrollBeyondStart * 0.8, headerHeight);
+    headerTranslateY.value = -translateValue;
+    console.log('아래 - 헤더 숨김:', headerTranslateY.value, 'translateValue:', translateValue);
+  }
 };
 
 const handleScroll = () => {
@@ -252,9 +294,15 @@ const handleScroll = () => {
   // 스크롤 탑 버튼 표시/숨김
   showScrollTop.value = currentScrollY > 50;
 
-  // 헤더 자연스러운 움직임 로직
+  // 메뉴가 열린 상태에서는 헤더를 항상 상단에 고정
+  if (showMobileMenu.value) {
+    headerTranslateY.value = 0;
+    return;
+  }
+
+  // 메뉴가 닫힌 상태에서의 헤더 자연스러운 움직임 로직
   const startHideAt = 0; // 숨기기 시작하는 스크롤 위치
-  const headerHeight = 56; // 헤더바 높이 (2.5rem = 40px)
+  const headerHeight = 56; // 헤더바 높이 (3.5rem = 56px)
 
   if (currentScrollY <= startHideAt) {
     // 상단에서는 완전히 표시
@@ -264,13 +312,10 @@ const handleScroll = () => {
     const scrollBeyondStart = currentScrollY - startHideAt;
     const translateValue = Math.min(scrollBeyondStart * 0.8, headerHeight);
     headerTranslateY.value = -translateValue;
-
-    // 70% 이상 숨겨졌을 때 메뉴 닫기
-    if (translateValue >= headerHeight * 0.7 && showMobileMenu.value) {
-      closeMobileMenu();
-    }
+    console.log('handleScroll - 스크롤:', currentScrollY, '헤더 위치:', headerTranslateY.value);
   }
 };
+
 onMounted(() => {
   window.addEventListener('scroll', handleScroll);
   lastScrollY.value = window.scrollY;
@@ -487,7 +532,7 @@ onUnmounted(() => {
   color: #374151;
   border-radius: 0.5rem;
   transition: all 0.2s ease;
-  font-size: 0.8125rem;
+  font-size: 0.7rem;
   font-weight: 500;
   position: relative;
   width: 100%;
@@ -623,7 +668,7 @@ onUnmounted(() => {
 
   .menu-item {
     padding: 0.5rem 0.75rem;
-    font-size: 0.75rem;
+    font-size: 0.5rem;
   }
 
   .menu-icon {
@@ -632,7 +677,7 @@ onUnmounted(() => {
   }
 
   .menu-icon i {
-    font-size: 0.75rem;
+    font-size: 0.5rem;
   }
 
   .menu-text {
@@ -881,7 +926,7 @@ onUnmounted(() => {
   }
 
   .menu-item {
-    padding: 1.125rem 0.875rem;
+    padding: 0.9rem 0.7rem;
     width: 100%;
     max-width: 100%;
     overflow-x: hidden;
