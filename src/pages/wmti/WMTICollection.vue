@@ -56,8 +56,18 @@
           class="wmti-card"
           @click="selectWMTI(wmti)"
         >
+          <div class="card-image">
+            <img
+              :src="`/src/assets/images/wmti-characters/${wmti.code}.png`"
+              :alt="wmti.aka"
+              class="character-image"
+              @error="handleImageError"
+            />
+          </div>
           <div class="card-header">
-            <div class="wmti-code">{{ wmti.code }}</div>
+            <div class="wmti-code" :style="getWMTICodeStyle(wmti.code)">
+              {{ wmti.code }}
+            </div>
             <div class="wmti-badge" :class="wmti.category?.toLowerCase()">
               {{ wmti.category }}
             </div>
@@ -77,8 +87,18 @@
         <div class="modal-content" @click.stop>
           <div class="modal-header">
             <button class="close-btn" @click="closeModal">&times;</button>
+            <div class="modal-character">
+              <img
+                :src="`/src/assets/images/wmti-characters/${selectedWMTI.code}.png`"
+                :alt="selectedWMTI.aka"
+                class="modal-character-image"
+                @error="handleImageError"
+              />
+            </div>
             <div class="modal-wmti-info">
-              <div class="modal-code">{{ selectedWMTI.code }}</div>
+              <div class="modal-code" :style="getWMTICodeStyle(selectedWMTI.code)">
+                {{ selectedWMTI.code }}
+              </div>
               <h2 class="modal-name">{{ selectedWMTI.aka }}</h2>
               <div class="modal-badge" :class="selectedWMTI.category?.toLowerCase()">
                 {{ selectedWMTI.category }}
@@ -172,9 +192,6 @@ const loadWMTIData = async () => {
     const extractedData = data.map((item) => {
       const category = getCategoryFromTag(item.aka);
 
-      // 디버깅: aka 값과 매핑된 카테고리 출력
-      console.log(`${item.code} - aka: "${item.aka}" -> category: "${category}"`);
-
       return {
         ...item,
         category: category,
@@ -265,6 +282,40 @@ const closeModal = () => {
 
 const retryLoadData = () => {
   loadWMTIData();
+};
+
+// WMTI 코드별 색상 매핑
+const getWMTICodeStyle = (wmtiCode) => {
+  const colorMap = {
+    ABWC: ['#E74C3C', '#C0392B'], // 클래식 레드
+    ABWL: ['#E67E22', '#D35400'], // 오렌지 레드
+    ABMC: ['#DC7633', '#BA4A00'], // 번트 오렌지
+    ABML: ['#CB4335', '#A93226'], // 딥 레드
+    APWC: ['#FF6B6B', '#EE5A52'], // 코랄 레드
+    APWL: ['#FF7675', '#FD79A8'], // 로즈 핑크
+    APMC: ['#FD79A8', '#E84393'], // 핫 핑크
+    APML: ['#E84393', '#D63031'], // 매젠타
+    IBWC: ['#3498DB', '#2980B9'], // 스카이 블루
+    IBWL: ['#5DADE2', '#3498DB'], // 라이트 블루
+    IBMC: ['#2E86C1', '#2471A3'], // 오션 블루
+    IBML: ['#21618C', '#1B4F72'], // 네이비 블루
+    IPWC: ['#74B9FF', '#0984E3'], // 브라이트 블루
+    IPWL: ['#81ECEC', '#00B894'], // 아쿠아
+    IPMC: ['#00B894', '#00A085'], // 틸
+    IPML: ['#00A085', '#006266'], // 다크 틸
+  };
+
+  const colors = colorMap[wmtiCode] || ['#6b7280', '#4b5563']; // 기본 회색
+  return {
+    background: `linear-gradient(135deg, ${colors[0]} 0%, ${colors[1]} 100%)`,
+    color: '#ffffff',
+  };
+};
+
+// 이미지 에러 핸들링
+const handleImageError = (event) => {
+  // 이미지 로드 실패시 기본 이미지로 대체
+  event.target.src = '/src/assets/images/wmti-characters/default.png';
 };
 </script>
 
@@ -449,6 +500,20 @@ const retryLoadData = () => {
   box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.15);
 }
 
+.card-image {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.character-image {
+  width: 15rem;
+  height: 15rem;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 0.1875rem solid var(--color-bg-light);
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;
@@ -459,10 +524,9 @@ const retryLoadData = () => {
 .wmti-code {
   font-size: 1rem;
   font-weight: 700;
-  color: var(--color-main);
-  background: var(--color-bg-light);
   padding: 0.25rem 0.75rem;
   border-radius: 0.375rem;
+  /* 동적 스타일은 JavaScript에서 적용 */
 }
 
 .wmti-badge {
@@ -569,6 +633,21 @@ const retryLoadData = () => {
   color: var(--color-white);
   font-size: 1.5rem;
   padding: 0.25rem;
+  cursor: pointer;
+}
+
+.modal-character {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.modal-character-image {
+  width: 6rem;
+  height: 6rem;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 0.25rem solid rgba(255, 255, 255, 0.3);
 }
 
 .modal-wmti-info {
@@ -579,12 +658,17 @@ const retryLoadData = () => {
   font-size: 1.25rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
+  padding: 0.375rem 1rem;
+  border-radius: 0.5rem;
+  display: inline-block;
+  /* 동적 스타일은 JavaScript에서 적용 */
 }
 
 .modal-name {
   font-size: 1.375rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
+  margin-left: 0.75rem;
 }
 
 .modal-badge {
