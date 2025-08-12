@@ -44,7 +44,6 @@ onMounted(async () => {
     // 실제 상태 확인 (혹시 동기화 안된 경우를 위해)
     const response = await wishlistAPI.isFavorite(props.favorite.productId);
     isFavorite.value = response.body.data;
-    console.log('aa', response);
   } catch (error) {
     console.error('즐겨찾기 상태 확인 실패:', error);
   } finally {

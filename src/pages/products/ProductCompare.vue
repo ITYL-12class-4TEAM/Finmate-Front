@@ -331,15 +331,6 @@ const handleRemoveItem = async (productId, saveTrm, intrRateType = 'S') => {
         // 적금 상품인 경우 rsrvType 설정, 없으면 기본값 'F' 사용
         const rsrvType = product.rsrvType || (productType === 'savings' ? 'F' : undefined);
 
-        console.log('삭제 시도:', {
-          productId,
-          saveTrm,
-          intrRateType,
-          rsrvType,
-          productType,
-          product: product.productName,
-        });
-
         // 모든 필요한 파라미터 전달
         removeFromCompareList(productId, saveTrm, intrRateType, rsrvType, productType);
       } else {
