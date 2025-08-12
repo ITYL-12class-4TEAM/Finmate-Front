@@ -57,34 +57,6 @@
               >
                 적금
               </div>
-              <div
-                class="select-option"
-                :class="{ selected: selectedType === '펀드' }"
-                @click="selectType('펀드')"
-              >
-                펀드
-              </div>
-              <div
-                class="select-option"
-                :class="{ selected: selectedType === '대출' }"
-                @click="selectType('대출')"
-              >
-                대출
-              </div>
-              <div
-                class="select-option"
-                :class="{ selected: selectedType === '보험' }"
-                @click="selectType('보험')"
-              >
-                보험
-              </div>
-              <div
-                class="select-option"
-                :class="{ selected: selectedType === '연금' }"
-                @click="selectType('연금')"
-              >
-                연금
-              </div>
             </div>
           </div>
         </div>
