@@ -196,12 +196,12 @@ const router = createRouter({
           name: 'Theme-Collection',
           component: () => import('../pages/wmti/theme-Collection.vue'),
         },
-        // WMTI 컬렉션
-        // {
-        //   path: 'collection',
-        //   name: 'WMTICollection',
-        //   component: () => import('../pages/wmti/WMTICollection.vue'),
-        // },
+        // WMTI 컬렉션(16종 코드모아보기)
+        {
+          path: 'collection',
+          name: 'WMTICollection',
+          component: () => import('../pages/wmti/WMTICollection.vue'),
+        },
       ],
     },
 
