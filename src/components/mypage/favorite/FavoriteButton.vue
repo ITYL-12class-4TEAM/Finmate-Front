@@ -7,10 +7,8 @@
   >
     <i
       v-if="!loading && !externalLoading"
-      class="fa-solid fa-star"
-      :class="{ 'is-favorite': isFavorite }"
+      :class="isFavorite ? 'fa-solid fa-star' : 'fa-regular fa-star'"
     ></i>
-    <!-- 로딩 중일 때 스피너 표시 -->
     <i v-else class="fa-solid fa-spinner fa-spin"></i>
   </button>
 </template>
@@ -25,18 +23,9 @@ const { showToast } = useToast();
 const { showModal } = useModal();
 
 const props = defineProps({
-  isFavorite: {
-    type: Boolean,
-    required: true,
-  },
-  productId: {
-    type: [String, Number],
-    required: true,
-  },
-  loading: {
-    type: Boolean,
-    default: false,
-  },
+  isFavorite: { type: Boolean, required: true },
+  productId: { type: [String, Number], required: true },
+  loading: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['remove-favorite', 'add-favorite']);
@@ -82,40 +71,64 @@ const addFavorite = async () => {
   }
 };
 </script>
+
 <style scoped>
-/* 즐겨찾기 버튼 */
 .favorite-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  border: none;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  background: var(--color-white);
+  border-radius: 0.375rem;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(185, 187, 204, 0.2);
+  transition: all 0.2s ease;
+  color: #cbd5e1;
+}
+
+.favorite-btn:hover:not(:disabled) {
+  border-color: #fbbf24;
+  color: #fbbf24;
+}
+
+.favorite-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .favorite-btn i {
-  font-size: 1rem;
-  color: #f59e0b;
+  font-size: 0.875rem;
   transition: all 0.2s ease;
 }
 
-.favorite-btn:hover {
-  background: rgba(245, 158, 11, 0.1);
-  border-color: rgba(245, 158, 11, 0.3);
-  transform: scale(1.05);
+/* 즐겨찾기 된 상태 (fa-solid) */
+.favorite-btn .fa-solid.fa-star {
+  color: #fbbf24;
 }
 
-.favorite-btn:hover i {
-  color: #d97706;
-  transform: scale(1.1);
+.favorite-btn:hover:not(:disabled) .fa-solid.fa-star {
+  color: #f59e0b;
 }
 
-.favorite-btn:active {
-  transform: scale(0.95);
+/* 즐겨찾기 안된 상태 (fa-regular) */
+.favorite-btn .fa-regular.fa-star {
+  color: #cbd5e1;
+}
+
+.favorite-btn:hover:not(:disabled) .fa-regular.fa-star {
+  color: #fbbf24;
+}
+
+@media (max-width: 768px) {
+  .favorite-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+  
+  .favorite-btn i {
+    font-size: 0.8125rem;
+  }
 }
 </style>
+

@@ -13,8 +13,11 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router';
 import RecentViewItemCategory from './RecentViewItemCategory.vue';
 import RecentViewItemInfo from './RecentViewInfo.vue';
+
+const router = useRouter();
 
 const props = defineProps({
   product: { type: Object, required: true },
@@ -31,14 +34,71 @@ const handleSelect = (isSelected) => {
     currentSelection: props.isSelected,
   });
 
-  // 부모 컴포넌트로 이벤트 전달
   emit('select', props.product.productId, isSelected);
 };
 
-const handleCardClick = (event) => {
+const handleCardClick = async (event) => {
   // 체크박스나 다른 컨트롤 영역 클릭이 아닌 경우에만 카드 클릭 처리
   console.log('카드 클릭됨:', props.product);
-  emit('click-recent', props.product);
+
+  const subcategory = props.product.subcategoryName;
+  const productId = props.product.productId;
+  const saveTrm = props.product.saveTrm;
+  const intrRateType = props.product.intrRateType;
+  const rsrvValue = props.product.rstvValue;
+
+  let routePath = '';
+  let query = {};
+
+  if (subcategory === '정기예금') {
+    routePath = `/products/deposit/${productId}`;
+    if (saveTrm) query.saveTrm = saveTrm;
+    if (intrRateType) query.intrRateType = intrRateType;
+  } else if (subcategory === '자유적금') {
+    routePath = `/products/savings/${productId}`;
+    if (saveTrm) query.saveTrm = saveTrm;
+    if (intrRateType) query.intrRateType = intrRateType;
+    if (rsrvValue) query.rsrvType = rsrvValue;
+  } else if (subcategory === '연금저축') {
+    routePath = `/products/pension/${productId}`;
+    if (saveTrm) query.saveTrm = saveTrm;
+    if (intrRateType) query.intrRateType = intrRateType;
+  } else {
+    routePath = `/products/unknown/${productId}`;
+  }
+
+  try {
+    // 강제로 페이지 새로고침을 위해 현재 페이지인지 확인
+    const currentRoute = router.currentRoute.value;
+    const targetRoute = { path: routePath, query };
+
+    // 같은 경로라면 강제 새로고침
+    if (currentRoute.path === routePath) {
+      // 쿼리 파라미터가 다르면 라우터로 이동
+      const currentQuery = JSON.stringify(currentRoute.query);
+      const targetQuery = JSON.stringify(query);
+
+      if (currentQuery !== targetQuery) {
+        await router.push(targetRoute);
+      } else {
+        // 완전히 같은 페이지라면 페이지 새로고침
+        window.location.href =
+          routePath +
+          (Object.keys(query).length ? '?' + new URLSearchParams(query).toString() : '');
+        return;
+      }
+    } else {
+      // 다른 페이지로 이동
+      await router.push(targetRoute);
+    }
+
+    emit('click-recent', props.product);
+  } catch (err) {
+    console.error('페이지 이동 실패:', err);
+    // 라우터 이동 실패 시 직접 페이지 이동
+    window.location.href =
+      routePath + (Object.keys(query).length ? '?' + new URLSearchParams(query).toString() : '');
+  }
 };
 </script>
 
@@ -46,11 +106,13 @@ const handleCardClick = (event) => {
 .recent-view-item {
   background: var(--color-white);
   border-radius: 0.75rem;
-  padding: 1rem;
+  padding: 2rem;
   border: 1px solid #f1f5f9;
   transition: all 0.2s ease;
   position: relative;
   cursor: pointer;
+  /* 오른쪽에 여백 추가 */
+  padding-right: 3rem;
 }
 
 .recent-view-item:hover {
@@ -77,11 +139,21 @@ const handleCardClick = (event) => {
   color: #cbd5e1;
   transition: all 0.2s ease;
   opacity: 0;
+  /* 클릭 영역 확보 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.375rem;
+  background: transparent;
 }
 
 .recent-view-item:hover .click-indicator {
   opacity: 1;
   color: var(--color-main);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
 }
 
 .click-indicator i {
@@ -90,7 +162,9 @@ const handleCardClick = (event) => {
 
 @media (max-width: 768px) {
   .recent-view-item {
-    padding: 0.875rem;
+    padding: 1.5rem;
+    /* 모바일에서도 오른쪽 여백 */
+    padding-right: 2.5rem;
   }
 
   .item-content {
@@ -100,10 +174,29 @@ const handleCardClick = (event) => {
   .click-indicator {
     right: 0.875rem;
     opacity: 0.5;
+    width: 1.75rem;
+    height: 1.75rem;
   }
 
   .click-indicator i {
     font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .recent-view-item {
+    padding: 1.5rem;
+    padding-right: 2.25rem;
+  }
+
+  .click-indicator {
+    right: 0.75rem;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .click-indicator i {
+    font-size: 0.75rem;
   }
 }
 </style>

@@ -32,12 +32,6 @@
 
     <!-- 메인 콘텐츠 -->
     <div v-else class="main-content">
-      <!-- 필터 영역 -->
-      <RecentViewFilter
-        :total-count="recentProducts.length || 0"
-        @filter-change="handleFilterChange"
-      />
-
       <!-- 요약 정보 -->
       <RecentViewSummary
         :count="filteredProducts.length"
@@ -80,7 +74,6 @@ import { recentViewAPI } from '@/api/recentView';
 
 // 컴포넌트
 import Pagination from '@/components/mypage/common/Pagination.vue';
-import RecentViewFilter from '@/components/mypage/recentview/RecentViewFilter.vue';
 import RecentViewSummary from '@/components/mypage/recentview/RecentViewSummary.vue';
 import RecentViewList from '@/components/mypage/recentview/RecentViewList.vue';
 
@@ -220,60 +213,6 @@ const getCategoryFromSubcategory = (subcategoryName) => {
   return categoryMapping[subcategoryName] || 'fund';
 };
 
-// 이벤트 핸들러
-// RecentView.vue의 handleFilterChange 함수를 다음과 같이 수정하세요:
-
-// RecentView.vue의 handleFilterChange 함수 수정
-const handleFilterChange = (filters) => {
-  console.log('필터 변경:', filters);
-
-  // 받은 필터를 currentFilters 구조에 맞게 변환
-  const newFilters = {
-    categories: [],
-    period: 'all',
-    sort: 'recent',
-  };
-
-  // 검색어 처리 - 빈 문자열이어도 설정해야 함
-  searchQuery.value = filters.search || '';
-  console.log('검색어 설정:', searchQuery.value);
-
-  // 상품 유형을 categories로 변환
-  if (filters.type) {
-    const typeToCategory = {
-      예금: 'deposit',
-      적금: 'savings',
-      펀드: 'fund',
-      대출: 'loan',
-      보험: 'insurance',
-      연금: 'pension',
-    };
-
-    if (typeToCategory[filters.type]) {
-      newFilters.categories = [typeToCategory[filters.type]];
-      console.log(`상품 유형 변환: ${filters.type} -> ${typeToCategory[filters.type]}`);
-    }
-  }
-
-  // 정렬 방식 변환
-  if (filters.sort) {
-    const sortMapping = {
-      'name-asc': 'name',
-      'wishlist-desc': 'popular',
-      'date-desc': 'recent',
-    };
-
-    newFilters.sort = sortMapping[filters.sort] || 'recent';
-    console.log(`정렬 방식 변환: ${filters.sort} -> ${newFilters.sort}`);
-  }
-
-  currentFilters.value = newFilters;
-  currentPage.value = 1;
-
-  console.log('최종 currentFilters:', currentFilters.value);
-  console.log('최종 searchQuery:', searchQuery.value);
-};
-
 const clickRecent = async (recent) => {
   const subcategory = recent.subcategoryName;
   const productId = recent.productId;
@@ -409,7 +348,7 @@ onMounted(() => {
 <style scoped>
 .recent-view-page {
   min-height: 100vh;
-  padding: 1.5rem;
+  padding: 0rem;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -612,7 +551,7 @@ onMounted(() => {
 /* 웹 최적화 (데스크톱) */
 @media (min-width: 769px) {
   .recent-view-page {
-    padding: 2rem;
+    padding: 0rem;
   }
 
   .main-content {
@@ -652,7 +591,7 @@ onMounted(() => {
 /* 태블릿 최적화 */
 @media (max-width: 768px) and (min-width: 481px) {
   .recent-view-page {
-    padding: 1.25rem;
+    padding: 0rem;
   }
 
   .header-content {
@@ -673,7 +612,9 @@ onMounted(() => {
 /* 모바일 최적화 */
 @media (max-width: 480px) {
   .recent-view-page {
-    padding: 1rem;
+    padding: 0rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 
   .main-content {

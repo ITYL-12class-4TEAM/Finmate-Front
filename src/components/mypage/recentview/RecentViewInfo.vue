@@ -47,30 +47,6 @@
       </div>
     </div>
 
-    <!-- 하단 액션 영역 -->
-    <div class="action-section">
-      <div class="left-actions">
-        <!-- 즐겨찾기 버튼 -->
-        <button class="favorite-btn" :class="{ active: isFavorite }" @click.stop="toggleFavorite">
-          <i :class="isFavorite ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"></i>
-        </button>
-      </div>
-
-      <div class="right-actions">
-        <!-- 상세보기 링크 -->
-        <a
-          v-if="product.externalLink && product.externalLink.trim()"
-          :href="product.externalLink"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="detail-link"
-          @click.stop
-        >
-          <i class="fa-solid fa-external-link"></i>
-          <span>상세</span>
-        </a>
-      </div>
-    </div>
   </div>
 </template>
 

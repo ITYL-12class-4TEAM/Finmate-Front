@@ -52,7 +52,7 @@ const handleClearAll = () => emit('delete-all');
 
 <style scoped>
 .recent-view-summary {
-  margin-bottom: 1rem;
+  margin-bottom: 0rem;
 }
 
 .summary-container {

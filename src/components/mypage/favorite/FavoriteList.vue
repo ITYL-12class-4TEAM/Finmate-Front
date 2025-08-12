@@ -1,9 +1,9 @@
 <template>
-  <div class="favorites-list" :class="{ empty: favorites.length === 0 }">
+  <div class="favorites-list">
     <!-- 빈 상태 -->
     <div v-if="favorites.length === 0" class="empty-state">
       <div class="empty-icon">
-        <i class="fa-regular fa-heart"></i>
+        <i class="fa-regular fa-star"></i>
       </div>
       <h4 class="empty-title">즐겨찾기한 상품이 없습니다</h4>
       <p class="empty-description">관심 있는 금융상품을 즐겨찾기에 추가해보세요</p>
@@ -15,17 +15,15 @@
 
     <!-- 즐겨찾기 목록 -->
     <div v-else class="list-container">
-      <TransitionGroup name="favorite-item" tag="div" class="items-grid" appear>
+      <div class="items-grid">
         <FavoriteItem
-          v-for="(favorite, index) in favorites"
+          v-for="favorite in favorites"
           :key="favorite.productId"
           :favorite="favorite"
-          :style="{ 'animation-delay': `${index * 50}ms` }"
-          class="favorite-item-wrapper"
-          @click="() => $emit('click-favorite', favorite)"
+          @click-favorite="$emit('click-favorite', $event)"
           @remove-favorite="$emit('remove-favorite', $event)"
         />
-      </TransitionGroup>
+      </div>
     </div>
   </div>
 </template>
@@ -34,41 +32,23 @@
 import FavoriteItem from './FavoriteItem.vue';
 
 defineProps({
-  favorites: {
-    type: Array,
-    required: true,
-  },
+  favorites: { type: Array, required: true },
 });
 
-defineEmits(['remove-favorite', 'explore-products']);
+defineEmits(['remove-favorite', 'explore-products', 'click-favorite']);
 </script>
 
 <style scoped>
 .favorites-list {
-  position: relative;
   min-height: 200px;
-  max-height: 400px;
-}
-
-.list-container {
-  width: 100%;
-  min-height: 25rem;
-  max-height: 400px;
-  max-width: 26.875rem;
-  overflow-y: auto;
 }
 
 .items-grid {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
-.favorite-item-wrapper {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* 빈 상태 스타일 */
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -76,15 +56,9 @@ defineEmits(['remove-favorite', 'explore-products']);
   justify-content: center;
   text-align: center;
   padding: 3rem 2rem;
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
-  border-radius: 1.5rem;
-  border: 2px dashed rgba(185, 187, 204, 0.4);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.empty-state:hover {
-  border-color: rgba(185, 187, 204, 0.6);
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
+  background: var(--color-white);
+  border-radius: 0.75rem;
+  border: 2px dashed #e2e8f0;
 }
 
 .empty-icon {
@@ -93,40 +67,27 @@ defineEmits(['remove-favorite', 'explore-products']);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(220, 53, 69, 0.05) 100%);
+  background: var(--color-bg-light);
   border-radius: 50%;
   margin-bottom: 1.5rem;
-  transition: all 0.3s ease;
 }
 
 .empty-icon i {
   font-size: 2rem;
-  color: rgba(220, 53, 69, 0.6);
-  transition: all 0.3s ease;
-}
-
-.empty-state:hover .empty-icon {
-  transform: scale(1.1);
-  background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(220, 53, 69, 0.08) 100%);
-}
-
-.empty-state:hover .empty-icon i {
-  color: rgba(220, 53, 69, 0.8);
+  color: #fbbf24; /* 별 색상 */
 }
 
 .empty-title {
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--color-main);
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .empty-description {
   font-size: 0.875rem;
   color: var(--color-sub);
   margin-bottom: 2rem;
-  font-weight: 500;
-  line-height: 1.5;
   max-width: 300px;
 }
 
@@ -135,90 +96,55 @@ defineEmits(['remove-favorite', 'explore-products']);
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
-  color: white;
+  background: var(--color-main);
+  color: var(--color-white);
   border: none;
-  border-radius: 2rem;
+  border-radius: 0.5rem;
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.2);
+  transition: all 0.2s ease;
 }
 
 .explore-btn:hover {
-  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(45, 51, 107, 0.3);
-}
-
-.explore-btn:active {
-  transform: translateY(0);
+  background: var(--color-sub);
 }
 
 .explore-btn i {
   font-size: 0.875rem;
 }
 
-/* 리스트 아이템 애니메이션 */
-.favorite-item-enter-active {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.favorite-item-leave-active {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.favorite-item-enter-from {
-  opacity: 0;
-  transform: translateY(20px) scale(0.95);
-}
-
-.favorite-item-leave-to {
-  opacity: 0;
-  transform: translateX(-100%) scale(0.95);
-}
-
-.favorite-item-move {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* 로딩 상태 */
-.favorites-list.loading .items-grid {
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-.favorites-list.loading .favorite-item-wrapper {
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
+@media (max-width: 768px) {
+  .items-grid {
+    gap: 0.625rem;
   }
-  50% {
-    opacity: 0.7;
+
+  .empty-state {
+    padding: 2rem 1.5rem;
   }
-}
 
-/* 스크롤바 스타일링 (웹킷 기반 브라우저) */
-.favorites-list::-webkit-scrollbar {
-  width: 6px;
-}
+  .empty-icon {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 1rem;
+  }
 
-.favorites-list::-webkit-scrollbar-track {
-  background: rgba(185, 187, 204, 0.1);
-  border-radius: 3px;
-}
+  .empty-icon i {
+    font-size: 1.5rem;
+  }
 
-.favorites-list::-webkit-scrollbar-thumb {
-  background: rgba(185, 187, 204, 0.3);
-  border-radius: 3px;
-}
+  .empty-title {
+    font-size: 1.125rem;
+  }
 
-.favorites-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(185, 187, 204, 0.5);
+  .empty-description {
+    font-size: 0.8125rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .explore-btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.8125rem;
+  }
 }
 </style>

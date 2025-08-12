@@ -1,153 +1,182 @@
 <template>
-  <div class="favorite-item">
-    <ProductItemHeader :favorite="favorite" @remove-favorite="$emit('remove-favorite', favorite)" />
+  <div class="favorite-item" @click="handleCardClick">
+    <FavoriteItemHeader :favorite="favorite" @remove-favorite="$emit('remove-favorite', $event)" />
 
     <div class="item-content">
-      <div class="info-section">
-        <ProductItemInfo :favorite="favorite" />
-      </div>
+      <FavoriteItemInfo :favorite="favorite" />
+    </div>
+
+    <div class="click-indicator">
+      <i class="fa-solid fa-chevron-right"></i>
     </div>
   </div>
 </template>
 
 <script setup>
-import ProductItemHeader from './ProductItemHeader.vue';
-import ProductItemInfo from './ProductItemInfo.vue';
+import { useRouter } from 'vue-router';
+import FavoriteItemHeader from './ProductItemHeader.vue';
+import FavoriteItemInfo from './ProductItemInfo.vue';
 
-defineProps({
-  favorite: {
-    type: Object,
-    required: true,
-  },
+const router = useRouter();
+
+const props = defineProps({
+  favorite: { type: Object, required: true },
 });
 
-defineEmits(['remove-favorite']);
+const emit = defineEmits(['remove-favorite', 'click-favorite']);
+
+const handleCardClick = async (event) => {
+  console.log('즐겨찾기 카드 클릭됨:', props.favorite);
+
+  const subcategory = props.favorite.subcategoryName;
+  const productId = props.favorite.productId;
+  const saveTrm = props.favorite.saveTrm;
+  const intrRateType = props.favorite.intrRateType;
+  const rsrvValue = props.favorite.rstvValue;
+
+  let routePath = '';
+  let query = {};
+
+  if (subcategory === '정기예금') {
+    routePath = `/products/deposit/${productId}`;
+    if (saveTrm) query.saveTrm = saveTrm;
+    if (intrRateType) query.intrRateType = intrRateType;
+  } else if (subcategory === '자유적금') {
+    routePath = `/products/savings/${productId}`;
+    if (saveTrm) query.saveTrm = saveTrm;
+    if (intrRateType) query.intrRateType = intrRateType;
+    if (rsrvValue) query.rsrvType = rsrvValue;
+  } else if (subcategory === '연금저축') {
+    routePath = `/products/pension/${productId}`;
+    if (saveTrm) query.saveTrm = saveTrm;
+    if (intrRateType) query.intrRateType = intrRateType;
+  } else {
+    routePath = `/products/unknown/${productId}`;
+  }
+
+  try {
+    // 강제로 페이지 새로고침을 위해 현재 페이지인지 확인
+    const currentRoute = router.currentRoute.value;
+    const targetRoute = { path: routePath, query };
+
+    // 같은 경로라면 강제 새로고침
+    if (currentRoute.path === routePath) {
+      const currentQuery = JSON.stringify(currentRoute.query);
+      const targetQuery = JSON.stringify(query);
+
+      if (currentQuery !== targetQuery) {
+        await router.push(targetRoute);
+      } else {
+        // 완전히 같은 페이지라면 페이지 새로고침
+        window.location.href =
+          routePath +
+          (Object.keys(query).length ? '?' + new URLSearchParams(query).toString() : '');
+        return;
+      }
+    } else {
+      // 다른 페이지로 이동
+      await router.push(targetRoute);
+    }
+
+    emit('click-favorite', props.favorite);
+  } catch (err) {
+    console.error('페이지 이동 실패:', err);
+    // 라우터 이동 실패 시 직접 페이지 이동
+    window.location.href =
+      routePath + (Object.keys(query).length ? '?' + new URLSearchParams(query).toString() : '');
+  }
+};
 </script>
 
 <style scoped>
 .favorite-item {
   background: var(--color-white);
-  border-radius: 1rem;
-  padding: 0.5rem;
-  border: 1px solid rgba(185, 187, 204, 0.3);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-size: 0.875rem;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  border: 1px solid #f1f5f9;
+  transition: all 0.2s ease;
   position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 8px -2px rgba(45, 51, 107, 0.1);
+  cursor: pointer;
+  /* 오른쪽에 여백 추가 */
+  padding-right: 3rem;
 }
 
-/* 선택되지 않은 상태에서의 호버 효과 */
-.favorite-item.hover-effect:hover {
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
-  border-color: rgba(185, 187, 204, 0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px -5px rgba(45, 51, 107, 0.15);
+.favorite-item:hover {
+  border-color: #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
 }
 
-/* 컨텐츠 레이아웃 */
 .item-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
 }
 
-.info-section {
-  flex: 1;
-  min-width: 0; /* 텍스트 오버플로우 처리를 위해 */
-}
-
-.meta-section {
-  flex-shrink: 0;
-  display: flex;
-  align-items: flex-end;
-}
-
-/* 활성 상태 애니메이션 */
-.favorite-item:active {
-  transform: translateY(0) scale(0.98);
-}
-
-/* 로딩 상태 */
-.favorite-item.loading {
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-.favorite-item.loading::after {
-  content: '';
+.click-indicator {
   position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  animation: loading-shimmer 1.5s infinite;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  color: #cbd5e1;
+  transition: all 0.2s ease;
+  opacity: 0;
+  /* 클릭 영역 확보 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.375rem;
+  background: transparent;
 }
 
-@keyframes loading-shimmer {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
+.favorite-item:hover .click-indicator {
+  opacity: 1;
+  color: var(--color-main);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
 }
 
-/* 포커스 상태 */
-.favorite-item:focus-within {
-  outline: 2px solid var(--color-main);
-  outline-offset: 2px;
+.click-indicator i {
+  font-size: 0.875rem;
 }
 
-/* 삭제 애니메이션 준비 */
-.favorite-item.removing {
-  animation: removeItem 0.3s ease-out forwards;
-}
+@media (max-width: 768px) {
+  .favorite-item {
+    padding: 0.875rem;
+    /* 모바일에서도 오른쪽 여백 */
+    padding-right: 2.5rem;
+  }
 
-@keyframes removeItem {
-  0% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+  .item-content {
+    margin-top: 0.625rem;
   }
-  50% {
-    transform: translateY(-10px) scale(1.02);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
-    height: 0;
-    padding: 0;
-    margin: 0;
-  }
-}
 
-/* 특별한 상태 표시 */
-.favorite-item.new {
-  animation: newItemPulse 0.6s ease-out;
-}
+  .click-indicator {
+    right: 0.875rem;
+    opacity: 0.5;
+    width: 1.75rem;
+    height: 1.75rem;
+  }
 
-@keyframes newItemPulse {
-  0% {
-    transform: scale(0.95);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.02);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
+  .click-indicator i {
+    font-size: 0.8125rem;
   }
 }
 
-/* 드래그 상태 (향후 확장용) */
-.favorite-item.dragging {
-  transform: rotate(5deg) scale(1.05);
-  z-index: 1000;
-  box-shadow: 0 10px 30px rgba(45, 51, 107, 0.3);
+@media (max-width: 480px) {
+  .favorite-item {
+    padding: 0.75rem;
+    padding-right: 2.25rem;
+  }
+
+  .click-indicator {
+    right: 0.75rem;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .click-indicator i {
+    font-size: 0.75rem;
+  }
 }
 </style>
