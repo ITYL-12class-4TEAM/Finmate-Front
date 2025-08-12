@@ -20,7 +20,7 @@
       <header class="collection-header">
         <div class="header-content">
           <h1 class="title">WMTI Collection</h1>
-          <p class="subtitle">16가지 돈 관리 유형별 특성 분석</p>
+          <p class="subtitle">16가지 투자유형별 특성 분석</p>
         </div>
       </header>
 
@@ -169,11 +169,18 @@ const loadWMTIData = async () => {
     wmtiList.value = data;
 
     // tag 배열에서 카테고리 추출 (aka 필드 기반)
-    const extractedData = data.map((item) => ({
-      ...item,
-      category: getCategoryFromTag(item.aka),
-      shortDescription: item.tag?.[0] || '투자 성향을 나타내는 유형',
-    }));
+    const extractedData = data.map((item) => {
+      const category = getCategoryFromTag(item.aka);
+
+      // 디버깅: aka 값과 매핑된 카테고리 출력
+      console.log(`${item.code} - aka: "${item.aka}" -> category: "${category}"`);
+
+      return {
+        ...item,
+        category: category,
+        shortDescription: item.tag?.[0] || '투자 성향을 나타내는 유형',
+      };
+    });
 
     wmtiList.value = extractedData;
 
@@ -198,11 +205,11 @@ const getCategoryFromTag = (firstTag) => {
     리더형: ['리더', '선도', '지도자'],
     전문가형: ['달인', '전문가', '박학다식'],
     트렌디형: ['트렌디', '예술인', '탐정가'],
-    전략형: ['전략', '연구가', '트렌디세터'],
+    전략가형: ['전략', '연구가', '트렌디세터'],
     자신감형: ['자신감', '당당', '유능한'],
-    현실형: ['현실', '아이콘', '노련한'],
-    관찰형: ['관찰가', '호기심', '새싹'],
-    탐험형: ['탐험가', '탐색가', '샛별'],
+    현실주의형: ['현실', '아이콘', '노련한'],
+    관찰가형: ['관찰가', '호기심', '새싹'],
+    탐험가형: ['탐험가', '탐색가', '샛별'],
   };
 
   for (const [category, keywords] of Object.entries(categoryMappings)) {
@@ -475,19 +482,19 @@ const retryLoadData = () => {
 .wmti-badge.트렌디형 {
   background: #059669;
 }
-.wmti-badge.전략형 {
+.wmti-badge.전략가형 {
   background: #ea580c;
 }
 .wmti-badge.자신감형 {
   background: #7c3aed;
 }
-.wmti-badge.현실형 {
+.wmti-badge.현실주의형 {
   background: #0891b2;
 }
-.wmti-badge.관찰형 {
+.wmti-badge.관찰가형 {
   background: #65a30d;
 }
-.wmti-badge.탐험형 {
+.wmti-badge.탐험가형 {
   background: #be185d;
 }
 .wmti-badge.기타 {
