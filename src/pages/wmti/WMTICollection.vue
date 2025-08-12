@@ -16,14 +16,6 @@
 
     <!-- 메인 콘텐츠 -->
     <template v-else>
-      <!-- 헤더 -->
-      <header class="collection-header">
-        <div class="header-content">
-          <h1 class="title">WMTI Collection</h1>
-          <p class="subtitle">16가지 투자유형별 특성 분석</p>
-        </div>
-      </header>
-
       <!-- 검색 및 필터 -->
       <section class="search-section">
         <div class="search-container">
@@ -324,7 +316,6 @@ const handleImageError = (event) => {
   max-width: 430px;
   margin: 0 auto;
   min-height: 100vh;
-  background: var(--color-bg-light);
 }
 
 /* 로딩 스타일 */
@@ -407,28 +398,6 @@ const handleImageError = (event) => {
   background: var(--color-sub);
 }
 
-/* 헤더 */
-.collection-header {
-  background: var(--color-main);
-  color: var(--color-white);
-  padding: 2rem 1.5rem 1.5rem;
-}
-
-.header-content {
-  text-align: center;
-}
-
-.title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.subtitle {
-  font-size: 0.875rem;
-  opacity: 0.9;
-}
-
 /* 검색 섹션 */
 .search-section {
   background: var(--color-white);
@@ -488,7 +457,7 @@ const handleImageError = (event) => {
   background: var(--color-white);
   padding: 1.25rem;
   border-radius: 0.75rem;
-  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1.25rem 8rem rgba(45, 51, 107, 0.15);
   cursor: pointer;
   transition:
     transform 0.2s,

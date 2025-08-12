@@ -439,7 +439,7 @@ onMounted(async () => {
   padding: 1.5rem;
   background: var(--color-white);
   border-radius: 1.25rem;
-  box-shadow: 0 1.25rem 2.5rem rgba(45, 51, 107, 0.15);
+  box-shadow: 0 1.25rem 8rem rgba(45, 51, 107, 0.15);
 }
 
 .user-greeting {
