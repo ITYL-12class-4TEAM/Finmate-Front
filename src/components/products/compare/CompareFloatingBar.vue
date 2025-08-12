@@ -7,25 +7,33 @@
     <div class="floating-bar-content">
       <div class="compare-info">
         <div class="count-badge">{{ compareList.length }}<span class="max-count">/3</span></div>
-        <span class="compare-text"> 비교함에 {{ compareList.length }}개의 상품이 담겼습니다 </span>
+        <span class="compare-text"> 담긴 상품 개수 </span>
       </div>
-      <button class="compare-btn" @click="handleError">
-        <span>비교</span>
-        <i class="compare-icon">→</i>
-      </button>
+      <div class="button-group">
+        <button class="clear-btn" @click="handleClearWithConfirm">
+          <span>비우기</span>
+        </button>
+        <button class="compare-btn" @click="handleError">
+          <span>비교</span>
+          <i class="compare-icon">→</i>
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { useToast } from '@/composables/useToast';
+import { useModal } from '@/composables/useModal';
 
 const { showToast } = useToast();
+const { showModal } = useModal();
+
 const props = defineProps({
   compareList: { type: Array, default: () => [] },
   hasPagination: { type: Boolean, default: false },
 });
-const emit = defineEmits(['go-to-compare']);
+const emit = defineEmits(['go-to-compare', 'clear-compare-list']);
 
 const handleError = () => {
   if (props.compareList.length < 2) {
@@ -33,6 +41,13 @@ const handleError = () => {
     return;
   }
   emit('go-to-compare');
+};
+
+const handleClearWithConfirm = async () => {
+  const confirmed = await showModal('비교함을 비우시겠습니까?');
+  if (confirmed) {
+    emit('clear-compare-list');
+  }
 };
 </script>
 
@@ -54,7 +69,7 @@ const handleError = () => {
 .compare-floating-bar {
   position: fixed;
   bottom: 0;
-  left: 0;
+  left: -17.5%;
   right: 0;
   z-index: 100;
   background: rgba(255, 255, 255, 0.85);
@@ -66,7 +81,7 @@ const handleError = () => {
   border-bottom: none;
   transition: transform 0.3s;
   padding: 0;
-  width: 370px;
+  width: 310px;
   margin: 0 auto;
 }
 .compare-floating-bar.has-pagination {
@@ -108,9 +123,34 @@ const handleError = () => {
 }
 .compare-text {
   font-size: 0.8125rem;
-
   font-weight: 500;
   color: var(--color-main);
+}
+
+.button-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.clear-btn {
+  background: var(--color-light);
+  color: var(--color-main);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 0.125rem 0.25rem rgba(45, 51, 107, 0.07);
+  transition:
+    background 0.2s,
+    transform 0.2s;
+}
+
+.clear-btn:hover {
+  background: #d0d1e0;
+  transform: translateY(-2px);
 }
 
 .compare-btn {
@@ -119,12 +159,12 @@ const handleError = () => {
   border: none;
   border-radius: 0.5rem;
   padding: 0.5rem 0.75rem;
-  font-size: 0.8125rem;
+  font-size: 0.7rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.25rem;
   box-shadow: 0 0.125rem 0.25rem rgba(45, 51, 107, 0.07);
   transition:
     background 0.2s,

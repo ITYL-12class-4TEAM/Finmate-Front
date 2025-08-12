@@ -46,8 +46,13 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       if (accessToken.value) {
         const result = await authAPI.logout();
+        if (result.success) {
+          clearAuthData();
+          return { success: true, message: result.message };
+        } else {
+          return { success: false, message: result.message };
+        }
       }
-    } catch (error) {
     } finally {
       clearAuthData();
     }
