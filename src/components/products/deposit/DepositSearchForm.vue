@@ -466,7 +466,7 @@ const onReset = () => {
 /* ✨ 가입 방식 (최종 레이아웃) ✨ */
 .join-way-label-group {
   display: flex;
-  flex-direction: column;
+  /* flex-direction: column; */
   align-items: center; /* 라벨과 전체 버튼을 가운데 정렬 */
   gap: 0.5rem; /* 라벨과 전체 버튼 사이 간격 */
   justify-self: center; /* Grid 셀 내에서 스스로 가운데 정렬 */

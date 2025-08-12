@@ -162,6 +162,17 @@ const showGptDetailModal = ref(false);
 const { compareList, clearCompareList, addToCompareList, removeFromCompareList, isInCompareList } =
   useCompareList();
 
+// 🎯 CompanyUrl 추출 함수 추가
+const getCompanyUrl = () => {
+  if (!product.value) return null;
+  return (
+    product.value.companyUrl ||
+    product.value.company_url ||
+    product.value.productDetail?.companyUrl ||
+    null
+  );
+};
+
 // 즐겨찾기 페이지로 이동하는 함수
 const goToFavorites = () => {
   router.push('/mypage/favorites');
@@ -421,14 +432,23 @@ const getBankInitial = () => {
   return product.value.kor_co_nm.charAt(0);
 };
 
-// 상품 가입하기
+// 🎯 상품 가입하기 - CompanyUrl 활용하도록 수정
 const joinProduct = () => {
   if (!product.value) return;
-  const joinUrl = product.value.external_link || getBankWebsite();
-  window.open(joinUrl, '_blank');
+
+  const companyUrl = getCompanyUrl();
+
+  if (companyUrl && companyUrl.trim() !== '') {
+    // companyUrl이 있으면 새 창으로 해당 금융사 홈페이지 열기
+    window.open(companyUrl, '_blank', 'noopener,noreferrer');
+  } else {
+    // companyUrl이 없으면 기존 로직 사용 (external_link 또는 은행 웹사이트)
+    const fallbackUrl = product.value.external_link || getBankWebsite();
+    window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
+  }
 };
 
-// 은행 웹사이트 URL 가져오기
+// 은행 웹사이트 URL 가져오기 (fallback용)
 const getBankWebsite = () => {
   if (!product.value || !product.value.kor_co_nm) return '#';
 

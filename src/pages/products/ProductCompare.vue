@@ -508,7 +508,7 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem 1.5rem;
+  padding: 3rem 1rem;
   text-align: center;
 }
 
@@ -536,7 +536,7 @@ onMounted(() => {
 }
 
 .not-enough-products h3 {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   color: var(--color-main);
   margin-bottom: 0.75rem;
 }

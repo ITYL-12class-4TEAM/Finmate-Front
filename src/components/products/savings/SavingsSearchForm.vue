@@ -463,7 +463,7 @@ const onReset = () => {
 .option-button {
   height: 2.2rem; /* 2.5rem → 2.2rem */
   padding: 0 1rem;
-  font-size: 0.75rem; /* 0.9375rem → 0.75rem (80%) */
+  font-size: 0.7rem; /* 0.9375rem → 0.75rem (80%) */
   font-weight: 500;
   border-radius: 0.5rem;
   background-color: #f7f7fa;

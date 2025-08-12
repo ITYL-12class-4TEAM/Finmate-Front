@@ -89,7 +89,7 @@
           <button v-else class="compare-btn add-compare-btn" @click.stop="handleWarning(product)">
             비교함에 추가
           </button>
-          <button class="join-btn" @click.stop="goToJoinPage(product)">가입하기</button>
+          <button class="join-btn" @click.stop="goToJoinPage(product)">홈페이지 이동</button>
         </div>
       </div>
 
@@ -144,12 +144,24 @@ const getProductId = (product) => {
   for (const f of fields) if (product[f] !== undefined) return product[f];
   return null;
 };
+
 const getSaveTrm = (product) => {
   if (!product) return null;
   const fields = ['save_trm', 'saveTrm', 'term'];
   for (const f of fields) if (product[f] !== undefined) return product[f];
   return null;
 };
+
+const getFinCoNo = (product) => {
+  if (!product) return null;
+  return product.fin_co_no || product.finCoNo || null;
+};
+
+const getCompanyUrl = (product) => {
+  if (!product) return null;
+  return product.companyUrl || product.company_url || null;
+};
+
 const formatNumber = (value) => {
   if (!value) return '0';
   if (typeof value === 'string' && value.includes(',')) return value;
@@ -157,10 +169,12 @@ const formatNumber = (value) => {
     typeof value === 'string' ? value.replace(/[^\d]/g, '') : value
   );
 };
+
 const getRateTypeLabel = (product) => {
   const rateType = product.intr_rate_type || product.intrRateType || 'S';
   return rateType === 'S' ? '단리' : '복리';
 };
+
 const getRateTypeClass = (product) => {
   const rateType = product.intr_rate_type || product.intrRateType || 'S';
   return rateType === 'S' ? 'simple-interest' : 'compound-interest';
@@ -241,6 +255,7 @@ const handleWarning = (product) => {
   const result = addToCompareList(product, option, props.productType);
   if (!result.success) alert(result.message);
 };
+
 const handleRemoveFromCompare = (product) => {
   removeFromCompareList(
     getProductId(product),
@@ -248,13 +263,24 @@ const handleRemoveFromCompare = (product) => {
     product.intr_rate_type || product.intrRateType || 'S'
   );
 };
+
+// 가입하기 버튼 클릭 시 처리하는 함수를 수정
 const goToJoinPage = (product) => {
-  router.push({
-    name: 'ProductDetail',
-    params: { category: props.productType, id: getProductId(product) },
-    query: { saveTrm: getSaveTrm(product) },
-  });
+  const companyUrl = getCompanyUrl(product);
+
+  if (companyUrl && companyUrl.trim() !== '') {
+    // companyUrl이 있으면 새 창으로 해당 URL 열기
+    window.open(companyUrl, '_blank', 'noopener,noreferrer');
+  } else {
+    // companyUrl이 없으면 기존처럼 상품 상세 페이지로 이동
+    router.push({
+      name: 'ProductDetail',
+      params: { category: props.productType, id: getProductId(product) },
+      query: { saveTrm: getSaveTrm(product) },
+    });
+  }
 };
+
 const goToCompare = () => {
   if (compareList.value.length < 2) {
     showToast('2개 이상의 상품을 선택해주세요.', 'warning');
