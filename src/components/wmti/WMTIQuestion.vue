@@ -72,7 +72,6 @@ import { defineProps } from 'vue';
 const emit = defineEmits(['update:value']);
 
 const handleChange = (score) => {
-  console.log(`🔘 WMTIQuestion - 문항 ${props.index + 1}에서 ${score}점 선택됨`);
   emit('update:value', Number(score));
 };
 const props = defineProps({

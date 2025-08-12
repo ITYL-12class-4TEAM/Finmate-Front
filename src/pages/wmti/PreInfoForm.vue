@@ -164,9 +164,13 @@
           </div>
         </div>
 
-        <button type="submit" class="submit-btn" :disabled="isSubmitting">
-          <span v-if="!isSubmitting">다음 단계로 →</span>
-          <span v-else>처리중...</span>
+        <button
+          type="submit"
+          class="submit-btn"
+          :disabled="isSubmitDisabled"
+          :class="{ 'no-changes': originalData && !hasDataChanged }"
+        >
+          <span>{{ submitButtonText }}</span>
         </button>
       </form>
     </div>
@@ -176,7 +180,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { postPreinfoAPI } from '@/api/wmti';
+import { postPreinfoAPI, getPreInfoCalcAPI } from '@/api/wmti';
 import { InvestmentPeriodEnum, PurposeCategoryEnum } from '../../constants/wmtienums';
 //Components
 import BackButton from '@/components/common/BackButton.vue';
@@ -212,6 +216,7 @@ const form = ref({
 
 // 상태 변수
 const isSubmitting = ref(false);
+const originalData = ref(null); // 이 줄 추가
 
 //Composable 사용
 const { backupFormData, restoreFormData, hasValidBackup, clearBackup, forceBackupFormData } =
@@ -273,6 +278,39 @@ const isFinancialInfoCompleted = computed(() => {
 });
 const isInvestmentInfoCompleted = computed(() => {
   return form.value.period && form.value.purposeCategory;
+});
+const hasDataChanged = computed(() => {
+  const existingData = originalData.value;
+  if (!existingData) return true; // 기존 데이터가 없으면 신규
+
+  const currentData = form.value;
+
+  // 각 필드 비교
+  return (
+    existingData.username !== currentData.username ||
+    existingData.age !== currentData.age ||
+    existingData.married !== (currentData.married === 'true') ||
+    existingData.monthlyIncome !== currentData.monthlyIncome ||
+    existingData.fixedCost !== currentData.fixedCost ||
+    existingData.investmentPeriod !== currentData.period ||
+    existingData.purposeCategory !== currentData.purposeCategory
+  );
+});
+
+const submitButtonText = computed(() => {
+  if (isSubmitting.value) {
+    return '처리중...';
+  }
+
+  if (originalData.value) {
+    return hasDataChanged.value ? '정보 수정하기 →' : '변경사항 없음';
+  }
+
+  return '다음 단계로 →';
+});
+
+const isSubmitDisabled = computed(() => {
+  return isSubmitting.value || (originalData.value && !hasDataChanged.value);
 });
 
 // 바운스 애니메이션
@@ -381,7 +419,15 @@ const scrollToFirstError = () => {
 const handleSubmit = async (isRetry = false) => {
   if (!validateForm() || isSubmitting.value) return;
 
-  // 재시도가 아닌 경우 카운트 초기화
+  // 변경사항이 없으면 제출하지 않음
+  if (!hasDataChanged.value) {
+    showToast('변경된 정보가 없어 제출을 건너뜁니다.', 'info');
+    setTimeout(() => {
+      router.push('/wmti/basic');
+    }, 1500);
+    return;
+  }
+
   if (!isRetry) {
     resetRetryCount();
   }
@@ -391,14 +437,25 @@ const handleSubmit = async (isRetry = false) => {
   try {
     const finalData = prepareSubmissionData();
     await postPreinfoAPI(finalData);
-    localStorage.setItem('preinfoSubmitted', 'true');
 
+    localStorage.setItem('preinfoSubmitted', 'true');
     showToast('사전정보가 성공적으로 저장되었습니다!', 'success');
 
     setTimeout(() => {
       router.push('/wmti/basic');
     }, 1000);
   } catch (error) {
+    // 409 에러 처리
+    if (error.response?.status === 409) {
+      showToast('동일한 정보가 이미 저장되어 있습니다.', 'warning');
+      localStorage.setItem('preinfoSubmitted', 'true');
+
+      setTimeout(() => {
+        router.push('/wmti/basic');
+      }, 2000);
+      return;
+    }
+
     const result = await processSubmissionError(error, {
       showModalFn: showModal,
       backupFormData,
@@ -406,7 +463,6 @@ const handleSubmit = async (isRetry = false) => {
       handleSubmitFn: handleSubmit,
     });
 
-    // 재시도가 필요한 경우
     if (result?.shouldRetry) {
       await handleSubmit(true);
     }
@@ -416,28 +472,47 @@ const handleSubmit = async (isRetry = false) => {
 };
 
 // 컴포넌트 마운트 시 복원 확인
-onMounted(() => {
-  console.log('PreInfoForm 마운트됨');
-
+onMounted(async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const restoredFlag = urlParams.get('restored');
 
+  // 서버에서 기존 데이터 확인
+  try {
+    const existingData = await getPreInfoCalcAPI();
+    if (existingData?.body?.data) {
+      const serverData = existingData.body.data;
+
+      // 원본 데이터 저장
+      originalData.value = serverData;
+
+      // 폼에 기존 데이터 채우기
+      form.value = {
+        username: serverData.username || '',
+        age: serverData.age || null,
+        married: serverData.married ? 'true' : 'false',
+        monthlyIncome: serverData.monthlyIncome || null,
+        fixedCost: serverData.fixedCost || null,
+        period: serverData.investmentPeriod || '',
+        purposeCategory: serverData.purposeCategory || '',
+      };
+
+      localStorage.setItem('preinfoSubmitted', 'true');
+      showToast('기존 정보를 불러왔습니다. 수정하실 부분이 있으면 변경 후 제출해주세요.', 'info');
+    }
+  } catch (error) {
+    console.log('기존 사전정보 없음 (신규 사용자)'); // 정상 - 신규 사용자
+  }
+
   if (restoredFlag === 'true') {
-    console.log('복원 플래그 감지 - 데이터 복원 시도');
-
     const restored = restoreFormData();
-
     if (restored) {
       showDataRestoredModal();
     } else {
       showToast('로그인이 완료되었어요! 사전 정보를 입력해주세요.', 'success');
     }
-
-    // URL 정리
     const cleanUrl = window.location.pathname;
     window.history.replaceState({}, document.title, cleanUrl);
   } else {
-    // 백업 데이터 확인 및 복원 제안
     if (hasValidBackup()) {
       showBackupRestoreModal(restoreFormData, clearBackup);
     }
@@ -884,7 +959,15 @@ onMounted(() => {
   cursor: not-allowed;
   transform: none;
 }
+.submit-btn.no-changes {
+  background: linear-gradient(135deg, #95a5a6, #bdc3c7);
+  cursor: not-allowed;
+}
 
+.submit-btn.no-changes:hover {
+  transform: none;
+  box-shadow: none;
+}
 @media (max-width: 22.5rem) {
   .chip-group {
     gap: 0.375rem;

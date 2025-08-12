@@ -362,7 +362,6 @@ const loadQuestions = async () => {
     // 🔥 백업 데이터 복원 체크
     await checkAndRestoreBackup();
   } catch (err) {
-    console.error('설문 문항 로딩 실패:', err);
     handleError('설문 문항을 불러오는데 실패했습니다. 페이지를 새로고침해주세요.');
   }
 };
@@ -374,8 +373,6 @@ const checkAndRestoreBackup = async () => {
     const restoredFlag = urlParams.get('restored');
 
     if (restoredFlag === 'true') {
-      console.log('복원 플래그 감지 - 설문 데이터 복원 시도');
-
       const restored = restoreFormData();
 
       if (restored) {
@@ -395,7 +392,6 @@ const checkAndRestoreBackup = async () => {
       }
     }
   } catch (error) {
-    console.error('백업 복원 중 오류:', error);
     handleWarning('이전 답변 복원 중 문제가 발생했습니다. 새로 시작해주세요.');
   }
 };
@@ -415,7 +411,6 @@ const applySurveyBackupData = async () => {
       }
 
       const restoredCount = backupData.answers.filter((a) => a !== null).length;
-      console.log(`✅ 설문 답변 ${restoredCount}개 복원됨`);
       handleSuccess(`이전 답변 ${restoredCount}개가 복원되었어요! ✨`);
 
       // 🔥 복원 후 첫 번째 미답변 문항으로 스크롤
@@ -427,20 +422,15 @@ const applySurveyBackupData = async () => {
       }, 500);
     }
   } catch (error) {
-    console.error('백업 데이터 적용 중 오류:', error);
     handleError('이전 답변 복원 중 문제가 발생했습니다.');
   }
 };
 
 // 🔥 복원 후 전용 스크롤 함수 (개선됨)
 const scrollToFirstUnansweredAfterRestore = async () => {
-  console.log('🔄 백업 복원 후 스크롤 시작');
-
   const firstUnansweredIndex = answers.value.findIndex((answer) => answer === null);
-  console.log('🔍 첫 번째 미답변 문항 인덱스:', firstUnansweredIndex);
 
   if (firstUnansweredIndex === -1) {
-    console.log('✅ 모든 문항이 답변됨 - 제출 버튼으로 스크롤');
     scrollToSubmitButton();
     return;
   }
@@ -450,13 +440,11 @@ const scrollToFirstUnansweredAfterRestore = async () => {
 
   // survey-question 클래스로 찾기
   const allQuestions = document.querySelectorAll('.survey-question');
-  console.log('🔍 전체 survey-question 요소:', allQuestions.length);
 
   let targetElement = null;
 
   if (allQuestions.length > firstUnansweredIndex) {
     targetElement = allQuestions[firstUnansweredIndex];
-    console.log('✅ survey-question으로 찾음:', targetElement);
   }
 
   // 대안: questions-container 내부 자식 요소로 찾기
@@ -466,14 +454,11 @@ const scrollToFirstUnansweredAfterRestore = async () => {
       const children = container.children;
       if (children.length > firstUnansweredIndex) {
         targetElement = children[firstUnansweredIndex];
-        console.log('✅ container children으로 찾음:', targetElement);
       }
     }
   }
 
   if (targetElement) {
-    console.log('✅ 타겟 요소 찾음 - 스크롤 실행');
-
     // 헤더 높이 고려해서 스크롤
     const headerHeight = 160;
     const elementRect = targetElement.getBoundingClientRect();
@@ -501,12 +486,9 @@ const scrollToFirstUnansweredAfterRestore = async () => {
       }, 2000);
     }, 800);
   } else {
-    console.error('❌ 타겟 요소를 찾을 수 없음');
-
     // 대안: questions-container로 스크롤
     const container = document.querySelector('.questions-container');
     if (container) {
-      console.log('🔄 대안: questions-container로 스크롤');
       container.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
@@ -522,7 +504,6 @@ const restoreAndApplyBackup = async () => {
     }
     return false;
   } catch (error) {
-    console.error('백업 복원 실패:', error);
     handleError('이전 답변 복원에 실패했습니다.');
     return false;
   }
@@ -542,7 +523,6 @@ const saveDraft = async () => {
       handleWarning('임시 저장에 실패했습니다. 다시 시도해주세요.');
     }
   } catch (error) {
-    console.error('임시 저장 오류:', error);
     handleError('임시 저장 중 오류가 발생했습니다.');
   } finally {
     setTimeout(() => {
@@ -607,8 +587,6 @@ const handleSubmit = async (isRetry = false) => {
       });
     }, 1000);
   } catch (error) {
-    console.error('설문 제출 오류:', error);
-
     // Composable을 사용한 에러 처리
     const result = await processSubmissionError(error, {
       showModalFn: showModal,

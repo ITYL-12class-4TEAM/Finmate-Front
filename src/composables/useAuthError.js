@@ -29,8 +29,6 @@ export function useAuthError(options = {}) {
   const processSubmissionError = async (error, options = {}) => {
     const { showModalFn, backupFormData, scrollToFirstError, handleSubmitFn } = options;
 
-    console.error('제출 실패:', error);
-
     // 에러 타입별 처리
     if (error.response?.status === 401) {
       return await handleTokenExpired(backupFormData, showModalFn, handleSubmitFn);
@@ -50,8 +48,6 @@ export function useAuthError(options = {}) {
 
   // 토큰 만료 처리
   const handleTokenExpired = async (backupFormData, showModalFn, handleSubmitFn) => {
-    console.log('토큰 만료 감지 - 사용자 정보 재검증 시도');
-
     if (backupFormData) {
       backupFormData();
     }
@@ -78,7 +74,6 @@ export function useAuthError(options = {}) {
         return { shouldRetry: false };
       }
     } catch (refreshError) {
-      console.error('사용자 정보 재검증 실패:', refreshError);
       await showLoginExpiredModal(showModalFn, backupFormData);
       return { shouldRetry: false };
     } finally {
@@ -261,7 +256,6 @@ Wi-Fi나 데이터 연결을 확인하시고 다시 시도해주세요.
         throw new Error('Network still unstable');
       }
     } catch (networkError) {
-      console.log('네트워크 여전히 불안정:', networkError);
       showToast('아직 네트워크에 문제가 있어요. 조금 더 기다려주세요.', 'warning');
     }
   };
