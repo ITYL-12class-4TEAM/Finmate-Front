@@ -1,293 +1,222 @@
 <template>
   <div class="result-page">
-    <!-- 뒤로가기 버튼 -->
-    <BackButton to="/wmti/basic" />
-
-    <!-- 헤더 섹션 -->
-    <div class="result-header">
-      <div class="user-greeting">
-        <span class="username-highlight">{{ userName }}</span
-        >님의 투자 성향은
-      </div>
-      <div class="wmti-code-display">
-        <span class="code-text">{{ analysisObject.wmtiCode }}</span>
-        <span class="code-suffix">입니다</span>
-      </div>
-      <div class="type-summary">
-        <div class="type-item">
-          <span class="type-label">투자자 유형</span>
-          <span class="type-value" :class="getResultTypeClass(analysisObject.resultType)">
-            {{ analysisObject.resultType }}
-          </span>
-          <span class="type-description" :class="getResultTypeTextClass(analysisObject.resultType)">
-            {{ getResultTypeLabel(analysisObject.resultType) }}
-          </span>
-        </div>
-        <div class="type-item">
-          <span class="type-label">리스크 수용도</span>
-          <span class="type-value" :class="getRiskPreferenceClass(analysisObject.riskPreference)">
-            {{ analysisObject.riskPreference }}
-          </span>
-          <span
-            class="type-description"
-            :class="getRiskPreferenceTextClass(analysisObject.riskPreference)"
-          >
-            {{ getRiskPreferenceLabel(analysisObject.riskPreference) }}
-          </span>
-        </div>
-      </div>
+    <!-- 로딩 스피너 -->
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="loading-spinner"></div>
+      <p>결과를 불러오는 중...</p>
     </div>
 
-    <!-- 성향 분석 카드 -->
-    <div class="analysis-card">
-      <div class="section-header">
-        <div class="section-icon analysis-icon"></div>
-        <h3 class="section-title">투자 성향 분석</h3>
-      </div>
+    <!-- 메인 콘텐츠 -->
+    <div v-else>
+      <!-- 뒤로가기 버튼 -->
+      <BackButton to="/wmti/basic" />
 
-      <div class="card-header">
-        <h4 class="card-title">{{ analysis.aka }}</h4>
-      </div>
-
-      <!-- 태그 섹션 -->
-      <div class="tags-section">
-        <h4 class="subsection-title">
-          <span class="subsection-icon"></span>
-          성향 키워드
-        </h4>
-        <div class="tags-marquee">
-          <div v-if="analysis.tag && analysis.tag.length > 0" class="tags-track">
-            <div v-for="(tag, index) in analysis.tag" :key="'first-' + index" class="tag-item">
-              #{{ tag }}
-            </div>
-            <div v-for="(tag, index) in analysis.tag" :key="'second-' + index" class="tag-item">
-              #{{ tag }}
-            </div>
+      <!-- 헤더 섹션 -->
+      <div class="result-header card-header">
+        <div class="user-greeting">
+          <span class="username-highlight">{{ userName }}</span
+          >님의 투자 성향은
+        </div>
+        <div class="wmti-code-display">
+          <span class="code-text">{{ analysisObject.wmtiCode }}</span>
+          <span class="code-suffix">입니다</span>
+        </div>
+        <div class="type-summary">
+          <div class="type-item">
+            <span class="type-label">투자자 유형</span>
+            <span class="type-value" :class="getResultTypeClass(analysisObject.resultType)">
+              {{ analysisObject.resultType }}
+            </span>
+            <span
+              class="type-description"
+              :class="getResultTypeTextClass(analysisObject.resultType)"
+            >
+              {{ getResultTypeLabel(analysisObject.resultType) }}
+            </span>
+          </div>
+          <div class="type-item">
+            <span class="type-label">리스크 수용도</span>
+            <span class="type-value" :class="getRiskPreferenceClass(analysisObject.riskPreference)">
+              {{ analysisObject.riskPreference }}
+            </span>
+            <span
+              class="type-description"
+              :class="getRiskPreferenceTextClass(analysisObject.riskPreference)"
+            >
+              {{ getRiskPreferenceLabel(analysisObject.riskPreference) }}
+            </span>
           </div>
         </div>
       </div>
 
-      <!-- 설명 섹션 -->
-      <div class="description-section">
-        <h4 class="subsection-title">
-          <span class="subsection-icon description-icon"></span>
-          상세 분석
-        </h4>
-        <p class="description-text">{{ analysis.description }}</p>
-      </div>
-    </div>
+      <!-- 성향 분석 카드 -->
+      <div class="analysis-card card-header">
+        <div class="section-header">
+          <div class="section-icon analysis-icon"></div>
+          <h3 class="section-title">투자 성향 분석</h3>
+        </div>
 
-    <!-- 점수 차트 카드 -->
-    <div class="score-card">
-      <div class="section-header">
-        <div class="section-icon score-icon"></div>
-        <h3 class="section-title">성향 분석 결과</h3>
-      </div>
+        <WMTIHeroCard
+          v-if="analysisObject.wmtiCode && analysis.aka"
+          :wmti-code="analysisObject.wmtiCode"
+          :nickname="analysis.aka"
+          :character-image="characterImageUrl"
+        />
 
-      <div class="score-grid">
-        <!-- A vs I -->
-        <div class="score-item">
-          <div class="dimension-header">
-            <span class="dimension-label">A vs I</span>
-          </div>
-          <div class="bidirectional-bar">
-            <div class="bar-left">
-              <span class="bar-info" :class="{ dominant: analysisObject.a === 'A' }">
-                A {{ Math.round(analysisObject.ascore) }}%
-              </span>
-              <div
-                v-if="analysisObject.a === 'A'"
-                class="bar-progress left bar-a"
-                :style="{ width: analysisObject.ascore + '%' }"
-              ></div>
-            </div>
-            <div class="bar-center">50</div>
-            <div class="bar-right">
-              <div
-                v-if="analysisObject.a === 'I'"
-                class="bar-progress right bar-i"
-                :style="{ width: analysisObject.iscore + '%' }"
-              ></div>
-              <span class="bar-info" :class="{ dominant: analysisObject.a === 'I' }">
-                I {{ Math.round(analysisObject.iscore) }}%
-              </span>
+        <!-- 태그 섹션 -->
+        <div class="tags-section">
+          <h4 class="subsection-title">
+            <span class="subsection-icon"></span>
+            성향 키워드
+          </h4>
+          <div class="tags-marquee">
+            <div v-if="analysis.tag && analysis.tag.length > 0" class="tags-track">
+              <div v-for="(tag, index) in analysis.tag" :key="'first-' + index" class="tag-item">
+                #{{ tag }}
+              </div>
+              <div v-for="(tag, index) in analysis.tag" :key="'second-' + index" class="tag-item">
+                #{{ tag }}
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- P vs B -->
-        <div class="score-item">
-          <div class="dimension-header">
-            <span class="dimension-label">P vs B</span>
-          </div>
-          <div class="bidirectional-bar">
-            <div class="bar-left">
-              <span class="bar-info" :class="{ dominant: analysisObject.p === 'P' }">
-                P {{ Math.round(analysisObject.pscore) }}%
-              </span>
-              <div
-                v-if="analysisObject.p === 'P'"
-                class="bar-progress left bar-p"
-                :style="{ width: analysisObject.pscore + '%' }"
-              ></div>
-            </div>
-            <div class="bar-center">50</div>
-            <div class="bar-right">
-              <div
-                v-if="analysisObject.p === 'B'"
-                class="bar-progress right bar-b"
-                :style="{ width: analysisObject.bscore + '%' }"
-              ></div>
-              <span class="bar-info" :class="{ dominant: analysisObject.p === 'B' }">
-                B {{ Math.round(analysisObject.bscore) }}%
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- M vs W -->
-        <div class="score-item">
-          <div class="dimension-header">
-            <span class="dimension-label">M vs W</span>
-          </div>
-          <div class="bidirectional-bar">
-            <div class="bar-left">
-              <span class="bar-info" :class="{ dominant: analysisObject.m === 'M' }">
-                M {{ Math.round(analysisObject.mscore) }}%
-              </span>
-              <div
-                v-if="analysisObject.m === 'M'"
-                class="bar-progress left bar-m"
-                :style="{ width: analysisObject.mscore + '%' }"
-              ></div>
-            </div>
-            <div class="bar-center">50</div>
-            <div class="bar-right">
-              <div
-                v-if="analysisObject.m === 'W'"
-                class="bar-progress right bar-w"
-                :style="{ width: analysisObject.wscore + '%' }"
-              ></div>
-              <span class="bar-info" :class="{ dominant: analysisObject.m === 'W' }">
-                W {{ Math.round(analysisObject.wscore) }}%
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- L vs C -->
-        <div class="score-item">
-          <div class="dimension-header">
-            <span class="dimension-label">L vs C</span>
-          </div>
-          <div class="bidirectional-bar">
-            <div class="bar-left">
-              <span class="bar-info" :class="{ dominant: analysisObject.l === 'L' }">
-                L {{ Math.round(analysisObject.lscore) }}%
-              </span>
-              <div
-                v-if="analysisObject.l === 'L'"
-                class="bar-progress left bar-l"
-                :style="{ width: analysisObject.lscore + '%' }"
-              ></div>
-            </div>
-            <div class="bar-center">50</div>
-            <div class="bar-right">
-              <div
-                v-if="analysisObject.l === 'C'"
-                class="bar-progress right bar-c"
-                :style="{ width: analysisObject.cscore + '%' }"
-              ></div>
-              <span class="bar-info" :class="{ dominant: analysisObject.l === 'C' }">
-                C {{ Math.round(analysisObject.cscore) }}%
-              </span>
-            </div>
-          </div>
+        <!-- 설명 섹션 -->
+        <div class="description-section">
+          <h4 class="subsection-title">
+            <span class="subsection-icon description-icon"></span>
+            상세 분석
+          </h4>
+          <p class="description-text multiline-text">{{ analysis.description }}</p>
         </div>
       </div>
-    </div>
 
-    <!-- 맞춤형 포트폴리오 -->
-    <div class="CustomedPortfolio-card">
-      <div class="section-header">
-        <div class="section-icon customed-icon"></div>
-        <h3 class="section-title">맞춤형 포트폴리오</h3>
-      </div>
-      <CustomedPortfolio
-        v-if="analysisObject && analysisObject.wmtiCode && preInfoData"
-        :wmti-code="analysisObject.wmtiCode"
-        :result-type="analysisObject.resultType"
-        :risk-preference="analysisObject.riskPreference"
-        :user-name="userName"
-        :a-score="analysisObject.ascore"
-        :i-score="analysisObject.iscore"
-        :p-score="analysisObject.pscore"
-        :b-score="analysisObject.bscore"
-        :m-score="analysisObject.mscore"
-        :w-score="analysisObject.wscore"
-        :l-score="analysisObject.lscore"
-        :c-score="analysisObject.cscore"
-        :investment-capacity="preInfoData.investmentCapacity"
-        :investment-period="preInfoData.investmentPeriod"
-        :purpose-category="preInfoData.purposeCategory"
-        :age="preInfoData.age"
-        :monthly-income="preInfoData.monthlyIncome"
-        :savings-rate="preInfoData.savingsRate"
-        :financial-health-score="preInfoData.financialHealthScore"
-      />
-    </div>
-    <!-- 테마 포트폴리오 -->
-    <div class="theme-portfolio-card">
-      <div class="section-header">
-        <div class="section-icon theme-icon"></div>
-        <h3 class="section-title">테마 포트폴리오</h3>
-      </div>
-      <ThemePortfolio
-        v-if="
-          analysisObject &&
-          analysisObject.wmtiCode &&
-          analysisObject.resultType &&
-          analysisObject.riskPreference
-        "
-        :wmti-code="analysisObject.wmtiCode"
-        :result-type="analysisObject.resultType"
-        :risk-preference="analysisObject.riskPreference"
-        :user-name="userName"
-      />
-    </div>
-    <!-- 액션 버튼 -->
-    <div class="action-section">
-      <div class="section-header">
-        <div class="section-icon action-icon"></div>
-        <h3 class="section-title">더 둘러보기</h3>
+      <!-- 점수 차트 카드 -->
+      <div class="score-card card-header">
+        <div class="section-header">
+          <div class="section-icon score-icon"></div>
+          <h3 class="section-title">성향 분석 결과</h3>
+        </div>
+
+        <ScoreChart
+          :a-score="analysisObject.ascore || 0"
+          :i-score="analysisObject.iscore || 0"
+          :p-score="analysisObject.pscore || 0"
+          :b-score="analysisObject.bscore || 0"
+          :m-score="analysisObject.mscore || 0"
+          :w-score="analysisObject.wscore || 0"
+          :l-score="analysisObject.lscore || 0"
+          :c-score="analysisObject.cscore || 0"
+          :a-letter="analysisObject.a || 'A'"
+          :p-letter="analysisObject.p || 'P'"
+          :m-letter="analysisObject.m || 'M'"
+          :l-letter="analysisObject.l || 'L'"
+        />
       </div>
 
-      <div class="action-buttons">
-        <button class="action-button secondary" @click="goToWMTIList">
-          <div class="button-icon users-icon"></div>
-          16가지 WMTI 투자성향 보기
-        </button>
-        <button class="action-button tertiary" @click="goToHistory">
-          <div class="button-icon history-icon"></div>
-          내 검사 이력 보기
-        </button>
+      <!-- 맞춤형 포트폴리오 -->
+      <div class="CustomedPortfolio-card card-header">
+        <div class="section-header">
+          <div class="section-icon customed-icon"></div>
+          <h3 class="section-title">맞춤형 포트폴리오</h3>
+        </div>
+        <CustomedPortfolio
+          v-if="analysisObject && analysisObject.wmtiCode && preInfoData"
+          :wmti-code="analysisObject.wmtiCode"
+          :result-type="analysisObject.resultType"
+          :risk-preference="analysisObject.riskPreference"
+          :user-name="userName"
+          :a-score="analysisObject.ascore"
+          :i-score="analysisObject.iscore"
+          :p-score="analysisObject.pscore"
+          :b-score="analysisObject.bscore"
+          :m-score="analysisObject.mscore"
+          :w-score="analysisObject.wscore"
+          :l-score="analysisObject.lscore"
+          :c-score="analysisObject.cscore"
+          :investment-capacity="preInfoData.investmentCapacity"
+          :investment-period="preInfoData.investmentPeriod"
+          :purpose-category="preInfoData.purposeCategory"
+          :age="preInfoData.age"
+          :monthly-income="preInfoData.monthlyIncome"
+          :savings-rate="preInfoData.savingsRate"
+          :financial-health-score="preInfoData.financialHealthScore"
+        />
       </div>
-    </div>
 
-    <!-- 제출 시각 -->
-    <div class="footer-date">검사 완료 시각: {{ formattedDate }}</div>
+      <!-- 액션 버튼 -->
+      <div class="action-section">
+        <!-- <div class="section-header">
+          <div class="section-icon action-icon"></div>
+          <h3 class="section-title">더 둘러보기</h3>
+        </div> -->
+
+        <div class="action-buttons">
+          <!-- <button class="action-button secondary" @click="goToWMTIList">
+            <div class="button-icon users-icon"></div>
+            16가지 WMTI 투자성향 보기
+          </button> -->
+          <button class="action-button tertiary" @click="goToHistory">
+            <div class="button-icon history-icon"></div>
+            내 검사 이력 보기
+          </button>
+        </div>
+      </div>
+
+      <!-- 제출 시각 -->
+      <div class="footer-date">검사 완료 시각: {{ formattedDate }}</div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import BackButton from '@/components/common/BackButton.vue';
-import ThemePortfolio from '@/components/wmti/ThemePortfolio.vue';
-import CustomedPortfolio from '@/components/wmti/CustomedPortfolio.vue';
 import { getWMTIResultAPI, getWMTIAnalysisAPI, getPreInfoCalcAPI } from '@/api/wmti';
 import { useToast } from '@/composables/useToast';
 import { useAuthStore } from '@/stores/useAuthStore';
+import ScoreChart from '@/components/wmti/ScoreChart.vue';
+import BackButton from '@/components/common/BackButton.vue';
+import CustomedPortfolio from '@/components/wmti/CustomedPortfolio.vue';
+import WMTIHeroCard from '@/components/wmti/WMTIHeroCard.vue';
+
+// ===== WMTI 캐릭터 이미지 정적 import =====
+import apmlImage from '@/assets/images/wmti-characters/apml.png';
+import apmcImage from '@/assets/images/wmti-characters/apmc.png';
+import apwlImage from '@/assets/images/wmti-characters/apwl.png';
+import apwcImage from '@/assets/images/wmti-characters/apwc.png';
+import abmlImage from '@/assets/images/wmti-characters/abml.png';
+import abmcImage from '@/assets/images/wmti-characters/abmc.png';
+import abwlImage from '@/assets/images/wmti-characters/abwl.png';
+import abwcImage from '@/assets/images/wmti-characters/abwc.png';
+import ipmlImage from '@/assets/images/wmti-characters/ipml.png';
+import ipmcImage from '@/assets/images/wmti-characters/ipmc.png';
+import ipwlImage from '@/assets/images/wmti-characters/ipwl.png';
+import ipwcImage from '@/assets/images/wmti-characters/ipwc.png';
+import ibmlImage from '@/assets/images/wmti-characters/ibml.png';
+import ibmcImage from '@/assets/images/wmti-characters/ibmc.png';
+import ibwlImage from '@/assets/images/wmti-characters/ibwl.png';
+import ibwcImage from '@/assets/images/wmti-characters/ibwc.png';
+
+// 이미지 맵 생성
+const wmtiImageMap = {
+  APML: apmlImage,
+  APMC: apmcImage,
+  APWL: apwlImage,
+  APWC: apwcImage,
+  ABML: abmlImage,
+  ABMC: abmcImage,
+  ABWL: abwlImage,
+  ABWC: abwcImage,
+  IPML: ipmlImage,
+  IPMC: ipmcImage,
+  IPWL: ipwlImage,
+  IPWC: ipwcImage,
+  IBML: ibmlImage,
+  IBMC: ibmcImage,
+  IBWL: ibwlImage,
+  IBWC: ibwcImage,
+};
 
 const router = useRouter();
 const { showToast } = useToast();
@@ -298,6 +227,8 @@ const analysisObject = ref({});
 const preInfoData = ref({});
 const analysis = ref({});
 const createdAt = ref([]);
+const characterImageUrl = ref(''); // ref로 변경
+const isLoading = ref(true); // 로딩 상태 추가
 
 // userInfo에서 userName을 가져오는 computed 속성
 const userName = computed(() => {
@@ -312,32 +243,61 @@ const formattedDate = computed(() => {
   return date.toLocaleString('ko-KR');
 });
 
-// 결과 및 분석 데이터 불러오기
+// ===== 수정된 WMTI 이미지 URL 계산 함수 =====
+const getWMTIImageUrl = (wmtiCode) => {
+  if (!wmtiCode) {
+    return '';
+  }
+
+  const upperCode = wmtiCode.toUpperCase();
+  const imageUrl = wmtiImageMap[upperCode];
+
+  if (!imageUrl) {
+    return '';
+  }
+
+  return imageUrl;
+};
+
+// 결과 및 분석 데이터 불러오기 (병렬 처리로 최적화)
 const fetchResult = async () => {
   const memberId = authStore.userInfo?.memberId;
   if (!memberId) {
-    console.warn('userInfo 없음. fetchResult 중단');
+    isLoading.value = false;
     return;
   }
 
   try {
-    const res = await getWMTIResultAPI(memberId);
-    const data = res.body?.data;
+    // 병렬로 API 호출
+    const [resultRes, preInfoRes] = await Promise.all([
+      getWMTIResultAPI(memberId),
+      getPreInfoCalcAPI(),
+    ]);
+
+    const data = resultRes.body?.data;
     if (!data) {
       showToast('결과 데이터를 찾을 수 없습니다.', 'warning');
+      isLoading.value = false;
       return;
     }
 
+    // 기본 데이터 먼저 설정 (UI 즉시 렌더링)
     analysisObject.value = data;
     createdAt.value = [...data.createdAt] || [];
-
-    const preInfoRes = await getPreInfoCalcAPI();
     preInfoData.value = preInfoRes.body?.data || {};
 
-    await fetchAnalysis(data.wmtiCode);
+    // 분석 데이터와 이미지를 병렬로 로드
+    const [analysisData, imageUrl] = await Promise.all([
+      fetchAnalysis(data.wmtiCode),
+      getWMTIImageUrl(data.wmtiCode),
+    ]);
+
+    characterImageUrl.value = imageUrl;
   } catch (err) {
     console.error('결과 불러오기 실패:', err);
     showToast('결과를 불러오지 못했습니다.', 'error');
+  } finally {
+    isLoading.value = false;
   }
 };
 
@@ -345,9 +305,10 @@ const fetchAnalysis = async (wmtiCode) => {
   try {
     const res = await getWMTIAnalysisAPI(wmtiCode);
     analysis.value = res.body?.data;
+    return res.body?.data;
   } catch (err) {
-    console.error('분석 정보 불러오기 실패', err);
     showToast('분석 정보 불러오기 실패', 'error');
+    return null;
   }
 };
 
@@ -407,7 +368,10 @@ const getRiskPreferenceTextClass = (risk) =>
     AGGRESSIVE: 'text-risk-aggressive',
   })[risk] || '';
 
-onMounted(() => {
+onMounted(async () => {
+  // 페이지 로드 시 즉시 스크롤을 맨 위로 이동
+  window.scrollTo({ top: 0, behavior: 'instant' });
+
   if (authStore.userInfo?.memberId) {
     fetchResult();
   }
@@ -415,6 +379,48 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* 기존 스타일 유지 - 여기서는 생략 */
+
+/* 로딩 오버레이 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.loading-spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0.25rem solid rgba(45, 51, 107, 0.1);
+  border-top: 0.25rem solid var(--color-main);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.loading-overlay p {
+  color: var(--color-sub);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 /* 컨테이너 설정 */
 .result-page {
   max-width: 26.875rem;
@@ -481,6 +487,7 @@ onMounted(() => {
   justify-content: center;
   gap: 1.5rem;
   margin-top: 1.25rem;
+  flex-wrap: wrap;
 }
 
 .type-item {
@@ -601,8 +608,7 @@ onMounted(() => {
 /* 카드 공통 스타일 */
 .analysis-card,
 .score-card,
-.CustomedPortfolio-card,
-.theme-portfolio-card {
+.CustomedPortfolio-card {
   background: var(--color-white);
   border-radius: 1.25rem;
   padding: 1.5rem;
@@ -636,9 +642,7 @@ onMounted(() => {
 .score-icon {
   background: linear-gradient(135deg, #27ae60, #2ecc71);
 }
-.theme-icon {
-  background: linear-gradient(135deg, #ad44ad, #9b59b6);
-}
+
 .customed-icon {
   background: linear-gradient(135deg, #3498db, #5dade2);
 }
@@ -774,131 +778,9 @@ onMounted(() => {
   font-weight: 500;
 }
 
-/* 점수 그리드 */
-.score-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.score-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.dimension-header {
-  text-align: center;
-}
-
-.dimension-label {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--color-main);
-  background: rgba(45, 51, 107, 0.1);
-  padding: 0.375rem 0.875rem;
-  border-radius: 0.875rem;
-  display: inline-block;
-}
-
-/* 양방향 막대그래프 */
-.bidirectional-bar {
-  display: flex;
-  align-items: center;
-  height: 2.25rem;
-  background: rgba(185, 187, 204, 0.1);
-  border-radius: 1.125rem;
-  padding: 0.25rem;
-  position: relative;
-}
-
-.bar-left,
-.bar-right {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  height: 100%;
-  position: relative;
-}
-
-.bar-left {
-  justify-content: flex-start;
-  padding-left: 0.75rem;
-}
-
-.bar-right {
-  justify-content: flex-end;
-  padding-right: 0.75rem;
-}
-
-.bar-center {
-  width: 1.75rem;
-  text-align: center;
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--color-sub);
-  background: var(--color-white);
-  border-radius: 0.625rem;
-  padding: 0.25rem 0;
-  z-index: 2;
-  border: 0.125rem solid rgba(185, 187, 204, 0.3);
-}
-
-.bar-progress {
-  height: 1.375rem;
-  border-radius: 0.625rem;
-  transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-  position: absolute;
-  animation: progressLoad 1.2s ease-out 0.6s both;
-}
-
-.bar-progress.left {
-  right: 0;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.bar-progress.right {
-  left: 0;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.bar-info {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--color-sub);
-  z-index: 3;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.bar-info.dominant {
-  font-weight: 800;
-  color: var(--color-main);
-  text-shadow: 0.0625rem 0.125rem rgba(45, 51, 107, 0.2);
-  transform: scale(1.05);
-}
-
-/* 각 차원별 색상 */
-.bar-a,
-.bar-i {
-  background: linear-gradient(90deg, #3498db, #5dade2);
-}
-
-.bar-p,
-.bar-b {
-  background: linear-gradient(90deg, #e67e22, #f8c471);
-}
-
-.bar-m,
-.bar-w {
-  background: linear-gradient(90deg, #27ae60, #58d68d);
-}
-
-.bar-l,
-.bar-c {
-  background: linear-gradient(90deg, #8e44ad, #bb8fce);
+/* 줄바꿈 처리 */
+.multiline-text {
+  white-space: pre-line; /* \n을 줄바꿈으로 처리 */
 }
 
 /* 액션 섹션 */
@@ -1026,12 +908,6 @@ onMounted(() => {
   }
 }
 
-@keyframes progressLoad {
-  from {
-    width: 0;
-  }
-}
-
 /* 반응형 */
 @media (max-width: 30rem) {
   .result-page {
@@ -1044,7 +920,16 @@ onMounted(() => {
   }
 
   .type-summary {
-    gap: 1.25rem;
+    gap: 0.75rem;
+  }
+
+  .type-value {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .type-description {
+    font-size: 0.55rem;
   }
 
   .analysis-card,
