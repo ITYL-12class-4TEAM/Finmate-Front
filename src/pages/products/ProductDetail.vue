@@ -15,7 +15,7 @@
       <div class="page-header">
         <div class="header-left">
           <BackButton />
-          <button class="favorite-btn" @click="goToFavorites" title="즐겨찾는 상품">
+          <button class="favorite-btn" title="즐겨찾는 상품" @click="goToFavorites">
             <span class="favorite-icon">★</span>
             <span class="btn-text">즐겨찾기로 이동</span>
           </button>
@@ -272,7 +272,6 @@ const saveAsRecentViewed = async () => {
     }
 
     await recentViewAPI.saveRecentView(productId, saveTrm, intrRateType, rsrvType);
-    console.log('최근 본 상품 저장 성공');
   } catch (error) {
     console.error('최근 본 상품 저장 실패:', error);
   }

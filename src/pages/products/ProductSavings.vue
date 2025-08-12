@@ -32,7 +32,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, nextTick } from 'vue';
+import { ref, watch, onMounted, computed, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { getProductsAPI, getProductsFilterOptionsAPI } from '@/api/product';
 import SavingsSearchForm from '../../components/products/savings/SavingsSearchForm.vue';
@@ -45,8 +45,10 @@ const route = useRoute();
 const depositAmount = ref(route.query.amount ? route.query.amount : '100000');
 const period = ref(route.query.saveTrm || '6');
 const interestType = ref(route.query.intrRateType || 'S');
+// ProductSavings.vue 파일에서
 const rsrvType = ref(route.query.rsrvType || 'F');
-const rsrvTypeNm = ref(route.query.rsrvTypeNm || '자유적립식');
+// computed 속성으로 변경하여 항상 최신 상태 유지
+const rsrvTypeNm = computed(() => (rsrvType.value === 'F' ? '자유적립식' : '정액적립식'));
 const joinWay = ref(route.query.joinWays ? route.query.joinWays.split(',') : 'all');
 const sortBy = ref(route.query.sortBy || 'intrRate');
 const depositProducts = ref([]);
@@ -136,7 +138,6 @@ const fetchProducts = async () => {
     // 적금일 경우에만 rsrvType 파라미터 추가
     if (params.category === 'savings') {
       params.rsrvType = rsrvType.value;
-      params.rsrvTypeNm = rsrvTypeNm.value;
     }
 
     // 가입방식
@@ -169,26 +170,16 @@ const fetchProducts = async () => {
             product.options && product.options.length > 0 ? product.options[0] : null;
 
           // rsrvType 값 추출 (옵션 > 상품 > 현재 설정 > 기본값 'F' 순)
-          const typeValue =
-            firstOption?.rsrv_type ||
-            firstOption?.rsrvType ||
-            product.rsrv_type ||
-            product.rsrvType ||
-            rsrvType.value ||
-            'F'; // 기본값은 'F'
+          const typeValue = firstOption?.rsrvType || product.rsrvType || rsrvType.value || 'F'; // 기본값은 'F'
 
           // rsrvTypeNm 값 추출 (옵션 > 상품 > 매핑 순)
           const typeNameValue =
-            firstOption?.rsrv_type_nm ||
             firstOption?.rsrvTypeNm ||
-            product.rsrv_type_nm ||
             product.rsrvTypeNm ||
-            (typeValue === 'S' ? '정액적립식' : '자유적립식');
+            (typeValue === 'F' ? '자유적립식' : '정액적립식');
 
           // 적금에만 필요한 필드 추가
-          processedProduct.rsrv_type = typeValue;
           processedProduct.rsrvType = typeValue;
-          processedProduct.rsrv_type_nm = typeNameValue;
           processedProduct.rsrvTypeNm = typeNameValue;
         } else {
           // 예금인 경우 rsrvType 필드는 추가하지 않음

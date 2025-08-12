@@ -157,15 +157,6 @@ export default function useCompareList() {
     // rsrvType 존재 여부로 상품 타입 추론
     const productType = providedProductType || (rsrvType ? 'savings' : 'deposit');
 
-    console.log('제거 시도:', {
-      productId,
-      saveTrm,
-      intrRateType,
-      rsrvType,
-      productType,
-      originalType: providedProductType,
-    });
-
     // 상품 타입 기반 필터링
     compareList.value = compareList.value.filter(
       (item) => !isProductMatch(item, productId, saveTrm, intrRateType, rsrvType, productType)
