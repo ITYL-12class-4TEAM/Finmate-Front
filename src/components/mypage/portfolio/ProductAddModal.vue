@@ -1802,15 +1802,7 @@ input[type='number'] {
   gap: 0.35rem;
   margin-top: 0.35rem;
 }
-/* 성공/경고/에러 토스트가 있을 때(가정) 색상 가이드 */
-:root,
-:host {
-  --color-white: #ffffff;
-  --color-bg-light: #f8f9fc;
-  --color-main: #2d336b; /* 남색 톤 */
-  --color-sub: #7d81a2; /* 보조 그레이시 퍼플 */
-  --color-light: #9aa0b4; /* 라이트 버튼 */
-}
+
 /* 서브타이틀 + 도움말 */
 .modal-subtitle.with-help {
   position: relative;
