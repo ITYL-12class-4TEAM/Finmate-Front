@@ -146,16 +146,16 @@
 
       <!-- 액션 버튼 -->
       <div class="action-section">
-        <div class="section-header">
+        <!-- <div class="section-header">
           <div class="section-icon action-icon"></div>
           <h3 class="section-title">더 둘러보기</h3>
-        </div>
+        </div> -->
 
         <div class="action-buttons">
-          <button class="action-button secondary" @click="goToWMTIList">
+          <!-- <button class="action-button secondary" @click="goToWMTIList">
             <div class="button-icon users-icon"></div>
             16가지 WMTI 투자성향 보기
-          </button>
+          </button> -->
           <button class="action-button tertiary" @click="goToHistory">
             <div class="button-icon history-icon"></div>
             내 검사 이력 보기
