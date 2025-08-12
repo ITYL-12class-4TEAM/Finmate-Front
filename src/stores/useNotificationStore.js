@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { notificationAPI } from '@/api/notification';
 import { useAuthStore } from '@/stores/useAuthStore';
 
@@ -12,96 +12,87 @@ export const useNotificationStore = defineStore('notification', () => {
   const eventSource = ref(null);
   const isConnected = ref(false);
 
+  function toDate(arr) {
+    if (!Array.isArray(arr)) return arr;
+    const [y, m, d, hh, mm, ss, ns] = arr;
+    const ms = ns ? Math.floor(ns / 1e6) : 0; // 나노초 → 밀리초
+    return new Date(y, (m ?? 1) - 1, d ?? 1, hh ?? 0, mm ?? 0, ss ?? 0, ms);
+  }
+
   // 알림 목록 조회
   const fetchNotifications = async (page = 1, size = 20, type = null, isRead = null) => {
-    try {
-      isLoading.value = true;
-      const result = await notificationAPI.getNotifications(page, size, type, isRead);
-      if (result.success) {
-        notifications.value = result.data.notifications || [];
-        unreadCount.value = result.data.unreadCount || 0;
-        totalPages.value = result.data.totalPages || 0;
-        currentPage.value = page;
-      }
-      return result;
-    } catch (error) {
-      console.error('알림 조회 실패:', error);
-      return { success: false, message: '알림 조회에 실패했습니다.' };
-    } finally {
-      isLoading.value = false;
+    isLoading.value = true;
+
+    const result = await notificationAPI.getNotifications(page, size, type, isRead);
+
+    if (result.success) {
+      notifications.value = result.data.notifications || [];
+      unreadCount.value = result.data.unreadCount || 0;
+      totalPages.value = result.data.totalPages || 0;
+      currentPage.value = page;
     }
+
+    isLoading.value = false;
+    return result;
   };
 
   // 읽지 않은 알림 수만 조회
   const fetchUnreadCount = async () => {
-    try {
-      const result = await notificationAPI.getUnreadCount();
-      if (result.success) {
-        unreadCount.value = result.data;
-      }
-      return result;
-    } catch (error) {
-      console.error('읽지 않은 알림 수 조회 실패:', error);
-      return { success: false, message: '읽지 않은 알림 수 조회에 실패했습니다.' };
+    const result = await notificationAPI.getUnreadCount();
+    if (result.success) {
+      unreadCount.value = result.data.data;
     }
+    return result;
   };
 
-  // 특정 알림 읽음 처리 (수정)
+  // 특정 알림 읽음 처리
   const markAsRead = async (notificationId) => {
-    try {
-      const result = await notificationAPI.markAsRead(notificationId);
-      if (result.success) {
-        // 로컬 상태 업데이트 - notificationId로 찾기
+    const result = await notificationAPI.markAsRead(notificationId);
+
+    if (result.success) {
+      if (result.data) {
+        // 서버에서 업데이트된 알림 정보로 동기화
+        const updatedNotification = result.data.data;
+
+        const index = notifications.value.findIndex(
+          (n) => n.notificationId === updatedNotification.notificationId
+        );
+
+        if (index !== -1) {
+          const wasUnread = !notifications.value[index].isRead;
+          notifications.value[index] = { ...updatedNotification };
+
+          if (wasUnread && updatedNotification.isRead) {
+            unreadCount.value = Math.max(0, unreadCount.value - 1);
+          }
+        }
+      } else {
+        // 폴백: 기존 로직 유지
         const notification = notifications.value.find((n) => n.notificationId === notificationId);
         if (notification && !notification.isRead) {
           notification.isRead = true;
           unreadCount.value = Math.max(0, unreadCount.value - 1);
         }
       }
-      return result;
-    } catch (error) {
-      console.error('알림 읽음 처리 실패:', error);
-      return { success: false, message: '알림 읽음 처리에 실패했습니다.' };
     }
+
+    return result;
   };
 
   // 모든 알림 읽음 처리
   const markAllAsRead = async () => {
-    try {
-      const result = await notificationAPI.markAllAsRead();
-      if (result.success) {
-        // 로컬 상태 업데이트
-        notifications.value.forEach((n) => (n.isRead = true));
-        unreadCount.value = 0;
-      }
-      return result;
-    } catch (error) {
-      console.error('모든 알림 읽음 처리 실패:', error);
-      return { success: false, message: '모든 알림 읽음 처리에 실패했습니다.' };
+    const result = await notificationAPI.markAllAsRead();
+    if (result.success) {
+      notifications.value.forEach((n) => (n.isRead = true));
+      unreadCount.value = 0;
     }
+    return result;
   };
 
-  // 알림 설정 조회
-  const getNotificationSettings = async () => {
-    try {
-      const result = await notificationAPI.getNotificationSettings();
-      return result;
-    } catch (error) {
-      console.error('알림 설정 조회 실패:', error);
-      return { success: false, message: '알림 설정 조회에 실패했습니다.' };
-    }
-  };
-
-  // 알림 설정 업데이트
-  const updateNotificationSettings = async (settings) => {
-    try {
-      const result = await notificationAPI.updateNotificationSettings(settings);
-      return result;
-    } catch (error) {
-      console.error('알림 설정 업데이트 실패:', error);
-      return { success: false, message: '알림 설정 업데이트에 실패했습니다.' };
-    }
-  };
+  // 알림 설정 조회/업데이트 (간소화)
+  const getNotificationSettings = () => notificationAPI.getNotificationSettings();
+  const updateNotificationSettings = (settings) =>
+    notificationAPI.updateNotificationSettings(settings);
 
   // 새 알림 추가 (실시간 알림용)
   const addNotification = (notification) => {
@@ -111,7 +102,17 @@ export const useNotificationStore = defineStore('notification', () => {
     }
   };
 
-  // 브라우저 알림 권한 요청 함수 추가
+  // 브라우저 알림 표시
+  const showBrowserNotification = (notification) => {
+    if (Notification.permission === 'granted') {
+      new Notification(notification.title, {
+        body: notification.message,
+        tag: `notification_${notification.notificationId}`,
+      });
+    }
+  };
+
+  // 브라우저 알림 권한 요청
   const requestNotificationPermission = async () => {
     if (Notification.permission === 'default') {
       const permission = await Notification.requestPermission();
@@ -124,79 +125,95 @@ export const useNotificationStore = defineStore('notification', () => {
   const connectSSE = () => {
     const authStore = useAuthStore();
 
+    if (isConnected.value && eventSource.value) return;
     if (eventSource.value) {
       eventSource.value.close();
-    }
-
-    // 토큰이 없으면 연결하지 않음
-    if (!authStore.accessToken) {
-      console.warn('인증 토큰이 없어 SSE 연결을 시도하지 않습니다.');
-      return;
-    }
-
-    // URL에 토큰을 쿼리 파라미터로 추가
-    const sseUrl = `/api/notifications/stream?token=${encodeURIComponent(authStore.accessToken)}`;
-
-    eventSource.value = new EventSource(sseUrl, {
-      withCredentials: true,
-    });
-
-    eventSource.value.onopen = () => {
-      console.log('SSE 연결 성공');
-      isConnected.value = true;
-    };
-
-    // SSE onmessage 개선
-    eventSource.value.onmessage = (event) => {
-      try {
-        console.log('🔔 실시간 알림 수신:', event.data);
-        const notification = JSON.parse(event.data);
-        console.log('📩 파싱된 알림:', notification);
-
-        addNotification(notification);
-
-        // 브라우저 알림 표시
-        if (Notification.permission === 'granted') {
-          new Notification(notification.title, {
-            body: notification.message,
-            icon: '/favicon.ico',
-            tag: notification.notificationId, // id 대신 notificationId 사용
-          });
-        } else if (Notification.permission === 'default') {
-          // 권한 요청
-          Notification.requestPermission().then((permission) => {
-            if (permission === 'granted') {
-              new Notification(notification.title, {
-                body: notification.message,
-                icon: '/favicon.ico',
-                tag: notification.notificationId,
-              });
-            }
-          });
-        }
-      } catch (error) {
-        console.error('SSE 메시지 파싱 오류:', error);
-      }
-    };
-
-    eventSource.value.onerror = (error) => {
-      console.error('SSE 연결 오류:', error);
+      eventSource.value = null;
       isConnected.value = false;
+    }
 
-      // 401 Unauthorized인 경우 재연결하지 않음
-      if (error.target.readyState === EventSource.CLOSED) {
-        console.log('SSE 연결이 서버에 의해 종료되었습니다.');
-        return;
-      }
+    // 인증 확인
+    if (!authStore.isAuthenticated || !authStore.accessToken) return;
 
-      // 토큰이 유효한 경우에만 재연결 시도 (5초 후)
-      setTimeout(() => {
-        if (!isConnected.value && authStore.accessToken) {
-          console.log('SSE 재연결 시도...');
-          connectSSE();
+    try {
+      const sseUrl = `/api/notifications/stream?token=${encodeURIComponent(authStore.accessToken)}`;
+      eventSource.value = new EventSource(sseUrl, { withCredentials: true });
+
+      // 연결 성공
+      eventSource.value.onopen = () => {
+        isConnected.value = true;
+      };
+
+      // 연결 확인 이벤트
+      eventSource.value.addEventListener('connected', (event) => {
+        console.log('SSE 연결 확인:', event.data);
+      });
+
+      // 하트비트 이벤트
+      eventSource.value.addEventListener('heartbeat', (event) => {
+        console.log('하트비트 수신:', event.data);
+      });
+
+      // 알림 이벤트 처리
+      eventSource.value.addEventListener('notification', (event) => {
+        try {
+          const notification = JSON.parse(event.data);
+          addNotification(notification);
+          showBrowserNotification(notification);
+        } catch (error) {
+          console.error('알림 파싱 오류:', error);
         }
-      }, 5000);
-    };
+      });
+
+      // 브로드캐스트 이벤트 처리
+      eventSource.value.addEventListener('broadcast', (event) => {
+        try {
+          const notification = JSON.parse(event.data);
+          addNotification(notification);
+          showBrowserNotification(notification);
+        } catch (error) {
+          console.error('브로드캐스트 파싱 오류:', error);
+        }
+      });
+
+      // 기본 메시지 처리 (백업용)
+      eventSource.value.onmessage = (event) => {
+        // 연결 유지 메시지는 무시
+        const connectionMessages = [
+          'SSE 연결이 성공했습니다.',
+          '연결이 성공적으로 설정되었습니다.',
+          'ping',
+        ];
+
+        if (connectionMessages.includes(event.data)) {
+          return;
+        }
+
+        try {
+          const notification = JSON.parse(event.data);
+          addNotification(notification);
+          showBrowserNotification(notification);
+        } catch (error) {
+          // 파싱 불가능한 메시지는 무시
+        }
+      };
+
+      // 연결 오류 처리
+      eventSource.value.onerror = (error) => {
+        isConnected.value = false;
+
+        if (error.target.readyState === EventSource.CLOSED) {
+          // 인증된 상태라면 재연결 시도
+          if (authStore.isAuthenticated && authStore.accessToken) {
+            setTimeout(() => {
+              if (!isConnected.value) connectSSE();
+            }, 5000);
+          }
+        }
+      };
+    } catch (error) {
+      console.error('SSE 연결 생성 오류:', error);
+    }
   };
 
   // SSE 연결 해제
@@ -205,11 +222,10 @@ export const useNotificationStore = defineStore('notification', () => {
       eventSource.value.close();
       eventSource.value = null;
       isConnected.value = false;
-      console.log('SSE 연결 해제');
     }
   };
 
-  // 상태 초기화 (로그아웃 시 사용)
+  // 상태 초기화
   const clearNotifications = () => {
     notifications.value = [];
     unreadCount.value = 0;
@@ -219,6 +235,7 @@ export const useNotificationStore = defineStore('notification', () => {
   };
 
   return {
+    // 상태
     notifications,
     isLoading,
     unreadCount,
@@ -226,6 +243,8 @@ export const useNotificationStore = defineStore('notification', () => {
     currentPage,
     eventSource,
     isConnected,
+
+    // 액션
     fetchNotifications,
     fetchUnreadCount,
     markAsRead,

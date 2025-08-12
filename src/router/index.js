@@ -48,13 +48,6 @@ const router = createRouter({
       name: 'OAuth2Redirect',
       component: () => import('../pages/auth/OAuth2Redirect.vue'),
     },
-    // 알림 페이지
-    {
-      path: '/notification',
-      name: 'Notification',
-      component: () => import('../pages/notification/notification.vue'),
-      meta: { requiresAuth: true },
-    },
 
     // 마이페이지
     {

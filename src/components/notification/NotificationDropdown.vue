@@ -1,24 +1,23 @@
 <template>
   <div class="notification-dropdown-overlay" v-if="isOpen" @click="$emit('close')">
     <div class="notification-dropdown" @click.stop>
-      <!-- 헤더 -->
       <div class="dropdown-header">
         <h3>알림</h3>
         <button
           @click="handleMarkAllAsRead"
-          :disabled="unreadCount === 0"
+          :disabled="unreadCount === 0 || isMarkingAllAsRead"
           class="mark-all-read-btn"
+          :class="{ loading: isMarkingAllAsRead }"
         >
-          모두 읽음
+          <span v-if="!isMarkingAllAsRead">모두 읽음</span>
+          <span v-else>처리중...</span>
         </button>
       </div>
 
-      <!-- 읽지 않은 알림 수 -->
       <div class="unread-count">읽지 않은 알림 {{ unreadCount }}개</div>
 
-      <!-- 알림 목록 -->
       <div class="dropdown-list">
-        <div v-if="notifications.length === 0" class="empty-state">
+        <div v-if="limitedNotifications.length === 0" class="empty-state">
           <div class="empty-icon">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -41,129 +40,118 @@
         </div>
 
         <div v-else class="notification-items">
-          <div
-            v-for="notification in limitedNotifications"
-            :key="notification.notificationId"
-            class="dropdown-notification-item"
-            :class="{ unread: !notification.isRead }"
-            @click="handleNotificationClick(notification)"
-          >
-            <div class="item-icon" :class="`type-${notification.type}`">
-              <span>{{ getTypeIcon(notification.type) }}</span>
-            </div>
+          <TransitionGroup name="notification" tag="div">
+            <div
+              v-for="notification in limitedNotifications"
+              :key="notification.notificationId"
+              class="dropdown-notification-item"
+              :class="{
+                unread: !notification.isRead,
+                'mark-as-read': markedAsReadIds.has(notification.notificationId),
+              }"
+              @click="handleNotificationClick(notification)"
+            >
+              <div class="item-icon" :class="`type-${notification.type}`">
+                <span>{{ getTypeIcon(notification.type) }}</span>
+              </div>
 
-            <div class="item-content">
-              <div class="item-header">
-                <h4>{{ notification.title }}</h4>
-                <button
-                  v-if="!notification.isRead"
-                  @click.stop="handleMarkAsRead(notification)"
-                  class="mark-read-btn"
-                >
-                  읽음
-                </button>
+              <div class="item-content">
+                <div class="item-header">
+                  <h4>{{ notification.title }}</h4>
+                </div>
+                <p class="item-message">{{ truncateMessage(notification.message) }}</p>
+                <div class="item-footer">
+                  <span class="item-time">{{ formatTime(notification.createdAt) }}</span>
+                </div>
               </div>
-              <p class="item-message">
-                {{ truncateMessage(notification.message) }}
-              </p>
-              <div class="item-footer">
-                <span class="item-time">{{ formatTime(notification.createdAt) }}</span>
+
+              <!-- ✅ 간단한 읽음 표시로 변경 -->
+              <div v-if="markedAsReadIds.has(notification.notificationId)" class="read-indicator">
+                ✓
               </div>
             </div>
-          </div>
+          </TransitionGroup>
         </div>
-      </div>
-
-      <!-- 하단 버튼 -->
-      <div v-if="notifications.length > 0" class="dropdown-footer">
-        <button @click="$emit('viewAll')" class="view-all-btn">전체 알림 보기</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useNotificationStore } from '@/stores/useNotificationStore';
 import { useToast } from '@/composables/useToast';
 
+const router = useRouter();
 const { showToast } = useToast();
 const notificationStore = useNotificationStore();
 
 const props = defineProps({
-  isOpen: {
-    type: Boolean,
-    default: false,
-  },
-  notifications: {
-    type: Array,
-    default: () => [],
-  },
-  unreadCount: {
-    type: Number,
-    default: 0,
-  },
+  isOpen: { type: Boolean, default: false },
+  notifications: { type: Array, default: () => [] },
+  unreadCount: { type: Number, default: 0 },
 });
 
-const emit = defineEmits(['close', 'viewAll']);
+const emit = defineEmits(['close']);
 
-// 최대 5개까지만 표시
+const isMarkingAllAsRead = ref(false);
+const markedAsReadIds = ref(new Set());
+
 const limitedNotifications = computed(() => {
-  return props.notifications.slice(0, 5);
+  return props.notifications.filter((notification) => !notification.isRead).slice(0, 5);
 });
 
 const handleNotificationClick = async (notification) => {
-  console.log('🔔 알림 클릭:', notification);
-
-  // 읽지 않은 알림인 경우 읽음 처리
   if (!notification.isRead) {
+    markedAsReadIds.value.add(notification.notificationId);
     await handleMarkAsRead(notification);
+
+    setTimeout(() => {
+      markedAsReadIds.value.delete(notification.notificationId);
+    }, 300);
   }
 
-  // 알림 링크로 이동 (있는 경우)
   if (notification.targetUrl) {
-    // router.push(notification.targetUrl);
-    console.log('이동할 URL:', notification.targetUrl);
+    router.push(notification.targetUrl);
   }
-
   emit('close');
 };
 
 const handleMarkAsRead = async (notification) => {
-  try {
-    console.log('📖 알림 읽음 처리 시도:', notification.notificationId);
-
-    const result = await notificationStore.markAsRead(notification.notificationId);
-
-    if (result.success) {
-      console.log('✅ 알림 읽음 처리 성공');
-      showToast('알림을 읽음 처리했습니다.');
-    } else {
-      console.error('❌ 알림 읽음 처리 실패:', result.message);
-      showToast(result.message || '알림 읽음 처리에 실패했습니다.', 'error');
-    }
-  } catch (error) {
-    console.error('❌ 알림 읽음 처리 오류:', error);
-    showToast('알림 읽음 처리 중 오류가 발생했습니다.', 'error');
+  const result = await notificationStore.markAsRead(notification.notificationId);
+  if (result.success) {
+    showToast('읽음 처리 완료');
+  } else {
+    showToast(result.message || '읽음 처리 실패', 'error');
   }
 };
 
 const handleMarkAllAsRead = async () => {
-  try {
-    console.log('📖 모든 알림 읽음 처리 시도');
+  if (isMarkingAllAsRead.value || unreadCount.value === 0) return;
 
-    const result = await notificationStore.markAllAsRead();
+  isMarkingAllAsRead.value = true;
+  const unreadNotifications = props.notifications.filter((n) => !n.isRead);
 
-    if (result.success) {
-      console.log('✅ 모든 알림 읽음 처리 성공');
-      showToast('모든 알림을 읽음 처리했습니다.');
-    } else {
-      console.error('❌ 모든 알림 읽음 처리 실패:', result.message);
-      showToast(result.message || '모든 알림 읽음 처리에 실패했습니다.', 'error');
-    }
-  } catch (error) {
-    console.error('❌ 모든 알림 읽음 처리 오류:', error);
-    showToast('모든 알림 읽음 처리 중 오류가 발생했습니다.', 'error');
+  unreadNotifications.forEach((notification, index) => {
+    setTimeout(() => {
+      markedAsReadIds.value.add(notification.notificationId);
+    }, index * 50);
+  });
+
+  const result = await notificationStore.markAllAsRead();
+
+  if (result.success) {
+    showToast('모든 알림 읽음 처리 완료');
+
+    setTimeout(() => {
+      markedAsReadIds.value.clear();
+      isMarkingAllAsRead.value = false;
+    }, 1000); // 2000ms → 1000ms로 단축
+  } else {
+    showToast(result.message || '읽음 처리 실패', 'error');
+    markedAsReadIds.value.clear();
+    isMarkingAllAsRead.value = false;
   }
 };
 
@@ -179,17 +167,21 @@ const getTypeIcon = (type) => {
 };
 
 const truncateMessage = (message) => {
-  if (message.length > 80) {
+  if (message && message.length > 80) {
     return message.substring(0, 80) + '...';
   }
-  return message;
+  return message || '';
 };
 
 const formatTime = (dateString) => {
+  if (Array.isArray(dateString)) {
+    const [year, month, day, hour = 0, minute = 0, second = 0] = dateString;
+    dateString = new Date(year, month - 1, day, hour, minute, second);
+  }
+
   const date = new Date(dateString);
   const now = new Date();
   const diff = now - date;
-
   const minutes = Math.floor(diff / 60000);
   const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
@@ -198,11 +190,11 @@ const formatTime = (dateString) => {
   if (minutes < 60) return `${minutes}분 전`;
   if (hours < 24) return `${hours}시간 전`;
   if (days < 7) return `${days}일 전`;
-
   return date.toLocaleDateString();
 };
 </script>
 
+<!-- filepath: /c:/FinMate/Finmate-Front/src/components/notification/NotificationDropdown.vue -->
 <style scoped>
 .notification-dropdown-overlay {
   position: fixed;
@@ -222,11 +214,11 @@ const formatTime = (dateString) => {
 .notification-dropdown {
   width: 100%;
   max-width: 384px;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--color-white);
+  border: 1px solid var(--color-bg-light);
   border-radius: 0.75rem;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.1);
   animation: slideDown 0.3s ease-out;
 }
 
@@ -246,48 +238,219 @@ const formatTime = (dateString) => {
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
-  background: white;
+  border-bottom: 1px solid var(--color-bg-light);
+  background: var(--color-white);
 }
 
 .dropdown-header h3 {
   font-size: 1rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--color-main);
   margin: 0;
 }
 
 .mark-all-read-btn {
   font-size: 0.8rem;
-  color: #9ca3af;
-  font-weight: 500;
+  color: var(--color-main);
+  font-weight: 600;
   background: none;
-  border: none;
+  border: 1px solid var(--color-main);
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.75rem;
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
-.mark-all-read-btn:hover {
-  color: #6b7280;
+.mark-all-read-btn:hover:not(:disabled) {
+  background: var(--color-main);
+  color: var(--color-white);
 }
 
 .mark-all-read-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  color: var(--color-light);
+  border-color: var(--color-light);
+}
+
+.mark-all-read-btn.loading {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 .unread-count {
   padding: 0.75rem 1.5rem;
   font-size: 0.8rem;
-  color: #6b7280;
-  border-bottom: 1px solid #e5e7eb;
-  background: #f9fafb;
+  color: var(--color-sub);
+  border-bottom: 1px solid var(--color-bg-light);
+  background: var(--color-bg-light);
 }
 
 .dropdown-list {
   max-height: 320px;
   overflow-y: auto;
-  background: white;
+  background: var(--color-white);
+}
+
+.notification-items {
+  position: relative;
+}
+
+.dropdown-notification-item {
+  position: relative;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-bg-light);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--color-white);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.dropdown-notification-item:hover {
+  background: var(--color-bg-light);
+}
+
+.dropdown-notification-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-notification-item.unread {
+  background: var(--color-white);
+  border-left: 3px solid var(--color-main);
+}
+
+.dropdown-notification-item.mark-as-read {
+  background: rgba(45, 51, 107, 0.05) !important;
+}
+
+.read-indicator {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 20px;
+  height: 20px;
+  background: var(--color-main);
+  color: var(--color-white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.notification-enter-active,
+.notification-leave-active {
+  transition: all 0.2s ease;
+}
+
+.notification-enter-from {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+.notification-leave-to {
+  opacity: 0;
+  transform: translateX(10px);
+}
+
+.notification-move {
+  transition: transform 0.2s ease;
+}
+
+.item-icon {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-white);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.item-icon.type-POST_COMMENT {
+  background: #10b981; /* 녹색 - 댓글 */
+}
+
+.item-icon.type-POST_LIKE {
+  background: #ef4444; /* 빨간색 - 좋아요 */
+}
+
+.item-icon.type-HOT_POST {
+  background: #f59e0b; /* 주황색 - 인기글 */
+}
+
+.item-icon.type-SYSTEM {
+  background: var(--color-sub); /* 시스템 알림 */
+}
+
+.item-icon.type-INFO {
+  background: var(--color-main); /* 일반 정보 */
+}
+
+.item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.item-header h4 {
+  font-weight: 500;
+  color: var(--color-main);
+  font-size: 0.8rem;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.item-message {
+  color: var(--color-sub);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  margin: 0.25rem 0 0.5rem 0;
+}
+
+.item-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.item-time {
+  color: var(--color-light);
+  font-size: 0.7rem;
 }
 
 .empty-state {
@@ -311,169 +474,29 @@ const formatTime = (dateString) => {
 }
 
 .empty-title {
-  color: var(--color-sub);
+  color: var(--color-main);
   font-weight: 500;
   margin: 0 0 0.25rem 0;
 }
 
 .empty-desc {
-  color: var(--color-light);
+  color: var(--color-sub);
   font-size: 0.875rem;
   margin: 0;
-}
-
-.notification-items {
-  display: flex;
-  flex-direction: column;
-}
-
-.dropdown-notification-item {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #f3f4f6;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  background: white;
-}
-
-.dropdown-notification-item:hover {
-  background: #f9fafb;
-}
-
-.dropdown-notification-item:last-child {
-  border-bottom: none;
-}
-
-.dropdown-notification-item.unread {
-  background: white;
-}
-
-.dropdown-notification-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-}
-
-.item-icon {
-  flex-shrink: 0;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 600;
-  font-size: 1rem;
-}
-
-.item-icon.type-success {
-  background: #10b981;
-}
-
-.item-icon.type-warning {
-  background: #f59e0b;
-}
-
-.item-icon.type-error {
-  background: #ef4444;
-}
-
-.item-icon.type-info {
-  background: var(--color-main);
-}
-
-.item-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.item-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.25rem;
-}
-
-.item-header h4 {
-  font-weight: 500;
-  color: #374151;
-  font-size: 0.8rem;
-  margin: 0;
-  line-height: 1.25;
-}
-
-.item-message {
-  color: #6b7280;
-  font-size: 0.8rem;
-  line-height: 1.4;
-  margin: 0.25rem 0 0.5rem 0;
-}
-
-.item-footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.item-time {
-  color: #9ca3af;
-  font-size: 0.7rem;
-}
-
-.mark-read-btn {
-  background: var(--color-main);
-  color: white;
-  border: none;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.7rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.mark-read-btn:hover {
-  background: var(--color-sub);
-}
-
-.dropdown-footer {
-  padding: 1rem;
-  border-top: 1px solid var(--color-light);
-  background: var(--color-bg-light);
-}
-
-.view-all-btn {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: var(--color-main);
-  color: white;
-  font-weight: 500;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.view-all-btn:hover {
-  background: var(--color-sub);
 }
 
 @media (max-width: 375px) {
   .notification-dropdown {
     max-width: 320px;
   }
-
   .dropdown-header {
     padding: 1rem;
   }
-
   .unread-count {
     padding: 0.75rem 1rem;
   }
-
   .dropdown-notification-item {
     padding: 0.75rem;
   }
 }
 </style>
-```
