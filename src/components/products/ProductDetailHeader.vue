@@ -25,7 +25,7 @@ const props = defineProps({
   finPrdtNm: { type: String, required: true },
   isDigitalOnly: { type: Boolean, default: false },
   categoryName: { type: String, default: '금융상품' },
-  interestTypeName: { type: String, default: '기본금리' },
+  interestTypeName: { type: String, required: true },
 });
 
 // 은행 로고 매핑 객체

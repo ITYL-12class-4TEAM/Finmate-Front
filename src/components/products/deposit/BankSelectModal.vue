@@ -19,14 +19,14 @@
       <div class="bank-selection-content">
         <div class="select-all-option">
           <label>
-            <input type="checkbox" v-model="selectAll" @change="toggleSelectAll" />
+            <input v-model="selectAll" type="checkbox" @change="toggleSelectAll" />
             모든 {{ tabLabel }} 선택
           </label>
         </div>
         <div class="bank-grid">
           <div v-for="bank in displayedBanks" :key="bank" class="bank-item">
             <label>
-              <input type="checkbox" v-model="selected" :value="bank" @change="syncSelectAll" />
+              <input v-model="selected" type="checkbox" :value="bank" @change="syncSelectAll" />
               <div class="bank-logo">
                 <div class="bank-logo-placeholder"></div>
               </div>
@@ -178,27 +178,26 @@ watch(
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
 }
+
 .modal-content {
-  width: 100%;
-  max-width: 430px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 350px;
+  max-width: 90%;
+  max-height: 80vh;
   background: #fff;
-  border-radius: 1rem 1rem 0 0;
+  border-radius: 1rem;
   box-shadow: 0 0.25rem 1rem rgba(45, 51, 107, 0.11);
   display: flex;
   flex-direction: column;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  max-height: 80vh;
+  z-index: 10000;
 }
 .modal-header {
   display: flex;

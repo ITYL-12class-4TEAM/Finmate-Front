@@ -63,7 +63,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from '@/composables/useToast';
 
@@ -82,12 +82,6 @@ const checkPreinfoStatus = () => {
   const preinfoDone = localStorage.getItem('preinfoSubmitted');
   step1Completed.value = preinfoDone === 'true';
   step2Enabled.value = preinfoDone === 'true';
-
-  console.log('✅ Preinfo Status Check:', {
-    localStorage: preinfoDone,
-    step1Completed: step1Completed.value,
-    step2Enabled: step2Enabled.value,
-  });
 };
 
 // ✅ 라우팅 함수
@@ -103,23 +97,9 @@ const goToSurvey = () => {
   }
 };
 
-// ✅ 디버깅용 메서드
-const clearPreinfo = () => {
-  localStorage.removeItem('preinfoSubmitted');
-  checkPreinfoStatus();
-  console.log('🗑️ localStorage cleared');
-};
-
-const setPreinfo = () => {
-  localStorage.setItem('preinfoSubmitted', 'true');
-  checkPreinfoStatus();
-  console.log('✅ localStorage set to true');
-};
-
 // ✅ 컴포넌트 마운트 시 상태 확인
 onMounted(() => {
   checkPreinfoStatus();
-  console.log('🔍 BasicSurvey mounted!');
 });
 </script>
 
