@@ -31,4 +31,14 @@ export const portfolioAPI = {
     const res = await api.delete(`/api/portfolio/${portfolioId}`);
     return res.data;
   },
+
+  // 상품 정보 조회
+  // 실제 상품 정보 API 호출
+  getProductInfo: async (formData) => {
+    const response = await api.post('/api/chat/product-info', {
+      productName: formData.value.customProductName.trim(),
+      companyName: formData.value.customCompanyName.trim(),
+    });
+    return response.data;
+  },
 };
