@@ -27,25 +27,15 @@ const handleError = (error, defaultErrorMessage) => {
 
 export const notificationAPI = {
   // 알림 목록 조회
-  getNotifications: async (page = 1, size = 20, type = null, isRead = null) => {
+  getNotifications: async () => {
     try {
-      const params = new URLSearchParams();
-      params.append('page', page);
-      params.append('size', size);
-      if (type) params.append('type', type);
-      if (isRead !== null) params.append('isRead', isRead);
-
-      const response = await api.get(`/api/notifications?${params.toString()}`);
+      const response = await api.get('/api/notifications');
 
       if (response.data.header?.status === 'OK') {
         return {
           success: true,
           data: {
             notifications: response.data.body.notifications || [],
-            totalPages: response.data.body.pagination?.totalPages || 0,
-            totalCount: response.data.body.pagination?.totalCount || 0,
-            unreadCount: response.data.body.pagination?.unreadCount || 0,
-            currentPage: response.data.body.pagination?.currentPage || page,
           },
           message: response.data.header.message,
         };

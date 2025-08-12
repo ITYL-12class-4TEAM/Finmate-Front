@@ -64,11 +64,6 @@
                   <span class="item-time">{{ formatTime(notification.createdAt) }}</span>
                 </div>
               </div>
-
-              <!-- ✅ 간단한 읽음 표시로 변경 -->
-              <div v-if="markedAsReadIds.has(notification.notificationId)" class="read-indicator">
-                ✓
-              </div>
             </div>
           </TransitionGroup>
         </div>
@@ -92,6 +87,7 @@ const props = defineProps({
   notifications: { type: Array, default: () => [] },
   unreadCount: { type: Number, default: 0 },
 });
+console.log('🔔 알림 드롭다운 컴포넌트 초기화', props);
 
 const emit = defineEmits(['close']);
 
@@ -120,9 +116,7 @@ const handleNotificationClick = async (notification) => {
 
 const handleMarkAsRead = async (notification) => {
   const result = await notificationStore.markAsRead(notification.notificationId);
-  if (result.success) {
-    showToast('읽음 처리 완료');
-  } else {
+  if (!result.success) {
     showToast(result.message || '읽음 처리 실패', 'error');
   }
 };
@@ -142,8 +136,6 @@ const handleMarkAllAsRead = async () => {
   const result = await notificationStore.markAllAsRead();
 
   if (result.success) {
-    showToast('모든 알림 읽음 처리 완료');
-
     setTimeout(() => {
       markedAsReadIds.value.clear();
       isMarkingAllAsRead.value = false;
@@ -194,7 +186,6 @@ const formatTime = (dateString) => {
 };
 </script>
 
-<!-- filepath: /c:/FinMate/Finmate-Front/src/components/notification/NotificationDropdown.vue -->
 <style scoped>
 .notification-dropdown-overlay {
   position: fixed;
@@ -332,34 +323,6 @@ const formatTime = (dateString) => {
 
 .dropdown-notification-item.mark-as-read {
   background: rgba(45, 51, 107, 0.05) !important;
-}
-
-.read-indicator {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  width: 20px;
-  height: 20px;
-  background: var(--color-main);
-  color: var(--color-white);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.7rem;
-  font-weight: bold;
-  animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
 }
 
 .notification-enter-active,

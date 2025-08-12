@@ -19,7 +19,7 @@
         />
       </svg>
 
-      <!-- ✅ 읽지 않은 알림 수 표시 -->
+      <!-- 읽지 않은 알림 수 표시 -->
       <span v-if="unreadCount > 0" class="notification-badge">
         {{ unreadCount > 99 ? '99+' : unreadCount }}
       </span>
@@ -57,6 +57,7 @@ const closeDropdown = () => {
 
 onMounted(async () => {
   await notificationStore.fetchNotifications();
+  await notificationStore.fetchUnreadCount();
   notificationStore.connectSSE();
 });
 </script>

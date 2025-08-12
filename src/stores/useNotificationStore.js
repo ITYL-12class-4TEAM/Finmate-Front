@@ -7,8 +7,6 @@ export const useNotificationStore = defineStore('notification', () => {
   const notifications = ref([]);
   const isLoading = ref(false);
   const unreadCount = ref(0);
-  const totalPages = ref(0);
-  const currentPage = ref(1);
   const eventSource = ref(null);
   const isConnected = ref(false);
 
@@ -20,20 +18,14 @@ export const useNotificationStore = defineStore('notification', () => {
   }
 
   // 알림 목록 조회
-  const fetchNotifications = async (page = 1, size = 20, type = null, isRead = null) => {
+  const fetchNotifications = async () => {
     isLoading.value = true;
 
-    const result = await notificationAPI.getNotifications(page, size, type, isRead);
-
-    if (result.success) {
-      notifications.value = result.data.notifications || [];
-      unreadCount.value = result.data.unreadCount || 0;
-      totalPages.value = result.data.totalPages || 0;
-      currentPage.value = page;
-    }
+    const result = await notificationAPI.getNotifications();
+    console.log('알림 조회 결과:', result);
 
     isLoading.value = false;
-    return result;
+    return result.data.data;
   };
 
   // 읽지 않은 알림 수만 조회
@@ -229,8 +221,6 @@ export const useNotificationStore = defineStore('notification', () => {
   const clearNotifications = () => {
     notifications.value = [];
     unreadCount.value = 0;
-    totalPages.value = 0;
-    currentPage.value = 1;
     disconnectSSE();
   };
 
@@ -239,8 +229,6 @@ export const useNotificationStore = defineStore('notification', () => {
     notifications,
     isLoading,
     unreadCount,
-    totalPages,
-    currentPage,
     eventSource,
     isConnected,
 
