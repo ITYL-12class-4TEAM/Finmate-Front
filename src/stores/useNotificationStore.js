@@ -22,10 +22,11 @@ export const useNotificationStore = defineStore('notification', () => {
     isLoading.value = true;
 
     const result = await notificationAPI.getNotifications();
-    console.log('알림 조회 결과:', result);
+    notifications.value = result.data.notifications.data;
+    console.log('알림 조회 결과:', notifications.value);
 
     isLoading.value = false;
-    return result.data.data;
+    return notifications.value;
   };
 
   // 읽지 않은 알림 수만 조회

@@ -35,7 +35,7 @@ export const notificationAPI = {
         return {
           success: true,
           data: {
-            notifications: response.data.body.notifications || [],
+            notifications: response.data.body || [],
           },
           message: response.data.header.message,
         };
