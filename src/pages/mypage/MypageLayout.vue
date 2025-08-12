@@ -215,6 +215,7 @@ const showScrollTop = ref(false);
 const showMobileMenu = ref(false);
 const headerTranslateY = ref(0);
 const lastScrollY = ref(0);
+const isScrolled = ref(false);
 
 const route = useRoute();
 const headerTitle = computed(() => {
@@ -237,7 +238,7 @@ const headerTitle = computed(() => {
 
 const toggleMobileMenu = () => {
   showMobileMenu.value = !showMobileMenu.value;
-  
+
   // 메뉴를 열 때 헤더를 즉시 상단에 고정
   if (showMobileMenu.value) {
     headerTranslateY.value = 0;
@@ -246,20 +247,16 @@ const toggleMobileMenu = () => {
     const currentScrollY = window.scrollY;
     const startHideAt = 0;
     const headerHeight = 56;
-    
-    console.log('토글로 메뉴 닫기 - 현재 스크롤:', currentScrollY);
-    
+
     if (currentScrollY <= startHideAt) {
       headerTranslateY.value = 0;
-      console.log('토글 상단 - 헤더 표시:', headerTranslateY.value);
     } else {
       const scrollBeyondStart = currentScrollY - startHideAt;
       const translateValue = Math.min(scrollBeyondStart * 0.8, headerHeight);
       headerTranslateY.value = -translateValue;
-      console.log('토글 아래 - 헤더 숨김:', headerTranslateY.value, 'translateValue:', translateValue);
     }
   }
-  
+
   // 메뉴 열릴 때 body 스크롤 방지
   document.body.style.overflow = showMobileMenu.value ? 'hidden' : '';
 };
@@ -267,24 +264,20 @@ const toggleMobileMenu = () => {
 const closeMobileMenu = () => {
   showMobileMenu.value = false;
   document.body.style.overflow = '';
-  
+
   // 메뉴 닫은 후 즉시 현재 스크롤 위치에 따라 헤더 위치 계산
   const currentScrollY = window.scrollY;
   const startHideAt = 0;
   const headerHeight = 56;
-  
-  console.log('메뉴 닫기 - 현재 스크롤:', currentScrollY);
-  
+
   if (currentScrollY <= startHideAt) {
     // 상단에 있으면 헤더 완전히 표시
     headerTranslateY.value = 0;
-    console.log('상단 - 헤더 표시:', headerTranslateY.value);
   } else {
     // 아래에 있으면 스크롤 위치에 맞게 헤더 숨기기
     const scrollBeyondStart = currentScrollY - startHideAt;
     const translateValue = Math.min(scrollBeyondStart * 0.8, headerHeight);
     headerTranslateY.value = -translateValue;
-    console.log('아래 - 헤더 숨김:', headerTranslateY.value, 'translateValue:', translateValue);
   }
 };
 
@@ -293,6 +286,9 @@ const handleScroll = () => {
 
   // 스크롤 탑 버튼 표시/숨김
   showScrollTop.value = currentScrollY > 50;
+
+  // 스크롤 상태 업데이트
+  isScrolled.value = currentScrollY > 0;
 
   // 메뉴가 열린 상태에서는 헤더를 항상 상단에 고정
   if (showMobileMenu.value) {
@@ -312,7 +308,6 @@ const handleScroll = () => {
     const scrollBeyondStart = currentScrollY - startHideAt;
     const translateValue = Math.min(scrollBeyondStart * 0.8, headerHeight);
     headerTranslateY.value = -translateValue;
-    console.log('handleScroll - 스크롤:', currentScrollY, '헤더 위치:', headerTranslateY.value);
   }
 };
 
@@ -358,6 +353,7 @@ onUnmounted(() => {
   padding: 0 3rem 0 1rem;
   cursor: pointer;
   transition: box-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+  display: none;
 }
 .mobile-header i.fas.fa-bars {
   position: absolute;
@@ -647,6 +643,9 @@ onUnmounted(() => {
 
 /* 태블릿 */
 @media (max-width: 1024px) {
+  .mobile-header {
+    display: none;
+  }
   .sidebar {
     width: 240px;
     top: 7rem; /* 네비바 + 헤더 높이 합 */

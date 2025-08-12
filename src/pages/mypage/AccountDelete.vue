@@ -1,42 +1,36 @@
 <template>
   <div class="delete-account">
-    <div class="delete-container">
-      <div class="delete-card">
-        <!-- 경고 메시지 -->
-        <DeleteWarningSection />
+    <!-- 경고 메시지 -->
+    <DeleteWarningSection />
 
-        <!-- 삭제될 데이터 목록 -->
-        <DeleteDataSection />
+    <!-- 삭제될 데이터 목록 -->
+    <DeleteDataSection />
 
-        <!-- 탈퇴 확인 폼 -->
-        <DeleteConfirmSection
-          v-if="showConfirmation"
-          :userInfo="userInfo"
-          :confirmEmail="confirmEmail"
-          :deleteReason="deleteReason"
-          :additionalFeedback="additionalFeedback"
-          :finalConfirm="finalConfirm"
-          :emailError="emailError"
-          :canProceed="canProceed"
-          :processing="processing"
-          @update:confirmEmail="confirmEmail = $event"
-          @update:deleteReason="deleteReason = $event"
-          @update:additionalFeedback="additionalFeedback = $event"
-          @update:finalConfirm="finalConfirm = $event"
-          @clear-email-error="clearEmailError"
-          @proceed="proceedToDelete"
-          @cancel="cancelDeletion"
-        />
+    <!-- 탈퇴 확인 폼 -->
+    <DeleteConfirmSection
+      v-if="showConfirmation"
+      :userInfo="userInfo"
+      :confirmEmail="confirmEmail"
+      :deleteReason="deleteReason"
+      :additionalFeedback="additionalFeedback"
+      :finalConfirm="finalConfirm"
+      :emailError="emailError"
+      :processing="processing"
+      @update:confirmEmail="confirmEmail = $event"
+      @update:deleteReason="deleteReason = $event"
+      @update:additionalFeedback="additionalFeedback = $event"
+      @update:finalConfirm="finalConfirm = $event"
+      @clear-email-error="clearEmailError"
+      @proceed="proceedToDelete"
+      @cancel="cancelDeletion"
+    />
 
-        <!-- 탈퇴 시작 버튼 -->
-        <DeleteStartSection v-if="!showConfirmation" @start="startDeletion" />
-      </div>
-    </div>
+    <!-- 탈퇴 시작 버튼 -->
+    <DeleteStartSection v-if="!showConfirmation" @start="startDeletion" />
 
     <!-- 최종 확인 모달 -->
     <DeleteFinalModal
       v-if="showFinalModal"
-      :countdown="countdown"
       :processing="processing"
       @close="closeFinalModal"
       @confirm="confirmFinalDeletion"
@@ -45,7 +39,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onUnmounted, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from '@/composables/useToast';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -63,7 +57,6 @@ const router = useRouter();
 const showConfirmation = ref(false);
 const showFinalModal = ref(false);
 const processing = ref(false);
-const countdown = ref(0);
 
 // 폼 데이터
 const confirmEmail = ref('');
@@ -76,19 +69,11 @@ const emailError = ref('');
 
 // 사용자 정보
 const userInfo = ref({
-  email: authStore.user.email,
-  nickname: authStore.user.nickname,
+  email: authStore.user?.email || 'test@example.com',
+  nickname: authStore.user?.nickname || '사용자',
 });
 
-// 타이머 참조
-let countdownTimer = null;
-
-// 계산된 속성
-const canProceed = computed(() => {
-  return confirmEmail.value && finalConfirm.value && !emailError.value;
-});
-
-// 에러 클리어 함수들
+// 에러 클리어 함수
 const clearEmailError = () => {
   emailError.value = '';
 };
@@ -96,9 +81,8 @@ const clearEmailError = () => {
 // 탈퇴 절차 시작
 const startDeletion = () => {
   showConfirmation.value = true;
-  // 스크롤을 폼으로 이동
   setTimeout(() => {
-    document.querySelector('.confirmation-section')?.scrollIntoView({
+    document.querySelector('.confirm-section')?.scrollIntoView({
       behavior: 'smooth',
       block: 'start',
     });
@@ -122,10 +106,8 @@ const resetForm = () => {
 
 // 탈퇴 진행
 const proceedToDelete = () => {
-  // 유효성 검사 초기화
   emailError.value = '';
 
-  // 이메일 확인
   if (!confirmEmail.value) {
     emailError.value = '이메일을 입력해주세요.';
     return;
@@ -136,36 +118,18 @@ const proceedToDelete = () => {
     return;
   }
 
-  // 최종 확인 체크
   if (!finalConfirm.value) {
     showToast('탈퇴 동의 사항을 확인해주세요.');
     return;
   }
 
-  // 최종 모달 표시
+  // 즉시 최종 모달 표시
   showFinalModal.value = true;
-  startCountdown();
-};
-
-// 카운트다운 시작
-const startCountdown = () => {
-  countdown.value = 5;
-  countdownTimer = setInterval(() => {
-    countdown.value--;
-    if (countdown.value <= 0) {
-      clearInterval(countdownTimer);
-    }
-  }, 1000);
 };
 
 // 최종 모달 닫기
 const closeFinalModal = () => {
   showFinalModal.value = false;
-  if (countdownTimer) {
-    clearInterval(countdownTimer);
-    countdownTimer = null;
-  }
-  countdown.value = 0;
 };
 
 // 최종 삭제 확인
@@ -173,16 +137,11 @@ const confirmFinalDeletion = async () => {
   processing.value = true;
 
   try {
-    // 서버 요청 시뮬레이션
+    // 실제 API 호출 시뮬레이션
     await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    // 탈퇴 처리 완료
     closeFinalModal();
-
-    // 로컬 스토리지 정리
     localStorage.clear();
-
-    goToMain();
+    router.push('/');
     showToast('계정 탈퇴가 완료되었습니다.\n메인 페이지로 이동합니다.', 'success');
   } catch (error) {
     console.error('회원탈퇴 처리 오류:', error);
@@ -191,18 +150,6 @@ const confirmFinalDeletion = async () => {
     processing.value = false;
   }
 };
-
-// 탈퇴 완료 후 메인 페이지로 이동
-const goToMain = () => {
-  router.push('/');
-};
-
-// 컴포넌트 언마운트
-onUnmounted(() => {
-  if (countdownTimer) {
-    clearInterval(countdownTimer);
-  }
-});
 
 onMounted(() => {
   console.log('AccountDelete mounted');
@@ -217,26 +164,15 @@ onMounted(() => {
 <style scoped>
 .delete-account {
   min-height: 100vh;
-  background-color: var(--color-bg-light);
-  padding: 2rem 1rem;
-}
-
-.delete-container {
+  background-color: var(--color-white);
+  padding: 2rem 0;
   max-width: 800px;
   margin: 0 auto;
 }
 
-.delete-card {
-  background: var(--color-white);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(45, 51, 107, 0.08);
-  overflow: hidden;
-}
-
 @media (max-width: 768px) {
   .delete-account {
-    padding: 1rem 0.5rem;
+    padding: 1rem 0;
   }
 }
 </style>

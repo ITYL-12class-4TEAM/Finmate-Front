@@ -1,111 +1,31 @@
 <template>
-  <div class="confirmation-section">
-    <div class="section-header">
-      <h3 class="section-title danger">
-        <i class="fas fa-exclamation-circle"></i>
-        탈퇴 확인
-      </h3>
-    </div>
+  <div class="modal-overlay" @click="$emit('close')">
+    <div class="modal-content" @click.stop>
+      <div class="modal-header">
+        <h3>최종 확인</h3>
+        <button type="button" class="modal-close" @click="$emit('close')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
 
-    <div class="confirmation-form">
-      <!-- 이메일 확인 -->
-      <div class="form-group">
-        <label class="form-label">
-          <i class="fas fa-envelope"></i>
-          본인 확인을 위해 이메일을 입력해주세요
-        </label>
-        <div class="email-display">
-          <strong>입력해야 할 이메일:</strong> {{ userInfo.email }}
-        </div>
-        <input
-          :value="confirmEmail"
-          type="email"
-          class="form-input"
-          placeholder="위의 이메일을 정확히 입력하세요"
-          :class="{ error: emailError }"
-          @input="$emit('update:confirmEmail', $event.target.value)"
-          @keyup.enter="$emit('proceed')"
-        />
-        <div v-if="emailError" class="form-message error">
+      <div class="modal-body">
+        <div class="modal-icon">
           <i class="fas fa-exclamation-triangle"></i>
-          {{ emailError }}
         </div>
+        <p class="modal-text">정말로 회원탈퇴를 진행하시겠습니까?</p>
+        <p class="modal-warning"><strong>이 작업은 되돌릴 수 없습니다.</strong></p>
       </div>
 
-      <!-- 탈퇴 사유 -->
-      <div class="form-group">
-        <label class="form-label">
-          <i class="fas fa-comment"></i>
-          탈퇴 사유를 선택해주세요 (선택사항)
-        </label>
-        <select 
-          :value="deleteReason" 
-          class="form-select"
-          @change="$emit('update:deleteReason', $event.target.value)"
-        >
-          <option value="">사유를 선택하세요</option>
-          <option value="not-useful">서비스가 유용하지 않음</option>
-          <option value="privacy">개인정보 보호 우려</option>
-          <option value="too-complex">사용이 복잡함</option>
-          <option value="alternative">다른 서비스 이용</option>
-          <option value="temporary">일시적으로 사용 중단</option>
-          <option value="other">기타</option>
-        </select>
-      </div>
-
-      <!-- 추가 의견 -->
-      <div v-if="deleteReason === 'other'" class="form-group">
-        <label class="form-label">
-          <i class="fas fa-edit"></i>
-          추가 의견
-        </label>
-        <textarea
-          :value="additionalFeedback"
-          class="form-textarea"
-          placeholder="서비스 개선을 위한 의견을 남겨주세요"
-          rows="3"
-          @input="$emit('update:additionalFeedback', $event.target.value)"
-        ></textarea>
-      </div>
-
-      <!-- 최종 확인 체크박스 -->
-      <div class="final-check">
-        <label class="check-label">
-          <input 
-            :checked="finalConfirm" 
-            type="checkbox" 
-            class="check-input"
-            @change="$emit('update:finalConfirm', $event.target.checked)"
-          />
-          <span class="check-mark"></span>
-          <span class="check-text">
-            위의 모든 내용을 확인했으며, 계정 탈퇴에 따른
-            <strong>데이터 영구 삭제</strong>에 동의합니다.
-          </span>
-        </label>
-      </div>
-
-      <!-- 버튼 그룹 -->
-      <div class="form-actions">
-        <button
-          type="button"
-          class="action-btn secondary"
-          :disabled="processing"
-          @click="$emit('cancel')"
-        >
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" :disabled="processing" @click="$emit('close')">
           <i class="fas fa-times"></i>
           취소
         </button>
-        <button
-          type="button"
-          class="action-btn danger"
-          :disabled="!canProceed || processing"
-          :class="{ processing: processing }"
-          @click="$emit('proceed')"
-        >
+        <button type="button" class="btn-danger" :disabled="processing" @click="$emit('confirm')">
           <i v-if="processing" class="fas fa-spinner fa-spin"></i>
           <i v-else class="fas fa-trash"></i>
-          {{ processing ? '처리 중...' : '회원 탈퇴' }}
+          <span v-if="processing">처리 중...</span>
+          <span v-else>탈퇴 확정</span>
         </button>
       </div>
     </div>
@@ -114,284 +34,206 @@
 
 <script setup>
 defineProps({
-  userInfo: {
-    type: Object,
-    required: true,
-  },
-  confirmEmail: {
-    type: String,
-    required: true,
-  },
-  deleteReason: {
-    type: String,
-    required: true,
-  },
-  additionalFeedback: {
-    type: String,
-    required: true,
-  },
-  finalConfirm: {
-    type: Boolean,
-    required: true,
-  },
-  emailError: {
-    type: String,
-    required: true,
-  },
-  canProceed: {
-    type: Boolean,
-    required: true,
-  },
   processing: {
     type: Boolean,
     required: true,
   },
 });
 
-defineEmits([
-  'update:confirmEmail',
-  'update:deleteReason',
-  'update:additionalFeedback',
-  'update:finalConfirm',
-  'clear-email-error',
-  'proceed',
-  'cancel',
-]);
+defineEmits(['close', 'confirm']);
 </script>
 
 <style scoped>
-.confirmation-section {
-  padding: 2rem;
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.02) 0%, rgba(185, 28, 28, 0.02) 100%);
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  backdrop-filter: blur(2px);
+}
+
+.modal-content {
+  background: var(--color-white);
+  border-radius: 12px;
+  max-width: 400px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
   border-bottom: 1px solid var(--color-bg-light);
 }
 
-.section-header {
-  margin-bottom: 1.5rem;
-}
-
-.section-title {
+.modal-header h3 {
+  color: var(--color-main);
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--color-main);
   margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
-.section-title.danger {
-  color: #dc2626;
-}
-
-.section-title i {
-  font-size: 1rem;
-}
-
-.confirmation-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.form-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--color-main);
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.email-display {
-  padding: 0.75rem;
-  background: var(--color-bg-light);
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 0.9rem;
+.modal-close {
+  background: none;
+  border: none;
   color: var(--color-sub);
-}
-
-.email-display strong {
-  color: var(--color-main);
-}
-
-.form-input,
-.form-select,
-.form-textarea {
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  background: var(--color-white);
-  transition: all 0.2s ease;
-  color: var(--color-main);
-}
-
-.form-input::placeholder,
-.form-textarea::placeholder {
-  color: var(--color-sub);
-  opacity: 0.7;
-}
-
-.form-input:focus,
-.form-select:focus,
-.form-textarea:focus {
-  outline: none;
-  border-color: var(--color-main);
-  box-shadow: 0 0 0 3px rgba(45, 51, 107, 0.1);
-}
-
-.form-input.error {
-  border-color: #dc2626;
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
-}
-
-.form-textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-.form-message {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.form-message.error {
-  color: #dc2626;
-}
-
-/* 체크박스 */
-.final-check {
-  padding: 1rem;
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(185, 28, 28, 0.05) 100%);
-  border: 1px solid rgba(220, 38, 38, 0.2);
-  border-radius: 8px;
-}
-
-.check-label {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
+  font-size: 1.25rem;
   cursor: pointer;
-  user-select: none;
-}
-
-.check-input {
-  display: none;
-}
-
-.check-mark {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(220, 38, 38, 0.5);
+  padding: 0.25rem;
   border-radius: 4px;
-  background: white;
-  position: relative;
-  flex-shrink: 0;
-  margin-top: 2px;
-  transition: all 0.2s ease;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
 }
 
-.check-input:checked + .check-mark {
-  background: #dc2626;
-  border-color: #dc2626;
-}
-
-.check-input:checked + .check-mark::before {
-  content: '✓';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  font-size: 0.8rem;
-  font-weight: bold;
-}
-
-.check-text {
+.modal-close:hover {
   color: var(--color-main);
+  background: var(--color-bg-light);
+}
+
+.modal-body {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.modal-icon {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: #fef3cd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem auto;
+}
+
+.modal-icon i {
+  color: #dc2626;
+  font-size: 1.5rem;
+}
+
+.modal-text {
+  color: var(--color-main);
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0 0 0.5rem 0;
+  font-weight: 500;
+}
+
+.modal-warning {
+  color: var(--color-sub);
   font-size: 0.9rem;
   line-height: 1.4;
+  margin: 0;
 }
 
-.check-text strong {
+.modal-warning strong {
   color: #dc2626;
+  font-weight: 600;
 }
 
-/* 액션 버튼 */
-.form-actions {
+.modal-actions {
   display: flex;
-  gap: 0.5rem;
-  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border-top: 1px solid var(--color-bg-light);
 }
 
-.action-btn {
+.btn-secondary,
+.btn-danger {
+  flex: 1;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1rem;
   border: none;
   border-radius: 6px;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-width: 120px;
-  justify-content: center;
+  min-height: 2.5rem;
 }
 
-.action-btn.secondary {
+.btn-secondary {
   background: var(--color-bg-light);
   color: var(--color-sub);
   border: 1px solid #d1d5db;
 }
 
-.action-btn.secondary:hover:not(:disabled) {
-  background: #e8e9ee;
+.btn-secondary:hover:not(:disabled) {
+  background: #e5e7eb;
   color: var(--color-main);
 }
 
-.action-btn.danger {
+.btn-danger {
   background: #dc2626;
   color: white;
 }
 
-.action-btn.danger:hover:not(:disabled) {
+.btn-danger:hover:not(:disabled) {
   background: #b91c1c;
-  transform: translateY(-1px);
 }
 
-.action-btn:disabled {
+.btn-secondary:disabled,
+.btn-danger:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
 }
 
-.action-btn.processing {
-  background: var(--color-sub);
+.btn-danger:disabled {
+  background: var(--color-light);
 }
 
 @media (max-width: 768px) {
-  .confirmation-section {
-    padding: 1.5rem;
+  .modal-overlay {
+    padding: 0.5rem;
   }
 
-  .form-actions {
+  .modal-content {
+    border-radius: 8px;
+  }
+
+  .modal-header,
+  .modal-body,
+  .modal-actions {
+    padding: 1rem;
+  }
+
+  .modal-actions {
     flex-direction: column-reverse;
+    gap: 0.5rem;
   }
 
-  .action-btn {
+  .btn-secondary,
+  .btn-danger {
     width: 100%;
+  }
+
+  .modal-icon {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .modal-icon i {
+    font-size: 1.25rem;
   }
 }
 </style>

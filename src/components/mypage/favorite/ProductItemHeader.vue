@@ -13,7 +13,7 @@
 
     <div class="item-controls">
       <FavoriteButton
-        :is-favorite="isFavorite"
+        :is-favorite="true"
         :product-id="favorite.productId"
         :loading="statusLoading"
         @remove-favorite="handleRemoveFavorite"
