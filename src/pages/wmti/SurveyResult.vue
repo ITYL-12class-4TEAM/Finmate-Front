@@ -152,10 +152,10 @@
         </div> -->
 
         <div class="action-buttons">
-          <!-- <button class="action-button secondary" @click="goToWMTIList">
+          <button class="action-button secondary" @click="goToWMTIList">
             <div class="button-icon users-icon"></div>
             16가지 WMTI 투자성향 보기
-          </button> -->
+          </button>
           <button class="action-button tertiary" @click="goToHistory">
             <div class="button-icon history-icon"></div>
             내 검사 이력 보기

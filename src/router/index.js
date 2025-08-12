@@ -190,18 +190,11 @@ const router = createRouter({
           component: () => import('../pages/wmti/SurveyResult.vue'),
           meta: { requiresAuth: true },
         }, // WMTI 성향 결과지
-        // WMTI 테마-포트폴리오 모아보기 페이지
-        {
-          path: 'theme-collection',
-          name: 'Theme-Collection',
-          component: () => import('../pages/wmti/theme-Collection.vue'),
-        },
-        // WMTI 컬렉션(16종 코드모아보기)
         {
           path: 'collection',
           name: 'WMTICollection',
           component: () => import('../pages/wmti/WMTICollection.vue'),
-        },
+        }, // WMTI 컬렉션(16종 코드모아보기)
       ],
     },
 
