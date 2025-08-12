@@ -40,7 +40,6 @@ const props = defineProps({
 const emit = defineEmits(['select']);
 
 const handleCheckboxChange = (event) => {
-  console.log('체크박스 변경:', event.target.checked, 'Product ID:', props.product.productId);
   emit('select', event.target.checked);
 };
 

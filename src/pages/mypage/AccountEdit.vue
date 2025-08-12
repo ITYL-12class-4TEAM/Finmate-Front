@@ -234,7 +234,6 @@ onMounted(async () => {
   // 2. 사용자 정보 조회
   try {
     const response = await memberAPI.getMyInfo();
-    console.log('🔍 사용자 정보 조회 결과:', response);
     if (response.success) {
       userInfo.value = response.data;
 

@@ -279,7 +279,7 @@ const handleProductClick = (product) => {
 
 const handleExternalLink = (link) => {
   console.log(
-    '<i class="fas fa-external-link-alt" style="color: #4a90e2;"></i> 외부 링크 클릭:',
+    '외부 링크 클릭:',
     link
   );
 };

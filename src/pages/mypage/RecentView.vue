@@ -94,10 +94,6 @@ const currentFilters = ref({
   sort: 'recent',
 });
 const updateSelectedRecent = (newSelected) => {
-  console.log('부모에서 selectedRecent 업데이트:', {
-    이전: selectedRecent.value,
-    새로운값: newSelected,
-  });
   selectedRecent.value = newSelected;
 };
 // filteredProducts computed를 다음과 같이 수정

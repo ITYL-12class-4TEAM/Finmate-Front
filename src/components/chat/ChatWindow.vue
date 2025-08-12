@@ -64,12 +64,6 @@ const setupRouterGuard = () => {
   if (routerGuardRemover) return; // 이미 등록되어 있으면 중복 등록 방지
 
   routerGuardRemover = router.beforeEach((to, from, next) => {
-    console.log(
-      '<i class="fas fa-route" style="color: #17a2b8;"></i> 페이지 이동 감지:',
-      from.path,
-      '->',
-      to.path
-    );
     endChatSession().finally(() => {
       emit('close');
       next();
@@ -81,7 +75,6 @@ const removeRouterGuard = () => {
   if (routerGuardRemover) {
     routerGuardRemover();
     routerGuardRemover = null;
-    console.log('<i class="fas fa-trash" style="color: #dc3545;"></i> 라우터 가드 제거됨');
   }
 };
 
@@ -241,26 +234,15 @@ const addMessage = (
 // ✅ 챗봇 세션 생성 (API 모듈 사용)
 const createChatSession = async () => {
   if (sessionStatus.value === 'creating' || sessionStatus.value === 'active') {
-    console.log('🔄 세션이 이미 생성 중이거나 활성 상태');
     return sessionId.value;
   }
 
   sessionStatus.value = 'creating';
-  console.log('🚀 챗봇 세션 생성 시도 시작');
 
   try {
     // 기본 세션 ID 생성
     const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-    console.log('📝 새 세션 ID 생성:', newSessionId);
-
     const response = await chatbotAPI.session.createSession(newSessionId);
-
-    console.log('📨 서버 세션 생성 응답:', {
-      status: response.status,
-      data: response.data,
-    });
-
     if (response.status === 200 || response.status === 201) {
       const responseData = response.data;
 
@@ -272,34 +254,26 @@ const createChatSession = async () => {
         sessionId.value = newSessionId;
         sessionStatus.value = 'active';
         sessionRetryCount.value = 0;
-
-        console.log('✅ 서버 세션 생성 성공:', sessionId.value);
         return sessionId.value;
       } else {
         const errorMessage =
           responseData?.header?.message || responseData?.message || '서버 세션 생성 실패';
-        console.warn('⚠️ 서버 세션 생성 실패, 로컬 세션으로 폴백:', errorMessage);
         return await createLocalSession(newSessionId);
       }
     } else if (response.status === 401 || response.status === 403) {
-      console.warn('🔓 인증 실패 - 로컬 세션으로 전환');
       return await createLocalSession(newSessionId);
     } else {
-      console.warn('⚠️ 서버 응답 오류, 로컬 세션으로 폴백:', response.status);
       return await createLocalSession(newSessionId);
     }
   } catch (error) {
-    console.error('❌ 세션 생성 실패:', error);
     sessionStatus.value = 'error';
 
     if (sessionRetryCount.value < maxRetries) {
       sessionRetryCount.value++;
-      console.log(`🔄 세션 생성 재시도 (${sessionRetryCount.value}/${maxRetries})`);
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
       return await createChatSession();
     } else {
-      console.warn('⚠️ 최대 재시도 횟수 초과 - 폴백 세션 생성');
       const fallbackSessionId = `fallback_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
       return await createLocalSession(fallbackSessionId);
     }
@@ -315,10 +289,8 @@ const createLocalSession = async (sessionIdToUse) => {
     sessionStatus.value = 'active';
     sessionRetryCount.value = 0;
 
-    console.log('✅ 로컬 세션 생성 완료:', sessionId.value);
     return sessionId.value;
   } catch (error) {
-    console.error('❌ 로컬 세션 생성 실패:', error);
     sessionStatus.value = 'error';
     throw error;
   }
@@ -327,14 +299,11 @@ const createLocalSession = async (sessionIdToUse) => {
 // ✅ 챗봇 세션 종료 (API 모듈 사용)
 const endChatSession = async () => {
   if (!sessionId.value || sessionStatus.value === 'ending') {
-    console.log('🔍 종료할 세션이 없거나 이미 종료 중');
     return;
   }
 
   const currentSessionId = sessionId.value;
   sessionStatus.value = 'ending';
-
-  console.log('🔚 챗봇 세션 종료 시작:', currentSessionId);
 
   try {
     const isServerSession =
@@ -344,8 +313,6 @@ const endChatSession = async () => {
       !currentSessionId.startsWith('guest_');
 
     if (isServerSession) {
-      console.log('🔐 서버 세션 종료 요청');
-
       try {
         const response = await chatbotAPI.session.endSession(currentSessionId);
 
@@ -367,7 +334,6 @@ const endChatSession = async () => {
     sessionId.value = null;
     sessionStatus.value = 'idle';
     sessionRetryCount.value = 0;
-    console.log('🧹 세션 상태 정리 완료');
   }
 };
 
@@ -395,7 +361,6 @@ const waitForSession = async (maxWaitTime = 10000) => {
 
 // 핸들러들
 const handleClose = async () => {
-  console.log('<i class="fas fa-lock" style="color: #6c757d;"></i> 챗봇 수동 닫기');
   await endChatSession();
   removeRouterGuard();
   emit('close');
@@ -405,13 +370,11 @@ const scrollToBottom = () => {
   const container = messagesContainer.value?.messagesContainer;
   if (container) {
     container.scrollTop = container.scrollHeight;
-    console.log('스크롤 아래로 이동함');
   }
 };
 
 // 네비게이션 함수들
 const navigateToLogin = () => {
-  console.log('<i class="fas fa-key" style="color: #ffc107;"></i> 로그인 페이지로 이동');
   removeRouterGuard();
   emit('close');
   router.push('/login').then(() => {
@@ -420,7 +383,6 @@ const navigateToLogin = () => {
 };
 
 const navigateToPost = async (postId) => {
-  console.log('<i class="fas fa-edit" style="color: #28a745;"></i> 게시물로 이동:', postId);
   await endChatSession();
   removeRouterGuard();
   emit('close');
@@ -430,14 +392,9 @@ const navigateToPost = async (postId) => {
 };
 
 const navigateToMore = (url) => {
-  console.log(
-    '<i class="fas fa-external-link-alt" style="color: #17a2b8;"></i> [더보기] 호출됨, 전달받은 URL:',
-    url
-  );
-
   if (!url || typeof url !== 'string') {
     console.warn(
-      '<i class="fas fa-exclamation-triangle" style="color: #ffc107;"></i> 유효하지 않은 URL:',
+      '유효하지 않은 URL:',
       url
     );
     return;
@@ -452,14 +409,13 @@ const navigateToMore = (url) => {
     })
     .catch((err) => {
       console.error(
-        '<i class="fas fa-times-circle" style="color: #dc3545;"></i> router.push 에러:',
+        'router.push 에러:',
         err
       );
     });
 };
 
 const navigateToSurvey = () => {
-  console.log('<i class="fas fa-poll" style="color: #28a745;"></i> 설문조사 페이지로 이동');
   removeRouterGuard();
   emit('close');
   router.push('/wmti/basic').then(() => {
@@ -470,23 +426,11 @@ const navigateToSurvey = () => {
 // ✅ API 데이터 호출 (API 모듈 사용)
 const fetchServiceData = async (service) => {
   try {
-    console.log(
-      '<i class="fas fa-rocket" style="color: #007bff;"></i> 서비스 데이터 호출 시작:',
-      service.action
-    );
-
     if (service.requireAuth && !isAuthenticated()) {
-      console.log(
-        '<i class="fas fa-times-circle" style="color: #dc3545;"></i> 인증 필요한 서비스인데 토큰 없음'
-      );
       return 'LOGIN_REQUIRED';
     }
 
     if (!service.apiMethod) {
-      console.log(
-        '<i class="fas fa-exclamation-triangle" style="color: #ffc107;"></i> API 메서드가 정의되지 않은 서비스:',
-        service.action
-      );
       return null;
     }
 
@@ -521,12 +465,6 @@ const fetchServiceData = async (service) => {
         );
         return null;
     }
-
-    console.log(
-      '<i class="fas fa-check-circle" style="color: #28a745;"></i> 서비스 데이터 호출 성공:',
-      service.action,
-      data
-    );
     return data || [];
   } catch (error) {
     console.error(
@@ -705,24 +643,15 @@ const handleServiceAction = async (service) => {
 // ✅ ChatGPT 메시지 전송 (API 모듈 사용)
 const sendMessageToGPT = async (message) => {
   try {
-    console.log('🤖 ChatGPT API 요청 시작:', message);
-
     if (!isSessionReady()) {
-      console.log('📝 세션이 준비되지 않음 - 세션 생성 시작');
       await createChatSession();
       await waitForSession();
     }
 
     const currentSessionId = sessionId.value;
-    console.log('📤 사용 중인 세션 ID:', currentSessionId);
 
     // ✅ API 모듈을 사용한 메시지 전송
     const response = await chatbotAPI.message.sendMessage(currentSessionId, message);
-
-    console.log('📨 ChatGPT API 응답:', {
-      status: response.status,
-      sessionId: currentSessionId,
-    });
 
     if (response.status === 200) {
       const responseData = response.data;
@@ -754,7 +683,6 @@ const sendMessageToGPT = async (message) => {
 
     // 세션 관련 오류인 경우 세션 재생성 시도
     if (error.response?.status === 401 || error.response?.status === 403) {
-      console.log('🔄 인증 오류 - 세션 재생성 시도');
       sessionId.value = null;
       sessionStatus.value = 'idle';
 
@@ -850,26 +778,20 @@ const sendMessage = async () => {
 
 // 컴포넌트 마운트 및 언마운트
 onMounted(async () => {
-  console.log('<i class="fas fa-rocket" style="color: #007bff;"></i> ChatWindow 마운트됨');
   setupRouterGuard();
 
   try {
     await createChatSession();
     const id = await waitForSession();
-    console.log(
-      '<i class="fas fa-check-circle" style="color: #28a745;"></i> 초기 세션 생성 완료:',
-      id
-    );
   } catch (error) {
     console.error(
-      '<i class="fas fa-times-circle" style="color: #dc3545;"></i> 초기 세션 생성 실패:',
+      '초기 세션 생성 실패:',
       error
     );
   }
 });
 
 onUnmounted(async () => {
-  console.log('<i class="fas fa-sync-alt" style="color: #17a2b8;"></i> ChatWindow 언마운트됨');
   await endChatSession();
   removeRouterGuard();
 });

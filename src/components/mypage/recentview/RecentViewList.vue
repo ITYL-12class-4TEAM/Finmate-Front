@@ -49,12 +49,6 @@ const emit = defineEmits([
 ]);
 
 const handleSelect = (productId, isSelected) => {
-  console.log('RecentViewList handleSelect:', {
-    productId,
-    isSelected,
-    currentSelected: props.selectedRecent,
-  });
-
   let newSelected = [...props.selectedRecent];
 
   if (isSelected) {
@@ -66,8 +60,6 @@ const handleSelect = (productId, isSelected) => {
     // 해제: 배열에서 제거
     newSelected = newSelected.filter((id) => id !== productId);
   }
-
-  console.log('새로운 선택된 항목들:', newSelected);
   emit('update:selectedRecent', newSelected);
 };
 const exploreProducts = () => {

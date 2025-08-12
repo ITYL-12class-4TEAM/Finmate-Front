@@ -165,7 +165,6 @@ const confirmFinalDeletion = async () => {
 };
 
 onMounted(() => {
-  console.log('AccountDelete mounted');
   if (!authStore.isAuthenticated) {
     showToast('로그인이 필요합니다.', 'error');
     router.push('/login');

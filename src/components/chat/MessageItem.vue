@@ -72,8 +72,6 @@ const toggleLike = () => {
 };
 
 const getContentComponent = (contentType) => {
-  console.log('🔍 MessageItem contentType:', contentType);
-
   const components = {
     text: TextContent,
     survey: SurveyContent,
@@ -88,8 +86,6 @@ const getContentComponent = (contentType) => {
   };
 
   const component = components[contentType] || TextContent;
-  console.log('🎯 선택된 컴포넌트:', component.name || 'TextContent');
-
   return component;
 };
 

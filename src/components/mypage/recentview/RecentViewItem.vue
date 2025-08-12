@@ -28,19 +28,10 @@ const props = defineProps({
 const emit = defineEmits(['select', 'remove-from-history', 'view-detail', 'click-recent']);
 
 const handleSelect = (isSelected) => {
-  console.log('handleSelect 호출:', {
-    productId: props.product.productId,
-    isSelected: isSelected,
-    currentSelection: props.isSelected,
-  });
-
   emit('select', props.product.productId, isSelected);
 };
 
 const handleCardClick = async (event) => {
-  // 체크박스나 다른 컨트롤 영역 클릭이 아닌 경우에만 카드 클릭 처리
-  console.log('카드 클릭됨:', props.product);
-
   const subcategory = props.product.subcategoryName;
   const productId = props.product.productId;
   const saveTrm = props.product.saveTrm;
