@@ -110,7 +110,7 @@
 
             <div v-if="selectedWMTI.keyTraits || selectedWMTI.tag" class="detail-section">
               <h3>주요 특징</h3>
-              <div class="traits-grid">
+              <div class="traits-grid scrollabe-content">
                 <span
                   v-for="trait in selectedWMTI.keyTraits || selectedWMTI.tag || []"
                   :key="trait"
@@ -123,25 +123,31 @@
 
             <div v-if="selectedWMTI.strengths" class="detail-section">
               <h3>강점</h3>
-              <ul class="strength-list">
-                <li v-for="strength in selectedWMTI.strengths" :key="strength">
-                  {{ strength }}
-                </li>
-              </ul>
+              <div class="scrollable-content">
+                <ul class="strength-list">
+                  <li v-for="strength in selectedWMTI.strengths" :key="strength">
+                    {{ strength }}
+                  </li>
+                </ul>
+              </div>
             </div>
 
             <div v-if="selectedWMTI.improvements" class="detail-section">
               <h3>개선 포인트</h3>
-              <ul class="improvement-list">
-                <li v-for="point in selectedWMTI.improvements" :key="point">
-                  {{ point }}
-                </li>
-              </ul>
+              <div class="scrollable-content">
+                <ul class="improvement-list">
+                  <li v-for="point in selectedWMTI.improvements" :key="point">
+                    {{ point }}
+                  </li>
+                </ul>
+              </div>
             </div>
 
             <div v-if="selectedWMTI.investmentStrategy" class="detail-section">
               <h3>추천 투자 전략</h3>
-              <p class="investment-strategy">{{ selectedWMTI.investmentStrategy }}</p>
+              <div class="scrollable-content">
+                <p class="investment-strategy">{{ selectedWMTI.investmentStrategy }}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -429,7 +435,7 @@ const handleImageError = (event) => {
   display: flex;
   gap: 0.5rem;
   overflow-x: auto;
-  padding-bottom: 0.25rem;
+  padding-bottom: 0.5rem; /* 스크롤바 공간을 위해 패딩 증가 */
 }
 
 .filter-btn {
@@ -585,7 +591,10 @@ const handleImageError = (event) => {
   width: 100%;
   max-width: 400px;
   max-height: 90vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  /* 모달 전체 스크롤 제거 */
+  overflow: hidden;
 }
 
 .modal-header {
@@ -594,6 +603,8 @@ const handleImageError = (event) => {
   padding: 1.5rem;
   border-radius: 1rem 1rem 0 0;
   position: relative;
+  /* 헤더는 고정 */
+  flex-shrink: 0;
 }
 
 .close-btn {
@@ -653,6 +664,9 @@ const handleImageError = (event) => {
 
 .modal-body {
   padding: 1.5rem;
+  /* 바디 부분에 스크롤 적용 */
+  overflow-y: auto;
+  flex: 1;
 }
 
 .detail-section {
@@ -666,6 +680,13 @@ const handleImageError = (event) => {
   margin-bottom: 0.75rem;
   border-bottom: 0.125rem solid var(--color-bg-light);
   padding-bottom: 0.5rem;
+}
+
+/* 스크롤 가능한 콘텐츠 컨테이너 */
+.scrollable-content {
+  max-height: 12rem; /* 최대 높이 제한 */
+  overflow-y: auto;
+  padding-right: 0.25rem; /* 스크롤바 공간 */
 }
 
 .full-description {
@@ -693,6 +714,7 @@ const handleImageError = (event) => {
 .improvement-list {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .strength-list li,
@@ -770,34 +792,61 @@ const handleImageError = (event) => {
   }
 }
 
-/* 스크롤바 스타일링 */
-.modal-content::-webkit-scrollbar {
+/* 스크롤바 스타일링 - 모달 바디 */
+.modal-body::-webkit-scrollbar {
+  width: 0.375rem; /* 스크롤바 너비 증가 */
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: var(--color-bg-light);
+  border-radius: 0.25rem;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: var(--color-light);
+  border-radius: 0.25rem;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: var(--color-sub);
+}
+
+/* 스크롤바 스타일링 - 개별 섹션 */
+.scrollable-content::-webkit-scrollbar {
   width: 0.25rem;
 }
 
-.modal-content::-webkit-scrollbar-track {
+.scrollable-content::-webkit-scrollbar-track {
   background: var(--color-bg-light);
+  border-radius: 0.125rem;
 }
 
-.modal-content::-webkit-scrollbar-thumb {
+.scrollable-content::-webkit-scrollbar-thumb {
   background: var(--color-light);
   border-radius: 0.125rem;
 }
 
-.modal-content::-webkit-scrollbar-thumb:hover {
+.scrollable-content::-webkit-scrollbar-thumb:hover {
   background: var(--color-sub);
 }
 
+/* 스크롤바 스타일링 - 필터 버튼 */
 .filter-buttons::-webkit-scrollbar {
-  height: 0.125rem;
+  height: 0.5rem; /* 높이 크게 증가 */
 }
 
 .filter-buttons::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--color-bg-light);
+  border-radius: 0.25rem;
 }
 
 .filter-buttons::-webkit-scrollbar-thumb {
   background: var(--color-light);
-  border-radius: 0.0625rem;
+  border-radius: 0.25rem;
+  min-width: 2rem; /* 최소 너비 설정 */
+}
+
+.filter-buttons::-webkit-scrollbar-thumb:hover {
+  background: var(--color-sub);
 }
 </style>
