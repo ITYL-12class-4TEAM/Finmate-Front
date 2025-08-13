@@ -42,10 +42,10 @@ const statusLoading = ref(true);
 onMounted(async () => {
   try {
     // 실제 상태 확인 (혹시 동기화 안된 경우를 위해)
-    isFavorite.value = await wishlistAPI.isFavorite(props.favorite.productId);
+    const response = await wishlistAPI.isFavorite(props.favorite.productId);
+    isFavorite.value = response.body.data;
   } catch (error) {
     console.error('즐겨찾기 상태 확인 실패:', error);
-    isFavorite.value = true; // 에러시 기본값
   } finally {
     statusLoading.value = false;
   }

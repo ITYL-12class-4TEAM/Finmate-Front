@@ -40,7 +40,7 @@ defineProps({
   },
 });
 
-defineEmits(['remove-favorite', 'explore-products']);
+defineEmits(['remove-favorite', 'explore-products', 'click-favorite']);
 </script>
 
 <style scoped>

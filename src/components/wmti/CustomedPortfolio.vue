@@ -14,13 +14,6 @@
     <div class="chart-section">
       <div class="chart-header">
         <h4 class="chart-title">투자 포트폴리오</h4>
-        <div class="toggle-container">
-          <span :class="{ active: !includeLoan }">대출 제외</span>
-          <div class="toggle-switch" @click="toggleLoan">
-            <div class="toggle-slider" :class="{ active: includeLoan }"></div>
-          </div>
-          <span :class="{ active: includeLoan }">대출 포함</span>
-        </div>
       </div>
 
       <!-- 차트 영역 -->
@@ -56,21 +49,18 @@
           class="legend-item"
           :class="{
             'legend-hidden': hiddenCategories.has(index),
-            'loan-item': item.category === '대출',
           }"
           @click="toggleCategoryVisibility(index)"
         >
           <div class="legend-info">
             <div class="legend-indicator">
               <div class="legend-color" :style="{ backgroundColor: item.color }"></div>
-              <span class="legend-name" :class="{ 'loan-text': item.category === '대출' }">
+              <span class="legend-name">
                 {{ item.category }}
               </span>
             </div>
             <div class="legend-values">
-              <div class="legend-percentage" :class="{ 'loan-text': item.category === '대출' }">
-                {{ item.percentage.toFixed(1) }}%
-              </div>
+              <div class="legend-percentage">{{ item.percentage.toFixed(1) }}%</div>
             </div>
           </div>
         </div>
@@ -79,7 +69,7 @@
 
     <!-- 3단계: 포트폴리오 구성 근거 -->
     <div class="reasoning-section">
-      <h4 class="subsection-title">💡 포트폴리오 구성 근거</h4>
+      <h4 class="subsection-title"><i class="fa-regular fa-lightbulb"></i> 포트폴리오 구성 근거</h4>
       <div class="reasoning-content">
         <div class="step">
           <h5>1단계: 기본 분배</h5>
@@ -106,9 +96,9 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
-import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Chart, ArcElement, Tooltip, Legend, DoughnutController } from 'chart.js';
 
-Chart.register(ArcElement, Tooltip, Legend);
+Chart.register(ArcElement, Tooltip, Legend, DoughnutController);
 
 // Props 정의 - 부모 컴포넌트에서 전달받을 데이터
 const props = defineProps({
@@ -130,38 +120,14 @@ const props = defineProps({
     required: true,
   },
   // WMTI 점수들
-  aScore: {
-    type: Number,
-    default: 50,
-  },
-  iScore: {
-    type: Number,
-    default: 50,
-  },
-  pScore: {
-    type: Number,
-    default: 50,
-  },
-  bScore: {
-    type: Number,
-    default: 50,
-  },
-  mScore: {
-    type: Number,
-    default: 50,
-  },
-  wScore: {
-    type: Number,
-    default: 50,
-  },
-  lScore: {
-    type: Number,
-    default: 50,
-  },
-  cScore: {
-    type: Number,
-    default: 50,
-  },
+  ascore: { type: Number, default: 50 },
+  iscore: { type: Number, default: 50 },
+  pscore: { type: Number, default: 50 },
+  bscore: { type: Number, default: 50 },
+  mscore: { type: Number, default: 50 },
+  wscore: { type: Number, default: 50 },
+  lscore: { type: Number, default: 50 },
+  cscore: { type: Number, default: 50 },
   // PreInfo 데이터
   investmentCapacity: {
     type: String,
@@ -195,39 +161,29 @@ const props = defineProps({
 
 // 반응형 데이터
 const adjustmentReason = ref('');
-const includeLoan = ref(false);
+
 const chartCanvas = ref(null);
 const hiddenCategories = ref(new Set());
 let chartInstance = null;
 
 // 포트폴리오 기본 데이터
-const categories = ['예금', '적금', '보험', '연금', '주식', '대출', '기타'];
+const categories = ['예금', '적금', '보험', '연금', '주식', '기타'];
 const categoryColors = {
-  예금: '#2d336b',
-  적금: '#4a5596',
-  보험: '#6776c1',
-  연금: '#8498ec',
-  주식: '#a2b9ff',
-  대출: '#ff6b6b',
-  기타: '#b9bbcc',
+  예금: '#10B981', // 에메랄드 그린 (안정성과 성장)
+  적금: '#3B82F6', // 브라이트 블루 (신뢰성과 미래)
+  보험: '#8B5CF6', // 바이올렛 퍼플 (보호와 안전)
+  연금: '#F59E0B', // 앰버 오렌지 (따뜻함과 장기적 가치)
+  주식: '#EF4444', // 레드 (역동성과 수익성)
+  기타: '#6B7280', // 세련된 그레이 (다양성과 균형)
 };
 
 // 위험성향별 기본 분배 (대출 제외)
 const riskAllocationBase = {
-  STABILITY: { 예금: 30, 적금: 30, 보험: 20, 연금: 10, 주식: 5, 기타: 5, 대출: 0 },
-  STABILITY_ORIENTED: { 예금: 20, 적금: 20, 보험: 15, 연금: 20, 주식: 15, 기타: 10, 대출: 0 },
-  RISK_NEUTRAL: { 예금: 10, 적금: 10, 보험: 10, 연금: 25, 주식: 30, 기타: 15, 대출: 0 },
-  ACTIVELY: { 예금: 5, 적금: 5, 보험: 10, 연금: 20, 주식: 40, 기타: 20, 대출: 0 },
-  AGGRESSIVE: { 예금: 0, 적금: 5, 보험: 5, 연금: 10, 주식: 50, 기타: 30, 대출: 0 },
-};
-
-// 위험성향별 기본 분배 (대출 포함)
-const riskAllocationWithLoan = {
-  STABILITY: { 예금: 28, 적금: 28, 보험: 19, 연금: 9, 주식: 5, 기타: 6, 대출: 5 },
-  STABILITY_ORIENTED: { 예금: 19, 적금: 19, 보험: 14, 연금: 19, 주식: 14, 기타: 10, 대출: 5 },
-  RISK_NEUTRAL: { 예금: 10, 적금: 10, 보험: 10, 연금: 24, 주식: 29, 기타: 12, 대출: 5 },
-  ACTIVELY: { 예금: 5, 적금: 5, 보험: 10, 연금: 19, 주식: 38, 기타: 18, 대출: 5 },
-  AGGRESSIVE: { 예금: 0, 적금: 5, 보험: 5, 연금: 9, 주식: 47, 기타: 29, 대출: 5 },
+  STABILITY: { 예금: 30, 적금: 30, 보험: 20, 연금: 10, 주식: 5, 기타: 5 },
+  STABILITY_ORIENTED: { 예금: 20, 적금: 20, 보험: 15, 연금: 20, 주식: 15, 기타: 10 },
+  RISK_NEUTRAL: { 예금: 10, 적금: 10, 보험: 10, 연금: 25, 주식: 30, 기타: 15 },
+  ACTIVELY: { 예금: 5, 적금: 5, 보험: 10, 연금: 20, 주식: 40, 기타: 20 },
+  AGGRESSIVE: { 예금: 0, 적금: 5, 보험: 5, 연금: 10, 주식: 50, 기타: 30 },
 };
 
 const currentAllocation = ref({});
@@ -264,9 +220,7 @@ const getRiskPreferenceLabel = (risk) =>
 
 // 1단계: 위험성향별 기본 분배
 const classifyByRiskPreference = () => {
-  const baseAllocation = includeLoan.value
-    ? riskAllocationWithLoan[props.riskPreference]
-    : riskAllocationBase[props.riskPreference];
+  const baseAllocation = riskAllocationBase[props.riskPreference];
 
   if (!baseAllocation) {
     console.error('위험성향을 찾을 수 없습니다:', props.riskPreference);
@@ -311,7 +265,7 @@ const applyWMTIResult = (allocation) => {
 
 // WMTI 조정값 계산
 const calculateWMTIAdjustments = (code, scores) => {
-  const adjustments = { 예금: 0, 적금: 0, 보험: 0, 연금: 0, 주식: 0, 기타: 0, 대출: 0 };
+  const adjustments = { 예금: 0, 적금: 0, 보험: 0, 연금: 0, 주식: 0, 기타: 0 };
   let reasonParts = [];
 
   // A vs I 분석
@@ -366,7 +320,7 @@ const calculateWMTIAdjustments = (code, scores) => {
 
 // PreInfo 기반 추가 조정
 const calculatePreInfoAdjustments = () => {
-  const adjustments = { 예금: 0, 적금: 0, 보험: 0, 연금: 0, 주식: 0, 기타: 0, 대출: 0 };
+  const adjustments = { 예금: 0, 적금: 0, 보험: 0, 연금: 0, 주식: 0, 기타: 0 };
   let additionalReasons = [];
 
   // 1. 나이 기반 조정 (생애주기별)
@@ -511,13 +465,6 @@ const normalizeTo100 = (allocation) => {
   return normalized;
 };
 
-// 대출 포함/제외 토글
-const toggleLoan = () => {
-  includeLoan.value = !includeLoan.value;
-  calculatePortfolio();
-  updateChart();
-};
-
 // 포트폴리오 계산
 const calculatePortfolio = () => {
   // 1단계: 기본 분배
@@ -528,12 +475,6 @@ const calculatePortfolio = () => {
 
   // 3단계: 정규화
   allocation = normalizeTo100(allocation);
-
-  // 대출 제외 시 대출을 0으로 설정하고 재정규화
-  if (!includeLoan.value) {
-    allocation['대출'] = 0;
-    allocation = normalizeTo100(allocation);
-  }
 
   currentAllocation.value = allocation;
 };
@@ -668,15 +609,6 @@ const initChart = () => {
   });
 };
 
-// 투자여력에 따른 대출 포함 여부 결정
-const determineLoanInclusion = () => {
-  if (props.investmentCapacity === 'INSUFFICIENT' || props.investmentCapacity === 'RISK') {
-    includeLoan.value = false;
-  } else {
-    includeLoan.value = true;
-  }
-};
-
 // Props 변경 감지
 watch(
   () => [props.wmtiCode, props.riskPreference],
@@ -690,7 +622,6 @@ watch(
 );
 
 onMounted(() => {
-  determineLoanInclusion();
   calculatePortfolio();
   initChart();
 });
@@ -701,7 +632,6 @@ onMounted(() => {
 .customed-portfolio-section {
   background: linear-gradient(135deg, var(--color-white) 0%, rgba(248, 249, 252, 0.8) 100%);
   border-radius: 1rem;
-  padding: 0 1.25rem;
   box-shadow: 0 0.25rem 1.25rem rgba(45, 51, 107, 0.08);
   animation: fadeInUp 0.6s ease-out 0.6s both;
   margin-bottom: 1.25rem;
@@ -722,7 +652,7 @@ onMounted(() => {
   background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(44, 62, 80, 0.05));
   padding: 0.4rem 0.625rem;
   border-radius: 0.625rem;
-  border-left: 0.188rem solid #2c3e50;
+  border-left: 0.1875rem solid #2c3e50;
 }
 
 /* 헤더 스타일 */
@@ -762,17 +692,17 @@ onMounted(() => {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, #f8f9fc 100%);
   border-radius: 1rem;
   padding: 1rem;
-  border: 1px solid rgba(185, 187, 204, 0.3);
+  border: 0.0625rem solid rgba(185, 187, 204, 0.3);
   box-shadow:
-    0 4px 6px -1px rgba(45, 51, 107, 0.1),
-    0 2px 4px -1px rgba(45, 51, 107, 0.06);
-  backdrop-filter: blur(10px);
+    0 0.25rem 0.375rem -0.0625rem rgba(45, 51, 107, 0.1),
+    0 0.125rem 0.25rem -0.0625rem rgba(45, 51, 107, 0.06);
+  backdrop-filter: blur(0.625rem);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .chart-section:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px -5px rgba(45, 51, 107, 0.15);
+  transform: translateY(-0.125rem);
+  box-shadow: 0 0.5rem 1.5625rem -0.3125rem rgba(45, 51, 107, 0.15);
 }
 
 .chart-header {
@@ -781,7 +711,7 @@ onMounted(() => {
   align-items: center;
   margin-bottom: 1.25rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(185, 187, 204, 0.2);
+  border-bottom: 0.0625rem solid rgba(185, 187, 204, 0.2);
 }
 
 .chart-title {
@@ -792,61 +722,17 @@ onMounted(() => {
   font-family: 'Inter', sans-serif;
 }
 
-/* 토글 스위치 */
-.toggle-container {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-  color: var(--color-sub);
-}
-
-.toggle-container span.active {
-  color: var(--color-main);
-  font-weight: 600;
-}
-
-.toggle-switch {
-  width: 2.5rem;
-  height: 1.25rem;
-  background-color: var(--color-bg-light);
-  border-radius: 0.625rem;
-  position: relative;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.toggle-switch:hover {
-  background-color: var(--color-light);
-}
-
-.toggle-slider {
-  width: 1rem;
-  height: 1rem;
-  background-color: var(--color-white);
-  border-radius: 50%;
-  position: absolute;
-  top: 0.125rem;
-  left: 0.125rem;
-  transition: transform 0.3s ease;
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
-}
-
-.toggle-slider.active {
-  transform: translateX(1.25rem);
-}
-
 /* 차트 영역 */
 .chart-container {
   position: relative;
-  height: 17.5rem; /* 280px */
+  height: 17.5rem;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 0.5rem;
   background: rgba(255, 255, 255, 0.8);
   border-radius: 0.75rem;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(0.3125rem);
   margin-bottom: 1.25rem;
 }
 
@@ -925,8 +811,8 @@ onMounted(() => {
   padding: 0.5rem;
   background: rgba(255, 255, 255, 0.8);
   border-radius: 0.75rem;
-  border: 1px solid rgba(185, 187, 204, 0.15);
-  backdrop-filter: blur(5px);
+  border: 0.0625rem solid rgba(185, 187, 204, 0.15);
+  backdrop-filter: blur(0.3125rem);
   transition: all 0.3s ease;
   cursor: pointer;
 }
@@ -934,16 +820,12 @@ onMounted(() => {
 .legend-item:hover {
   background: rgba(255, 255, 255, 0.95);
   border-color: rgba(185, 187, 204, 0.3);
-  transform: translateY(-1px);
+  transform: translateY(-0.0625rem);
 }
 
 .legend-item.legend-hidden {
   opacity: 0.5;
   background: rgba(200, 200, 200, 0.3);
-}
-
-.legend-item.loan-item:hover {
-  border-color: rgba(255, 107, 107, 0.3);
 }
 
 .legend-info {
@@ -963,7 +845,7 @@ onMounted(() => {
   height: 1.125rem;
   border-radius: 0.25rem;
   flex-shrink: 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
@@ -989,22 +871,7 @@ onMounted(() => {
   font-family: 'Inter', sans-serif;
 }
 
-.loan-text {
-  color: #ff6b6b !important;
-}
-
-.loan-item {
-  border-color: rgba(255, 107, 107, 0.15) !important;
-}
-
 /* 근거 설명 섹션 */
-.reasoning-section {
-  background: linear-gradient(135deg, rgba(45, 51, 107, 0.02), rgba(125, 129, 162, 0.01));
-  border-radius: 0.75rem;
-  padding: 1rem;
-  border-left: 0.188rem solid var(--color-main);
-}
-
 .subsection-title {
   font-size: 0.875rem;
   font-weight: 600;
@@ -1067,7 +934,7 @@ onMounted(() => {
   }
 
   .chart-container {
-    height: 16.25rem; /* 260px */
+    height: 16.25rem;
   }
 
   .chart-legend {
@@ -1118,8 +985,8 @@ onMounted(() => {
   left: 50%;
   width: 2rem;
   height: 2rem;
-  border: 3px solid var(--color-light);
-  border-top: 3px solid var(--color-main);
+  border: 0.1875rem solid var(--color-light);
+  border-top: 0.1875rem solid var(--color-main);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   transform: translate(-50%, -50%);

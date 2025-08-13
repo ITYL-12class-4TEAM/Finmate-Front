@@ -3,7 +3,9 @@
     <h3 class="section-title">상품 주요 정보</h3>
     <div class="feature-grid">
       <div v-for="f in features" :key="f.label" class="feature-item">
-        <div class="feature-icon" :aria-label="f.label">{{ f.icon }}</div>
+        <div class="feature-icon" :aria-label="f.label">
+          <i :class="f.icon"></i>
+        </div>
         <div class="feature-content">
           <div class="feature-label">{{ f.label }}</div>
           <div class="feature-value">{{ f.value }}</div>
@@ -23,35 +25,40 @@ const props = defineProps({
   formatDate: { type: Function, required: true },
 });
 
-// ✨'금리 유형' 항목을 추가하여 2x3 그리드를 채우도록 구성
 const features = computed(() => {
   const p = props.product?.productDetail || {};
   const opt = props.selectedOption || {};
   return [
     {
-      icon: '💰',
+      // ✨ 아이콘 값을 전체 클래스 이름으로 변경
+      icon: 'fas fa-dollar-sign',
       label: '최소 가입금액',
       value: props.formatCurrency?.(p.minDepositAmount) || '0원',
     },
     {
-      icon: '📈',
+      icon: 'fas fa-chart-line',
       label: '최대 가입금액',
       value: p.maxDepositAmount ? props.formatCurrency(p.maxDepositAmount) : '홈페이지 직접 참고',
     },
     {
-      icon: '⏰',
+      icon: 'fas fa-clock',
       label: '가입 기간',
       value: opt.save_trm || opt.saveTrm ? `${opt.save_trm || opt.saveTrm}개월` : '-',
     },
     {
-      icon: '📅',
+      icon: 'fas fa-calendar-days',
       label: '공시 시작일',
       value: props.formatDate?.(p.dcls_strt_day) || '-',
     },
     {
-      icon: '🔄',
+      icon: 'fas fa-right-left',
       label: '가입 방법',
       value: p.join_way || '제한 없음',
+    },
+    {
+      icon: 'fas fa-percent',
+      label: '금리 유형',
+      value: p.intr_rate_type_nm || '단리',
     },
   ];
 });
@@ -111,6 +118,10 @@ const features = computed(() => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+.feature-icon i {
+  color: #9387d6;
 }
 
 .feature-content {

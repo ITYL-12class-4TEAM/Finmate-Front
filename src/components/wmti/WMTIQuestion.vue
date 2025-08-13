@@ -13,7 +13,7 @@
 
     <!-- 질문 텍스트 -->
     <div class="question-text">
-      {{ question.question }}
+      <p class="multiline-text">{{ question.question }}</p>
     </div>
 
     <!-- 선택지 영역 -->
@@ -35,7 +35,7 @@
             :value="score"
             :checked="score === value"
             class="radio-input"
-            @change="$emit('update:value', Number(score))"
+            @change="handleChange(score)"
           />
           <div class="option-circle">
             <div v-if="score === value" class="option-inner">
@@ -69,8 +69,12 @@
 
 <script setup>
 import { defineProps } from 'vue';
+const emit = defineEmits(['update:value']);
 
-const props = defineProps({
+const handleChange = (score) => {
+  emit('update:value', Number(score));
+};
+defineProps({
   question: {
     type: Object,
     required: true,
@@ -173,6 +177,11 @@ const props = defineProps({
   margin-bottom: 1.5rem;
   text-align: center;
   padding: 0 0.5rem;
+}
+
+/* 줄바꿈 처리 */
+.multiline-text {
+  white-space: pre-line; /* \n을 줄바꿈으로 처리 */
 }
 
 /* 선택지 섹션 */
