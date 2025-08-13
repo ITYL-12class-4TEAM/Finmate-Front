@@ -24,13 +24,13 @@
           <div class="header-pills-row">
             <span
               class="header-tag"
-              :class="[getProductTypeLabel(item) === '예금' ? 'deposit-pill' : 'savings-pill']"
+              :class="[isProductSavings(item) ? 'savings-pill' : 'deposit-pill']"
             >
-              {{ getProductTypeLabel(item) }}
+              {{ isProductSavings(item) ? '적금' : '예금' }}
             </span>
 
             <span
-              v-if="getProductTypeLabel(item) === '적금'"
+              v-if="isProductSavings(item) && item.rsrvType"
               class="header-tag deposit-method-pill"
             >
               {{ getDepositMethodLabel(item) }}
@@ -48,8 +48,9 @@
     </div>
 
     <div class="compare-info-section">
+      <!-- 공통 비교 정보 행 -->
       <div
-        v-for="row in comparisonRows"
+        v-for="row in commonComparisonRows"
         :key="row.label"
         class="info-row"
         :class="{ tall: row.tall }"
@@ -79,6 +80,23 @@
           </div>
         </div>
       </div>
+
+      <!-- 적금 상품 전용 행 -->
+      <div v-if="hasSavingsProducts" class="info-row">
+        <div class="info-label">적립 방식</div>
+        <div class="info-values">
+          <div
+            v-for="(item, index) in items"
+            :key="`${item.productId}_deposit_method`"
+            class="info-value"
+          >
+            <template v-if="isProductSavings(item)">
+              {{ getDepositMethodLabel(item) }}
+            </template>
+            <template v-else> - </template>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="action-section">
@@ -98,7 +116,6 @@
 </template>
 
 <script setup>
-// 스크립트 부분은 변경사항 없습니다.
 import { computed } from 'vue';
 
 const props = defineProps({
@@ -111,36 +128,27 @@ const props = defineProps({
 
 defineEmits(['remove', 'viewDetail', 'joinProduct']);
 
+// 적금 상품 여부 확인 (rsrvType 또는 productType으로 판별)
+const isProductSavings = (item) => {
+  return item.productType === 'savings' || item.rsrvType || item.rsrv_type;
+};
+
+// 적금 상품 포함 여부 (UI 분기 처리용)
+const hasSavingsProducts = computed(() => {
+  return props.items.some((item) => isProductSavings(item));
+});
+
 const getInterestTypeClass = (value) => {
   if (value === '단리') return 'simple';
   if (value === '복리') return 'compound';
   return '';
 };
+
 const getDepositMethodLabel = (item) => {
   const rsrvType = item.rsrvType || item.rsrv_type;
   if (rsrvType === 'F') return '자유적립식';
-  if (rsrvType === 'S') return '정액적립식'; // 'S'가 정액적립식이라고 가정합니다.
-  return ''; // 해당 없으면 빈 텍스트
-};
-// 상품 유형 라벨 결정 함수 (기존 코드)
-const getProductTypeLabel = (item) => {
-  // 1. productType이 명시적으로 'savings'인 경우
-  if (item.productType === 'savings') {
-    return '적금';
-  }
-
-  // 2. 상품명에 '적금'이 포함된 경우
-  if (item.productName && item.productName.includes('적금')) {
-    return '적금';
-  }
-
-  // 3. 지급 방식(rsrv_type)이 있는 경우 - 적금에만 있는 값
-  if (item.rsrvType || item.rsrv_type) {
-    return '적금';
-  }
-
-  // 기본값은 예금
-  return '예금';
+  if (rsrvType === 'S') return '정액적립식';
+  return item.rsrvTypeNm || item.rsrv_type_nm || '정보 없음';
 };
 
 const formatRate = (rate) => {
@@ -162,7 +170,8 @@ const formatCurrencyKorean = (value) => {
   return `${num.toLocaleString()}원`;
 };
 
-const comparisonRows = computed(() => {
+// 공통 비교 정보 행 (예금, 적금 모두 표시)
+const commonComparisonRows = computed(() => {
   if (!props.items || !props.items.length) return [];
 
   const createRow = (config) => {
@@ -176,7 +185,7 @@ const comparisonRows = computed(() => {
     };
   };
 
-  const allRows = [
+  return [
     createRow({
       label: '기본 금리',
       type: 'rate',
@@ -213,7 +222,6 @@ const comparisonRows = computed(() => {
       valueMapFn: (item) => item.join_member || item.joinMember || '제한 없음',
     }),
   ];
-  return allRows;
 });
 </script>
 
@@ -231,7 +239,7 @@ const comparisonRows = computed(() => {
 .mobile-compare-container {
   width: 100%;
   max-width: 23.4375rem;
-  background-color: var(--color-white);
+  background-color: #fff;
   border-radius: 0.75rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   overflow: hidden;

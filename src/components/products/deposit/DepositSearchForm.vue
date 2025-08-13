@@ -461,7 +461,7 @@ const onReset = () => {
 .join-way-label-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4rem;
   align-items: flex-start;
 }
 
@@ -469,7 +469,7 @@ const onReset = () => {
 .all-tag-improved {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.4rem;
   font-size: 0.65rem;
   font-weight: 600;
   padding: 0.35rem 0.7rem;

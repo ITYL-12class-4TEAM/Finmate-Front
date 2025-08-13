@@ -39,7 +39,9 @@
           'in-compare': isInCompareList(
             getProductId(product),
             getSaveTrm(product),
-            product.intr_rate_type || product.intrRateType || 'S'
+            product.intr_rate_type || product.intrRateType || 'S',
+            product.rsrv_type || product.rsrvType,
+            props.productType
           ),
         }"
       >
@@ -78,7 +80,9 @@
               isInCompareList(
                 getProductId(product),
                 getSaveTrm(product),
-                product.intr_rate_type || product.intrRateType || 'S'
+                product.intr_rate_type || product.intrRateType || 'S',
+                product.rsrv_type || product.rsrvType,
+                props.productType
               )
             "
             class="compare-btn in-list"
@@ -102,10 +106,10 @@
     </div>
 
     <CompareFloatingBar
-      v-if="compareList.length > 0"
-      :compare-list="compareList"
+      v-if="currentCompareList.length > 0"
+      :compare-list="currentCompareList"
       @go-to-compare="goToCompare"
-      @clear-compare-list="clearCompareList"
+      @clear-compare-list="clearCurrentCompareList"
     />
   </div>
 </template>
@@ -135,21 +139,25 @@ const emit = defineEmits(['product-click', 'page-change', 'sort-change']);
 const router = useRouter();
 
 const localSortBy = ref(props.sortBy);
-const { compareList, clearCompareList, addToCompareList, removeFromCompareList, isInCompareList } =
-  useCompareList();
+const {
+  depositCompareList,
+  savingsCompareList,
+  clearCompareList,
+  addToCompareList,
+  removeFromCompareList,
+  isInCompareList,
+  getProductId,
+  getSaveTrm,
+} = useCompareList();
 
-const getProductId = (product) => {
-  if (!product) return null;
-  const fields = ['product_id', 'productId', 'id', 'finPrdtCd'];
-  for (const f of fields) if (product[f] !== undefined) return product[f];
-  return null;
-};
+// 현재 상품 타입에 맞는 비교함 리스트를 가져오는 computed
+const currentCompareList = computed(() => {
+  return props.productType === 'deposit' ? depositCompareList.value : savingsCompareList.value;
+});
 
-const getSaveTrm = (product) => {
-  if (!product) return null;
-  const fields = ['save_trm', 'saveTrm', 'term'];
-  for (const f of fields) if (product[f] !== undefined) return product[f];
-  return null;
+// 현재 상품 타입에 맞는 비교함 비우기
+const clearCurrentCompareList = () => {
+  clearCompareList(props.productType);
 };
 
 const getFinCoNo = (product) => {
@@ -241,30 +249,40 @@ const onPageChange = (page) => emit('page-change', page);
 const onSortChange = () => emit('sort-change', { sortBy: localSortBy.value });
 
 const handleWarning = (product) => {
-  if (compareList.value.length >= 3) {
-    showToast('상품은 최대 3개까지 비교할 수 있습니다', 'warning');
+  // 현재 상품 타입에 맞는 비교함 길이 체크
+  if (currentCompareList.value.length >= 3) {
+    showToast(
+      `${props.productType === 'deposit' ? '예금' : '적금'} 상품은 최대 3개까지 비교할 수 있습니다`,
+      'warning'
+    );
     return;
   }
+
   const option = {
     save_trm: product.save_trm || product.saveTrm,
     intr_rate: product.intr_rate || product.intrRate,
     intr_rate2: product.intr_rate2 || product.intrRate2,
     intr_rate_type: product.intr_rate_type || product.intrRateType || 'S',
+    rsrv_type: product.rsrv_type || product.rsrvType,
     option_id: product.option_id || product.optionId || null,
   };
+
+  // 상품 타입 명시적으로 전달
   const result = addToCompareList(product, option, props.productType);
-  if (!result.success) alert(result.message);
+  if (!result.success && !result.silent) alert(result.message);
 };
 
 const handleRemoveFromCompare = (product) => {
   removeFromCompareList(
     getProductId(product),
     getSaveTrm(product),
-    product.intr_rate_type || product.intrRateType || 'S'
+    product.intr_rate_type || product.intrRateType || 'S',
+    product.rsrv_type || product.rsrvType,
+    props.productType // 상품 타입 명시적 전달
   );
 };
 
-// 가입하기 버튼 클릭 시 처리하는 함수를 수정
+// 가입하기 버튼 클릭 시 처리하는 함수
 const goToJoinPage = (product) => {
   const companyUrl = getCompanyUrl(product);
 
@@ -282,11 +300,14 @@ const goToJoinPage = (product) => {
 };
 
 const goToCompare = () => {
-  if (compareList.value.length < 2) {
+  if (currentCompareList.value.length < 2) {
     showToast('2개 이상의 상품을 선택해주세요.', 'warning');
     return;
   }
-  router.push({ path: '/products/compare' });
+  router.push({
+    path: '/products/compare',
+    query: { type: props.productType }, // 상품 타입을 쿼리 파라미터로 전달
+  });
 };
 </script>
 

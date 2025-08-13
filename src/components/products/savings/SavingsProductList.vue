@@ -113,10 +113,11 @@
     </div>
 
     <CompareFloatingBar
-      v-if="compareList.length > 0"
-      :compare-list="compareList"
+      v-if="currentCompareList.length > 0"
+      :compare-list="currentCompareList"
+      :product-type="currentProductType"
       @go-to-compare="goToCompare"
-      @clear-compare-list="clearCompareList"
+      @clear-compare-list="clearCurrentCompareList"
     />
   </div>
 </template>
@@ -146,8 +147,38 @@ const emit = defineEmits(['product-click', 'page-change', 'sort-change']);
 const router = useRouter();
 
 const localSortBy = ref(props.sortBy);
-const { compareList, clearCompareList, addToCompareList, removeFromCompareList, isInCompareList } =
-  useCompareList();
+const {
+  depositCompareList,
+  savingsCompareList,
+  clearCompareList,
+  addToCompareList,
+  removeFromCompareList,
+  isInCompareList,
+  getProductType,
+} = useCompareList();
+
+// 현재 페이지에 표시되는 상품 타입에 따라 적절한 비교함 선택
+const currentProductType = computed(() => {
+  // 현재 목록에 표시된 첫 번째 상품의 타입을 기준으로 선택
+  if (filteredProducts.value.length > 0) {
+    const firstProduct = filteredProducts.value[0];
+    return getRealProductType(firstProduct);
+  }
+  // 기본값은 props로 전달된 productType
+  return props.productType;
+});
+
+// 현재 상품 타입에 맞는 비교함 리스트
+const currentCompareList = computed(() => {
+  return currentProductType.value === 'deposit'
+    ? depositCompareList.value
+    : savingsCompareList.value;
+});
+
+// 현재 상품 타입에 맞는 비교함만 비우기
+const clearCurrentCompareList = () => {
+  clearCompareList(currentProductType.value);
+};
 
 const getSavingTypeClass = (product) => {
   const rsrvType = product.rsrv_type || product.rsrvType;
@@ -156,7 +187,7 @@ const getSavingTypeClass = (product) => {
   return '';
 };
 
-// 실제 상품 타입 추론 함수 추가 (템플릿에서 사용)
+// 실제 상품 타입 추론 함수 (템플릿에서 사용)
 const getRealProductType = (product) => {
   // rsrvType 값 존재 여부로 적금/예금 판별
   const hasRsrvType =
@@ -269,8 +300,19 @@ const onPageChange = (page) => emit('page-change', page);
 const onSortChange = () => emit('sort-change', { sortBy: localSortBy.value });
 
 const handleWarning = (product) => {
-  if (compareList.value.length >= 3) {
-    showToast('상품은 최대 3개까지 비교할 수 있습니다', 'warning');
+  // 상품 타입 추론
+  const productType = getRealProductType(product);
+
+  // 현재 타입에 맞는 비교함 가져오기
+  const currentList =
+    productType === 'deposit' ? depositCompareList.value : savingsCompareList.value;
+
+  // 비교함 최대 개수 체크
+  if (currentList.length >= 3) {
+    showToast(
+      `${productType === 'deposit' ? '예금' : '적금'} 상품은 최대 3개까지 비교할 수 있습니다`,
+      'warning'
+    );
     return;
   }
 
@@ -280,9 +322,6 @@ const handleWarning = (product) => {
   // rsrvType 값 추출 (적금 상품 여부 판단에 사용)
   const extractedRsrvType =
     product.rsrv_type || product.rsrvType || firstOption?.rsrv_type || firstOption?.rsrvType;
-
-  // 상품 타입 추론 (rsrvType이 존재하면 적금)
-  const actualProductType = extractedRsrvType ? 'savings' : props.productType;
 
   const option = {
     save_trm: product.save_trm || product.saveTrm,
@@ -294,7 +333,7 @@ const handleWarning = (product) => {
   };
 
   // 적금 상품인 경우에만 rsrvType 추가
-  if (actualProductType === 'savings') {
+  if (productType === 'savings') {
     option.rsrv_type = extractedRsrvType || 'F'; // 기본값 'F'
     option.rsrv_type_nm =
       product.rsrv_type_nm ||
@@ -303,7 +342,8 @@ const handleWarning = (product) => {
       (option.rsrv_type === 'S' ? '정액적립식' : '자유적립식');
   }
 
-  const result = addToCompareList(product, option, actualProductType);
+  // 상품 타입 명시적으로 전달
+  const result = addToCompareList(product, option, productType);
   if (!result.success && !result.silent) alert(result.message);
 };
 
@@ -315,18 +355,19 @@ const handleRemoveFromCompare = (product) => {
     product.rsrv_type || product.rsrvType || firstOption?.rsrv_type || firstOption?.rsrvType;
 
   // 상품 타입 추론
-  const actualProductType = extractedRsrvType ? 'savings' : props.productType;
+  const productType = getRealProductType(product);
 
+  // 상품 타입 명시적으로 전달
   removeFromCompareList(
     getProductId(product),
     getSaveTrm(product),
     product.intr_rate_type || product.intrRateType || 'S',
     extractedRsrvType,
-    actualProductType
+    productType
   );
 };
 
-// 🎯 가입하기 버튼 클릭 시 CompanyUrl 활용하도록 수정
+// 가입하기 버튼 클릭 시 처리 함수
 const goToJoinPage = (product) => {
   const companyUrl = getCompanyUrl(product);
 
@@ -337,18 +378,22 @@ const goToJoinPage = (product) => {
     // companyUrl이 없으면 기존처럼 상품 상세 페이지로 이동
     router.push({
       name: 'ProductDetail',
-      params: { category: props.productType, id: getProductId(product) },
+      params: { category: getRealProductType(product), id: getProductId(product) },
       query: { saveTrm: getSaveTrm(product) },
     });
   }
 };
 
 const goToCompare = () => {
-  if (compareList.value.length < 2) {
+  if (currentCompareList.value.length < 2) {
     showToast('2개 이상의 상품을 선택해주세요.', 'warning');
     return;
   }
-  router.push({ path: '/products/compare' });
+  // 비교 페이지로 이동할 때 현재 상품 타입을 쿼리 파라미터로 전달
+  router.push({
+    path: '/products/compare',
+    query: { type: currentProductType.value },
+  });
 };
 </script>
 
