@@ -36,6 +36,7 @@ const route = useRoute();
 const productId = route.params.id;
 const saveTrm = route.query.saveTrm ?? 6;
 const intrRateType = route.query.intrRateType ?? 'S';
+const rsrvType = route.query.rsrvType;
 
 // 관심상품 상태
 const isInWishlist = ref(false);
@@ -79,11 +80,21 @@ const removeFavorite = async () => {
 
 const addFavorite = async () => {
   try {
-    await wishlistAPI.add({
+    const wishlistData = {
       productId: productId,
       intrRateType: intrRateType,
       saveTrm: saveTrm,
-    });
+    };
+
+    // rsrvType이 값이 있을 때만(적금일 때만) 포함
+    if (rsrvType) {
+      wishlistData.rsrvType = rsrvType;
+    } else {
+      console.log('예금 상품 즐겨찾기 추가:', wishlistData);
+    }
+
+    await wishlistAPI.add(wishlistData);
+
     showToast('즐겨찾기에 추가되었습니다!', 'success');
   } catch (err) {
     console.error('관심상품 토글 중 오류 발생:', err);

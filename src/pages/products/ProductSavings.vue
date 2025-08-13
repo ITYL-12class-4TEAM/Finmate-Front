@@ -4,6 +4,7 @@
       :deposit-amount="depositAmount"
       :period="period"
       :interest-type="interestType"
+      :rsrv-type="rsrvType"
       :join-way="joinWay"
       :banks="banks"
       :selected-banks="{
@@ -31,7 +32,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, nextTick } from 'vue';
+import { ref, watch, onMounted, computed, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { getProductsAPI, getProductsFilterOptionsAPI } from '@/api/product';
 import SavingsSearchForm from '../../components/products/savings/SavingsSearchForm.vue';
@@ -44,6 +45,10 @@ const route = useRoute();
 const depositAmount = ref(route.query.amount ? route.query.amount : '100000');
 const period = ref(route.query.saveTrm || '6');
 const interestType = ref(route.query.intrRateType || 'S');
+// ProductSavings.vue 파일에서
+const rsrvType = ref(route.query.rsrvType || 'F');
+// computed 속성으로 변경하여 항상 최신 상태 유지
+const rsrvTypeNm = computed(() => (rsrvType.value === 'F' ? '자유적립식' : '정액적립식'));
 const joinWay = ref(route.query.joinWays ? route.query.joinWays.split(',') : 'all');
 const sortBy = ref(route.query.sortBy || 'intrRate');
 const depositProducts = ref([]);
@@ -130,6 +135,11 @@ const fetchProducts = async () => {
       intrRateType: interestType.value,
     };
 
+    // 적금일 경우에만 rsrvType 파라미터 추가
+    if (params.category === 'savings') {
+      params.rsrvType = rsrvType.value;
+    }
+
     // 가입방식
     if (joinWay.value !== 'all') {
       if (Array.isArray(joinWay.value)) {
@@ -145,7 +155,45 @@ const fetchProducts = async () => {
     }
 
     const res = await getProductsAPI(params);
-    depositProducts.value = res.products || [];
+
+    // API 응답에서 상품 데이터를 가공하여 rsrvType 필드 추가
+    if (res.products && res.products.length > 0) {
+      // 상품 데이터에 rsrvType 필드 추가 (상품 유형에 따라 다르게 처리)
+      depositProducts.value = res.products.map((product) => {
+        // 기본 상품 객체 (예금/적금 공통)
+        const processedProduct = { ...product };
+
+        // 적금인 경우에만 rsrvType 관련 필드 추가
+        if (params.category === 'savings') {
+          // options 배열에서 첫 번째 옵션의 rsrv_type과 rsrv_type_nm 추출
+          const firstOption =
+            product.options && product.options.length > 0 ? product.options[0] : null;
+
+          // rsrvType 값 추출 (옵션 > 상품 > 현재 설정 > 기본값 'F' 순)
+          const typeValue = firstOption?.rsrvType || product.rsrvType || rsrvType.value || 'F'; // 기본값은 'F'
+
+          // rsrvTypeNm 값 추출 (옵션 > 상품 > 매핑 순)
+          const typeNameValue =
+            firstOption?.rsrvTypeNm ||
+            product.rsrvTypeNm ||
+            (typeValue === 'F' ? '자유적립식' : '정액적립식');
+
+          // 적금에만 필요한 필드 추가
+          processedProduct.rsrvType = typeValue;
+          processedProduct.rsrvTypeNm = typeNameValue;
+        } else {
+          // 예금인 경우 rsrvType 필드는 추가하지 않음
+          console.log('예금 상품 가공:', {
+            productName: product.fin_prdt_nm || product.product_name,
+          });
+        }
+
+        return processedProduct;
+      });
+    } else {
+      depositProducts.value = [];
+    }
+
     totalCount.value = res.totalCount || depositProducts.value.length || 0;
   } catch (err) {
     console.error('상품 검색 오류:', err);
@@ -162,6 +210,7 @@ const onSearch = (formData) => {
   depositAmount.value = formData.depositAmount;
   period.value = formData.period;
   interestType.value = formData.interestType;
+  rsrvType.value = formData.rsrvType;
   joinWay.value = formData.joinWays ?? 'all';
 
   selectedBanks.value = formData.selectedBanks?.uiCodes || [];
@@ -175,6 +224,7 @@ const onReset = () => {
   depositAmount.value = '100000';
   period.value = '6';
   interestType.value = 'S';
+  rsrvType.value = 'F';
   joinWay.value = 'all';
   sortBy.value = 'intrRate';
   currentPage.value = 1;
@@ -207,6 +257,7 @@ const updateQueryAndFetch = () => {
     query.amount = depositAmount.value.replace(/,/g, '');
   if (period.value !== '6') query.saveTrm = period.value;
   if (interestType.value !== 'S') query.intrRateType = interestType.value;
+  if (rsrvType.value !== 'F') query.rsrvType = rsrvType.value;
   if (joinWay.value !== 'all' && joinWay.value.length > 0)
     query.joinWays = [].concat(joinWay.value).join(',');
   if (sortBy.value !== 'intrRate') query.sortBy = sortBy.value;
@@ -221,6 +272,11 @@ const goToProductDetail = (product) => {
   const productId = product.productId || product.product_id;
   const saveTrm = product.save_trm || product.saveTrm;
 
+  // options 배열에서 rsrvType 값 추출
+  const firstOption = product.options && product.options.length > 0 ? product.options[0] : null;
+  const rsrvTypeValue =
+    product.rsrv_type || product.rsrvType || firstOption?.rsrv_type || firstOption?.rsrvType || 'F'; // 기본값은 'F'
+
   // 적금 페이지에서는 항상 'savings' 카테고리로 이동
   const category = 'savings';
 
@@ -228,7 +284,9 @@ const goToProductDetail = (product) => {
     path: `/products/${category}/${productId}`,
     query: {
       saveTrm,
-      intrRateType: product.intr_rate_type || product.intrRateType,
+      intrRateType:
+        product.intr_rate_type || product.intrRateType || firstOption?.intr_rate_type || 'S',
+      rsrvType: rsrvTypeValue,
     },
   });
 };
@@ -242,6 +300,7 @@ watch(
       depositAmount.value = new Intl.NumberFormat('ko-KR').format(newQuery.amount);
     if ('saveTrm' in newQuery) period.value = newQuery.saveTrm;
     if ('intrRateType' in newQuery) interestType.value = newQuery.intrRateType;
+    if ('rsrvType' in newQuery) rsrvType.value = newQuery.rsrvType;
     if ('joinWays' in newQuery) joinWay.value = newQuery.joinWays.split(',');
     if ('sortBy' in newQuery) sortBy.value = newQuery.sortBy;
     if ('page' in newQuery) currentPage.value = parseInt(newQuery.page);
@@ -263,6 +322,11 @@ onMounted(async () => {
     const bankList = route.query.banks.split(',');
     selectedBanks.value = bankList;
     selectedBankApiCodes.value = bankList;
+  }
+
+  // URL에서 적립 방식 정보가 있다면 미리 설정
+  if (route.query.rsrvType) {
+    rsrvType.value = route.query.rsrvType;
   }
   await fetchBanks();
   await fetchProducts();

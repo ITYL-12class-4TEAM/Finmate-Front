@@ -4,20 +4,40 @@
       <div v-for="item in items" :key="item.productId + item.saveTrm" class="product-header-card">
         <div class="bank-name" :title="item.korCoNm">{{ item.korCoNm }}</div>
         <div class="product-name" :title="item.productName">{{ item.productName }}</div>
+
         <div class="header-extra-info">
-          <span class="header-tag">{{ item.saveTrm }}개월</span>
-          <span
-            class="header-tag interest-type-pill"
-            :class="
-              getInterestTypeClass(
+          <div class="header-pills-row">
+            <span class="header-tag">{{ item.saveTrm }}개월</span>
+            <span
+              class="header-tag interest-type-pill"
+              :class="
+                getInterestTypeClass(
+                  getInterestTypeForProduct(item.productId, item.saveTrm, item.intrRateType || 'S')
+                )
+              "
+            >
+              {{
                 getInterestTypeForProduct(item.productId, item.saveTrm, item.intrRateType || 'S')
-              )
-            "
-            >{{
-              getInterestTypeForProduct(item.productId, item.saveTrm, item.intrRateType || 'S')
-            }}</span
-          >
+              }}
+            </span>
+          </div>
+          <div class="header-pills-row">
+            <span
+              class="header-tag"
+              :class="[getProductTypeLabel(item) === '예금' ? 'deposit-pill' : 'savings-pill']"
+            >
+              {{ getProductTypeLabel(item) }}
+            </span>
+
+            <span
+              v-if="getProductTypeLabel(item) === '적금'"
+              class="header-tag deposit-method-pill"
+            >
+              {{ getDepositMethodLabel(item) }}
+            </span>
+          </div>
         </div>
+
         <button
           class="remove-btn"
           @click="$emit('remove', item.productId, item.saveTrm, item.intrRateType || 'S')"
@@ -95,6 +115,32 @@ const getInterestTypeClass = (value) => {
   if (value === '단리') return 'simple';
   if (value === '복리') return 'compound';
   return '';
+};
+const getDepositMethodLabel = (item) => {
+  const rsrvType = item.rsrvType || item.rsrv_type;
+  if (rsrvType === 'F') return '자유적립식';
+  if (rsrvType === 'S') return '정액적립식'; // 'S'가 정액적립식이라고 가정합니다.
+  return ''; // 해당 없으면 빈 텍스트
+};
+// 상품 유형 라벨 결정 함수 (기존 코드)
+const getProductTypeLabel = (item) => {
+  // 1. productType이 명시적으로 'savings'인 경우
+  if (item.productType === 'savings') {
+    return '적금';
+  }
+
+  // 2. 상품명에 '적금'이 포함된 경우
+  if (item.productName && item.productName.includes('적금')) {
+    return '적금';
+  }
+
+  // 3. 지급 방식(rsrv_type)이 있는 경우 - 적금에만 있는 값
+  if (item.rsrvType || item.rsrv_type) {
+    return '적금';
+  }
+
+  // 기본값은 예금
+  return '예금';
 };
 
 const formatRate = (rate) => {
@@ -181,6 +227,7 @@ const comparisonRows = computed(() => {
   --color-white: #ffffff;
   --color-accent: #e91e63;
 }
+
 .mobile-compare-container {
   width: 100%;
   max-width: 23.4375rem;
@@ -202,6 +249,7 @@ const comparisonRows = computed(() => {
   gap: 0;
 }
 
+/* ✨ CHANGED: 새로운 태그를 위한 공간 확보 */
 .product-header-card {
   background-color: var(--color-white);
   border-radius: 0.5rem;
@@ -211,9 +259,9 @@ const comparisonRows = computed(() => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
-  min-height: 4.5rem;
-  padding-bottom: 2.25rem; /* 알약 공간 확보 */
-  box-sizing: border-box; /* 패딩을 너비에 포함 */
+  min-height: 7rem; /* 최소 높이 증가 */
+  padding-bottom: 3.25rem; /* 하단 패딩 증가 */
+  box-sizing: border-box;
 }
 
 .bank-name {
@@ -256,19 +304,30 @@ const comparisonRows = computed(() => {
   z-index: 1;
 }
 
+/* ✨ CHANGED: 태그 영역을 세로(column)로 쌓도록 변경 */
 .header-extra-info {
   position: absolute;
   bottom: 0.5rem;
   left: 0.5rem;
   right: 0.5rem;
   display: flex;
+  flex-direction: column; /* 자식 요소들을 세로로 정렬 */
+  justify-content: center;
+  align-items: center;
+  gap: 0.375rem; /* 태그 줄 간의 세로 간격 */
+}
+
+/* ✨ NEW: 태그 한 줄을 감싸는 컨테이너 */
+.header-pills-row {
+  display: flex;
   justify-content: center;
   align-items: center;
   gap: 0.25rem;
+  width: 100%;
 }
 
 .header-tag {
-  font-size: 0.6875rem;
+  font-size: 0.65rem;
   font-weight: 500;
   padding: 0.125rem 0.375rem;
   border-radius: 0.75rem;
@@ -284,6 +343,27 @@ const comparisonRows = computed(() => {
 .header-tag.interest-type-pill.compound {
   background-color: #e0f2f1;
   color: #00796b;
+}
+
+/* ✨ NEW: 예금 알약 스타일 (파란색 계열) */
+.header-tag.deposit-pill {
+  background-color: #e0e7ff; /* light-indigo */
+  color: #3730a3; /* dark-indigo */
+  font-weight: 600;
+}
+
+/* ✨ NEW: 적금 알약 스타일 (초록색 계열) */
+.header-tag.savings-pill {
+  background-color: #d1fae5; /* light-green */
+  color: #047857; /* dark-green */
+  font-weight: 600;
+}
+
+/* ✨ NEW: 적립 방식 알약 스타일 (회색 계열) */
+.header-tag.deposit-method-pill {
+  background-color: #f3f4f6; /* light-gray */
+  color: #4b5563; /* dark-gray */
+  font-size: 0.55rem;
 }
 
 /* ==========================================================================
