@@ -1,7 +1,7 @@
 <template>
   <div class="survey-page">
-    <!-- 🔥 고정된 뒤로가기 버튼 -->
-    <div class="fixed-back-button">
+    <!-- 🔥 변경: 뒤로가기 버튼을 헤더 위쪽으로 이동 -->
+    <div class="back-button-section">
       <BackButton to="/wmti/basic" />
     </div>
 
@@ -60,22 +60,6 @@
         />
       </div>
 
-      <!-- 🔥 고정된 임시 저장 버튼 -->
-      <Transition name="fade-in">
-        <div v-if="answeredCount > 0" class="fixed-save-section">
-          <button
-            type="button"
-            class="fixed-save-btn"
-            :disabled="isSaving"
-            :title="isSaving ? '저장 중...' : '임시 저장'"
-            @click="saveDraft"
-          >
-            <i :class="isSaving ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-save'"></i>
-            <span class="save-text">{{ isSaving ? '저장 중' : '임시 저장' }}</span>
-          </button>
-        </div>
-      </Transition>
-
       <!-- 🔥 개선된 고정 제출 섹션 -->
       <div class="fixed-submit-section">
         <div class="completion-status" :class="{ completed: isAllAnswered }">
@@ -121,7 +105,7 @@
       </div>
     </div>
 
-    <!-- 🔥 스크롤 상단 이동 버튼 -->
+    <!-- 🔥 변경: 스크롤 탑 버튼을 화면 고정, 제출 섹션보다 위쪽에 배치 -->
     <Transition name="scroll-to-top">
       <button
         v-if="showScrollTop"
@@ -142,7 +126,7 @@ import WMTIQuestion from '@/components/wmti/WMTIQuestion.vue';
 import BackButton from '@/components/common/BackButton.vue';
 import { getWMTIQuestionsAPI, postwmtiAPI } from '@/api/wmti';
 
-// 🔥 Composables import
+// Composables import
 import { useToast } from '@/composables/useToast';
 import { useFormBackup } from '@/composables/useFormBackup';
 import { useAuthError } from '@/composables/useAuthError';
@@ -151,16 +135,15 @@ import { useModalMessages } from '@/composables/useModalMessages';
 const { showToast } = useToast();
 const router = useRouter();
 
-// 🔥 기존 상태들
+// 상태 변수들
 const questions = ref([]);
 const answers = ref([]);
 const questionRefs = ref(new Map());
 const hasAnswered = ref(new Set());
 const isSubmitting = ref(false);
-const isSaving = ref(false); // 임시 저장 상태
 const showScrollTop = ref(false); // 스크롤 탑 버튼 표시
 
-// 🔥 백업할 폼 데이터 구조 생성
+// 백업할 폼 데이터 구조 생성
 const surveyFormData = ref({
   answers: [],
   questionsLength: 0,
@@ -168,7 +151,7 @@ const surveyFormData = ref({
   lastSavedAt: null,
 });
 
-// 🔥 answers와 surveyFormData 동기화
+// answers와 surveyFormData 동기화
 watch(
   answers,
   (newAnswers) => {
@@ -180,12 +163,12 @@ watch(
   { deep: true }
 );
 
-// 🔥 스크롤 이벤트 리스너
+// 스크롤 이벤트 리스너
 const handleScroll = () => {
   showScrollTop.value = window.scrollY > 300;
 };
 
-// 🔥 Composable 사용
+// Composable 사용
 const { restoreFormData, hasValidBackup, clearBackup, forceBackupFormData } = useFormBackup({
   pageKey: 'survey',
   expiryHours: 2,
@@ -202,10 +185,9 @@ const { processSubmissionError, resetRetryCount } = useAuthError({
   refreshOptionDelay: 3000,
 });
 
-const { showBackupRestoreModal, showDataRestoredModal, showModal, showConfirmModal } =
-  useModalMessages();
+const { showBackupRestoreModal, showDataRestoredModal, showConfirmModal } = useModalMessages();
 
-// 🔥 기존 computed들
+// 기존 computed들
 const answeredCount = computed(() => answers.value.filter((a) => a !== null).length);
 const isAllAnswered = computed(
   () => answers.value.length > 0 && answeredCount.value === questions.value.length
@@ -215,7 +197,7 @@ const progressPercentage = computed(() => {
   return (answeredCount.value / questions.value.length) * 100;
 });
 
-// 🔥 개선된 에러 처리 함수들
+// 에러 처리 함수들
 const handleError = (message, duration = 3000) => {
   showToast(message, 'error', duration);
 };
@@ -228,7 +210,7 @@ const handleWarning = (message, duration = 2500) => {
   showToast(message, 'warning', duration);
 };
 
-// 🔥 스크롤 관련 함수들
+// 스크롤 관련 함수들
 const scrollToTop = () => {
   window.scrollTo({
     top: 0,
@@ -250,7 +232,90 @@ const debounce = (func, wait) => {
 
 const debouncedHandleScroll = debounce(handleScroll, 100);
 
-// 🔥 기존 함수들 (개선됨)
+// 🔥 통합된 스크롤 함수
+const scrollToQuestion = async (targetIndex, options = {}) => {
+  const {
+    highlight = false,
+    headerOffset = 140,
+    behavior = 'smooth',
+    highlightDuration = 1500,
+  } = options;
+
+  await nextTick();
+
+  // 제출 버튼으로 스크롤하는 경우
+  if (targetIndex >= questions.value.length) {
+    const submitSection = document.querySelector('.fixed-submit-section');
+    if (submitSection) {
+      const elementRect = submitSection.getBoundingClientRect();
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const offsetTop = elementRect.top + scrollTop - 100;
+
+      window.scrollTo({
+        top: offsetTop,
+        behavior,
+      });
+    }
+    return;
+  }
+
+  // 특정 문항으로 스크롤
+  let targetElement = null;
+
+  // 1. questionRefs에서 찾기
+  const questionRef = questionRefs.value.get(targetIndex);
+  if (questionRef && questionRef.$el) {
+    targetElement = questionRef.$el;
+  }
+
+  // 2. data 속성으로 찾기
+  if (!targetElement) {
+    targetElement = document.querySelector(`[data-question-index="${targetIndex}"]`);
+  }
+
+  // 3. questions-container 내부 자식으로 찾기
+  if (!targetElement) {
+    const allQuestions = document.querySelectorAll('.survey-question');
+    targetElement = allQuestions[targetIndex];
+  }
+
+  // 4. container 기준으로 찾기
+  if (!targetElement) {
+    const container = document.querySelector('.questions-container');
+    if (container && container.children[targetIndex]) {
+      targetElement = container.children[targetIndex];
+    }
+  }
+
+  if (targetElement) {
+    const elementRect = targetElement.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const targetScrollTop = elementRect.top + scrollTop - headerOffset;
+
+    window.scrollTo({
+      top: Math.max(0, targetScrollTop),
+      behavior,
+    });
+
+    // 하이라이트 효과
+    if (highlight) {
+      setTimeout(() => {
+        targetElement.style.outline = '3px solid #3b82f6';
+        targetElement.style.outlineOffset = '4px';
+        targetElement.style.borderRadius = '12px';
+        targetElement.style.transition = 'all 0.3s ease';
+
+        setTimeout(() => {
+          targetElement.style.outline = '';
+          targetElement.style.outlineOffset = '';
+          targetElement.style.transition = '';
+        }, highlightDuration);
+      }, 300);
+    }
+  }
+};
+
+// 🔥 기존 함수들
 const setQuestionRef = (el, index) => {
   if (el) {
     questionRefs.value.set(index, el);
@@ -259,6 +324,7 @@ const setQuestionRef = (el, index) => {
   }
 };
 
+// 🔥 답변 변경 처리 (스크롤 통합)
 const handleAnswerChange = async (questionIndex, newValue) => {
   answers.value[questionIndex] = newValue;
 
@@ -266,77 +332,10 @@ const handleAnswerChange = async (questionIndex, newValue) => {
 
   if (isFirstAnswer && newValue !== null) {
     hasAnswered.value.add(questionIndex);
-    await scrollToNextQuestion(questionIndex);
-  }
-};
 
-const scrollToNextQuestion = async (currentIndex) => {
-  const nextIndex = currentIndex + 1;
-
-  if (nextIndex >= questions.value.length) {
-    await scrollToSubmitButton();
-    return;
-  }
-
-  await nextTick();
-
-  const nextQuestionRef = questionRefs.value.get(nextIndex);
-  let targetElement = null;
-
-  if (nextQuestionRef && nextQuestionRef.$el) {
-    targetElement = nextQuestionRef.$el;
-  } else {
-    targetElement = document.querySelector(`[data-question-index="${nextIndex}"]`);
-  }
-
-  if (!targetElement) {
-    const allQuestions = document.querySelectorAll('.survey-question');
-    targetElement = allQuestions[nextIndex];
-  }
-
-  if (targetElement) {
-    const headerHeight = 140;
-    const elementRect = targetElement.getBoundingClientRect();
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const offsetTop = elementRect.top + scrollTop - headerHeight;
-
-    window.scrollTo({
-      top: offsetTop,
-      behavior: 'smooth',
-    });
-
-    setTimeout(() => {
-      highlightQuestion(nextIndex);
-    }, 500);
-  }
-};
-
-const scrollToSubmitButton = async () => {
-  await nextTick();
-
-  const submitSection = document.querySelector('.fixed-submit-section');
-  if (submitSection) {
-    const headerHeight = 100;
-    const elementRect = submitSection.getBoundingClientRect();
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const offsetTop = elementRect.top + scrollTop - headerHeight;
-
-    window.scrollTo({
-      top: offsetTop,
-      behavior: 'smooth',
-    });
-  }
-};
-
-const highlightQuestion = (questionIndex) => {
-  const allQuestions = document.querySelectorAll('.survey-question');
-  const element = allQuestions[questionIndex];
-
-  if (element) {
-    element.classList.add('highlight-question');
-    setTimeout(() => {
-      element.classList.remove('highlight-question');
-    }, 1500);
+    // 다음 문항으로 스크롤
+    const nextIndex = questionIndex + 1;
+    await scrollToQuestion(nextIndex, { highlight: true });
   }
 };
 
@@ -366,18 +365,21 @@ const loadQuestions = async () => {
   }
 };
 
-// 🔥 백업 데이터 복원 체크 (개선됨)
+// 🔥 백업 데이터 복원 체크 (모든 토스트 메시지를 호출부에서 처리)
 const checkAndRestoreBackup = async () => {
   try {
     const urlParams = new URLSearchParams(window.location.search);
     const restoredFlag = urlParams.get('restored');
 
     if (restoredFlag === 'true') {
-      const restored = restoreFormData();
+      const result = await showBackupRestoreModal(restoreFormData, clearBackup);
 
-      if (restored) {
+      if (result.action === 'restore' && result.data) {
         showDataRestoredModal();
-        await applySurveyBackupData();
+        await applySurveyBackupData(true); // silent 모드로 호출
+        handleSuccess('로그인 후 이전 답변이 복원되었어요! ✨');
+      } else if (result.action === 'clear') {
+        handleSuccess('새로 시작합니다! 로그인이 완료되었어요.');
       } else {
         handleSuccess('로그인이 완료되었어요! 설문을 계속해주세요.');
       }
@@ -388,7 +390,13 @@ const checkAndRestoreBackup = async () => {
     } else {
       // 기존 백업 데이터 확인
       if (hasValidBackup()) {
-        showBackupRestoreModal(restoreAndApplyBackup, clearBackup);
+        const result = await showBackupRestoreModal(restoreFormData, clearBackup);
+
+        if (result.action === 'restore' && result.data) {
+          await applySurveyBackupData(false); // 일반 모드
+        } else if (result.action === 'clear') {
+          handleSuccess('새로 시작합니다!');
+        }
       }
     }
   } catch (error) {
@@ -396,8 +404,8 @@ const checkAndRestoreBackup = async () => {
   }
 };
 
-// 🔥 백업 데이터를 실제 설문 상태에 적용 (개선됨)
-const applySurveyBackupData = async () => {
+// 🔥 백업 데이터 적용 (토스트 메시지 제어)
+const applySurveyBackupData = async (silent = false) => {
   try {
     const backupData = surveyFormData.value;
 
@@ -411,14 +419,24 @@ const applySurveyBackupData = async () => {
       }
 
       const restoredCount = backupData.answers.filter((a) => a !== null).length;
-      handleSuccess(`이전 답변 ${restoredCount}개가 복원되었어요! ✨`);
 
-      // 🔥 복원 후 첫 번째 미답변 문항으로 스크롤
+      // silent 모드가 아닐 때만 토스트 표시
+      if (!silent) {
+        handleSuccess(`이전 답변 ${restoredCount}개가 복원되었어요! ✨`);
+      }
+
+      // 첫 번째 미답변 문항으로 스크롤
       await nextTick();
-
-      // DOM이 완전히 업데이트될 때까지 잠시 대기
       setTimeout(async () => {
-        await scrollToFirstUnansweredAfterRestore();
+        const firstUnansweredIndex = answers.value.findIndex((answer) => answer === null);
+        const targetIndex =
+          firstUnansweredIndex === -1 ? questions.value.length : firstUnansweredIndex;
+
+        await scrollToQuestion(targetIndex, {
+          highlight: true,
+          headerOffset: 160,
+          highlightDuration: 2000,
+        });
       }, 500);
     }
   } catch (error) {
@@ -426,112 +444,7 @@ const applySurveyBackupData = async () => {
   }
 };
 
-// 🔥 복원 후 전용 스크롤 함수 (개선됨)
-const scrollToFirstUnansweredAfterRestore = async () => {
-  const firstUnansweredIndex = answers.value.findIndex((answer) => answer === null);
-
-  if (firstUnansweredIndex === -1) {
-    scrollToSubmitButton();
-    return;
-  }
-
-  // 추가 대기 시간 (Vue 컴포넌트 렌더링 완료 대기)
-  await new Promise((resolve) => setTimeout(resolve, 200));
-
-  // survey-question 클래스로 찾기
-  const allQuestions = document.querySelectorAll('.survey-question');
-
-  let targetElement = null;
-
-  if (allQuestions.length > firstUnansweredIndex) {
-    targetElement = allQuestions[firstUnansweredIndex];
-  }
-
-  // 대안: questions-container 내부 자식 요소로 찾기
-  if (!targetElement) {
-    const container = document.querySelector('.questions-container');
-    if (container) {
-      const children = container.children;
-      if (children.length > firstUnansweredIndex) {
-        targetElement = children[firstUnansweredIndex];
-      }
-    }
-  }
-
-  if (targetElement) {
-    // 헤더 높이 고려해서 스크롤
-    const headerHeight = 160;
-    const elementRect = targetElement.getBoundingClientRect();
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const targetScrollTop = elementRect.top + scrollTop - headerHeight;
-
-    // 부드러운 스크롤
-    window.scrollTo({
-      top: Math.max(0, targetScrollTop),
-      behavior: 'smooth',
-    });
-
-    // 🔥 스크롤 완료 후 하이라이트 효과
-    setTimeout(() => {
-      targetElement.style.outline = '3px solid #3b82f6';
-      targetElement.style.outlineOffset = '4px';
-      targetElement.style.borderRadius = '12px';
-      targetElement.style.transition = 'all 0.3s ease';
-
-      // 2초 후 하이라이트 제거
-      setTimeout(() => {
-        targetElement.style.outline = '';
-        targetElement.style.outlineOffset = '';
-        targetElement.style.transition = '';
-      }, 2000);
-    }, 800);
-  } else {
-    // 대안: questions-container로 스크롤
-    const container = document.querySelector('.questions-container');
-    if (container) {
-      container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }
-};
-
-// 🔥 백업 복원 래퍼 함수
-const restoreAndApplyBackup = async () => {
-  try {
-    const restored = restoreFormData();
-    if (restored) {
-      await applySurveyBackupData();
-      return true;
-    }
-    return false;
-  } catch (error) {
-    handleError('이전 답변 복원에 실패했습니다.');
-    return false;
-  }
-};
-
-// 🔥 개선된 수동 임시 저장 함수
-const saveDraft = async () => {
-  if (isSaving.value) return;
-
-  isSaving.value = true;
-
-  try {
-    const saved = forceBackupFormData();
-    if (saved) {
-      handleSuccess('설문 답변이 임시 저장되었어요! 📝');
-    } else {
-      handleWarning('임시 저장에 실패했습니다. 다시 시도해주세요.');
-    }
-  } catch (error) {
-    handleError('임시 저장 중 오류가 발생했습니다.');
-  } finally {
-    setTimeout(() => {
-      isSaving.value = false;
-    }, 1000);
-  }
-};
-
-// 🔥 개선된 제출 처리
+// 🔥 제출 처리 (미답변 문항 스크롤 통합)
 const handleSubmit = async (isRetry = false) => {
   if (!isAllAnswered.value) {
     const unansweredCount = questions.value.length - answeredCount.value;
@@ -541,7 +454,7 @@ const handleSubmit = async (isRetry = false) => {
     const firstUnansweredIndex = answers.value.findIndex((answer) => answer === null);
     if (firstUnansweredIndex !== -1) {
       setTimeout(() => {
-        scrollToNextQuestion(firstUnansweredIndex - 1);
+        scrollToQuestion(firstUnansweredIndex, { highlight: true });
       }, 500);
     }
     return;
@@ -587,9 +500,8 @@ const handleSubmit = async (isRetry = false) => {
       });
     }, 1000);
   } catch (error) {
-    // Composable을 사용한 에러 처리
+    // 🔥 간소화됨: showModalFn 파라미터 제거
     const result = await processSubmissionError(error, {
-      showModalFn: showModal,
       backupFormData: forceBackupFormData,
       scrollToFirstError: () => {}, // 빈 함수로 처리
       handleSubmitFn: handleSubmit,
@@ -615,56 +527,10 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* 🔥 고정된 뒤로가기 버튼 */
-.fixed-back-button {
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  z-index: 200;
-  background: transparent;
-  border-radius: 0.75rem;
-  padding: 0.5rem;
-  border: 1px solid transparent;
-}
-
-/* 🔥 고정된 임시 저장 버튼 */
-.fixed-save-section {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  z-index: 200;
-}
-
-.fixed-save-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: linear-gradient(135deg, #6b73ff, #9c88ff);
-  color: white;
-  border: none;
-  border-radius: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.85rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.fixed-save-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(107, 115, 255, 0.4);
-}
-
-.fixed-save-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.save-text {
-  font-size: 0.85rem;
-  white-space: nowrap;
+/* 🔥 변경: 뒤로가기 버튼을 헤더 위쪽으로 이동 */
+.back-button-section {
+  margin-bottom: 1rem;
+  padding-left: 0.5rem;
 }
 
 /* 기존 스타일 유지 */
@@ -800,60 +666,6 @@ onUnmounted(() => {
   gap: 1rem;
 }
 
-/* 🔥 개선된 임시 저장 섹션 */
-.save-section {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin: 2rem 0;
-  padding: 1rem;
-  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-  border-radius: 1rem;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.save-draft-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #6b73ff, #9c88ff);
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.9rem;
-  min-width: 120px;
-}
-
-.save-draft-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(107, 115, 255, 0.3);
-}
-
-.save-draft-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.save-info {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #64748b;
-  font-size: 0.85rem;
-  font-style: italic;
-}
-
-.save-info i {
-  color: #3b82f6;
-}
-
 /* 🔥 개선된 고정 제출 섹션 */
 .fixed-submit-section {
   position: fixed;
@@ -869,6 +681,34 @@ onUnmounted(() => {
   box-shadow: 0 -4px 20px rgba(45, 51, 107, 0.15);
   border-top: 1px solid rgba(185, 187, 204, 0.2);
   z-index: 100;
+}
+
+/* 🔥 변경: 스크롤 탑 버튼을 화면 고정, 제출 섹션보다 위쪽에 배치 */
+.scroll-to-top-btn {
+  position: fixed;
+  bottom: 8rem; /* 제출 섹션(약 6rem) 위쪽에 배치 */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3rem;
+  height: 3rem;
+  background: linear-gradient(135deg, var(--color-main), #4a5299);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(45, 51, 107, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  z-index: 150;
+  backdrop-filter: blur(10px);
+}
+
+.scroll-to-top-btn:hover {
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(45, 51, 107, 0.4);
 }
 
 .completion-status {
@@ -1011,33 +851,6 @@ onUnmounted(() => {
   font-size: 0.9rem;
 }
 
-/* 🔥 스크롤 탑 버튼 */
-.scroll-to-top-btn {
-  position: fixed;
-  bottom: 6rem;
-  right: 1rem;
-  width: 3rem;
-  height: 3rem;
-  background: linear-gradient(135deg, var(--color-main), #4a5299);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(45, 51, 107, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  transition: all 0.3s ease;
-  z-index: 150;
-  backdrop-filter: blur(10px);
-}
-
-.scroll-to-top-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(45, 51, 107, 0.4);
-}
-
 /* 하이라이트 효과 개선 */
 .highlight-question {
   animation: questionHighlight 1.5s ease;
@@ -1063,17 +876,6 @@ onUnmounted(() => {
 }
 
 /* 🔥 트랜지션 효과 */
-.fade-in-enter-active,
-.fade-in-leave-active {
-  transition: all 0.3s ease;
-}
-
-.fade-in-enter-from,
-.fade-in-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
 .scroll-to-top-enter-active,
 .scroll-to-top-leave-active {
   transition: all 0.3s ease;
@@ -1082,7 +884,7 @@ onUnmounted(() => {
 .scroll-to-top-enter-from,
 .scroll-to-top-leave-to {
   opacity: 0;
-  transform: translateY(20px) scale(0.8);
+  transform: translateX(-50%) translateY(20px) scale(0.8);
 }
 
 /* 반응형 디자인 개선 */
@@ -1091,24 +893,9 @@ onUnmounted(() => {
     padding: 0.75rem;
   }
 
-  .fixed-back-button {
-    top: 0.75rem;
-    left: 0.75rem;
-    padding: 0.4rem;
-  }
-
-  .fixed-save-section {
-    top: 0.75rem;
-    right: 0.75rem;
-  }
-
-  .fixed-save-btn {
-    padding: 0.6rem 0.8rem;
-    font-size: 0.8rem;
-  }
-
-  .save-text {
-    display: none; /* 모바일에서는 텍스트 숨김 */
+  .back-button-section {
+    margin-bottom: 0.75rem;
+    padding-left: 0.25rem;
   }
 
   .fixed-submit-section {
@@ -1116,11 +903,10 @@ onUnmounted(() => {
   }
 
   .scroll-to-top-btn {
-    bottom: 5rem;
-    right: 0.75rem;
     width: 2.5rem;
     height: 2.5rem;
     font-size: 1rem;
+    bottom: 7rem; /* 모바일에서 제출 섹션 위쪽 조정 */
   }
 
   .instruction-card {
@@ -1150,21 +936,16 @@ onUnmounted(() => {
     font-size: 0.8rem;
   }
 
-  .fixed-back-button {
-    top: 0.5rem;
-    left: 0.5rem;
+  .back-button-section {
+    margin-bottom: 0.5rem;
+    padding-left: 0;
   }
 
-  .fixed-save-section {
-    top: 0.5rem;
-    right: 0.5rem;
-  }
-
-  .fixed-save-btn {
-    padding: 0.5rem;
-    min-width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
+  .scroll-to-top-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 0.9rem;
+    bottom: 6.5rem; /* 작은 모바일에서 제출 섹션 위쪽 조정 */
   }
 }
 
@@ -1172,7 +953,6 @@ onUnmounted(() => {
 @media (prefers-reduced-motion: reduce) {
   .progress-fill,
   .submit-button,
-  .save-draft-btn,
   .scroll-to-top-btn {
     transition: none;
   }
@@ -1199,11 +979,6 @@ onUnmounted(() => {
   .instruction-card {
     background: linear-gradient(135deg, rgba(230, 126, 34, 0.15), rgba(230, 126, 34, 0.1));
     border-color: rgba(230, 126, 34, 0.3);
-  }
-
-  .save-section {
-    background: linear-gradient(135deg, #334155, #475569);
-    border-color: #475569;
   }
 
   .fixed-submit-section {
