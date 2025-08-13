@@ -136,7 +136,6 @@ const heroCardStyle = computed(() => ({
 .wmti-hero-card {
   border-radius: 1.5rem;
   padding: 0;
-  box-shadow: 0 1.5625rem 3.125rem rgba(45, 51, 107, 0.25);
   overflow: hidden;
   position: relative;
   min-height: 20rem;

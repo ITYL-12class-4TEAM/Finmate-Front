@@ -17,6 +17,9 @@
           <li>
             <router-link to="/wmti/result">투자 성향 결과</router-link>
           </li>
+          <li>
+            <router-link to="/wmti/collection">16가지 투자성향</router-link>
+          </li>
         </ul>
       </li>
       <li class="menu-item">

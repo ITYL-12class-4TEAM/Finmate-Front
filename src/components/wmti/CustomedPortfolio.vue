@@ -69,7 +69,7 @@
 
     <!-- 3단계: 포트폴리오 구성 근거 -->
     <div class="reasoning-section">
-      <h4 class="subsection-title">💡 포트폴리오 구성 근거</h4>
+      <h4 class="subsection-title"><i class="fa-regular fa-lightbulb"></i> 포트폴리오 구성 근거</h4>
       <div class="reasoning-content">
         <div class="step">
           <h5>1단계: 기본 분배</h5>
