@@ -10,7 +10,8 @@ export function useFormBackup(options = {}) {
     formRef = null,
     autoBackup = true,
     submittedKey = null,
-    forceBackup = false, // 🔥 새 옵션: 제출 여부 무시하고 강제 백업
+    forceBackup = false, // 제출 여부 무시하고 강제 백업(에러처리용)
+    silentBackup = false, // 토스트 메시지 없이 백업
   } = options;
 
   const { showToast } = useToast();
@@ -28,8 +29,8 @@ export function useFormBackup(options = {}) {
     }
   };
 
-  // 폼 데이터 백업 (강제 옵션 추가)
-  const backupFormData = (force = false) => {
+  // 폼 데이터 백업 (강제 옵션,토스트메시지 제어 추가)
+  const backupFormData = (force = false, silent = silentBackup) => {
     if (!checkLocalStorageSupport()) {
       return false;
     }
@@ -58,13 +59,18 @@ export function useFormBackup(options = {}) {
       // 백업 검증
       const verification = localStorage.getItem(storageKey);
       if (verification) {
-        showToast('입력 정보가 임시 저장되었어요 📝', 'info');
+        // 🔥 silent 모드가 아닐 때만 토스트 표시
+        if (!silent) {
+          showToast('입력 정보가 임시 저장되었어요', 'info');
+        }
         return true;
       } else {
         throw new Error('백업 검증 실패');
       }
     } catch (error) {
-      showToast('임시 저장 실패. 중요한 정보는 별도로 메모해주세요.', 'warning');
+      if (!silent) {
+        showToast('임시 저장 실패. 중요한 정보는 별도로 메모해주세요.', 'warning');
+      }
       return false;
     }
   };
@@ -150,9 +156,9 @@ export function useFormBackup(options = {}) {
     return submitted;
   };
 
-  // 🔥 강제 백업 함수 추가
-  const forceBackupFormData = () => {
-    return backupFormData(true);
+  // 강제 백업 함수
+  const forceBackupFormData = (silent = false) => {
+    return backupFormData(true, silent);
   };
 
   // 자동 백업 설정
@@ -161,9 +167,9 @@ export function useFormBackup(options = {}) {
       const hasData = hasFormData();
       const submitted = isSubmitted();
 
-      // 🔥 forceBackup이 true이거나, 데이터가 있고 제출되지 않았을 때 백업
+      // forceBackup이 true이거나, 데이터가 있고 제출되지 않았을 때 백업
       if (hasData && (forceBackup || !submitted)) {
-        backupFormData(true); // 강제 백업
+        backupFormData(true, true); // 자동백업(은 항상ture), 강제 백업
       }
     });
   }
@@ -176,6 +182,6 @@ export function useFormBackup(options = {}) {
     hasFormData,
     isSubmitted,
     checkLocalStorageSupport,
-    forceBackupFormData, // 🔥 새로 추가
+    forceBackupFormData,
   };
 }
