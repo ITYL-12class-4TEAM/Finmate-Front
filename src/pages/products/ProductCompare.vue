@@ -448,6 +448,7 @@ const goToDetail = (productId, productType, saveTrm = null) => {
       path: `/products/${actualProductType}/${productId}`,
       query,
     });
+    window.scrollTo(0, 0);
   } else {
     // 상품을 찾지 못한 경우 기본 경로로 이동
     router.push({
@@ -509,6 +510,8 @@ onMounted(() => {
   if (currentCompareList.value.length >= 2) {
     loadCompareData();
   }
+
+  window.scrollTo(0, 0);
 });
 </script>
 
