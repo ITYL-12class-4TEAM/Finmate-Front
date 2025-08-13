@@ -321,7 +321,7 @@ const handleImageError = (event) => {
 
 <style scoped>
 .wmti-collection {
-  max-width: 430px;
+  max-width: 26.875rem;
   margin: 0 auto;
   min-height: 100vh;
 }
@@ -589,7 +589,7 @@ const handleImageError = (event) => {
   background: var(--color-white);
   border-radius: 1rem;
   width: 100%;
-  max-width: 400px;
+  max-width: 25rem;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
@@ -758,10 +758,11 @@ const handleImageError = (event) => {
   font-size: 0.875rem;
   line-height: 1.6;
   font-weight: 500;
+  margin: 0;
 }
 
 /* 반응형 */
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
   .collection-header {
     padding: 1.5rem 1rem 1rem;
   }
