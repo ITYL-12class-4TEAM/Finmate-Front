@@ -1,6 +1,6 @@
 <template>
   <div class="survey-page">
-    <!-- 🔥 변경: 뒤로가기 버튼을 헤더 위쪽으로 이동 -->
+    <!-- 뒤로가기 버튼을 -->
     <div class="back-button-section">
       <BackButton to="/wmti/basic" />
     </div>
@@ -60,7 +60,7 @@
         />
       </div>
 
-      <!-- 🔥 개선된 고정 제출 섹션 -->
+      <!--고정 제출 섹션 -->
       <div class="fixed-submit-section">
         <div class="completion-status" :class="{ completed: isAllAnswered }">
           <div class="status-content">
@@ -96,7 +96,7 @@
       </div>
     </form>
 
-    <!-- 🔥 개선된 로딩 상태 -->
+    <!-- 로딩 상태 -->
     <div v-else class="loading-container">
       <div class="loading-content">
         <div class="loading-spinner"></div>
@@ -105,7 +105,7 @@
       </div>
     </div>
 
-    <!-- 🔥 변경: 스크롤 탑 버튼을 화면 고정, 제출 섹션보다 위쪽에 배치 -->
+    <!-- 스크롤 탑 버튼 -->
     <Transition name="scroll-to-top">
       <button
         v-if="showScrollTop"
@@ -141,7 +141,7 @@ const answers = ref([]);
 const questionRefs = ref(new Map());
 const hasAnswered = ref(new Set());
 const isSubmitting = ref(false);
-const showScrollTop = ref(false); // 스크롤 탑 버튼 표시
+const showScrollTop = ref(false);
 
 // 백업할 폼 데이터 구조 생성
 const surveyFormData = ref({
@@ -232,7 +232,7 @@ const debounce = (func, wait) => {
 
 const debouncedHandleScroll = debounce(handleScroll, 100);
 
-// 🔥 통합된 스크롤 함수
+// 통합 스크롤 함수
 const scrollToQuestion = async (targetIndex, options = {}) => {
   const {
     highlight = false,
@@ -315,7 +315,7 @@ const scrollToQuestion = async (targetIndex, options = {}) => {
   }
 };
 
-// 🔥 기존 함수들
+// 기존 함수들
 const setQuestionRef = (el, index) => {
   if (el) {
     questionRefs.value.set(index, el);
@@ -324,7 +324,7 @@ const setQuestionRef = (el, index) => {
   }
 };
 
-// 🔥 답변 변경 처리 (스크롤 통합)
+// 답변 변경 처리 (스크롤 통합)
 const handleAnswerChange = async (questionIndex, newValue) => {
   answers.value[questionIndex] = newValue;
 
@@ -339,7 +339,7 @@ const handleAnswerChange = async (questionIndex, newValue) => {
   }
 };
 
-// 🔥 설문 문항 로딩 (에러 처리 개선)
+// 설문 문항 로딩 (에러 처리)
 const loadQuestions = async () => {
   try {
     const res = await getWMTIQuestionsAPI();
@@ -358,14 +358,14 @@ const loadQuestions = async () => {
     answers.value = Array(list.length).fill(null);
     hasAnswered.value.clear();
 
-    // 🔥 백업 데이터 복원 체크
+    // 백업 데이터 복원 체크
     await checkAndRestoreBackup();
   } catch (err) {
     handleError('설문 문항을 불러오는데 실패했습니다. 페이지를 새로고침해주세요.');
   }
 };
 
-// 🔥 백업 데이터 복원 체크 (모든 토스트 메시지를 호출부에서 처리)
+// 백업 데이터 복원 체크 (모든 토스트 메시지를 호출부에서 처리)
 const checkAndRestoreBackup = async () => {
   try {
     const urlParams = new URLSearchParams(window.location.search);
@@ -404,7 +404,7 @@ const checkAndRestoreBackup = async () => {
   }
 };
 
-// 🔥 백업 데이터 적용 (토스트 메시지 제어)
+// 백업 데이터 적용 (토스트 메시지 제어)
 const applySurveyBackupData = async (silent = false) => {
   try {
     const backupData = surveyFormData.value;
@@ -444,7 +444,7 @@ const applySurveyBackupData = async (silent = false) => {
   }
 };
 
-// 🔥 제출 처리 (미답변 문항 스크롤 통합)
+// 제출 처리 (미답변 문항 스크롤 통합)
 const handleSubmit = async (isRetry = false) => {
   if (!isAllAnswered.value) {
     const unansweredCount = questions.value.length - answeredCount.value;
@@ -500,7 +500,6 @@ const handleSubmit = async (isRetry = false) => {
       });
     }, 1000);
   } catch (error) {
-    // 🔥 간소화됨: showModalFn 파라미터 제거
     const result = await processSubmissionError(error, {
       backupFormData: forceBackupFormData,
       scrollToFirstError: () => {}, // 빈 함수로 처리
@@ -515,7 +514,7 @@ const handleSubmit = async (isRetry = false) => {
   }
 };
 
-// 🔥 생명주기 훅
+// 생명주기 훅
 onMounted(() => {
   loadQuestions();
   window.addEventListener('scroll', debouncedHandleScroll);
@@ -527,7 +526,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* 🔥 변경: 뒤로가기 버튼을 헤더 위쪽으로 이동 */
+/* 뒤로가기 버튼*/
 .back-button-section {
   margin-bottom: 1rem;
   padding-left: 0.5rem;
@@ -666,7 +665,7 @@ onUnmounted(() => {
   gap: 1rem;
 }
 
-/* 🔥 개선된 고정 제출 섹션 */
+/* 고정 제출 섹션 */
 .fixed-submit-section {
   position: fixed;
   bottom: 0;
@@ -683,7 +682,7 @@ onUnmounted(() => {
   z-index: 100;
 }
 
-/* 🔥 변경: 스크롤 탑 버튼을 화면 고정, 제출 섹션보다 위쪽에 배치 */
+/* 스크롤 탑 버튼 */
 .scroll-to-top-btn {
   position: fixed;
   bottom: 9rem; /* 제출 섹션(약 6rem) 위쪽에 배치 */
@@ -810,7 +809,7 @@ onUnmounted(() => {
   opacity: 0.8;
 }
 
-/* 🔥 개선된 로딩 컨테이너 */
+/* 로딩 컨테이너 */
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -875,7 +874,7 @@ onUnmounted(() => {
   }
 }
 
-/* 🔥 트랜지션 효과 */
+/* 트랜지션 효과 */
 .scroll-to-top-enter-active,
 .scroll-to-top-leave-active {
   transition: all 0.3s ease;

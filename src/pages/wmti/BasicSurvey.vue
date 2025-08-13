@@ -69,24 +69,24 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from '@/composables/useToast';
 
-// ✅ Toast 기능 불러오기
+//Toast 기능 불러오기
 const { showToast } = useToast();
 
-// ✅ 라우터 사용
+// 라우터 사용
 const router = useRouter();
 
-// ✅ 상태 변수들
+// 상태 변수들
 const step1Completed = ref(false);
 const step2Enabled = ref(false);
 
-// ✅ 사전정보 입력 여부 체크
+// 사전정보 입력 여부 체크
 const checkPreinfoStatus = () => {
   const preinfoDone = localStorage.getItem('preinfoSubmitted');
   step1Completed.value = preinfoDone === 'true';
   step2Enabled.value = preinfoDone === 'true';
 };
 
-// ✅ 라우팅 함수
+// 라우팅 함수
 const goToPreInfo = () => {
   router.push('/wmti/preinfo');
 };
@@ -99,7 +99,7 @@ const goToSurvey = () => {
   }
 };
 
-// ✅ 컴포넌트 마운트 시 상태 확인
+// 컴포넌트 마운트 시 상태 확인
 onMounted(() => {
   checkPreinfoStatus();
 });

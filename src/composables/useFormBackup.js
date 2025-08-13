@@ -39,7 +39,7 @@ export function useFormBackup(options = {}) {
       return false;
     }
 
-    // 🔥 강제 백업이 아닐 때만 제출 상태 확인
+    // 강제 백업이 아닐 때만 제출 상태 확인
     if (!force && !forceBackup) {
       const submitted = isSubmitted();
       if (submitted) {
@@ -59,7 +59,7 @@ export function useFormBackup(options = {}) {
       // 백업 검증
       const verification = localStorage.getItem(storageKey);
       if (verification) {
-        // 🔥 silent 모드가 아닐 때만 토스트 표시
+        // silent 모드가 아닐 때만 토스트 표시
         if (!silent) {
           showToast('입력 정보가 임시 저장되었어요', 'info');
         }
