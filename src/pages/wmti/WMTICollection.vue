@@ -25,7 +25,7 @@
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="예시): ABWC, 리더형 등"
+              placeholder="WMTI 유형을 검색해보세요"
               class="search-input"
             />
           </div>
@@ -67,7 +67,6 @@
             </div>
           </div>
           <h3 class="wmti-name">{{ wmti.aka }}</h3>
-          <p class="wmti-description">{{ wmti.shortDescription }}</p>
           <div class="characteristics">
             <span v-for="trait in (wmti.tag || []).slice(0, 3)" :key="trait" class="trait-tag">
               {{ trait }}
@@ -94,9 +93,6 @@
                 {{ selectedWMTI.code }}
               </div>
               <h2 class="modal-name">{{ selectedWMTI.aka }}</h2>
-              <div class="modal-badge" :class="selectedWMTI.category?.toLowerCase()">
-                {{ selectedWMTI.category }}
-              </div>
             </div>
           </div>
 
@@ -109,8 +105,13 @@
             </div>
 
             <div v-if="selectedWMTI.keyTraits || selectedWMTI.tag" class="detail-section">
-              <h3>주요 특징</h3>
-              <div class="traits-grid scrollalbe-content">
+              <div class="section-title-with-badge">
+                <h3>주요 특징</h3>
+                <div class="modal-badge wmti-badge" :class="selectedWMTI.category?.toLowerCase()">
+                  {{ selectedWMTI.category }}
+                </div>
+              </div>
+              <div class="traits-grid">
                 <span
                   v-for="trait in selectedWMTI.keyTraits || selectedWMTI.tag || []"
                   :key="trait"
@@ -219,12 +220,12 @@ const getCategoryFromTag = (firstTag) => {
   if (!firstTag) return '기타';
 
   const categoryMappings = {
-    리더형: ['리더', '선도', '지도자', '지휘관'],
+    리더형: ['리더', '선도', '지도자'],
     전문가형: ['달인', '전문가', '박학다식'],
     트렌디형: ['트렌디', '예술인', '탐정가'],
     전략가형: ['전략', '연구가', '트렌디세터'],
     자신감형: ['자신감', '당당', '유능한'],
-    현실주의형: ['현실', '아이콘', '노련한', '분산투자'],
+    현실주의형: ['현실', '아이콘', '노련한'],
     관찰가형: ['관찰가', '호기심', '새싹'],
     탐험가형: ['탐험가', '탐색가', '샛별'],
   };
@@ -273,7 +274,16 @@ const selectCategory = (category) => {
 };
 
 const selectWMTI = (wmti) => {
-  selectedWMTI.value = wmti;
+  // 임시로 더미 데이터 추가해서 UI 테스트
+  selectedWMTI.value = {
+    ...wmti,
+    // 실제 데이터에 없다면 임시 더미 데이터 추가
+    strengths: wmti.strengths || ['체계적인 분석 능력', '리스크 관리 우수', '장기적 관점 보유'],
+    improvements: wmti.improvements || ['감정적 투자 지양 필요', '다양한 투자 상품 학습 권장'],
+    investmentStrategy:
+      wmti.investmentStrategy ||
+      '분산 투자를 통한 안정적 수익 추구. 정기적인 포트폴리오 리밸런싱과 함께 장기 투자 관점을 유지하는 것이 중요합니다.',
+  };
 };
 
 const closeModal = () => {
@@ -549,13 +559,6 @@ const handleImageError = (event) => {
   margin-bottom: 0.5rem;
 }
 
-.wmti-description {
-  color: var(--color-sub);
-  font-size: 0.875rem;
-  line-height: 1.4;
-  margin-bottom: 1rem;
-}
-
 .characteristics {
   display: flex;
   flex-wrap: wrap;
@@ -633,7 +636,7 @@ const handleImageError = (event) => {
 }
 
 .modal-wmti-info {
-  text-align: center;
+  margin-left: 0.75rem;
 }
 
 .modal-code {
@@ -650,8 +653,32 @@ const handleImageError = (event) => {
   font-size: 0.95rem; /* 크기 축소 */
   font-weight: 600;
   margin-bottom: 0.75rem;
-  margin-left: 0.75rem;
   line-height: 1.2; /* 줄간격 조정 */
+}
+
+/* 섹션 제목과 배지 조합 */
+.section-title-with-badge {
+  display: flex;
+  align-items: center; /* 수직 가운데 정렬 */
+  gap: 0.5rem; /* 제목과 배지 사이 간격 */
+  margin-bottom: 0.75rem;
+  border-bottom: 0.125rem solid var(--color-bg-light);
+  padding-bottom: 0.5rem;
+}
+
+.section-title-with-badge h3 {
+  color: var(--color-main) !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+  border-bottom: none !important; /* 기존 border-bottom 제거 */
+  padding-bottom: 0 !important; /* 기존 padding-bottom 제거 */
+  flex-shrink: 0; /* 제목 크기 고정 */
+  line-height: 1.2; /* 라인 높이 조정 */
+}
+
+.section-title-with-badge .modal-badge {
+  line-height: 1; /* 배지 라인 높이 조정 */
 }
 
 .modal-badge {
