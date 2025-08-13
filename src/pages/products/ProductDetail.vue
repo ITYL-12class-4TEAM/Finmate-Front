@@ -15,11 +15,11 @@
       <div class="page-header">
         <div class="header-left">
           <BackButton />
-          <button class="favorite-btn" title="즐겨찾는 상품" @click="goToFavorites">
-            <span class="favorite-icon">★</span>
-            <span class="btn-text">즐겨찾기로 이동</span>
-          </button>
         </div>
+        <button class="favorite-btn" title="즐겨찾는 상품" @click="goToFavorites">
+          <span class="favorite-icon">★</span>
+          <span class="btn-text">즐겨찾기로 이동</span>
+        </button>
         <!-- GPT 상품 요약 버튼 (우측 상단) todo -->
         <!-- <button class="gpt-detail-btn" @click="handleGptDetail" title="GPT 상품 요약">
               <span class="gpt-icon">🤖</span>

@@ -104,14 +104,7 @@
         <div v-for="item in items" :key="item.productId + '_actions'" class="action-button-group">
           <button
             class="detail-btn"
-            @click="
-              $emit(
-                'viewDetail',
-                item.productId,
-                item.productType || (isProductSavings(item) ? 'savings' : 'deposit'),
-                item.saveTrm
-              )
-            "
+            @click="$emit('viewDetail', item.productId, item.productType, item.saveTrm)"
           >
             상세 보기
           </button>
