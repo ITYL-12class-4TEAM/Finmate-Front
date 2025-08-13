@@ -123,8 +123,8 @@
                     :href="product.externalLink"
                     target="_blank"
                     rel="noopener noreferrer"
-                    @click.stop="handleExternalLink(product.externalLink)"
                     class="link-btn"
+                    @click.stop="handleExternalLink(product.externalLink)"
                   >
                     <i
                       class="fas fa-external-link-alt"
@@ -278,10 +278,7 @@ const handleProductClick = (product) => {
 };
 
 const handleExternalLink = (link) => {
-  console.log(
-    '외부 링크 클릭:',
-    link
-  );
+  console.log('외부 링크 클릭:', link);
 };
 </script>
 

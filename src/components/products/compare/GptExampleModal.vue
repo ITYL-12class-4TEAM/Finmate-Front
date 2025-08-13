@@ -7,7 +7,7 @@
             <span class="mate-icon">🤖</span>
             <p>MATE의 상품 비교 요약</p>
           </div>
-          <button class="close-btn" @click="$emit('close')" aria-label="닫기">×</button>
+          <button class="close-btn" aria-label="닫기" @click="$emit('close')">×</button>
         </div>
       </div>
 
@@ -106,7 +106,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { compareProductsWithGPT } from '@/api/chat';
 
 const props = defineProps({
@@ -114,7 +114,7 @@ const props = defineProps({
   compareList: { type: Array, default: () => [] },
 });
 
-const emit = defineEmits(['close']);
+defineEmits(['close']);
 
 // 상태 관리
 const isLoading = ref(false);

@@ -32,7 +32,7 @@
   </div>
 </template>
 <script setup>
-const props = defineProps({
+defineProps({
   product: { type: Object, required: true },
   isSelected: { type: Boolean, default: false },
 });

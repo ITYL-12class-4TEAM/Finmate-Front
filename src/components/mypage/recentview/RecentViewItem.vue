@@ -31,7 +31,7 @@ const handleSelect = (isSelected) => {
   emit('select', props.product.productId, isSelected);
 };
 
-const handleCardClick = async (event) => {
+const handleCardClick = async () => {
   const subcategory = props.product.subcategoryName;
   const productId = props.product.productId;
   const saveTrm = props.product.saveTrm;

@@ -6,7 +6,13 @@
       <div class="chat-title">
         <!-- 상태 표시 -->
         <div class="status-indicator">
-          <div class="status-dot"></div>
+          <div
+            class="status-dot"
+            :class="{
+              'status-active': isSessionActive,
+              'status-expired': !isSessionActive,
+            }"
+          ></div>
         </div>
 
         <!-- 타이틀 콘텐츠 -->
@@ -15,8 +21,11 @@
             <span class="title-text">FinMate</span>
           </div>
           <div class="sub-title">
-            <span class="sub-text">궁금한 것을 물어보세요</span>
-            <div class="typing-dots">
+            <span v-if="isSessionActive" class="sub-text">
+              {{ formatTimeRemaining(sessionTimeRemaining) }} 남음
+            </span>
+            <span v-else class="sub-text text-warning"> 세션 만료됨 </span>
+            <div v-if="isSessionActive" class="typing-dots">
               <div class="dot"></div>
               <div class="dot"></div>
               <div class="dot"></div>
@@ -27,14 +36,34 @@
 
       <!-- 오른쪽 액션 버튼들 -->
       <div class="header-actions">
+        <!-- 대화 초기화 버튼 -->
+        <button
+          class="action-btn clear-btn"
+          type="button"
+          title="대화 내용 삭제"
+          :disabled="!isSessionActive"
+          @click="$emit('clear-chat')"
+        >
+          <i class="fas fa-trash-alt"></i>
+        </button>
+
         <!-- 닫기 버튼 -->
         <button class="action-btn close-btn" type="button" @click="$emit('close')">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-            <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-          </svg>
+          <i class="fas fa-times"></i>
         </button>
       </div>
+    </div>
+
+    <!-- 세션 시간 프로그레스 바 -->
+    <div v-if="isSessionActive" class="session-progress">
+      <div
+        class="progress-bar"
+        :style="{ width: `${sessionProgress}%` }"
+        :class="{
+          'progress-warning': sessionProgress <= 25,
+          'progress-danger': sessionProgress <= 10,
+        }"
+      ></div>
     </div>
 
     <!-- 하단 세밀한 보더 라인 -->
@@ -43,7 +72,42 @@
 </template>
 
 <script setup>
-defineEmits(['close']);
+import { computed } from 'vue';
+
+const props = defineProps({
+  sessionTimeRemaining: {
+    type: Number,
+    default: 0,
+  },
+  isSessionActive: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+defineEmits(['close', 'clear-chat']);
+
+// 세션 진행률 계산 (1시간 기준)
+const sessionProgress = computed(() => {
+  const totalTime = 60 * 60 * 1000; // 1시간
+  const progress = (props.sessionTimeRemaining / totalTime) * 100;
+  return Math.max(0, Math.min(100, progress));
+});
+
+// 남은 시간 포맷팅
+const formatTimeRemaining = (milliseconds) => {
+  if (milliseconds <= 0) return '0분';
+
+  const totalMinutes = Math.floor(milliseconds / (1000 * 60));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  if (hours > 0) {
+    return `${hours}시간 ${minutes}분`;
+  } else {
+    return `${minutes}분`;
+  }
+};
 </script>
 
 <style scoped>
@@ -56,7 +120,6 @@ defineEmits(['close']);
 
 .chat-header {
   position: relative;
-  /* overflow: hidden; */
   border-radius: 1rem 1rem 0 0;
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20px);
@@ -69,7 +132,7 @@ defineEmits(['close']);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem 1.5rem;
+  padding: 1.25rem 1.5rem 1rem;
   z-index: 10;
 }
 
@@ -91,10 +154,20 @@ defineEmits(['close']);
   left: 0;
   width: 8px;
   height: 8px;
-  background: #10b981;
   border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.status-active {
+  background: #10b981;
   box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
   animation: gentle-pulse 3s ease-in-out infinite;
+}
+
+.status-expired {
+  background: #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+  animation: warning-pulse 1s ease-in-out infinite;
 }
 
 .title-content {
@@ -127,6 +200,10 @@ defineEmits(['close']);
   color: var(--color-sub);
 }
 
+.text-warning {
+  color: #f59e0b !important;
+}
+
 .typing-dots {
   display: flex;
   align-items: center;
@@ -152,6 +229,7 @@ defineEmits(['close']);
 .header-actions {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
 }
 
 .action-btn {
@@ -170,15 +248,52 @@ defineEmits(['close']);
   box-shadow: 0 2px 8px rgba(45, 51, 107, 0.08);
 }
 
-.action-btn:hover {
+.action-btn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.6);
   color: var(--color-main);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(45, 51, 107, 0.15);
 }
 
-.action-btn:active {
+.action-btn:active:not(:disabled) {
   transform: translateY(0);
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.clear-btn:hover:not(:disabled) {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.close-btn:hover {
+  color: var(--color-main);
+}
+
+/* 세션 프로그레스 바 */
+.session-progress {
+  position: relative;
+  height: 3px;
+  background: rgba(185, 187, 204, 0.2);
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #059669);
+  transition: all 0.3s ease;
+}
+
+.progress-warning {
+  background: linear-gradient(90deg, #f59e0b, #d97706) !important;
+}
+
+.progress-danger {
+  background: linear-gradient(90deg, #ef4444, #dc2626) !important;
+  animation: pulse-progress 1s ease-in-out infinite;
 }
 
 .bottom-border {
@@ -208,6 +323,18 @@ defineEmits(['close']);
   }
 }
 
+@keyframes warning-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.2);
+  }
+}
+
 @keyframes subtle-typing {
   0%,
   60%,
@@ -221,10 +348,25 @@ defineEmits(['close']);
   }
 }
 
+@keyframes pulse-progress {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Font Awesome 아이콘 */
+.fas {
+  font-size: 14px;
+}
+
 /* 반응형 */
 @media (max-width: 576px) {
   .header-content {
-    padding: 1rem 1.25rem;
+    padding: 1rem 1.25rem 0.75rem;
   }
 
   .title-text {
@@ -233,6 +375,15 @@ defineEmits(['close']);
 
   .sub-text {
     font-size: 0.75rem;
+  }
+
+  .action-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .fas {
+    font-size: 12px;
   }
 }
 </style>

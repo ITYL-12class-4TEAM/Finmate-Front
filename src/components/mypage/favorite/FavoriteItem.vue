@@ -25,7 +25,7 @@ const props = defineProps({
 
 const emit = defineEmits(['remove-favorite', 'click-favorite']);
 
-const handleCardClick = async (event) => {
+const handleCardClick = async () => {
   console.log('즐겨찾기 카드 클릭됨:', props.favorite);
 
   const subcategory = props.favorite.subcategoryName;

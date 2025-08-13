@@ -139,9 +139,9 @@ import ProductFeatures from '@/components/products/detail/ProductFeatures.vue';
 import CompareFloatingBar from '@/components/products/compare/CompareFloatingBar.vue';
 import GptDetailModal from '@/components/products/detail/GptDetailModal.vue';
 import useCompareList from '@/composables/useCompareList';
-import { useToast } from '@/composables/useToast';
+// import { useToast } from '@/composables/useToast';
 
-const { showToast } = useToast();
+// const { showToast } = useToast();
 
 const route = useRoute();
 const router = useRouter();
@@ -150,8 +150,8 @@ const router = useRouter();
 const product = ref(null);
 const loading = ref(true);
 const error = ref(null);
-const showModal = ref(false);
-const selectedTerm = ref({ name: '', description: '' });
+// const showModal = ref(false);
+// const selectedTerm = ref({ name: '', description: '' });
 
 // GPT 상품 요약 모달 상태
 const showGptDetailModal = ref(false);
@@ -161,9 +161,9 @@ const { compareList, clearCompareList, addToCompareList, removeFromCompareList, 
   useCompareList();
 
 // GPT 상품 요약 모달 열기
-const handleGptDetail = () => {
-  showGptDetailModal.value = true;
-};
+// const handleGptDetail = () => {
+//   showGptDetailModal.value = true;
+// };
 
 // 상품 정보 로드
 const loadProductDetail = async () => {
@@ -246,6 +246,7 @@ const parsedPreferentialConditions = computed(() => {
   for (const condition of conditions) {
     if (condition.trim() === '') continue;
 
+    // eslint-disable-next-line no-useless-escape
     const cleanCondition = condition.replace(/^\d+[\.\)]\s*|\-\s*|\*\s*/, '').trim();
 
     if (cleanCondition) {

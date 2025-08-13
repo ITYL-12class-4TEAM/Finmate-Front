@@ -127,8 +127,8 @@
                     :href="product.externalLink"
                     target="_blank"
                     rel="noopener noreferrer"
-                    @click.stop="handleExternalLink(product.externalLink)"
                     class="link-btn"
+                    @click.stop="handleExternalLink(product.externalLink)"
                   >
                     <i
                       class="fas fa-external-link-alt"
@@ -259,12 +259,6 @@ const hasDetailInfo = (product) => {
 const formatRate = (rate) => {
   if (rate === null || rate === undefined || rate === 0) return '0.00';
   return typeof rate === 'number' ? rate.toFixed(2) : parseFloat(rate || 0).toFixed(2);
-};
-
-// 숫자 포맷팅 (찜 개수 등)
-const formatCount = (count) => {
-  if (count === null || count === undefined || count === 0) return '0';
-  return count.toLocaleString();
 };
 
 // 조회 시간 포맷팅 (상대 시간)

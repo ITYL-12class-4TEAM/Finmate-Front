@@ -13,10 +13,10 @@
                   <div class="bank-name">{{ item.korCoNm }}</div>
                 </div>
                 <div class="product-name">{{ item.productName || item.finPrdtNm }}</div>
-                <button 
-                  class="remove-btn" 
-                  @click="$emit('remove', item.productId, item.saveTrm, item.intrRateType)"
+                <button
+                  class="remove-btn"
                   title="비교함에서 제거"
+                  @click="$emit('remove', item.productId, item.saveTrm, item.intrRateType)"
                 >
                   ×
                 </button>
@@ -36,7 +36,9 @@
             <td v-for="item in items" :key="`rate-${item.productId}`" class="data-cell">
               <div class="rate-info">
                 <div class="rate-value">연 {{ item.intrRate2 || item.intrRate }}%</div>
-                <div class="rate-type">{{ getInterestTypeForProduct(item.productId, item.saveTrm, item.intrRateType) }}</div>
+                <div class="rate-type">
+                  {{ getInterestTypeForProduct(item.productId, item.saveTrm, item.intrRateType) }}
+                </div>
               </div>
             </td>
           </tr>
@@ -79,7 +81,9 @@
               </div>
             </td>
             <td v-for="item in items" :key="`member-${item.productId}`" class="data-cell">
-              <div class="member-info">{{ item.joinMember || item.join_member || '실명의 개인' }}</div>
+              <div class="member-info">
+                {{ item.joinMember || item.join_member || '실명의 개인' }}
+              </div>
             </td>
           </tr>
 
@@ -106,14 +110,17 @@
             </td>
             <td v-for="item in items" :key="`pref-${item.productId}`" class="data-cell">
               <div class="preferential-tags">
-                <span 
-                  v-for="tag in (item.preferentialTags || item.preferential_tags || [])" 
+                <span
+                  v-for="tag in item.preferentialTags || item.preferential_tags || []"
                   :key="tag"
                   class="tag"
                 >
                   {{ tag }}
                 </span>
-                <span v-if="!(item.preferentialTags || item.preferential_tags)?.length" class="no-data">
+                <span
+                  v-if="!(item.preferentialTags || item.preferential_tags)?.length"
+                  class="no-data"
+                >
                   해당없음
                 </span>
               </div>
@@ -143,18 +150,13 @@
             </td>
             <td v-for="item in items" :key="`action-${item.productId}`" class="data-cell">
               <div class="action-buttons">
-                <button 
+                <button
                   class="detail-btn"
                   @click="$emit('viewDetail', item.productId, item.productType, item.saveTrm)"
                 >
                   상세보기
                 </button>
-                <button 
-                  class="join-btn"
-                  @click="$emit('joinProduct', item)"
-                >
-                  가입하기
-                </button>
+                <button class="join-btn" @click="$emit('joinProduct', item)">가입하기</button>
               </div>
             </td>
           </tr>
@@ -174,8 +176,8 @@
               <div class="product-name">{{ item.productName || item.finPrdtNm }}</div>
             </div>
           </div>
-          <button 
-            class="remove-btn" 
+          <button
+            class="remove-btn"
             @click="$emit('remove', item.productId, item.saveTrm, item.intrRateType)"
           >
             ×
@@ -189,7 +191,11 @@
             <div class="rate-display">
               <span class="rate-label">금리</span>
               <span class="rate-value">연 {{ item.intrRate2 || item.intrRate }}%</span>
-              <span class="rate-type">({{ getInterestTypeForProduct(item.productId, item.saveTrm, item.intrRateType) }})</span>
+              <span class="rate-type"
+                >({{
+                  getInterestTypeForProduct(item.productId, item.saveTrm, item.intrRateType)
+                }})</span
+              >
             </div>
           </div>
 
@@ -218,11 +224,14 @@
           </div>
 
           <!-- 우대 조건 -->
-          <div v-if="(item.preferentialTags || item.preferential_tags)?.length" class="preferential-section">
+          <div
+            v-if="(item.preferentialTags || item.preferential_tags)?.length"
+            class="preferential-section"
+          >
             <div class="section-title">우대조건</div>
             <div class="tag-list">
-              <span 
-                v-for="tag in (item.preferentialTags || item.preferential_tags)" 
+              <span
+                v-for="tag in item.preferentialTags || item.preferential_tags"
                 :key="tag"
                 class="tag"
               >
@@ -239,18 +248,13 @@
 
           <!-- 액션 버튼 -->
           <div class="card-actions">
-            <button 
+            <button
               class="detail-btn"
               @click="$emit('viewDetail', item.productId, item.productType, item.saveTrm)"
             >
               상세보기
             </button>
-            <button 
-              class="join-btn"
-              @click="$emit('joinProduct', item)"
-            >
-              가입하기
-            </button>
+            <button class="join-btn" @click="$emit('joinProduct', item)">가입하기</button>
           </div>
         </div>
       </div>
@@ -290,17 +294,16 @@ defineEmits(['remove', 'viewDetail', 'joinProduct']);
 
 // 우대 조건이 있는지 확인
 const hasPreferentialTags = computed(() => {
-  return props.items.some(item => 
-    (item.preferentialTags || item.preferential_tags)?.length > 0
-  );
+  return props.items.some((item) => (item.preferentialTags || item.preferential_tags)?.length > 0);
 });
 
 // 특이사항이 있는지 확인
 const hasSpecialConditions = computed(() => {
-  return props.items.some(item => 
-    (item.etcNote || item.etc_note) && 
-    (item.etcNote || item.etc_note) !== '없음' && 
-    (item.etcNote || item.etc_note) !== 'null'
+  return props.items.some(
+    (item) =>
+      (item.etcNote || item.etc_note) &&
+      (item.etcNote || item.etc_note) !== '없음' &&
+      (item.etcNote || item.etc_note) !== 'null'
   );
 });
 </script>
@@ -499,7 +502,8 @@ const hasSpecialConditions = computed(() => {
 }
 
 /* 가입 정보 */
-.member-info, .join-way {
+.member-info,
+.join-way {
   font-size: 0.875rem;
   color: var(--color-sub);
   line-height: 1.4;
@@ -543,7 +547,8 @@ const hasSpecialConditions = computed(() => {
   gap: 0.5rem;
 }
 
-.detail-btn, .join-btn {
+.detail-btn,
+.join-btn {
   padding: 0.5rem 1rem;
   border-radius: 0.375rem;
   font-size: 0.875rem;
@@ -584,13 +589,13 @@ const hasSpecialConditions = computed(() => {
   .desktop-table {
     display: none;
   }
-  
+
   .mobile-cards {
     display: block;
     padding: 1rem;
     gap: 1rem;
   }
-  
+
   .product-card {
     background-color: white;
     border-radius: 0.75rem;
@@ -598,7 +603,7 @@ const hasSpecialConditions = computed(() => {
     margin-bottom: 1rem;
     overflow: hidden;
   }
-  
+
   .card-header {
     background: linear-gradient(135deg, var(--color-main) 0%, #3d4785 100%);
     color: white;
@@ -608,13 +613,13 @@ const hasSpecialConditions = computed(() => {
     justify-content: space-between;
     position: relative;
   }
-  
+
   .card-header .bank-info {
     display: flex;
     align-items: center;
     gap: 0.75rem;
   }
-  
+
   .card-header .bank-logo {
     width: 2.5rem;
     height: 2.5rem;
@@ -626,19 +631,19 @@ const hasSpecialConditions = computed(() => {
     font-weight: 700;
     font-size: 1.125rem;
   }
-  
+
   .card-header .bank-name {
     font-size: 0.875rem;
     font-weight: 500;
     opacity: 0.9;
     margin-bottom: 0.25rem;
   }
-  
+
   .card-header .product-name {
     font-size: 1rem;
     font-weight: 600;
   }
-  
+
   .card-header .remove-btn {
     width: 2rem;
     height: 2rem;
@@ -653,11 +658,11 @@ const hasSpecialConditions = computed(() => {
     align-items: center;
     justify-content: center;
   }
-  
+
   .card-content {
     padding: 1rem;
   }
-  
+
   .highlight-info {
     background: linear-gradient(135deg, rgba(45, 51, 107, 0.05) 0%, rgba(45, 51, 107, 0.1) 100%);
     border-radius: 0.5rem;
@@ -665,75 +670,76 @@ const hasSpecialConditions = computed(() => {
     margin-bottom: 1rem;
     text-align: center;
   }
-  
+
   .rate-display {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
   }
-  
+
   .rate-label {
     font-size: 0.875rem;
     color: var(--color-sub);
     font-weight: 500;
   }
-  
+
   .rate-value {
     font-size: 1.75rem;
     font-weight: 700;
     color: var(--color-main);
   }
-  
+
   .rate-type {
     font-size: 0.8125rem;
     color: var(--color-sub);
   }
-  
+
   .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0.75rem;
     margin-bottom: 1rem;
   }
-  
+
   .info-item {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
   }
-  
+
   .info-item .label {
     font-size: 0.75rem;
     color: var(--color-sub);
     font-weight: 500;
   }
-  
+
   .info-item .value {
     font-size: 0.875rem;
     color: var(--color-main);
     font-weight: 600;
   }
-  
-  .preferential-section, .note-section {
+
+  .preferential-section,
+  .note-section {
     margin-bottom: 1rem;
     padding: 0.75rem;
     background-color: var(--color-bg-light);
     border-radius: 0.5rem;
   }
-  
+
   .section-title {
     font-size: 0.875rem;
     font-weight: 600;
     color: var(--color-main);
     margin-bottom: 0.5rem;
   }
-  
+
   .tag-list {
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem;
   }
-  
+
   .tag-list .tag {
     background-color: var(--color-main);
     color: white;
@@ -742,18 +748,18 @@ const hasSpecialConditions = computed(() => {
     font-size: 0.75rem;
     font-weight: 500;
   }
-  
+
   .note-content {
     font-size: 0.8125rem;
     color: var(--color-sub);
     line-height: 1.4;
   }
-  
+
   .card-actions {
     display: flex;
     gap: 0.5rem;
   }
-  
+
   .card-actions .detail-btn,
   .card-actions .join-btn {
     flex: 1;
@@ -765,24 +771,25 @@ const hasSpecialConditions = computed(() => {
     transition: all 0.2s;
     border: none;
   }
-  
+
   .card-actions .detail-btn {
     background-color: var(--color-bg-light);
     color: var(--color-main);
     border: 1px solid var(--color-light);
   }
-  
+
   .card-actions .detail-btn:hover {
     background-color: var(--color-light);
     color: white;
   }
-  
+
   .card-actions .join-btn {
     background-color: var(--color-main);
     color: white;
   }
-  
+
   .card-actions .join-btn:hover {
     background-color: #3d4785;
   }
-}</style>
+}
+</style>

@@ -23,7 +23,7 @@
         <!-- 상품 유형 선택 -->
         <div class="filter-group">
           <label class="filter-label">상품 유형</label>
-          <div class="custom-select" ref="typeSelectRef">
+          <div ref="typeSelectRef" class="custom-select">
             <div
               class="select-trigger"
               :class="{ active: typeDropdownOpen }"
@@ -64,7 +64,7 @@
         <!-- 정렬 옵션 -->
         <div class="filter-group">
           <label class="filter-label">정렬 방식</label>
-          <div class="custom-select" ref="sortSelectRef">
+          <div ref="sortSelectRef" class="custom-select">
             <div
               class="select-trigger"
               :class="{ active: sortDropdownOpen }"
@@ -109,7 +109,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 
-const props = defineProps({
+defineProps({
   searchQuery: String,
   selectedType: String,
   sortBy: String,

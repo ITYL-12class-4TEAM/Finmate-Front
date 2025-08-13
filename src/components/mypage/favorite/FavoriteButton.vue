@@ -125,10 +125,9 @@ const addFavorite = async () => {
     width: 1.75rem;
     height: 1.75rem;
   }
-  
+
   .favorite-btn i {
     font-size: 0.8125rem;
   }
 }
 </style>
-

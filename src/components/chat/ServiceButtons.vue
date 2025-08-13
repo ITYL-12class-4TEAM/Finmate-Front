@@ -42,7 +42,7 @@
           <!-- 헤더 -->
           <div class="guide-header text-center mb-2">
             <div class="guide-icon-wrapper mb-2">
-              <span class="guide-icon"><i class="fas fa-lock" style="color: #4a90e2;"></i></span>
+              <span class="guide-icon"><i class="fas fa-lock" style="color: #4a90e2"></i></span>
             </div>
             <h6 class="guide-title mb-1">Premium Features</h6>
             <p class="guide-subtitle mb-0">로그인하면 더 많은 기능을 이용할 수 있어요!</p>
@@ -86,7 +86,7 @@
 import { ref } from 'vue';
 
 // Props 정의
-const props = defineProps({
+defineProps({
   isAuthenticated: {
     type: Boolean,
     default: false,
@@ -406,7 +406,8 @@ const navigateToLogin = () => {
 
 /* 애니메이션 */
 @keyframes gentle-float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -427,50 +428,88 @@ const navigateToLogin = () => {
 
 /* Font Awesome 아이콘 애니메이션 */
 @keyframes flicker {
-  0% { opacity: 1; }
-  100% { opacity: 0.7; }
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.7;
+  }
 }
 
 @keyframes heartbeat {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes twinkle {
-  0%, 100% { 
-    opacity: 1; 
-    transform: scale(1); 
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
   }
-  50% { 
-    opacity: 0.5; 
-    transform: scale(0.8); 
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
   }
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
 }
 
 @keyframes wiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-3deg); }
-  75% { transform: rotate(3deg); }
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-3deg);
+  }
+  75% {
+    transform: rotate(3deg);
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 @keyframes blink {
-  0%, 90%, 100% { opacity: 1; }
-  95% { opacity: 0.3; }
+  0%,
+  90%,
+  100% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 0.3;
+  }
 }
 </style>
