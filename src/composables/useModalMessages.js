@@ -1,11 +1,9 @@
 // src/composables/useModalMessages.js
 import { nextTick, watch } from 'vue';
 import { useModalStore } from '@/stores/useModalStore';
-import { useToast } from '@/composables/useToast';
 
 export function useModalMessages() {
   const modalStore = useModalStore();
-  const { showToast } = useToast();
 
   // 모달 메시지에 줄바꿈 강제 적용하는 함수
   const fixModalLineBreaks = () => {
@@ -30,33 +28,23 @@ export function useModalMessages() {
 
   // 백업/복원 관련 모달들
   const showBackupRestoreModal = async (restoreFormData, clearBackup) => {
-    const message = `이전에 작성하던 정보가 있어요! 🔄
+    const message = `이전에 작성하던 정보가 있어요! 
 
-계속해서 작성하시겠어요?
-
-확인: 이어서 작성하기
-취소: 새로 시작하기`;
+계속해서 작성하시겠어요?`;
 
     const result = await modalStore.showModal(message);
 
     if (result) {
-      console.log('백업 데이터 복원 선택');
-      const restored = restoreFormData();
-
-      if (restored) {
-        showToast('이전 작성 내용이 복원되었어요! ✨', 'success');
-      } else {
-        showToast('복원할 수 있는 데이터가 없어요. 새로 시작해주세요.', 'info');
-      }
+      // 토스트 메시지는 여기서 처리하지 않고 호출부에서 각자 처리하도록.
+      return { action: 'restore', data: restoreFormData() };
     } else {
-      console.log('새로 시작하기 선택 - 백업 데이터 삭제');
       clearBackup();
-      showToast('새로 시작합니다! 📝', 'info');
+      return { action: 'clear', data: null };
     }
   };
 
   const showDataRestoredModal = async () => {
-    const message = `이전에 입력하신 정보가 복원되었어요! ✨
+    const message = `이전에 입력하신 정보가 복원되었어요!
 
 계속해서 작성해주세요.`;
 
@@ -86,7 +74,7 @@ ${content}`;
 
   // 성공 모달
   const showSuccessModal = async (title, content) => {
-    const message = `✨ ${title}
+    const message = `${title}
 
 ${content}`;
 
@@ -95,7 +83,7 @@ ${content}`;
 
   // 경고 모달
   const showWarningModal = async (title, content, actionText = '확인') => {
-    const message = `⚠️ ${title}
+    const message = `${title}
 
 ${content}
 
@@ -107,7 +95,7 @@ ${actionText}: 계속하기
 
   // 에러 모달
   const showErrorModal = async (title, content, retryText = '다시 시도') => {
-    const message = `😅 ${title}
+    const message = `${title}
 
 ${content}
 
