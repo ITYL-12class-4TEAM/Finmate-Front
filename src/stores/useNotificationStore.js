@@ -10,13 +10,6 @@ export const useNotificationStore = defineStore('notification', () => {
   const eventSource = ref(null);
   const isConnected = ref(false);
 
-  function toDate(arr) {
-    if (!Array.isArray(arr)) return arr;
-    const [y, m, d, hh, mm, ss, ns] = arr;
-    const ms = ns ? Math.floor(ns / 1e6) : 0; // 나노초 → 밀리초
-    return new Date(y, (m ?? 1) - 1, d ?? 1, hh ?? 0, mm ?? 0, ss ?? 0, ms);
-  }
-
   // 알림 목록 조회
   const fetchNotifications = async () => {
     isLoading.value = true;
@@ -116,16 +109,13 @@ export const useNotificationStore = defineStore('notification', () => {
   // SSE 연결 설정
   const connectSSE = () => {
     const authStore = useAuthStore();
-
+    if (!authStore.isAuthenticated || !authStore.accessToken) return;
     if (isConnected.value && eventSource.value) return;
     if (eventSource.value) {
       eventSource.value.close();
       eventSource.value = null;
       isConnected.value = false;
     }
-
-    // 인증 확인
-    if (!authStore.isAuthenticated || !authStore.accessToken) return;
 
     try {
       const sseUrl = `/api/notifications/stream?token=${encodeURIComponent(authStore.accessToken)}`;
