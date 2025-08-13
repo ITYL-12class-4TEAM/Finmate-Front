@@ -25,17 +25,17 @@
       <div class="title-description">원하는 조건으로 예금 상품을 찾아보세요</div>
     </div>
 
-    <form @submit.prevent="onSearch" class="filter-container grid-layout">
+    <form class="filter-container grid-layout" @submit.prevent="onSearch">
       <label class="filter-label"><i class="fa-solid fa-coins"></i> 총 예치 금액</label>
       <div class="input-wrapper">
         <input
-          type="text"
           v-model="localDepositAmount"
+          type="text"
           class="form-input"
-          @input="formatAmount"
           placeholder="100,000"
           autocomplete="off"
           inputmode="numeric"
+          @input="formatAmount"
         />
         <span class="input-suffix">원</span>
       </div>
@@ -76,10 +76,11 @@
       <div class="join-way-label-group">
         <label class="filter-label"><i class="fa-solid fa-laptop"></i> 가입 방식</label>
         <div
-          class="filter-tag all-tag"
+          class="filter-tag all-tag all-tag-improved"
           :class="{ active: selectAllJoinWays }"
           @click="toggleAllJoinWays(!selectAllJoinWays)"
         >
+          <i v-if="selectAllJoinWays" class="fa-solid fa-check"></i>
           전체
         </div>
       </div>
@@ -101,7 +102,7 @@
         <i class="fa-solid fa-chevron-right"></i>
       </button>
 
-      <button type="button" @click="onReset" class="reset-btn">
+      <button type="button" class="reset-btn" @click="onReset">
         <i class="fa-solid fa-rotate"></i> 초기화
       </button>
       <button type="submit" class="search-btn"><i class="fa-solid fa-search"></i> 검색</button>
@@ -123,9 +124,8 @@ import { useRouter, useRoute } from 'vue-router';
 import BankSelectModal from './BankSelectModal.vue';
 
 const router = useRouter();
-const route = useRoute(); // 현재 라우트 정보를 가져옵니다.
+const route = useRoute();
 
-// 현재 경로에 따라 활성화 여부를 결정하는 computed 속성을 추가합니다.
 const isDepositActive = computed(() => route.path.includes('/deposit'));
 const isSavingActive = computed(() => route.path.includes('/savings'));
 
@@ -147,12 +147,10 @@ const availableJoinWays = ref(['영업점', '인터넷', '스마트폰', '전화
 const selectedJoinWays = ref([]);
 const selectAllJoinWays = ref(false);
 
-// 예금 페이지로 이동하는 함수
 const goToDepositPage = () => {
   router.push('/products/deposit');
 };
 
-// 적금 페이지로 이동하는 함수
 const goToSavingsPage = () => {
   router.push('/products/savings');
 };
@@ -297,7 +295,7 @@ const onReset = () => {
   padding: 0 0.5rem;
 }
 .form-title h2 {
-  font-size: 1.2rem; /* 1.3rem → 1.04rem (80%) */
+  font-size: 1.2rem;
   font-weight: 700;
   color: #2d336b;
   margin: 0 0 0.35rem 0;
@@ -305,31 +303,28 @@ const onReset = () => {
 .title-navigation {
   display: flex;
   align-items: center;
-  gap: 0.5rem; /* 예금과 적금 사이의 간격 */
+  gap: 0.5rem;
   margin-bottom: 0.25rem;
 }
 
-/* 현재 선택된 제품 (예: 적금) - 밑줄 추가 */
 .active-product {
   font-size: 1.4rem;
   font-weight: 700;
   color: var(--color-main);
   margin: 0;
-  position: relative; /* 밑줄의 기준점이 되기 위해 추가 */
+  position: relative;
 }
 
-/* 활성화된 항목에 항상 밑줄이 보이도록 수정 */
 .active-product:after {
   content: '';
   position: absolute;
   left: 0;
   bottom: -3px;
-  width: 100%; /* 밑줄이 항상 꽉 차 있도록 설정 */
+  width: 100%;
   height: 2px;
   background-color: var(--color-main);
 }
 
-/* 선택되지 않은 제품 (예: 예금) */
 .alternative-product {
   font-size: 1.2rem;
   font-weight: 500;
@@ -347,7 +342,6 @@ const onReset = () => {
   transform: translateY(-1px);
 }
 
-/* 호버 시에만 밑줄 표시 */
 .alternative-product:hover:after {
   content: '';
   position: absolute;
@@ -360,7 +354,7 @@ const onReset = () => {
 
 .title-description {
   color: #7d81a2;
-  font-size: 0.72rem; /* 0.9rem → 0.72rem (80%) */
+  font-size: 0.72rem;
 }
 
 /* ==========================================================================
@@ -370,7 +364,7 @@ const onReset = () => {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 0.6rem 1rem;
-  align-items: center;
+  align-items: start;
   background: #ffffff;
   border-radius: 0.75rem;
   padding: 0.8rem 1.3rem;
@@ -384,14 +378,14 @@ const onReset = () => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.75rem; /* 0.9375rem → 0.75rem (80%) */
+  font-size: 0.75rem;
   font-weight: 600;
   color: #2d336b;
   white-space: nowrap;
 }
 .filter-label i {
   color: #7d81a2;
-  font-size: 0.8rem; /* 1rem → 0.8rem (80%) */
+  font-size: 0.8rem;
 }
 
 /* ==========================================================================
@@ -411,9 +405,9 @@ const onReset = () => {
 .form-input,
 .select-input {
   width: 100%;
-  height: 2.2rem; /* 2.5rem → 2.2rem */
+  height: 2.2rem;
   padding: 0 1rem;
-  font-size: 0.8rem; /* 1rem → 0.8rem (80%) */
+  font-size: 0.8rem;
   font-weight: 500;
   border: 1px solid #dcdce4;
   border-radius: 0.5rem;
@@ -445,9 +439,9 @@ const onReset = () => {
   gap: 0.5rem;
 }
 .option-button {
-  height: 2.2rem; /* 2.5rem → 2.2rem */
+  height: 2.2rem;
   padding: 0 1rem;
-  font-size: 0.75rem; /* 0.9375rem → 0.75rem (80%) */
+  font-size: 0.75rem;
   font-weight: 500;
   border-radius: 0.5rem;
   background-color: #f7f7fa;
@@ -463,42 +457,81 @@ const onReset = () => {
   font-weight: 600;
 }
 
-/* ✨ 가입 방식 (최종 레이아웃) ✨ */
+/* ✨ 가입 방식 ✨ */
 .join-way-label-group {
   display: flex;
-  /* flex-direction: column; */
-  align-items: center; /* 라벨과 전체 버튼을 가운데 정렬 */
-  gap: 0.5rem; /* 라벨과 전체 버튼 사이 간격 */
-  justify-self: center; /* Grid 셀 내에서 스스로 가운데 정렬 */
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
 }
-.all-tag {
-  font-size: 0.65rem; /* 0.8125rem → 0.65rem (80%) */
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  background-color: #f0f2f5;
-  color: #7d81a2;
-  border: 1px solid transparent;
+
+/* 개선된 '전체' 태그 스타일 */
+.all-tag-improved {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.35rem 0.7rem;
+  border-radius: 1.2rem;
   cursor: pointer;
+  transition: all 0.2s ease;
+
+  /* 🎨 세련된 색상 스키마 */
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+  color: #6366f1;
+  border: 1.5px solid #e0e7ff;
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.1);
 }
-.all-tag.active {
-  background-color: #7d81a2;
-  color: #fff;
+
+.all-tag-improved:hover {
+  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+  border-color: #c7d2fe;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(99, 102, 241, 0.15);
 }
+
+.all-tag-improved.active {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: #ffffff;
+  border-color: #4f46e5;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.all-tag-improved.active:hover {
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+  transform: translateY(-1px);
+}
+
+.all-tag-improved i {
+  font-size: 0.6rem;
+  animation: checkIn 0.3s ease;
+}
+
+@keyframes checkIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 .tag-container {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2x2 Grid로 변경 */
+  grid-template-columns: repeat(2, 1fr);
   gap: 0.5rem;
 }
 .filter-tag {
-  /* ✨ height를 2.2rem으로 명시적으로 설정 */
-  height: 2.2rem; /* 2.5rem → 2.2rem */
-  font-size: 0.7rem; /* 0.875rem → 0.7rem (80%) */
+  height: 2.2rem;
+  font-size: 0.7rem;
   border-radius: 0.5rem;
-  /* ✨ flexbox를 이용해 텍스트를 완벽하게 중앙 정렬 */
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 0.5rem; /* 좌우 여백 추가 */
+  padding: 0 0.5rem;
   background-color: #ffffff;
   color: #7d81a2;
   border: 1px solid #dcdce4;
@@ -513,12 +546,12 @@ const onReset = () => {
 }
 
 .bank-select-button {
-  height: 2.2rem; /* 2.5rem → 2.2rem */
+  height: 2.2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 1rem;
-  font-size: 0.8rem; /* 1rem → 0.8rem (80%) */
+  font-size: 0.8rem;
   font-weight: 500;
   border-radius: 0.5rem;
   background-color: #f7f7fa;
@@ -538,7 +571,7 @@ const onReset = () => {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  font-size: 0.8rem; /* 1rem → 0.8rem (80%) */
+  font-size: 0.8rem;
   font-weight: 600;
   border-radius: 0.5rem;
   cursor: pointer;
