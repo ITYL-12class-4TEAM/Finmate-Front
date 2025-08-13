@@ -11,13 +11,7 @@
         <!-- 알림/사용자 -->
         <div class="navbar__icons">
           <!-- 알림 아이콘 -->
-          <NotificationButton
-            :notifications="notifications"
-            :unread-count="unreadCount"
-            @mark-all-read="markAllAsRead"
-            @mark-single-read="markSingleAsRead"
-            @notification-click="handleNotificationClick"
-          />
+          <NotificationButton />
           <div class="user-menu" @click="toggleDropdown()">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -71,7 +65,6 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useNotificationStore } from '@/stores/useNotificationStore';
 import DesktopNavbar from './DesktopNavbar.vue';
 import MobileMenu from './MobileMenu.vue';
 import { useToast } from '@/composables/useToast';
@@ -82,21 +75,10 @@ const { showToast } = useToast();
 const { showModal } = useModal();
 const router = useRouter();
 const authStore = useAuthStore();
-const notificationStore = useNotificationStore();
 
 const isMobile = ref(false);
 const mobileOpen = ref(false);
 const dropdownOpen = ref(false);
-
-// 읽지 않은 알림 개수 (스토어에서 가져오기)
-const unreadCount = computed(() => {
-  return notificationStore.unreadCount;
-});
-
-// 알림 데이터 (스토어에서 가져오기)
-const notifications = computed(() => {
-  return notificationStore.notifications;
-});
 
 const checkViewport = () => {
   isMobile.value = window.innerWidth <= 768;
@@ -107,40 +89,6 @@ onMounted(() => {
   window.addEventListener('resize', checkViewport);
 });
 
-// 알림 관련 이벤트 핸들러
-const markAllAsRead = async () => {
-  try {
-    const result = await notificationStore.markAllAsRead();
-    if (result.success) {
-      showToast('모든 알림을 읽음 처리했습니다.');
-    } else {
-      showToast(result.message || '알림 처리에 실패했습니다.', 'error');
-    }
-  } catch (error) {
-    showToast('알림 처리 중 오류가 발생했습니다.', 'error');
-  }
-};
-
-const markSingleAsRead = async (notification) => {
-  try {
-    const result = await notificationStore.markAsRead(notification.id);
-    if (result.success) {
-      showToast('알림을 읽음 처리했습니다.');
-    } else {
-      showToast(result.message || '알림 처리에 실패했습니다.', 'error');
-    }
-  } catch (error) {
-    showToast('알림 처리 중 오류가 발생했습니다.', 'error');
-  }
-};
-
-const handleNotificationClick = async (notification) => {
-  await markSingleAsRead(notification);
-  if (notification.link) {
-    router.push(notification.link);
-  }
-};
-
 // 로그아웃 처리 함수
 const handleLogout = async () => {
   try {
@@ -148,7 +96,7 @@ const handleLogout = async () => {
     if (!confirmed) {
       return; // 취소한 경우 함수 종료
     }
-    
+
     await authStore.logout();
     showToast('로그아웃되었습니다.');
     dropdownOpen.value = false;

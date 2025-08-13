@@ -52,7 +52,7 @@
               @click="handleNotificationClick(notification)"
             >
               <div class="item-icon" :class="`type-${notification.type}`">
-                <span>{{ getTypeIcon(notification.type) }}</span>
+                <i :class="getTypeIcon(notification.type)"></i>
               </div>
 
               <div class="item-content">
@@ -138,7 +138,7 @@ const handleMarkAllAsRead = async () => {
     setTimeout(() => {
       markedAsReadIds.value.clear();
       isMarkingAllAsRead.value = false;
-    }, 1000); // 2000ms → 1000ms로 단축
+    }, 1000);
   } else {
     showToast(result.message || '읽음 처리 실패', 'error');
     markedAsReadIds.value.clear();
@@ -148,11 +148,11 @@ const handleMarkAllAsRead = async () => {
 
 const getTypeIcon = (type) => {
   const icons = {
-    POST_COMMENT: '💬',
-    POST_LIKE: '❤️',
-    HOT_POST: '🔥',
+    POST_COMMENT: 'fas fa-comment',
+    POST_LIKE: 'fas fa-heart',
+    HOT_POST: 'fas fa-fire',
   };
-  return icons[type] || 'ℹ️';
+  return icons[type] || 'fas fa-bell';
 };
 
 const truncateMessage = (message) => {
