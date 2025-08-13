@@ -421,6 +421,11 @@ const goToProductList = () => {
 
 // 상세 페이지로 이동
 const goToDetail = (productId, productType, saveTrm = null) => {
+  // 현재 선택된 상품 타입(전역 상태의 productType.value)을 기본값으로 사용
+  // productType 파라미터가 없거나 undefined인 경우에만 전역 상태를 사용
+  const actualProductType =
+    productType && productType !== 'undefined' ? productType : productType.value; // 현재 탭에 표시된 상품 타입
+
   const query = saveTrm ? { saveTrm } : {};
 
   // currentCompareList에서 해당 상품 찾기
@@ -430,7 +435,7 @@ const goToDetail = (productId, productType, saveTrm = null) => {
 
   if (product) {
     // 적금 상품인 경우 추가 파라미터 설정
-    if (product.productType === 'savings' || productType.value === 'savings') {
+    if (product.productType === 'savings' || actualProductType === 'savings') {
       query.rsrvType = product.rsrvType || 'F'; // 기본값 'F'
 
       // intrRateType도 추가
@@ -440,13 +445,13 @@ const goToDetail = (productId, productType, saveTrm = null) => {
     }
 
     router.push({
-      path: `/products/${productType.value}/${productId}`,
+      path: `/products/${actualProductType}/${productId}`,
       query,
     });
   } else {
     // 상품을 찾지 못한 경우 기본 경로로 이동
     router.push({
-      path: `/products/${productType.value}/${productId}`,
+      path: `/products/${actualProductType}/${productId}`,
       query,
     });
   }
