@@ -110,7 +110,7 @@
 
             <div v-if="selectedWMTI.keyTraits || selectedWMTI.tag" class="detail-section">
               <h3>주요 특징</h3>
-              <div class="traits-grid scrollabe-content">
+              <div class="traits-grid scrollalbe-content">
                 <span
                   v-for="trait in selectedWMTI.keyTraits || selectedWMTI.tag || []"
                   :key="trait"
