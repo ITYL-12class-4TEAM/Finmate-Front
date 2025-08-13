@@ -31,7 +31,7 @@
     <!-- 안내 메시지 -->
     <div class="instruction-card">
       <div class="instruction-content">
-        <div class="instruction-icon">💡</div>
+        <div class="instruction-icon"><i class="fa-regular fa-lightbulb"></i></div>
         <div class="instruction-text">
           <p>
             <strong>총 {{ questions.length }}개의 문항</strong>으로 구성되어 있습니다.

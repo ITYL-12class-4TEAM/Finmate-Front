@@ -8,7 +8,9 @@
 
     <!-- 에러 상태 -->
     <div v-else-if="error" class="error-container">
-      <div class="error-icon">⚠️</div>
+      <div class="error-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
       <h3 class="error-title">데이터 로드 실패</h3>
       <p class="error-message">{{ error }}</p>
       <button class="retry-btn" @click="retryLoadData">다시 시도</button>

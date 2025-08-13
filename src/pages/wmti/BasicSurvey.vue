@@ -17,7 +17,9 @@
     <!-- Step 1: 사전정보 입력 -->
     <section class="step-card">
       <div class="step-header">
-        <div v-if="step1Completed" class="step-icon completed">✓</div>
+        <div v-if="step1Completed" class="step-icon completed">
+          <i class="fa-solid fa-check"></i>
+        </div>
         <div v-else class="step-icon">1</div>
         <span>개인정보 / 투자목적</span>
         <div v-if="step1Completed" class="status-badge completed">완료</div>

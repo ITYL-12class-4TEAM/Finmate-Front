@@ -24,7 +24,9 @@
           <h3 class="section-title">
             <span class="title-number">01</span>
             기본 정보
-            <div v-if="isBasicInfoCompleted" class="check-icon">✓</div>
+            <div v-if="isBasicInfoCompleted" class="check-icon">
+              <i class="fa-solid fa-check"></i>
+            </div>
           </h3>
 
           <div class="input-groups">
@@ -78,7 +80,9 @@
           <h3 class="section-title">
             <span class="title-number">02</span>
             재정 정보
-            <div v-if="isFinancialInfoCompleted" class="check-icon">✓</div>
+            <div v-if="isFinancialInfoCompleted" class="check-icon">
+              <i class="fa-solid fa-check"></i>
+            </div>
           </h3>
 
           <div class="input-groups">
@@ -128,7 +132,9 @@
           <h3 class="section-title">
             <span class="title-number">03</span>
             투자 정보
-            <div v-if="isInvestmentInfoCompleted" class="check-icon">✓</div>
+            <div v-if="isInvestmentInfoCompleted" class="check-icon">
+              <i class="fa-solid fa-check"></i>
+            </div>
           </h3>
 
           <div class="input-groups">

@@ -146,10 +146,10 @@
 
       <!-- 액션 버튼 -->
       <div class="action-section">
-        <!-- <div class="section-header">
+        <div class="section-header">
           <div class="section-icon action-icon"></div>
           <h3 class="section-title">더 둘러보기</h3>
-        </div> -->
+        </div>
 
         <div class="action-buttons">
           <button class="action-button secondary" @click="goToWMTIList">
