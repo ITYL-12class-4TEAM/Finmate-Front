@@ -454,6 +454,13 @@ const goToDetail = (productId, productType, saveTrm = null) => {
 
 // 가입하기
 const handleJoinProduct = (item) => {
+  // 저장된 company_url이 있으면 우선 사용
+  if (item.companyUrl) {
+    window.open(item.companyUrl, '_blank');
+    return;
+  }
+
+  // 기존 fallback 로직 유지
   const bankWebsites = {
     국민은행: 'https://www.kbstar.com',
     신한은행: 'https://www.shinhan.com',

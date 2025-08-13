@@ -105,7 +105,7 @@
         <button v-else class="compare-btn add-compare-btn" @click="handleAddToCompare">
           비교함에 추가
         </button>
-        <button class="join-btn" @click="joinProduct">가입하기</button>
+        <button class="join-btn" @click="joinProduct">홈페이지 이동</button>
       </div>
 
       <!-- 하단 여백 (CompareFloatingBar가 가리는 콘텐츠 방지) -->
