@@ -300,9 +300,9 @@ const scrollToQuestion = async (targetIndex, options = {}) => {
     // 하이라이트 효과
     if (highlight) {
       setTimeout(() => {
-        targetElement.style.outline = '3px solid #3b82f6';
-        targetElement.style.outlineOffset = '4px';
-        targetElement.style.borderRadius = '12px';
+        targetElement.style.outline = '0.188rem solid #3b82f6';
+        targetElement.style.outlineOffset = '0.25rem';
+        targetElement.style.borderRadius = '0.75rem';
         targetElement.style.transition = 'all 0.3s ease';
 
         setTimeout(() => {
@@ -675,18 +675,18 @@ onUnmounted(() => {
   width: 100%;
   max-width: 26.875rem;
   background: linear-gradient(to top, var(--color-white), rgba(255, 255, 255, 0.95));
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(0.625rem);
   border-radius: 1rem 1rem 0 0;
   padding: 1.25rem;
-  box-shadow: 0 -4px 20px rgba(45, 51, 107, 0.15);
-  border-top: 1px solid rgba(185, 187, 204, 0.2);
+  box-shadow: 0 0.25rem 1.25rem rgba(45, 51, 107, 0.15);
+  border-top: 0.063rem solid rgba(185, 187, 204, 0.2);
   z-index: 100;
 }
 
 /* 🔥 변경: 스크롤 탑 버튼을 화면 고정, 제출 섹션보다 위쪽에 배치 */
 .scroll-to-top-btn {
   position: fixed;
-  bottom: 8rem; /* 제출 섹션(약 6rem) 위쪽에 배치 */
+  bottom: 9rem; /* 제출 섹션(약 6rem) 위쪽에 배치 */
   left: 50%;
   transform: translateX(-50%);
   width: 3rem;
@@ -696,19 +696,19 @@ onUnmounted(() => {
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(45, 51, 107, 0.3);
+  box-shadow: 0 0.25rem 0.938rem rgba(45, 51, 107, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.2rem;
   transition: all 0.3s ease;
   z-index: 150;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(0.625rem);
 }
 
 .scroll-to-top-btn:hover {
-  transform: translateX(-50%) translateY(-2px);
-  box-shadow: 0 6px 20px rgba(45, 51, 107, 0.4);
+  transform: translateX(-50%) translateY(0.125rem);
+  box-shadow: 0 0.375rem 1.25rem rgba(45, 51, 107, 0.4);
 }
 
 .completion-status {
@@ -781,12 +781,12 @@ onUnmounted(() => {
 
 .submit-button.ready {
   background: linear-gradient(135deg, var(--color-main), #4a5299);
-  box-shadow: 0 4px 15px rgba(45, 51, 107, 0.3);
+  box-shadow: 0 0.25rem 0.938rem rgba(45, 51, 107, 0.3);
 }
 
 .submit-button.ready:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(45, 51, 107, 0.4);
+  transform: translateY(-0.125rem);
+  box-shadow: 0 0.375rem 1.563rem rgba(45, 51, 107, 0.4);
 }
 
 .submit-button.ready:hover::before {
@@ -884,11 +884,12 @@ onUnmounted(() => {
 .scroll-to-top-enter-from,
 .scroll-to-top-leave-to {
   opacity: 0;
-  transform: translateX(-50%) translateY(20px) scale(0.8);
+  transform: translateX(-50%) translateY(1.25rem) scale(0.8);
 }
 
 /* 반응형 디자인 개선 */
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
+  /* 768px 이하 */
   .survey-page {
     padding: 0.75rem;
   }
@@ -906,7 +907,7 @@ onUnmounted(() => {
     width: 2.5rem;
     height: 2.5rem;
     font-size: 1rem;
-    bottom: 7rem; /* 모바일에서 제출 섹션 위쪽 조정 */
+    bottom: 8rem; /* 모바일에서 제출 섹션 위쪽 조정 */
   }
 
   .instruction-card {
@@ -919,7 +920,8 @@ onUnmounted(() => {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 30rem) {
+  /* 480px 이하 */
   .main-title {
     font-size: 1.2rem;
   }
@@ -945,7 +947,7 @@ onUnmounted(() => {
     width: 2.25rem;
     height: 2.25rem;
     font-size: 0.9rem;
-    bottom: 6.5rem; /* 작은 모바일에서 제출 섹션 위쪽 조정 */
+    bottom: 8rem; /* 작은 모바일에서 제출 섹션 위쪽 조정 */
   }
 }
 
