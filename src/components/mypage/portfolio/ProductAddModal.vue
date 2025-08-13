@@ -81,7 +81,7 @@
                   <i class="fas fa-question-circle"></i>
                 </button>
 
-                <!-- 툴팁 (회사명 라인의 버튼 옆) -->
+                <!-- 툴팁 -->
                 <div id="auto-fill-help" class="tooltip" role="tooltip" :class="{ show: showHelp }">
                   <div class="tooltip-title">자동입력 사용 안내</div>
                   <ul>
@@ -93,7 +93,7 @@
                 </div>
               </div>
 
-              <!-- datalist (한 번만 선언) -->
+              <!-- datalist -->
               <datalist id="company-suggestions">
                 <option v-for="company in companySuggestions" :key="company" :value="company">
                   {{ company }}
@@ -161,7 +161,7 @@
                     </div>
                   </div>
 
-                  <!-- ✅ 우대금리 선택 -->
+                  <!-- 우대금리 선택 -->
                   <div
                     v-if="autoFillResult.rateOptions?.length"
                     class="result-item"
@@ -182,7 +182,7 @@
                     </div>
                   </div>
 
-                  <!-- ✅ 적용 금리 미리보기 -->
+                  <!-- 적용 금리 미리보기 -->
                   <div class="result-item">
                     <span class="result-label">적용 금리</span>
                     <span class="result-value highlight">{{ effectiveRate }}%</span>
@@ -209,7 +209,7 @@
               </div>
             </div>
 
-            <!-- 카테고리 (항상 표시) -->
+            <!-- 카테고리 -->
             <div class="form-group">
               <label class="form-label required">
                 <i class="fas fa-th-large"></i>
@@ -226,7 +226,7 @@
               </select>
             </div>
 
-            <!-- 세부 카테고리 (항상 표시) -->
+            <!-- 세부 카테고리 -->
             <div class="form-group">
               <label class="form-label">
                 <i class="fas fa-tags"></i>
@@ -537,9 +537,6 @@
 </template>
 
 <script setup>
-/* =========================
- * Imports & basic wiring
- * ========================= */
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useToast } from '@/composables/useToast';
 import { portfolioAPI } from '../../../api/portfolio';
@@ -552,9 +549,6 @@ const props = defineProps({
 const emit = defineEmits(['close', 'add-product']);
 const showHelp = ref(false);
 
-/* =========================
- * Constants / static data
- * ========================= */
 const isProcessing = ref(false);
 const todayDate = new Date().toISOString().split('T')[0];
 
@@ -623,9 +617,6 @@ const productFieldConfig = {
   },
 };
 
-/* =========================
- * Core form state (declare BEFORE any computed/watch using it)
- * ========================= */
 const formData = ref({
   customProductName: '',
   customCompanyName: '',
@@ -648,14 +639,13 @@ const formData = ref({
   taxBenefit: '',
 });
 
-/* =========================
- * Derived state
- * ========================= */
+// 세부 카테고리
 const availableSubcategories = computed(() => subcategoryMapping[formData.value?.category] || []);
 const isCategoryReady = computed(() => {
   return !!formData.value?.category && !!formData.value?.subcategory;
 });
 
+// 자동입력 가능 여부
 const autoFillRequirements = computed(() => {
   const missing = [];
   if (!(formData.value?.customProductName || '').trim()) missing.push('상품명');
@@ -671,10 +661,12 @@ const autoFillRequirements = computed(() => {
 
 const canAutoFill = computed(() => autoFillRequirements.value.ready);
 
+// 자동입력 힌트
 const autoFillHint = computed(() =>
   autoFillRequirements.value.ready ? 'AI로 자동입력' : autoFillRequirements.value.message
 );
 
+// 폼 유효성 검사
 const isFormValid = computed(() => {
   const cfg = productFieldConfig[formData.value.category];
   if (!cfg) return false;
@@ -685,6 +677,7 @@ const isFormValid = computed(() => {
   });
 });
 
+// 미리보기 표시 여부
 const canShowPreview = computed(() => {
   return (
     Number(formData.value.amount) > 0 &&
@@ -698,9 +691,7 @@ const canShowPreview = computed(() => {
   );
 });
 
-/* =========================
- * Auto-fill (API) state
- * ========================= */
+// 자동입력 상태
 const isAutoFilling = ref(false);
 const isApplyingAutoFill = ref(false);
 const autoFillResult = ref(null); // 변환된 결과 객체
@@ -749,9 +740,7 @@ const effectiveRate = computed(() => {
   return Math.round(final * 100) / 100; // 소수 둘째 자리 반올림
 });
 
-/* =========================
- * Helpers
- * ========================= */
+// 통화 형식 변환
 const formatCurrency = (amount) => {
   const n = Number(amount) || 0;
   if (n === 0) return '0원';
@@ -771,6 +760,7 @@ const formatCurrency = (amount) => {
   return new Intl.NumberFormat('ko-KR').format(n) + '원';
 };
 
+// 예상 이자 계산
 const calculateEstimatedInterest = () => {
   const principal = Number(formData.value.amount) || 0;
   const rate = (Number(formData.value.customRate) || 0) / 100;
@@ -780,6 +770,7 @@ const calculateEstimatedInterest = () => {
   return Math.round(futureValue - principal);
 };
 
+// 예상 만기일 계산
 const calculateMaturityDate = () => {
   if (!formData.value.joinDate || !formData.value.saveTrm) return '';
   const joinDate = new Date(formData.value.joinDate);
@@ -788,18 +779,21 @@ const calculateMaturityDate = () => {
   return maturityDate.toLocaleDateString('ko-KR');
 };
 
+// 필드 표시 여부
 const shouldShowField = (fieldName) => {
   const cfg = productFieldConfig[formData.value.category];
   if (!cfg) return true;
   return !cfg.hidden.includes(fieldName);
 };
 
+// 필수 필드 여부
 const isRequiredField = (fieldName) => {
   const cfg = productFieldConfig[formData.value.category];
   if (!cfg) return false;
   return cfg.required.includes(fieldName);
 };
 
+// 필드 라벨 가져오기
 const getFieldLabel = (fieldName) => {
   const cfg = productFieldConfig[formData.value.category];
   if (!cfg || !cfg.labels || !cfg.labels[fieldName]) {
@@ -809,14 +803,13 @@ const getFieldLabel = (fieldName) => {
   return cfg.labels[fieldName];
 };
 
+// 위험 수준 가져오기
 const getRiskLevel = (category) => {
   const m = { 예금: 'LOW', 적금: 'LOW', 보험: 'LOW', 연금: 'MEDIUM', 주식: 'HIGH', 기타: 'MEDIUM' };
   return m[category] || 'MEDIUM';
 };
 
-/* =========================
- * Auto-fill (API) functions
- * ========================= */
+// 자동입력 결과 변환
 const transformApiDataToUIFormat = (apiData) => {
   const normalizedTerms = (apiData.termOptions || []).map((opt) => ({
     months: Number(opt.months),
@@ -842,7 +835,7 @@ const transformApiDataToUIFormat = (apiData) => {
       const rawData = JSON.parse(apiData.rawResponse);
       if (Array.isArray(rawData.features)) additionalFeatures = rawData.features;
     } catch (e) {
-      console.warn('rawResponse 파싱 실패:', e);
+      showToast('rawResponse 파싱 실패', 'error');
     }
   }
 
@@ -874,9 +867,11 @@ const transformApiDataToUIFormat = (apiData) => {
   };
 };
 
+// 유효한 API 응답 여부
 const isValidApiResponse = (res) =>
   !!(res && res.header?.status === 'OK' && res.body?.data?.success);
 
+// 자동입력 상품 정보 가져오기
 const autoFillProduct = async () => {
   if (!canAutoFill.value || isAutoFilling.value) return;
   isAutoFilling.value = true;
@@ -884,7 +879,6 @@ const autoFillProduct = async () => {
   try {
     // ref 자체를 전달 (API 구현이 formData.value를 내부에서 읽음)
     const apiResponse = await portfolioAPI.getProductInfo(formData);
-    console.log(apiResponse);
 
     if (!isValidApiResponse(apiResponse)) {
       throw new Error('유효하지 않은 응답');
@@ -895,29 +889,31 @@ const autoFillProduct = async () => {
 
     if (Number(transformed.confidence) > 0.7) {
       autoFillResult.value = transformed;
-      showToast('상품 정보를 찾았습니다! 🎉', 'success');
+      showToast('상품 정보를 찾았습니다!', 'success');
     } else {
       autoFillResult.value = {
         ...transformed,
         note: '정확하지 않을 수 있습니다. 직접 확인 후 수정해주세요.',
       };
-      showToast('정확한 정보를 찾지 못했습니다. 😅', 'warning');
+      showToast('정확한 정보를 찾지 못했습니다.', 'warning');
     }
   } catch (err) {
-    console.error('자동입력 실패:', err);
+    showToast('자동입력 실패', 'error');
     autoFillResult.value = null;
-    showToast('상품 정보를 가져올 수 없습니다. 😞', 'error');
+    showToast('상품 정보를 가져올 수 없습니다.', 'error');
   } finally {
     isAutoFilling.value = false;
   }
 };
 
+// 자동입력 결과 초기화
 const clearAutoFill = () => {
   autoFillResult.value = null;
   selectedTermMonths.value = null;
   selectedRateKeys.value = [];
 };
 
+// 자동입력 결과 적용
 const applyAutoFill = () => {
   if (!autoFillResult.value) return;
   const r = autoFillResult.value;
@@ -961,13 +957,11 @@ const applyAutoFill = () => {
   }
   formData.value.memo = memoContent;
 
-  showToast('정보가 자동입력되었습니다! ✨', 'success');
+  showToast('정보가 자동입력되었습니다.', 'success');
   autoFillResult.value = null; // 적용 후 결과 카드 닫기
 };
 
-/* =========================
- * Category changes
- * ========================= */
+// 카테고리 변경 감지
 watch(
   () => formData.value.category,
   (newCategory) => {
@@ -1003,9 +997,7 @@ watch(
   }
 );
 
-/* =========================
- * Submit / close / reset
- * ========================= */
+// 폼 초기화
 const resetForm = () => {
   formData.value = {
     customProductName: '',
@@ -1032,6 +1024,7 @@ const handleOverlayClick = () => {
   if (!isProcessing.value) handleClose();
 };
 
+// 모달 닫기
 const handleClose = () => {
   if (!isProcessing.value) {
     emit('close');
@@ -1039,6 +1032,7 @@ const handleClose = () => {
   }
 };
 
+// 폼 제출
 const handleSubmit = async () => {
   if (!isFormValid.value || isProcessing.value) return;
   isProcessing.value = true;
@@ -1119,9 +1113,6 @@ const handleSubmit = async () => {
   }
 };
 
-/* =========================
- * Lifecycle / listeners
- * ========================= */
 const handleKeydown = (e) => {
   if (e.key === 'Escape' && props.isVisible && !isProcessing.value) handleClose();
 };
