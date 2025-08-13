@@ -109,14 +109,16 @@
       </div>
 
       <!-- 하단 여백 (CompareFloatingBar가 가리는 콘텐츠 방지) -->
-      <div v-if="compareList.length > 0" style="height: 4rem"></div>
+      <div v-if="currentCompareList.length > 0" style="height: 4rem"></div>
     </div>
 
     <!-- 비교함 플로팅 바 -->
     <CompareFloatingBar
-      :compare-list="compareList"
+      v-if="currentCompareList.length > 0"
+      :compare-list="currentCompareList"
+      :product-type="productType"
       @go-to-compare="goToCompare"
-      @clear-compare-list="clearCompareList"
+      @clear-compare-list="clearCurrentCompareList"
     />
 
     <!-- GPT 상품 요약 모달 -->
@@ -158,9 +160,35 @@ const selectedTerm = ref({ name: '', description: '' });
 // GPT 상품 요약 모달 상태
 const showGptDetailModal = ref(false);
 
-// 비교함 기능 (컴포저블 사용)
-const { compareList, clearCompareList, addToCompareList, removeFromCompareList, isInCompareList } =
-  useCompareList();
+// 비교함 기능 (컴포저블 사용) - 상품군별 비교함으로 업데이트
+const {
+  depositCompareList,
+  savingsCompareList,
+  clearCompareList,
+  addToCompareList,
+  removeFromCompareList,
+  isInCompareList,
+} = useCompareList();
+
+// 현재 상품 타입 결정 (URL 파라미터 기반)
+const productType = computed(() => {
+  // rsrvType 쿼리 파라미터가 있거나 category가 'savings'인 경우 적금으로 판단
+  if (route.query.rsrvType || route.params.category === 'savings') {
+    return 'savings';
+  }
+  // 그 외의 경우 예금 또는 route.params.category 값 사용
+  return route.params.category || 'deposit';
+});
+
+// 현재 상품 타입에 맞는 비교함 리스트
+const currentCompareList = computed(() => {
+  return productType.value === 'deposit' ? depositCompareList.value : savingsCompareList.value;
+});
+
+// 현재 상품 타입에 맞는 비교함만 비우기
+const clearCurrentCompareList = () => {
+  clearCompareList(productType.value);
+};
 
 // 🎯 CompanyUrl 추출 함수 추가
 const getCompanyUrl = () => {
@@ -188,10 +216,7 @@ const isProductInCompareList = computed(() => {
     selectedOption.value.intr_rate_type || selectedOption.value.intrRateType || 'S';
 
   // 현재 상품이 적금인지 확인
-  const isSavings =
-    route.params.category === 'savings' ||
-    !!route.query.rsrvType ||
-    !!(selectedOption.value.rsrv_type || selectedOption.value.rsrvType);
+  const isSavings = productType.value === 'savings';
 
   // 적금이면 rsrvType 값 추출, 아니면 null
   let rsrvType = null;
@@ -203,11 +228,8 @@ const isProductInCompareList = computed(() => {
       'F';
   }
 
-  // 상품 타입 결정
-  const productType = isSavings ? 'savings' : route.params.category;
-
-  // 비교함 포함 여부 확인
-  return isInCompareList(productId, saveTrm, intrRateType, rsrvType, productType);
+  // 비교함 포함 여부 확인 (상품 타입 명시적 전달)
+  return isInCompareList(productId, saveTrm, intrRateType, rsrvType, productType.value);
 });
 
 // GPT 상품 요약 모달 열기
@@ -316,25 +338,17 @@ const handleAddToCompare = () => {
     return;
   }
 
-  // 현재 상품이 적금인지 확인
-  const isSavings =
-    route.params.category === 'savings' ||
-    !!route.query.rsrvType ||
-    !!(selectedOption.value.rsrv_type || selectedOption.value.rsrvType);
-
   // 옵션 객체 복사 (원본 변경 방지)
   const option = { ...selectedOption.value };
 
   // 적금이고 rsrvType이 없으면 기본값 설정
-  if (isSavings && !option.rsrv_type && !option.rsrvType) {
+  if (productType.value === 'savings' && !option.rsrv_type && !option.rsrvType) {
     option.rsrv_type = route.query.rsrvType || 'F';
     option.rsrv_type_nm = option.rsrv_type === 'S' ? '정액적립식' : '자유적립식';
   }
 
-  // 상품 타입 결정
-  const productType = isSavings ? 'savings' : route.params.category;
-
-  addToCompareList(product.value, option, productType);
+  // 상품 타입 명시적으로 전달
+  addToCompareList(product.value, option, productType.value);
 };
 
 // 비교함에서 제거 핸들러
@@ -346,15 +360,9 @@ const handleRemoveFromCompare = () => {
   const intrRateType =
     selectedOption.value.intr_rate_type || selectedOption.value.intrRateType || 'S';
 
-  // 현재 상품이 적금인지 확인
-  const isSavings =
-    route.params.category === 'savings' ||
-    !!route.query.rsrvType ||
-    !!(selectedOption.value.rsrv_type || selectedOption.value.rsrvType);
-
   // 적금이면 rsrvType 값 추출, 아니면 null
   let rsrvType = null;
-  if (isSavings) {
+  if (productType.value === 'savings') {
     rsrvType =
       selectedOption.value.rsrv_type ||
       selectedOption.value.rsrvType ||
@@ -362,19 +370,22 @@ const handleRemoveFromCompare = () => {
       'F';
   }
 
-  // 상품 타입 결정
-  const productType = isSavings ? 'savings' : route.params.category;
-
-  removeFromCompareList(productId, saveTrm, intrRateType, rsrvType, productType);
+  // 상품 타입 명시적으로 전달
+  removeFromCompareList(productId, saveTrm, intrRateType, rsrvType, productType.value);
 };
 
 // 비교 페이지로 이동
 const goToCompare = () => {
+  if (currentCompareList.value.length < 2) {
+    showToast('2개 이상의 상품을 선택해주세요.', 'warning');
+    return;
+  }
+
   router.push({
     path: '/products/compare',
     query: {
-      // compareList에 있는 상품 ID들을 쿼리 파라미터로 전달
-      productIds: compareList.value.map((item) => item.productId),
+      // 현재 상품 타입을 쿼리 파라미터로 전달
+      type: productType.value,
     },
   });
 };
