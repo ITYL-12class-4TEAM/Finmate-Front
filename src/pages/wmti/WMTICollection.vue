@@ -25,7 +25,7 @@
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="WMTI 유형을 검색해보세요"
+              placeholder="예시): ABWC, 리더형 등"
               class="search-input"
             />
           </div>
@@ -647,10 +647,11 @@ const handleImageError = (event) => {
 }
 
 .modal-name {
-  font-size: 1.375rem;
+  font-size: 0.95rem; /* 크기 축소 */
   font-weight: 600;
   margin-bottom: 0.75rem;
   margin-left: 0.75rem;
+  line-height: 1.2; /* 줄간격 조정 */
 }
 
 .modal-badge {
