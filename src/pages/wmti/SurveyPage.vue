@@ -377,7 +377,7 @@ const checkAndRestoreBackup = async () => {
       if (result.action === 'restore' && result.data) {
         showDataRestoredModal();
         await applySurveyBackupData(true); // silent 모드로 호출
-        handleSuccess('로그인 후 이전 답변이 복원되었어요! ✨');
+        handleSuccess('로그인 후 이전 답변이 복원되었어요!');
       } else if (result.action === 'clear') {
         handleSuccess('새로 시작합니다! 로그인이 완료되었어요.');
       } else {
@@ -422,7 +422,7 @@ const applySurveyBackupData = async (silent = false) => {
 
       // silent 모드가 아닐 때만 토스트 표시
       if (!silent) {
-        handleSuccess(`이전 답변 ${restoredCount}개가 복원되었어요! ✨`);
+        handleSuccess(`이전 답변 ${restoredCount}개가 복원되었어요!`);
       }
 
       // 첫 번째 미답변 문항으로 스크롤
@@ -489,7 +489,7 @@ const handleSubmit = async (isRetry = false) => {
     // 제출 완료 표시
     localStorage.setItem('surveySubmitted', 'true');
     clearBackup(); // 백업 데이터 삭제
-    handleSuccess('설문이 성공적으로 제출되었습니다! 🎉');
+    handleSuccess('설문이 성공적으로 제출되었습니다!');
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
