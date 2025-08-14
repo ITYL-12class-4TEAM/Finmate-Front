@@ -13,7 +13,7 @@
     <!-- 2단계: 차트 영역 -->
     <div class="chart-section">
       <div class="chart-header">
-        <h4 class="chart-title">투자 포트폴리오</h4>
+        <h4 class="chart-title">추천 자산 분배</h4>
       </div>
 
       <!-- 차트 영역 -->
@@ -657,7 +657,6 @@ onMounted(() => {
 
 /* 헤더 스타일 */
 .portfolio-header {
-  margin-bottom: 1.5rem;
   text-align: center;
   background: linear-gradient(135deg, rgba(45, 51, 107, 0.02), rgba(125, 129, 162, 0.01));
   border-radius: 0.75rem;

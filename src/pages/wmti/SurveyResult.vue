@@ -10,8 +10,6 @@
     <div v-else>
       <!-- 헤더 섹션 -->
       <div class="result-header card-header">
-        <!-- 뒤로가기 버튼 -->
-        <BackButton to="/wmti/basic" />
         <div class="user-greeting">
           <span class="username-highlight">{{ userName }}</span
           >님의 투자 성향은
@@ -81,12 +79,64 @@
         </div>
 
         <!-- 설명 섹션 -->
-        <div class="description-section">
+        <div class="detail-subsection description-section">
           <h4 class="subsection-title">
             <span class="subsection-icon description-icon"></span>
             상세 분석
           </h4>
-          <p class="description-text multiline-text">{{ analysis.description }}</p>
+          <div class="description-item">
+            <p class="description-text multiline-text">{{ analysis.description }}</p>
+          </div>
+        </div>
+
+        <!-- 강점 섹션 -->
+        <div v-if="analysis.strengths && analysis.strengths.length > 0" class="detail-subsection">
+          <h4 class="subsection-title">
+            <span class="detail-icon strengths-icon"></span>
+            주요 강점
+          </h4>
+          <div class="strengths-grid">
+            <div
+              v-for="(strength, index) in analysis.strengths"
+              :key="'strength-' + index"
+              class="strength-item"
+            >
+              <span class="strength-icon">✓</span>
+              <span class="strength-text">{{ strength }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 개선 포인트(취약점) 섹션 -->
+        <div
+          v-if="analysis.improvements && analysis.improvements.length > 0"
+          class="detail-subsection"
+        >
+          <h4 class="subsection-title">
+            <span class="detail-icon improvements-icon"></span>
+            개선 포인트
+          </h4>
+          <div class="improvements-grid">
+            <div
+              v-for="(improvement, index) in analysis.improvements"
+              :key="'improvement-' + index"
+              class="improvement-item"
+            >
+              <span class="improvement-icon">!</span>
+              <span class="improvement-text">{{ improvement }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 투자 전략 섹션 -->
+        <div v-if="analysis.investmentStrategy" class="detail-subsection">
+          <h4 class="subsection-title">
+            <span class="detail-icon strategy-icon"></span>
+            추천 투자 전략
+          </h4>
+          <div class="strategy-content">
+            <p class="strategy-text">{{ analysis.investmentStrategy }}</p>
+          </div>
         </div>
       </div>
 
@@ -94,7 +144,7 @@
       <div class="score-card card-header">
         <div class="section-header">
           <div class="section-icon score-icon"></div>
-          <h3 class="section-title">성향 분석 결과</h3>
+          <h3 class="section-title">항목별 분포</h3>
         </div>
 
         <ScoreChart
@@ -696,7 +746,7 @@ onMounted(async () => {
 
 /* 태그 섹션 */
 .tags-section {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   overflow: hidden;
   background: rgba(45, 51, 107, 0.02);
   border-radius: 0.75rem;
@@ -763,19 +813,168 @@ onMounted(async () => {
 }
 
 /* 설명 섹션 */
-.description-section {
-  border-left: 0.1875rem solid var(--color-main);
-  padding: 0.875rem 0.875rem 0.875rem 1.25rem;
+/* .description-section {
+  padding: 0.875rem 0.875rem 0.875rem 0;
   background: rgba(45, 51, 107, 0.02);
   border-radius: 0.75rem;
+} */
+.description-item {
+  background-color: rgba(45, 51, 107, 0.02);
+  border-left: 0.1875rem solid #3498db;
+  border-radius: 0.75rem;
 }
-
 .description-text {
   font-size: 0.875rem;
   line-height: 1.6;
   color: var(--color-sub);
-  margin: 0;
+  margin: 0 0 1.5rem 1rem;
   font-weight: 500;
+}
+
+/* 세부 서브섹션 */
+.detail-subsection {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 0.0625rem solid rgba(45, 51, 107, 0.1);
+}
+
+.detail-subsection:first-of-type {
+  margin-top: 1.25rem;
+}
+
+.detail-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-main);
+  margin: 0 0 0.875rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.detail-icon {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 0.0625rem;
+  flex-shrink: 0;
+}
+
+.strengths-icon {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.improvements-icon {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.strategy-icon {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+/* 강점 그리드 */
+.strengths-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.strength-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  background: rgba(16, 185, 129, 0.05);
+  border-radius: 0.5rem;
+  border-left: 0.1875rem solid #10b981;
+  transition: all 0.2s ease;
+}
+
+.strength-item:hover {
+  background: rgba(16, 185, 129, 0.08);
+  transform: translateX(0.25rem);
+}
+
+.strength-icon {
+  color: #10b981;
+  font-weight: 700;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+  margin-top: 0.0625rem;
+}
+
+.strength-text {
+  color: var(--color-sub);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* 개선점 그리드 */
+.improvements-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.improvement-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  background: rgba(245, 158, 11, 0.05);
+  border-radius: 0.5rem;
+  border-left: 0.1875rem solid #f59e0b;
+  transition: all 0.2s ease;
+}
+
+.improvement-item:hover {
+  background: rgba(245, 158, 11, 0.08);
+  transform: translateX(0.25rem);
+}
+
+.improvement-icon {
+  color: #f59e0b;
+  font-weight: 700;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+  margin-top: 0.0625rem;
+}
+
+.improvement-text {
+  color: var(--color-sub);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* 전략 콘텐츠 */
+.strategy-content {
+  padding: 1rem 1.125rem;
+  background: rgba(59, 130, 246, 0.05);
+  border-radius: 0.625rem;
+  border-left: 0.1875rem solid #3b82f6;
+  position: relative;
+  overflow: hidden;
+}
+
+.strategy-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0.125rem;
+  background: linear-gradient(90deg, #3b82f6, #2563eb, #1d4ed8);
+  opacity: 0.6;
+}
+
+.strategy-text {
+  color: var(--color-sub);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  font-weight: 500;
+  margin: 0;
+  position: relative;
 }
 
 /* 줄바꿈 처리 */
@@ -908,10 +1107,37 @@ onMounted(async () => {
   }
 }
 
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.detail-subsection {
+  animation: slideInFromLeft 0.6s ease-out both;
+}
+
+.detail-subsection:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.detail-subsection:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.detail-subsection:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
 /* 반응형 */
 @media (max-width: 30rem) {
   .result-page {
-    padding: 0.875rem;
+    padding: 0.875rem 0;
     gap: 1rem;
   }
 
@@ -952,6 +1178,33 @@ onMounted(async () => {
   }
 
   .bar-info {
+    font-size: 0.75rem;
+  }
+  .description-section {
+    padding: 0.75rem 0.75rem 0.75rem 1rem;
+  }
+
+  .detail-subsection {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+  }
+
+  .strength-item,
+  .improvement-item {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .strategy-content {
+    padding: 0.875rem 1rem;
+  }
+
+  .strength-text,
+  .improvement-text,
+  .strategy-text {
+    font-size: 0.75rem;
+  }
+
+  .detail-title {
     font-size: 0.75rem;
   }
 }
