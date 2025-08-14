@@ -4,7 +4,7 @@ export const authAPI = {
   // 로그인
   login: async (email, password) => {
     try {
-      const response = await api.post('/api/auth/login', {
+      const response = await api.post('/auth/login', {
         email,
         password,
       });
@@ -48,7 +48,7 @@ export const authAPI = {
   // 로그아웃
   logout: async () => {
     try {
-      const response = await api.post('/api/auth/logout');
+      const response = await api.post('/auth/logout');
       return {
         success: true,
         message: '로그아웃 되었습니다.',
@@ -66,7 +66,7 @@ export const authAPI = {
   // 아이디 찾기
   findId: async (name, phoneNumber) => {
     try {
-      const response = await api.post('/api/auth/find-id', {
+      const response = await api.post('/auth/find-id', {
         name,
         phoneNumber,
       });
@@ -104,7 +104,7 @@ export const authAPI = {
   // 비밀번호 찾기
   findPassword: async (name, phoneNumber) => {
     try {
-      const response = await api.post('/api/auth/find-password', {
+      const response = await api.post('/auth/find-password', {
         name,
         phoneNumber,
       });
@@ -142,7 +142,7 @@ export const authAPI = {
   // 비밀번호 재설정
   resetPassword: async (newPassword, newPasswordCheck, username) => {
     try {
-      const response = await api.post('/api/auth/reset-password', {
+      const response = await api.post('/auth/reset-password', {
         newPassword,
         newPasswordCheck,
         username,
@@ -180,7 +180,7 @@ export const authAPI = {
   // 회원가입
   signup: async (signupData) => {
     try {
-      const response = await api.post('/api/signup', signupData);
+      const response = await api.post('/signup', signupData);
 
       const result = response.data;
       if (result.header?.status === 'CREATED') {
@@ -217,7 +217,7 @@ export const authAPI = {
   //소셜 회원가입
   socialSignup: async (signupData) => {
     try {
-      const response = await api.post('/api/signup/social', signupData);
+      const response = await api.post('/signup/social', signupData);
 
       const result = response.data;
       if (result.header?.status === 'CREATED') {
@@ -250,7 +250,7 @@ export const authAPI = {
   // OAuth토큰 교환
   exchangeOAuth2Token: async (code) => {
     try {
-      const response = await api.post('/api/auth/oauth2/token', null, {
+      const response = await api.post('/auth/oauth2/token', null, {
         params: { code },
       });
 
@@ -292,7 +292,7 @@ export const authAPI = {
   // 회원 탈퇴
   withdraw: async (withdrawData) => {
     try {
-      const response = await api.delete('/api/auth/withdraw', {
+      const response = await api.delete('/auth/withdraw', {
         data: withdrawData,
       });
 
@@ -335,7 +335,7 @@ export const authAPI = {
   // 비밀번호 확인
   checkPassword: async (password) => {
     try {
-      const response = await api.post('/api/auth/check-password', { password });
+      const response = await api.post('/auth/check-password', { password });
       return {
         success: true,
         message: '비밀번호 확인 성공',

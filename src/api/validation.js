@@ -1,12 +1,10 @@
-// src/api/validation.js
+// src/validation.js
 import api from './index';
 
 export const validationAPI = {
   checkEmail: async (email) => {
     try {
-      const response = await api.get(
-        `/api/validation/check/email?email=${encodeURIComponent(email)}`
-      );
+      const response = await api.get(`/validation/check/email?email=${encodeURIComponent(email)}`);
 
       const result = response.data;
       if (result.header.status === 'OK') {
@@ -35,7 +33,7 @@ export const validationAPI = {
   checkNickname: async (nickname) => {
     try {
       const response = await api.get(
-        `/api/validation/check/nickname?nickname=${encodeURIComponent(nickname)}`
+        `/validation/check/nickname?nickname=${encodeURIComponent(nickname)}`
       );
 
       const result = response.data;

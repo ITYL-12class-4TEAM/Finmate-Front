@@ -4,7 +4,7 @@ export const memberAPI = {
   // 사용자 정보 조회
   getMyInfo: async () => {
     try {
-      const response = await api.get('/api/member/me');
+      const response = await api.get('/member/me');
       const result = response.data;
 
       return {
@@ -30,35 +30,27 @@ export const memberAPI = {
 
   // 프로필 수정 API (수정된 버전)
   updateProfile: async (data) => {
-    try {
-      const response = await api.put('/api/auth/profile', data);
-      const result = response.data;
+    const response = await api.put('/auth/profile', data);
+    const result = response.data;
 
-      return {
-        success: result.header?.status === 'OK',
-        message: result.header?.message || '처리 완료',
-        data: result.body?.data || null,
-      };
-    } catch (error) {
-      throw error;
-    }
+    return {
+      success: result.header?.status === 'OK',
+      message: result.header?.message || '처리 완료',
+      data: result.body?.data || null,
+    };
   },
 
   // 닉네임 중복 확인
   checkNickname: async (nickname) => {
-    try {
-      const response = await api.get(`/api/validation/check/nickname`, {
-        params: { nickname },
-      });
-      const result = response.data;
+    const response = await api.get(`/validation/check/nickname`, {
+      params: { nickname },
+    });
+    const result = response.data;
 
-      return {
-        success: result.header?.status === 'OK',
-        message: result.header?.message || '처리 완료',
-        data: result.body?.data || null,
-      };
-    } catch (error) {
-      throw error;
-    }
+    return {
+      success: result.header?.status === 'OK',
+      message: result.header?.message || '처리 완료',
+      data: result.body?.data || null,
+    };
   },
 };

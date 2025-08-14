@@ -3,13 +3,13 @@ import api from './index';
 export const wishlistAPI = {
   // 즐겨찾기 목록 조회
   getList: async () => {
-    const res = await api.get('/api/wishlist');
+    const res = await api.get('/wishlist');
     return res.data;
   },
 
   // 즐겨찾기 추가
   add: async ({ productId, intrRateType, rsrvType, saveTrm }) => {
-    const res = await api.post('/api/wishlist', {
+    const res = await api.post('/wishlist', {
       productId,
       intrRateType,
       rsrvType,
@@ -20,13 +20,13 @@ export const wishlistAPI = {
 
   // 즐겨찾기 삭제
   remove: async (productId) => {
-    const res = await api.delete(`/api/wishlist/${productId}`);
+    const res = await api.delete(`/wishlist/${productId}`);
     return res.data;
   },
 
   // 즐겨찾기 존재 여부 확인
   isFavorite: async (productId) => {
-    const res = await api.get(`/api/wishlist/status/${productId}`);
+    const res = await api.get(`/wishlist/status/${productId}`);
     return res.data;
   },
 };

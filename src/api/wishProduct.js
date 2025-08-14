@@ -8,7 +8,7 @@ const subcategoryKorMap = {
 
 // 인기 관심상품 조회
 export const getWishListPopularyAPI = async () => {
-  const res = await api.get(`/api/wishlist/populary`);
+  const res = await api.get(`/wishlist/populary`);
   const data = res.data.body.data;
 
   // 데이터 가공

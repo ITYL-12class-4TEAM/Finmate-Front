@@ -2,7 +2,7 @@ import api from './index';
 
 // 게시글에 해당하는 댓글 리스트 조회
 export const getCommentsByPostId = async (postId, currentUserId) => {
-  const res = await api.get(`/api/comments/post/${postId}`);
+  const res = await api.get(`/comments/post/${postId}`);
   const comments = res.data.body.data;
 
   return comments.map((c) => ({
@@ -20,12 +20,12 @@ export const getCommentsByPostId = async (postId, currentUserId) => {
 
 // 댓글 생성
 export const createCommentAPI = async (commentData) => {
-  const res = await api.post('/api/comments', commentData);
+  const res = await api.post('/comments', commentData);
   return res.data;
 };
 
 // 댓글 삭제
 export const deleteCommentAPI = async (commentId) => {
-  const res = await api.delete(`/api/comments/${commentId}`);
+  const res = await api.delete(`/comments/${commentId}`);
   return res.data;
 };
