@@ -45,7 +45,7 @@
 
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue';
-import { resolveCompanyLogo } from '@/assets/companyLogoMap'; // 경로 수정: util 폴더 사용
+import { resolveCompanyLogo } from '@/constants/companyLogoMap'; // 경로 수정: util 폴더 사용
 
 const props = defineProps({
   show: Boolean,

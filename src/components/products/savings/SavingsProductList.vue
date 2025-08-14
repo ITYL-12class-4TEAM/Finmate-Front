@@ -144,7 +144,7 @@ import CompareFloatingBar from '@/components/products/compare/CompareFloatingBar
 import useCompareList from '@/composables/useCompareList';
 import { useToast } from '@/composables/useToast';
 // 은행 로고 매핑 함수 가져오기
-import { resolveCompanyLogo } from '@/assets/companyLogoMap';
+import { resolveCompanyLogo } from '@/constants/companyLogoMap';
 
 const { showToast } = useToast();
 

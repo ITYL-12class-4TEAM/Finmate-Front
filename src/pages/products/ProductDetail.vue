@@ -145,7 +145,7 @@ import GptDetailModal from '@/components/products/detail/GptDetailModal.vue';
 import useCompareList from '@/composables/useCompareList';
 import { useToast } from '@/composables/useToast';
 // 수정된 부분: 경로를 정확하게 지정하고 명시적으로 가져오기
-import { resolveCompanyLogo } from '@/assets/companyLogoMap';
+import { resolveCompanyLogo } from '@/constants/companyLogoMap';
 
 const { showToast } = useToast();
 
