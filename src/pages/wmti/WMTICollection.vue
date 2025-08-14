@@ -67,7 +67,6 @@
             </div>
           </div>
           <h3 class="wmti-name">{{ wmti.aka }}</h3>
-          <p class="wmti-description">{{ wmti.shortDescription }}</p>
           <div class="characteristics">
             <span v-for="trait in (wmti.tag || []).slice(0, 3)" :key="trait" class="trait-tag">
               {{ trait }}
@@ -94,9 +93,6 @@
                 {{ selectedWMTI.code }}
               </div>
               <h2 class="modal-name">{{ selectedWMTI.aka }}</h2>
-              <div class="modal-badge" :class="selectedWMTI.category?.toLowerCase()">
-                {{ selectedWMTI.category }}
-              </div>
             </div>
           </div>
 
@@ -109,7 +105,12 @@
             </div>
 
             <div v-if="selectedWMTI.keyTraits || selectedWMTI.tag" class="detail-section">
-              <h3>주요 특징</h3>
+              <div class="section-title-with-badge">
+                <h3>주요 특징</h3>
+                <div class="modal-badge wmti-badge" :class="selectedWMTI.category?.toLowerCase()">
+                  {{ selectedWMTI.category }}
+                </div>
+              </div>
               <div class="traits-grid">
                 <span
                   v-for="trait in selectedWMTI.keyTraits || selectedWMTI.tag || []"
@@ -123,25 +124,31 @@
 
             <div v-if="selectedWMTI.strengths" class="detail-section">
               <h3>강점</h3>
-              <ul class="strength-list">
-                <li v-for="strength in selectedWMTI.strengths" :key="strength">
-                  {{ strength }}
-                </li>
-              </ul>
+              <div class="scrollable-content">
+                <ul class="strength-list">
+                  <li v-for="strength in selectedWMTI.strengths" :key="strength">
+                    {{ strength }}
+                  </li>
+                </ul>
+              </div>
             </div>
 
             <div v-if="selectedWMTI.improvements" class="detail-section">
               <h3>개선 포인트</h3>
-              <ul class="improvement-list">
-                <li v-for="point in selectedWMTI.improvements" :key="point">
-                  {{ point }}
-                </li>
-              </ul>
+              <div class="scrollable-content">
+                <ul class="improvement-list">
+                  <li v-for="point in selectedWMTI.improvements" :key="point">
+                    {{ point }}
+                  </li>
+                </ul>
+              </div>
             </div>
 
             <div v-if="selectedWMTI.investmentStrategy" class="detail-section">
               <h3>추천 투자 전략</h3>
-              <p class="investment-strategy">{{ selectedWMTI.investmentStrategy }}</p>
+              <div class="scrollable-content">
+                <p class="investment-strategy">{{ selectedWMTI.investmentStrategy }}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -267,7 +274,16 @@ const selectCategory = (category) => {
 };
 
 const selectWMTI = (wmti) => {
-  selectedWMTI.value = wmti;
+  // 임시로 더미 데이터 추가해서 UI 테스트
+  selectedWMTI.value = {
+    ...wmti,
+    // 실제 데이터에 없다면 임시 더미 데이터 추가
+    strengths: wmti.strengths || ['체계적인 분석 능력', '리스크 관리 우수', '장기적 관점 보유'],
+    improvements: wmti.improvements || ['감정적 투자 지양 필요', '다양한 투자 상품 학습 권장'],
+    investmentStrategy:
+      wmti.investmentStrategy ||
+      '분산 투자를 통한 안정적 수익 추구. 정기적인 포트폴리오 리밸런싱과 함께 장기 투자 관점을 유지하는 것이 중요합니다.',
+  };
 };
 
 const closeModal = () => {
@@ -315,7 +331,7 @@ const handleImageError = (event) => {
 
 <style scoped>
 .wmti-collection {
-  max-width: 430px;
+  max-width: 26.875rem;
   margin: 0 auto;
   min-height: 100vh;
 }
@@ -429,7 +445,7 @@ const handleImageError = (event) => {
   display: flex;
   gap: 0.5rem;
   overflow-x: auto;
-  padding-bottom: 0.25rem;
+  padding-bottom: 0.5rem; /* 스크롤바 공간을 위해 패딩 증가 */
 }
 
 .filter-btn {
@@ -543,13 +559,6 @@ const handleImageError = (event) => {
   margin-bottom: 0.5rem;
 }
 
-.wmti-description {
-  color: var(--color-sub);
-  font-size: 0.875rem;
-  line-height: 1.4;
-  margin-bottom: 1rem;
-}
-
 .characteristics {
   display: flex;
   flex-wrap: wrap;
@@ -583,9 +592,12 @@ const handleImageError = (event) => {
   background: var(--color-white);
   border-radius: 1rem;
   width: 100%;
-  max-width: 400px;
+  max-width: 25rem;
   max-height: 90vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  /* 모달 전체 스크롤 제거 */
+  overflow: hidden;
 }
 
 .modal-header {
@@ -594,6 +606,8 @@ const handleImageError = (event) => {
   padding: 1.5rem;
   border-radius: 1rem 1rem 0 0;
   position: relative;
+  /* 헤더는 고정 */
+  flex-shrink: 0;
 }
 
 .close-btn {
@@ -622,7 +636,7 @@ const handleImageError = (event) => {
 }
 
 .modal-wmti-info {
-  text-align: center;
+  margin-left: 0.75rem;
 }
 
 .modal-code {
@@ -636,10 +650,35 @@ const handleImageError = (event) => {
 }
 
 .modal-name {
-  font-size: 1.375rem;
+  font-size: 0.95rem; /* 크기 축소 */
   font-weight: 600;
   margin-bottom: 0.75rem;
-  margin-left: 0.75rem;
+  line-height: 1.2; /* 줄간격 조정 */
+}
+
+/* 섹션 제목과 배지 조합 */
+.section-title-with-badge {
+  display: flex;
+  align-items: center; /* 수직 가운데 정렬 */
+  gap: 0.5rem; /* 제목과 배지 사이 간격 */
+  margin-bottom: 0.75rem;
+  border-bottom: 0.125rem solid var(--color-bg-light);
+  padding-bottom: 0.5rem;
+}
+
+.section-title-with-badge h3 {
+  color: var(--color-main) !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+  border-bottom: none !important; /* 기존 border-bottom 제거 */
+  padding-bottom: 0 !important; /* 기존 padding-bottom 제거 */
+  flex-shrink: 0; /* 제목 크기 고정 */
+  line-height: 1.2; /* 라인 높이 조정 */
+}
+
+.section-title-with-badge .modal-badge {
+  line-height: 1; /* 배지 라인 높이 조정 */
 }
 
 .modal-badge {
@@ -653,6 +692,9 @@ const handleImageError = (event) => {
 
 .modal-body {
   padding: 1.5rem;
+  /* 바디 부분에 스크롤 적용 */
+  overflow-y: auto;
+  flex: 1;
 }
 
 .detail-section {
@@ -666,6 +708,13 @@ const handleImageError = (event) => {
   margin-bottom: 0.75rem;
   border-bottom: 0.125rem solid var(--color-bg-light);
   padding-bottom: 0.5rem;
+}
+
+/* 스크롤 가능한 콘텐츠 컨테이너 */
+.scrollable-content {
+  max-height: 12rem; /* 최대 높이 제한 */
+  overflow-y: auto;
+  padding-right: 0.25rem; /* 스크롤바 공간 */
 }
 
 .full-description {
@@ -693,6 +742,7 @@ const handleImageError = (event) => {
 .improvement-list {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .strength-list li,
@@ -735,10 +785,11 @@ const handleImageError = (event) => {
   font-size: 0.875rem;
   line-height: 1.6;
   font-weight: 500;
+  margin: 0;
 }
 
 /* 반응형 */
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
   .collection-header {
     padding: 1.5rem 1rem 1rem;
   }
@@ -770,34 +821,61 @@ const handleImageError = (event) => {
   }
 }
 
-/* 스크롤바 스타일링 */
-.modal-content::-webkit-scrollbar {
+/* 스크롤바 스타일링 - 모달 바디 */
+.modal-body::-webkit-scrollbar {
+  width: 0.375rem; /* 스크롤바 너비 증가 */
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: var(--color-bg-light);
+  border-radius: 0.25rem;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: var(--color-light);
+  border-radius: 0.25rem;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: var(--color-sub);
+}
+
+/* 스크롤바 스타일링 - 개별 섹션 */
+.scrollable-content::-webkit-scrollbar {
   width: 0.25rem;
 }
 
-.modal-content::-webkit-scrollbar-track {
+.scrollable-content::-webkit-scrollbar-track {
   background: var(--color-bg-light);
+  border-radius: 0.125rem;
 }
 
-.modal-content::-webkit-scrollbar-thumb {
+.scrollable-content::-webkit-scrollbar-thumb {
   background: var(--color-light);
   border-radius: 0.125rem;
 }
 
-.modal-content::-webkit-scrollbar-thumb:hover {
+.scrollable-content::-webkit-scrollbar-thumb:hover {
   background: var(--color-sub);
 }
 
+/* 스크롤바 스타일링 - 필터 버튼 */
 .filter-buttons::-webkit-scrollbar {
-  height: 0.125rem;
+  height: 0.5rem; /* 높이 크게 증가 */
 }
 
 .filter-buttons::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--color-bg-light);
+  border-radius: 0.25rem;
 }
 
 .filter-buttons::-webkit-scrollbar-thumb {
   background: var(--color-light);
-  border-radius: 0.0625rem;
+  border-radius: 0.25rem;
+  min-width: 2rem; /* 최소 너비 설정 */
+}
+
+.filter-buttons::-webkit-scrollbar-thumb:hover {
+  background: var(--color-sub);
 }
 </style>

@@ -222,7 +222,7 @@ const form = ref({
 
 // 상태 변수
 const isSubmitting = ref(false);
-const originalData = ref(null); 
+const originalData = ref(null);
 
 //Composable 사용
 const { backupFormData, restoreFormData, hasValidBackup, clearBackup, forceBackupFormData } =
