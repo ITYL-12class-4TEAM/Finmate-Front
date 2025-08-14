@@ -467,7 +467,7 @@ const goToCompare = () => {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3.6rem;
 }
 
 .product-card {

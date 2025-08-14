@@ -400,17 +400,17 @@ const commonComparisonRows = computed(() => {
 
 /* ✨ [수정] 자유적립식 스타일 */
 .header-tag.deposit-method-pill.free-deposit {
-  background-color: #fefce8; /* 연한 노란색 */
-  color: #ca8a04; /* 진한 노란색 */
-  border: 1px solid #fde68a;
+  background-color: #f3e8ff; /* 연한 보라색 */
+  color: #8e24aa; /* 진한 보라색 */
+  border: 1px solid #e9d5ff;
   font-size: 0.6rem;
 }
 
 /* ✨ [수정] 정액적립식 스타일 */
 .header-tag.deposit-method-pill.fixed-deposit {
-  background-color: #f3e8ff; /* 연한 보라색 */
-  color: #8e24aa; /* 진한 보라색 */
-  border: 1px solid #e9d5ff;
+  background-color: #fefce8; /* 연한 노란색 */
+  color: #ca8a04; /* 진한 노란색 */
+  border: 1px solid #fde68a;
   font-size: 0.6rem;
 }
 
