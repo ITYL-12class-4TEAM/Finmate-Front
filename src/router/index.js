@@ -235,6 +235,29 @@ const router = createRouter({
       component: () => import('../pages/NotFound/NotFound.vue'), // NotFound 컴포넌트
     },
   ],
+  scrollBehavior(to, from, savedPosition) {
+    // 앵커 링크가 있는 경우
+    if (to.hash) {
+      return new Promise((resolve) => {
+        // 페이지 로딩을 위해 잠시 기다림
+        setTimeout(() => {
+          resolve({
+            el: to.hash,
+            behavior: 'smooth',
+            top: 100, // 고정 헤더가 있다면 오프셋 조정
+          });
+        }, 500);
+      });
+    }
+
+    // 뒤로가기/앞으로가기 시 이전 스크롤 위치로
+    if (savedPosition) {
+      return savedPosition;
+    }
+
+    // 기본적으로 페이지 상단으로
+    return { top: 0 };
+  },
 });
 
 // 인증 가드 적용

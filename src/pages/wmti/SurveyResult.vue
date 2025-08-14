@@ -115,7 +115,7 @@
       </div>
 
       <!-- 맞춤형 포트폴리오 -->
-      <div class="CustomedPortfolio-card card-header">
+      <div id="target-section" class="CustomedPortfolio-card card-header">
         <div class="section-header">
           <div class="section-icon customed-icon"></div>
           <h3 class="section-title">맞춤형 포트폴리오</h3>
@@ -159,6 +159,11 @@
           <button class="action-button tertiary" @click="goToHistory">
             <div class="button-icon history-icon"></div>
             내 검사 이력 보기
+          </button>
+          <!-- http://localhost:5173/mypage/portfolio 중 allocation탭으로 이동-->
+          <button class="action-button tertiary" @click="goToPortfolio">
+            <div class="button-icon portfolio-icon"></div>
+            포트폴리오 보기
           </button>
         </div>
       </div>
@@ -315,7 +320,12 @@ const fetchAnalysis = async (wmtiCode) => {
 // 라우팅 함수
 const goToWMTIList = () => router.push('/wmti/collection');
 const goToHistory = () => router.push('/mypage/wmti-history');
-
+const goToPortfolio = () => {
+  router.push({
+    path: '/mypage/portfolio',
+    query: { tab: 'allocation' },
+  });
+};
 // 스타일 클래스 및 라벨 유틸 함수
 const getResultTypeLabel = (type) =>
   ({

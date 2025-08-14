@@ -79,6 +79,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import { useRoute } from 'vue-router';
 
 // 공통 컴포넌트
 import LoadingSpinner from '../../components/mypage/common/LoadingSpinner.vue';
@@ -97,6 +98,7 @@ import { portfolioAPI } from '@/api/portfolio';
 import { getWMTIResultAPI } from '@/api/wmti';
 import { useToast } from '@/composables/useToast';
 const { showToast } = useToast();
+const route = useRoute(); // 추가
 
 import { useAuthStore } from '@/stores/useAuthStore';
 
@@ -108,7 +110,6 @@ const summaryData = ref(null);
 const myWMTI = ref('');
 
 const editingItem = ref(null);
-const activeTab = ref('overview');
 const editForm = ref({
   amount: 0,
   memo: '',
@@ -126,6 +127,16 @@ const userAgeGroup = ref('');
 // 로그인 유저 ID
 const authStore = useAuthStore();
 const memberId = authStore.userInfo.memberId;
+
+const activeTab = ref(route.query.tab || 'overview'); // 기본값
+const initializeTabFromQuery = () => {
+  const queryTab = route.query.tab;
+  const validTabs = ['overview', 'comparison', 'allocation', 'wmti'];
+
+  if (queryTab && validTabs.includes(queryTab)) {
+    activeTab.value = queryTab;
+  }
+};
 
 // -------------------- API 호출 --------------------
 const fetchWMTIResult = async () => {
@@ -529,8 +540,9 @@ const refreshPortfolio = async () => {
 };
 
 // -------------------- 생명주기 --------------------
-onMounted(() => {
-  fetchPortfolioData();
+onMounted(async () => {
+  initializeTabFromQuery();
+  await Promise.all([fetchPortfolioData(), fetchWMTIResult()]);
 });
 </script>
 

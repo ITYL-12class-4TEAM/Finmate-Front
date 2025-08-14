@@ -10,6 +10,7 @@
               카테고리별 자산 분배
             </h5>
             <small class="stats-subtitle"> 총 {{ processedSummary.length }}개 카테고리 </small>
+            <!-- http://localhost:5173/wmti/result 여기로 가는 라우팅 버튼 -->
           </div>
 
           <div class="stats-content">
