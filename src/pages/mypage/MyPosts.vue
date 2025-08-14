@@ -35,6 +35,9 @@ import PostFilter from '@/components/mypage/mypost/PostFilter.vue';
 import PostActions from '@/components/mypage/mypost/PostAction.vue';
 import PostList from '@/components/mypage/mypost/PostList.vue';
 import { postsAPI } from '@/api/mypost';
+import { useToast } from '@/composables/useToast';
+
+const { showToast } = useToast();
 
 const loading = ref(false);
 const error = ref('');
@@ -109,7 +112,7 @@ const fetchPosts = async () => {
     currentPage.value = 1;
   } catch (err) {
     error.value = '게시글을 불러오는데 실패했습니다.';
-    console.error('Posts fetch error:', err);
+    showToast('게시글을 불러오는데 실패했습니다.', 'error');
   } finally {
     loading.value = false;
   }
@@ -132,7 +135,7 @@ const refreshPost = async (postId) => {
       };
     }
   } catch (err) {
-    console.error(`게시글 ${postId} 업데이트 실패:`, err);
+    showToast(`게시글 ${postId} 업데이트 실패:`, 'error');
   }
 };
 

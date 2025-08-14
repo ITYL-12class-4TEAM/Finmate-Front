@@ -65,8 +65,11 @@
   </div>
 </template>
 <script setup>
-import { ref, onMounted, nextTick, watch, onBeforeUnmount, computed } from 'vue';
+import { ref, onMounted, nextTick, watch, onBeforeUnmount } from 'vue';
 import PortfolioSummaryCard from './PortfolioSummaryCard.vue';
+import { useToast } from '@/composables/useToast';
+
+const { showToast } = useToast();
 
 const props = defineProps({
   portfolioItems: {
@@ -114,14 +117,12 @@ let isChartLoading = ref(false);
 
 // FinMate 브랜드 색상 팔레트 - JSON 데이터의 실제 카테고리명에 맞게 수정
 const CATEGORY_COLORS = {
-  예금: '#2d336b',
-  적금: '#7d81a2',
-  연금: '#5a6085',
-  보험: '#6b7394',
-  펀드: '#b9bbcc',
-  대출: '#9ca0b8',
-  투자: '#4a5578',
-  기타: '#8a8ea6',
+  예금: '#10B981',
+  적금: '#3B82F6',
+  보험: '#8B5CF6',
+  연금: '#F59E0B',
+  주식: '#EF4444',
+  기타: '#6B7280',
 };
 
 // 색상 가져오기
@@ -166,13 +167,6 @@ const formatCurrency = (amount) => {
   }
 
   return new Intl.NumberFormat('ko-KR').format(amount) + '원';
-};
-
-// 날짜 포맷팅
-const formatDate = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return `${date.getMonth() + 1}/${date.getDate()}`;
 };
 
 // 접근성을 위한 차트 설명
@@ -335,6 +329,7 @@ const cleanup = () => {
     try {
       overviewChartInstance.destroy();
     } catch (error) {
+      showToast('차트 정리 중 오류가 발생했습니다.', 'error');
     } finally {
       overviewChartInstance = null;
     }

@@ -41,6 +41,9 @@ import CommentedPostFilter from '@/components/mypage/mycomment/CommentPostFilter
 import CommentedPostSummary from '@/components/mypage/mycomment/CommentPostSummary.vue';
 import CommentedPostList from '@/components/mypage/mycomment/CommentPostList.vue';
 import { postsAPI } from '@/api/mypost';
+import { useToast } from '@/composables/useToast';
+
+const { showToast } = useToast();
 
 const loading = ref(false);
 const error = ref('');
@@ -148,7 +151,7 @@ const fetchPosts = async () => {
     currentPage.value = 1;
   } catch (err) {
     error.value = '댓글 작성 게시글을 불러오는데 실패했습니다.';
-    console.error('Posts fetch error:', err);
+    showToast('댓글 작성 게시글을 불러오는데 실패했습니다.', 'error');
   } finally {
     loading.value = false;
   }
@@ -176,7 +179,7 @@ const refreshPost = async (postId) => {
       return p;
     });
   } catch (err) {
-    console.error(`게시글 ${postId} 업데이트 실패:`, err);
+    showToast(`게시글 ${postId} 업데이트 실패:`, 'error');
   }
 };
 
