@@ -59,7 +59,7 @@ const goBack = () => {
     ((window.history.state && window.history.state.back != null) || window.history.length > 1);
 
   if (props.preferBack && hasHistory) {
-    router.back();
+    router.push(window.history.state.back, { scroll: false });
     return;
   }
 
