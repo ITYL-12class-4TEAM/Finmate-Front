@@ -124,7 +124,7 @@
 
 <script setup>
 // Props 정의
-const props = defineProps({
+defineProps({
   // WMTI 점수들
   aScore: {
     type: Number,

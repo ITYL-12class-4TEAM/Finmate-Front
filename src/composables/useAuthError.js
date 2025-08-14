@@ -47,6 +47,7 @@ export function useAuthError(options = {}) {
   };
 
   // 토큰 만료 처리
+  // eslint-disable-next-line no-unused-vars
   const handleTokenExpired = async (backupFormData, showModalFn, handleSubmitFn) => {
     if (backupFormData) {
       backupFormData();
@@ -148,6 +149,7 @@ Wi-Fi나 데이터 연결을 확인하시고 다시 시도해주세요.`;
   };
 
   // 일반 에러 모달
+  // eslint-disable-next-line no-unused-vars
   const showGenericErrorModal = async (showModalFn, backupFormData, handleSubmitFn) => {
     const message = `예상치 못한 문제가 발생했어요.
 

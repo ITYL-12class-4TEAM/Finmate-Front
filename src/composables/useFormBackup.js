@@ -156,7 +156,7 @@ export function useFormBackup(options = {}) {
     return submitted;
   };
 
-  // 강제 백업 함수
+  // 강제 백업 함수 - 제출상태와 관계없이 백업 수행
   const forceBackupFormData = (silent = false) => {
     return backupFormData(true, silent);
   };
