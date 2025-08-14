@@ -102,14 +102,13 @@ let isChartLoading = ref(false);
 
 // 6개 메인 카테고리에 맞춘 색상 팔레트
 const CATEGORY_COLORS = {
-  예금: '#2d336b', // 진한 네이비
-  적금: '#5a6085', // 미디엄 네이비
-  보험: '#6b7394', // 그레이 네이비
-  대출: '#9ca0b8', // 라이트 그레이
-  주식: '#7d81a2', // 퍼플 그레이
-  기타: '#8a8ea6', // 중간 그레이
+  예금: '#10B981',
+  적금: '#3B82F6',
+  보험: '#8B5CF6',
+  연금: '#F59E0B',
+  주식: '#EF4444',
+  기타: '#6B7280',
 };
-
 // 색상 가져오기
 const getCategoryColor = (categoryName) => {
   return CATEGORY_COLORS[categoryName] || CATEGORY_COLORS['기타'];
