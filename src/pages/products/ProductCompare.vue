@@ -96,8 +96,6 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useModal } from '@/composables/useModal';
-import { useToast } from '@/composables/useToast';
-import axios from 'axios';
 import useCompareList from '@/composables/useCompareList';
 import BackButton from '@/components/common/BackButton.vue';
 import CompareTable from '@/components/products/compare/CompareTable.vue';
@@ -110,18 +108,12 @@ import GptExampleModal from '@/components/products/compare/GptExampleModal.vue';
 const router = useRouter();
 const route = useRoute();
 const { showModal } = useModal();
-const { showToast } = useToast();
 
 // 상품 타입 및 비교함 사용
 const productType = ref(route.query.type || 'deposit'); // URL 쿼리 파라미터에서 가져오기 (기본값: 'deposit')
 
-const {
-  depositCompareList,
-  savingsCompareList,
-  clearCompareList,
-  removeFromCompareList,
-  getProductType,
-} = useCompareList();
+const { depositCompareList, savingsCompareList, clearCompareList, removeFromCompareList } =
+  useCompareList();
 
 // 현재 선택된 상품 타입에 따른 비교함 리스트
 const currentCompareList = computed(() => {
@@ -530,7 +522,6 @@ onMounted(() => {
 .header-right {
   display: flex;
   align-items: center;
-  /* flex: 1; */ /* flex 비율을 제거하여 내용에 맞게 크기 조절 */
 }
 
 .header-left {
