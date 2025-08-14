@@ -88,10 +88,10 @@ import ErrorAlert from '../../components/mypage/common/ErrorAlert.vue';
 
 // 포트폴리오 전용 컴포넌트
 import PortfolioTabs from '../../components/mypage/portfolio/tab/PortfolioTabs.vue';
-import PortfolioOverview from '../../components/mypage/portfolio/first/PortfolioOverView.vue';
-import PortfolioComparison from '../../components/mypage/portfolio/second/PortfolioComparison.vue';
-import PortfolioAllocation from '../../components/mypage/portfolio/third/PortfolioAllocation.vue';
-import PortfolioWMTI from '../../components/mypage/portfolio/fourth/PortfolioWMTI.vue';
+import PortfolioOverview from '../../components/mypage/portfolio/overview/PortfolioOverView.vue';
+import PortfolioComparison from '../../components/mypage/portfolio/age/PortfolioComparison.vue';
+import PortfolioAllocation from '../../components/mypage/portfolio/allocation/PortfolioAllocation.vue';
+import PortfolioWMTI from '../../components/mypage/portfolio/wmti/PortfolioWMTI.vue';
 import ProductList from '../../components/mypage/portfolio/ProductList.vue';
 import ProductAddModal from '../../components/mypage/portfolio/ProductAddModal.vue';
 import DeleteConfirmModal from '../../components/mypage/portfolio/DeleteConfirmModal.vue';

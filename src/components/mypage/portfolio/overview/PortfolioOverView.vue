@@ -65,8 +65,11 @@
   </div>
 </template>
 <script setup>
-import { ref, onMounted, nextTick, watch, onBeforeUnmount, computed } from 'vue';
+import { ref, onMounted, nextTick, watch, onBeforeUnmount } from 'vue';
 import PortfolioSummaryCard from './PortfolioSummaryCard.vue';
+import { useToast } from '@/composables/useToast';
+
+const { showToast } = useToast();
 
 const props = defineProps({
   portfolioItems: {
@@ -164,13 +167,6 @@ const formatCurrency = (amount) => {
   }
 
   return new Intl.NumberFormat('ko-KR').format(amount) + '원';
-};
-
-// 날짜 포맷팅
-const formatDate = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return `${date.getMonth() + 1}/${date.getDate()}`;
 };
 
 // 접근성을 위한 차트 설명
@@ -333,6 +329,7 @@ const cleanup = () => {
     try {
       overviewChartInstance.destroy();
     } catch (error) {
+      showToast('차트 정리 중 오류가 발생했습니다.', 'error');
     } finally {
       overviewChartInstance = null;
     }
