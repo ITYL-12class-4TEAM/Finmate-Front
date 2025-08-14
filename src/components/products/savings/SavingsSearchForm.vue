@@ -519,7 +519,7 @@ const onReset = () => {
   background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   color: #ffffff;
   border-color: #4f46e5;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  /* box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); */
 }
 
 .all-tag-improved.active:hover {

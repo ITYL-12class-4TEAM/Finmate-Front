@@ -34,7 +34,7 @@
     <div v-if="currentCompareList.length <= 1" class="not-enough-products">
       <div class="message-container">
         <div class="warning-icon">!</div>
-        <h3>2개 이상의 {{ productTypeLabel }} 상품을 선택해주세요.</h3>
+        <h3>2개 이상의 상품을 선택해주세요.</h3>
         <p>상품 비교를 위해서는<br />최소 2개의 상품이 필요합니다.</p>
         <button class="go-to-list-btn" @click="goToProductList">
           {{ productTypeLabel }} 상품 목록으로
@@ -157,9 +157,7 @@ const switchProductType = (type) => {
 
 // 비교함 비우기
 const handleClearCompare = async () => {
-  const confirmed = await showModal(
-    `${productTypeLabel.value} 비교함의 모든 상품을 제거하시겠습니까?`
-  );
+  const confirmed = await showModal(`모든 상품을 제거하시겠습니까?`);
 
   if (confirmed) {
     try {
@@ -541,7 +539,8 @@ onMounted(() => {
 }
 .header-center {
   flex-grow: 1; /* 중앙 버튼이 남은 공간을 모두 차지하도록 설정 */
-  justify-content: center;
+  justify-content: end;
+  margin-right: 0.5rem;
 }
 .header-right {
   justify-content: flex-end;
@@ -812,6 +811,3 @@ onMounted(() => {
   }
 }
 </style>
-
-리스트 이동 버튼만 남기고 뒤로가기랑 비교함 비우기 버튼은 삭제하고, 리스트 이동 버튼을 가운데
-정렬해줘

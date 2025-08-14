@@ -269,12 +269,6 @@ const commonComparisonRows = computed(() => {
   --color-bg-light: #eeeef3;
   --color-white: #ffffff;
   --color-accent: #e91e63;
-
-  /* 적립 방식별 색상 */
-  --color-free-deposit-bg: #e0f7fa;
-  --color-free-deposit-text: #006064;
-  --color-fixed-deposit-bg: #fff8e1;
-  --color-fixed-deposit-text: #ff8f00;
 }
 
 .mobile-compare-container {
@@ -298,7 +292,6 @@ const commonComparisonRows = computed(() => {
   gap: 0;
 }
 
-/* ✨ CHANGED: 새로운 태그를 위한 공간 확보 */
 .product-header-card {
   background-color: var(--color-white);
   border-radius: 0.5rem;
@@ -308,8 +301,8 @@ const commonComparisonRows = computed(() => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
-  min-height: 6.5rem; /* 최소 높이 증가 */
-  padding-bottom: 3.25rem; /* 하단 패딩 증가 */
+  min-height: 6.5rem;
+  padding-bottom: 3.25rem;
   box-sizing: border-box;
 }
 
@@ -353,20 +346,18 @@ const commonComparisonRows = computed(() => {
   z-index: 1;
 }
 
-/* ✨ CHANGED: 태그 영역을 세로(column)로 쌓도록 변경 */
 .header-extra-info {
   position: absolute;
   bottom: 0.5rem;
   left: 0.5rem;
   right: 0.5rem;
   display: flex;
-  flex-direction: column; /* 자식 요소들을 세로로 정렬 */
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 0.2rem; /* 태그 줄 간의 세로 간격 */
+  gap: 0.2rem;
 }
 
-/* ✨ NEW: 태그 한 줄을 감싸는 컨테이너 */
 .header-pills-row {
   display: flex;
   justify-content: center;
@@ -382,6 +373,7 @@ const commonComparisonRows = computed(() => {
   border-radius: 0.75rem;
   background-color: var(--color-bg-light);
   color: var(--color-sub);
+  border: 1px solid transparent; /* 테두리 공간 확보 */
 }
 
 .header-tag.interest-type-pill.simple {
@@ -394,34 +386,32 @@ const commonComparisonRows = computed(() => {
   color: #00796b;
 }
 
-/* ✨ NEW: 예금 알약 스타일 (파란색 계열) */
 .header-tag.deposit-pill {
-  background-color: #e0e7ff; /* light-indigo */
-  color: #3730a3; /* dark-indigo */
+  background-color: #e0e7ff;
+  color: #3730a3;
   font-weight: 600;
 }
 
-/* ✨ NEW: 적금 알약 스타일 (초록색 계열) */
 .header-tag.savings-pill {
-  background-color: #d1fae5; /* light-green */
-  color: #047857; /* dark-green */
+  background-color: #d1fae5;
+  color: #047857;
   font-weight: 600;
 }
 
-/* ✨ 적립 방식 알약 스타일 - 자유적립식 */
+/* ✨ [수정] 자유적립식 스타일 */
 .header-tag.deposit-method-pill.free-deposit {
-  background-color: var(--color-free-deposit-bg);
-  color: var(--color-free-deposit-text);
-  font-size: 0.64rem;
-  font-weight: 600;
+  background-color: #fefce8; /* 연한 노란색 */
+  color: #ca8a04; /* 진한 노란색 */
+  border: 1px solid #fde68a;
+  font-size: 0.6rem;
 }
 
-/* ✨ 적립 방식 알약 스타일 - 정액적립식 */
+/* ✨ [수정] 정액적립식 스타일 */
 .header-tag.deposit-method-pill.fixed-deposit {
-  background-color: var(--color-fixed-deposit-bg);
-  color: var(--color-fixed-deposit-text);
-  font-size: 0.64rem;
-  font-weight: 600;
+  background-color: #f3e8ff; /* 연한 보라색 */
+  color: #8e24aa; /* 진한 보라색 */
+  border: 1px solid #e9d5ff;
+  font-size: 0.6rem;
 }
 
 /* ==========================================================================
@@ -436,7 +426,6 @@ const commonComparisonRows = computed(() => {
   flex-direction: column;
   padding: 0.25rem 0;
   border-bottom: 1px solid var(--color-bg-light);
-  /* 행 배경색은 통일하여 깔끔하게 처리 */
   background-color: #fcfdff;
 }
 
@@ -444,18 +433,17 @@ const commonComparisonRows = computed(() => {
   border-bottom: none;
 }
 
-/* ✨ CHANGED: info-label 스타일 변경 */
 .info-label {
-  width: auto; /* 너비 자동 조정 */
-  display: inline-block; /* 인라인 블록으로 변경 */
-  margin: 0.15rem auto 0.2rem auto; /* 상하좌우 여백 조정 */
+  width: auto;
+  display: inline-block;
+  margin: 0.15rem auto 0.2rem auto;
   text-align: center;
-  font-size: 0.75rem; /* 폰트 크기 살짝 조정 */
+  font-size: 0.75rem;
   font-weight: 600;
-  color: #4338ca; /* 텍스트 색상 변경 */
-  padding: 0.25rem 0.75rem; /* 내부 여백 증가 */
-  border-radius: 1rem; /* 더 둥글게 */
-  background-color: #eef2ff; /* 하이라이트 배경색 추가 */
+  color: #4338ca;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  background-color: #eef2ff;
 }
 
 .info-values {
@@ -501,7 +489,6 @@ const commonComparisonRows = computed(() => {
   height: 100%;
 }
 
-/* ✨ NEW: 적립 방식 정보 표시용 스타일 */
 .deposit-method-info {
   display: inline-block;
   padding: 0.125rem 0.5rem;
@@ -510,16 +497,14 @@ const commonComparisonRows = computed(() => {
   font-weight: 600;
 }
 
-/* ✨ NEW: 자유적립식 스타일 */
 .deposit-method-info.free-deposit {
-  background-color: var(--color-free-deposit-bg);
-  color: var(--color-free-deposit-text);
+  background-color: #fefce8;
+  color: #ca8a04;
 }
 
-/* ✨ NEW: 정액적립식 스타일 */
 .deposit-method-info.fixed-deposit {
-  background-color: var(--color-fixed-deposit-bg);
-  color: var(--color-fixed-deposit-text);
+  background-color: #f3e8ff;
+  color: #8e24aa;
 }
 
 .tags-container {
