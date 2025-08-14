@@ -177,12 +177,14 @@ const router = createRouter({
           path: 'preinfo',
           name: 'PreInfoForm',
           component: () => import('../pages/wmti/PreInfoForm.vue'),
+          meta: { requiresAuth: true },
         },
         // 기본 성향 검사
         {
           path: 'survey',
           name: 'SurveyPage',
           component: () => import('../pages/wmti/SurveyPage.vue'),
+          meta: { requiresAuth: true },
         }, // WMTI 성향 검사지
         {
           path: 'result',
