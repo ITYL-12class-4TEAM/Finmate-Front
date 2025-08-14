@@ -979,7 +979,6 @@ onMounted(async () => {
 /* 세부 서브섹션 */
 .detail-subsection {
   margin-top: 1.5rem;
-  padding-top: 1.25rem;
   border-top: 0.0625rem solid rgba(45, 51, 107, 0.1);
 }
 
