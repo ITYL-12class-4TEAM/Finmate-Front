@@ -132,16 +132,12 @@ export const useAuthStore = defineStore('auth', () => {
   const initialize = async () => {
     const savedUserInfo = localStorage.getItem('userInfo');
     const savedAccessToken = localStorage.getItem('accessToken');
-
-    if (!savedUserInfo || !savedAccessToken) {
-      return;
-    }
+    const savedRefreshToken = localStorage.getItem('refreshToken');
 
     try {
       user.value = JSON.parse(savedUserInfo);
       accessToken.value = savedAccessToken;
-      refreshToken.value = localStorage.getItem('refreshToken');
-
+      refreshToken.value = savedRefreshToken;
       const shouldValidateToken = false;
 
       if (shouldValidateToken) {
