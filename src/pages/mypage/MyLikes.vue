@@ -37,6 +37,9 @@ import LikedPostFilter from '@/components/mypage/mylike/LikePostFilter.vue';
 import LikedPostActions from '@/components/mypage/mylike/LikePostActions.vue';
 import LikedPostList from '@/components/mypage/mylike/LikePostList.vue';
 import { postsAPI } from '@/api/mypost';
+import { useToast } from '@/composables/useToast';
+
+const { showToast } = useToast();
 
 const loading = ref(false);
 const error = ref('');
@@ -124,11 +127,11 @@ const fetchPosts = async () => {
       };
     });
 
-    posts.value = await Promise.all(postPromises); // ✅ 누락된 부분 추가
+    posts.value = await Promise.all(postPromises);
     currentPage.value = 1;
   } catch (err) {
     error.value = '좋아요 누른 게시글을 불러오는데 실패했습니다.';
-    console.error('Posts fetch error:', err);
+    showToast('좋아요 누른 게시글을 불러오는데 실패했습니다.', 'error');
   } finally {
     loading.value = false;
   }

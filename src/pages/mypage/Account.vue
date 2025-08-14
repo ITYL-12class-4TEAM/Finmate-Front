@@ -83,6 +83,9 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { memberAPI } from '../../api/member';
 import { authAPI } from '../../api/auth';
+import { useToast } from '@/composables/useToast';
+
+const { showToast } = useToast();
 
 // 사용자 정보
 const userInfo = ref({
@@ -112,7 +115,7 @@ onMounted(async () => {
       return;
     }
   } else {
-    alert('사용자 정보를 불러올 수 없습니다.');
+    showToast('사용자 정보를 불러올 수 없습니다.', 'error');
   }
 });
 

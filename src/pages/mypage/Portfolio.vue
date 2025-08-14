@@ -506,7 +506,6 @@ const confirmDelete = async () => {
   }
 
   isDeleting.value = true;
-  const productName = productToDelete.value.customProductName || '상품';
 
   try {
     await portfolioAPI.deletePortfolio(productToDelete.value.portfolioId);
