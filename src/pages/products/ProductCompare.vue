@@ -5,16 +5,15 @@
         <BackButton />
       </div>
       <div class="header-center">
-        <div class="compare-count">
-          {{ currentCompareList.length }}/3 {{ productTypeLabel }} 상품 비교 중
-        </div>
+        <button class="list-btn" @click="goToProductList">
+          {{ productTypeLabel }} 리스트 이동
+        </button>
       </div>
       <div class="header-right">
         <button class="clear-btn" @click="handleClearCompare">비교함 비우기</button>
       </div>
     </div>
 
-    <!-- 상품 타입 탭 추가 -->
     <div class="product-type-tabs">
       <button
         class="tab-btn"
@@ -32,11 +31,10 @@
       </button>
     </div>
 
-    <!-- 비교 가능한 상품이 부족할 때 (1개 이하) -->
     <div v-if="currentCompareList.length <= 1" class="not-enough-products">
       <div class="message-container">
         <div class="warning-icon">!</div>
-        <h3>2개 이상의 {{ productTypeLabel }} 상품을 선택해주세요.</h3>
+        <h3>2개 이상의 상품을 선택해주세요.</h3>
         <p>상품 비교를 위해서는<br />최소 2개의 상품이 필요합니다.</p>
         <button class="go-to-list-btn" @click="goToProductList">
           {{ productTypeLabel }} 상품 목록으로
@@ -44,13 +42,11 @@
       </div>
     </div>
 
-    <!-- 비교함이 완전히 비어있을 때는 기존 EmptyState 컴포넌트 사용 -->
     <CompareEmptyState
       v-else-if="currentCompareList.length === 0"
       @go-to-products="goToProductList"
     />
 
-    <!-- 비교 가능한 상품이 있을 때 (2개 이상) -->
     <div v-else class="compare-content">
       <CompareTable
         :items="currentCompareList"
@@ -88,7 +84,6 @@
       </button>
     </div>
 
-    <!-- GPT 비교 모달 -->
     <GptExampleModal
       :show="showGptModal"
       :compare-list="currentCompareList"
@@ -101,8 +96,6 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useModal } from '@/composables/useModal';
-import { useToast } from '@/composables/useToast';
-import axios from 'axios';
 import useCompareList from '@/composables/useCompareList';
 import BackButton from '@/components/common/BackButton.vue';
 import CompareTable from '@/components/products/compare/CompareTable.vue';
@@ -115,18 +108,12 @@ import GptExampleModal from '@/components/products/compare/GptExampleModal.vue';
 const router = useRouter();
 const route = useRoute();
 const { showModal } = useModal();
-const { showToast } = useToast();
 
 // 상품 타입 및 비교함 사용
 const productType = ref(route.query.type || 'deposit'); // URL 쿼리 파라미터에서 가져오기 (기본값: 'deposit')
 
-const {
-  depositCompareList,
-  savingsCompareList,
-  clearCompareList,
-  removeFromCompareList,
-  getProductType,
-} = useCompareList();
+const { depositCompareList, savingsCompareList, clearCompareList, removeFromCompareList } =
+  useCompareList();
 
 // 현재 선택된 상품 타입에 따른 비교함 리스트
 const currentCompareList = computed(() => {
@@ -162,9 +149,7 @@ const switchProductType = (type) => {
 
 // 비교함 비우기
 const handleClearCompare = async () => {
-  const confirmed = await showModal(
-    `${productTypeLabel.value} 비교함의 모든 상품을 제거하시겠습니까?`
-  );
+  const confirmed = await showModal(`모든 상품을 제거하시겠습니까?`);
 
   if (confirmed) {
     try {
@@ -421,6 +406,11 @@ const goToProductList = () => {
 
 // 상세 페이지로 이동
 const goToDetail = (productId, productType, saveTrm = null) => {
+  // 현재 선택된 상품 타입(전역 상태의 productType.value)을 기본값으로 사용
+  // productType 파라미터가 없거나 undefined인 경우에만 전역 상태를 사용
+  const actualProductType =
+    productType && productType !== 'undefined' ? productType : productType.value; // 현재 탭에 표시된 상품 타입
+
   const query = saveTrm ? { saveTrm } : {};
 
   // currentCompareList에서 해당 상품 찾기
@@ -430,7 +420,7 @@ const goToDetail = (productId, productType, saveTrm = null) => {
 
   if (product) {
     // 적금 상품인 경우 추가 파라미터 설정
-    if (product.productType === 'savings' || productType.value === 'savings') {
+    if (product.productType === 'savings' || actualProductType === 'savings') {
       query.rsrvType = product.rsrvType || 'F'; // 기본값 'F'
 
       // intrRateType도 추가
@@ -440,13 +430,14 @@ const goToDetail = (productId, productType, saveTrm = null) => {
     }
 
     router.push({
-      path: `/products/${productType.value}/${productId}`,
+      path: `/products/${actualProductType}/${productId}`,
       query,
     });
+    window.scrollTo(0, 0);
   } else {
     // 상품을 찾지 못한 경우 기본 경로로 이동
     router.push({
-      path: `/products/${productType.value}/${productId}`,
+      path: `/products/${actualProductType}/${productId}`,
       query,
     });
   }
@@ -454,6 +445,13 @@ const goToDetail = (productId, productType, saveTrm = null) => {
 
 // 가입하기
 const handleJoinProduct = (item) => {
+  // 저장된 company_url이 있으면 우선 사용
+  if (item.companyUrl) {
+    window.open(item.companyUrl, '_blank');
+    return;
+  }
+
+  // 기존 fallback 로직 유지
   const bankWebsites = {
     국민은행: 'https://www.kbstar.com',
     신한은행: 'https://www.shinhan.com',
@@ -497,11 +495,12 @@ onMounted(() => {
   if (currentCompareList.value.length >= 2) {
     loadCompareData();
   }
+
+  window.scrollTo(0, 0);
 });
 </script>
 
 <style scoped>
-/* 기존 스타일 유지 */
 .compare-page {
   padding-bottom: 5rem;
   min-height: 100vh;
@@ -511,39 +510,38 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.25rem;
+  height: 42px;
   background-color: #ffffff;
-  padding: 0rem 1rem 0.5rem 1rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.03);
+  padding: 0 0rem;
+  border-bottom: 1px solid #f0f0f0;
+  box-sizing: border-box;
+}
+
+.header-left,
+.header-center,
+.header-right {
+  display: flex;
+  align-items: center;
 }
 
 .header-left {
-  /* 좌측 영역 - 뒤로가기 버튼 */
-  flex: 1;
-  display: flex;
   justify-content: flex-start;
+  flex: 0 0 auto; /* 뒤로가기 버튼 크기만큼만 차지 */
 }
-
 .header-center {
-  /* 중앙 영역 - 상품 비교 중 텍스트 */
-  flex: 1.5;
-  display: flex;
-  justify-content: center;
+  flex-grow: 1; /* 중앙 버튼이 남은 공간을 모두 차지하도록 설정 */
+  justify-content: end;
+  margin-right: 0.5rem;
 }
-
 .header-right {
-  /* 우측 영역 - 비교함 비우기 버튼 */
-  flex: 1;
-  display: flex;
   justify-content: flex-end;
+  flex: 0 0 auto; /* 비우기 버튼 크기만큼만 차지 */
 }
 
-/* 상품 타입 탭 스타일 */
 .product-type-tabs {
   display: flex;
   justify-content: center;
-  margin: 0rem auto 0.5rem;
+  margin: 0.5rem auto 0.5rem;
   background-color: var(--color-bg-light);
   border-radius: 2rem;
   padding: 0.25rem;
@@ -571,7 +569,6 @@ onMounted(() => {
   box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.1);
 }
 
-/* 상품이 부족할 때 표시되는 메시지 */
 .not-enough-products {
   display: flex;
   flex-direction: column;
@@ -629,10 +626,9 @@ onMounted(() => {
 }
 
 .go-to-list-btn:hover {
-  background-color: #373d7c; /* 약간 어두운 색상 */
+  background-color: #373d7c;
 }
 
-/* 기존 스타일 유지 */
 .compare-actions {
   display: flex;
   align-items: center;
@@ -643,32 +639,43 @@ onMounted(() => {
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.03);
 }
 
-.compare-count {
-  font-size: 0.8rem;
-  color: var(--color-sub);
-  font-weight: 500;
-}
-
-.compare-count strong {
+.list-btn {
+  background: #ffffff;
+  border: 1px solid var(--color-sub);
   color: var(--color-main);
-  font-weight: 700;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 0.4rem 0.9rem;
+  border-radius: 2rem;
+  transition: all 0.2s ease;
 }
 
 .clear-btn {
-  background: none;
-  border: none;
+  background: #ebebeb;
+  border: 1px solid var(--color-sub);
   color: var(--color-sub);
   font-size: 0.8rem;
+  font-weight: 500;
   cursor: pointer;
-  text-decoration: none;
-  padding: 0;
-  transition: color 0.2s;
+  white-space: nowrap;
+  padding: 0.4rem 0.9rem;
+  border-radius: 2rem;
+  transition: all 0.2s ease;
+}
+
+.list-btn:hover {
+  background-color: var(--color-main);
+  color: #ffffff;
 }
 
 .clear-btn:hover {
+  background-color: #f5f5f5;
+  border-color: #d0d0d0;
   color: var(--color-main);
-  text-decoration: underline;
 }
+/* ----- 버튼 스타일 수정 끝 ----- */
 
 .loading-state {
   display: flex;
@@ -690,7 +697,6 @@ onMounted(() => {
   margin-bottom: 1rem;
 }
 
-/* GPT 버튼 스타일 */
 .gpt-summary-btn-container {
   position: fixed;
   bottom: 2.5rem;
