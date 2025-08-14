@@ -79,7 +79,7 @@
         </div>
 
         <!-- 설명 섹션 -->
-        <div class="detail-subsection description-section">
+        <div class="description-section">
           <h4 class="subsection-title">
             <span class="subsection-icon description-icon"></span>
             상세 분석
@@ -87,55 +87,121 @@
           <div class="description-item">
             <p class="description-text multiline-text">{{ analysis.description }}</p>
           </div>
-        </div>
 
-        <!-- 강점 섹션 -->
-        <div v-if="analysis.strengths && analysis.strengths.length > 0" class="detail-subsection">
-          <h4 class="subsection-title">
-            <span class="detail-icon strengths-icon"></span>
-            주요 강점
-          </h4>
-          <div class="strengths-grid">
-            <div
-              v-for="(strength, index) in analysis.strengths"
-              :key="'strength-' + index"
-              class="strength-item"
+          <!-- 강점 섹션 (아코디언) -->
+          <div
+            v-if="analysis.strengths && analysis.strengths.length > 0"
+            class="detail-subsection accordion-item"
+          >
+            <button
+              class="accordion-header"
+              :class="{ expanded: expandedSections.strengths }"
+              @click="toggleSection('strengths')"
             >
-              <span class="strength-icon">✓</span>
-              <span class="strength-text">{{ strength }}</span>
+              <span class="detail-icon strengths-icon"></span>
+              <span class="accordion-title">주요 강점</span>
+              <span class="accordion-toggle">
+                <svg
+                  :class="{ rotated: expandedSections.strengths }"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M19 9l-7 7-7-7"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+            </button>
+            <div class="accordion-content" :class="{ expanded: expandedSections.strengths }">
+              <div class="strengths-grid">
+                <div
+                  v-for="(strength, index) in analysis.strengths"
+                  :key="'strength-' + index"
+                  class="strength-item"
+                >
+                  <span class="strength-icon">✓</span>
+                  <span class="strength-text">{{ strength }}</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- 개선 포인트(취약점) 섹션 -->
-        <div
-          v-if="analysis.improvements && analysis.improvements.length > 0"
-          class="detail-subsection"
-        >
-          <h4 class="subsection-title">
-            <span class="detail-icon improvements-icon"></span>
-            개선 포인트
-          </h4>
-          <div class="improvements-grid">
-            <div
-              v-for="(improvement, index) in analysis.improvements"
-              :key="'improvement-' + index"
-              class="improvement-item"
+          <!-- 개선 포인트 섹션 (아코디언) -->
+          <div
+            v-if="analysis.improvements && analysis.improvements.length > 0"
+            class="detail-subsection accordion-item"
+          >
+            <button
+              class="accordion-header"
+              :class="{ expanded: expandedSections.improvements }"
+              @click="toggleSection('improvements')"
             >
-              <span class="improvement-icon">!</span>
-              <span class="improvement-text">{{ improvement }}</span>
+              <span class="detail-icon improvements-icon"></span>
+              <span class="accordion-title">개선 포인트</span>
+              <span class="accordion-toggle">
+                <svg
+                  :class="{ rotated: expandedSections.improvements }"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M19 9l-7 7-7-7"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+            </button>
+            <div class="accordion-content" :class="{ expanded: expandedSections.improvements }">
+              <div class="improvements-grid">
+                <div
+                  v-for="(improvement, index) in analysis.improvements"
+                  :key="'improvement-' + index"
+                  class="improvement-item"
+                >
+                  <span class="improvement-icon">!</span>
+                  <span class="improvement-text">{{ improvement }}</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- 투자 전략 섹션 -->
-        <div v-if="analysis.investmentStrategy" class="detail-subsection">
-          <h4 class="subsection-title">
-            <span class="detail-icon strategy-icon"></span>
-            추천 투자 전략
-          </h4>
-          <div class="strategy-content">
-            <p class="strategy-text">{{ analysis.investmentStrategy }}</p>
+          <!-- 투자 전략 섹션 (아코디언) -->
+          <div v-if="analysis.investmentStrategy" class="detail-subsection accordion-item">
+            <button
+              class="accordion-header"
+              :class="{ expanded: expandedSections.strategy }"
+              @click="toggleSection('strategy')"
+            >
+              <span class="detail-icon strategy-icon"></span>
+              <span class="accordion-title">추천 투자 전략</span>
+              <span class="accordion-toggle">
+                <svg
+                  :class="{ rotated: expandedSections.strategy }"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M19 9l-7 7-7-7"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+            </button>
+            <div class="accordion-content" :class="{ expanded: expandedSections.strategy }">
+              <div class="strategy-content">
+                <p class="strategy-text">{{ analysis.investmentStrategy }}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -225,7 +291,6 @@ import { getWMTIResultAPI, getWMTIAnalysisAPI, getPreInfoCalcAPI } from '@/api/w
 import { useToast } from '@/composables/useToast';
 import { useAuthStore } from '@/stores/useAuthStore';
 import ScoreChart from '@/components/wmti/ScoreChart.vue';
-import BackButton from '@/components/common/BackButton.vue';
 import CustomedPortfolio from '@/components/wmti/CustomedPortfolio.vue';
 import WMTIHeroCard from '@/components/wmti/WMTIHeroCard.vue';
 
@@ -416,6 +481,18 @@ const getRiskPreferenceTextClass = (risk) =>
     ACTIVELY: 'text-actively',
     AGGRESSIVE: 'text-risk-aggressive',
   })[risk] || '';
+
+// 토글 상태 관리
+const expandedSections = ref({
+  strengths: false,
+  improvements: false,
+  strategy: false,
+});
+
+// 섹션 토글 함수
+const toggleSection = (sectionName) => {
+  expandedSections.value[sectionName] = !expandedSections.value[sectionName];
+};
 
 onMounted(async () => {
   // 페이지 로드 시 즉시 스크롤을 맨 위로 이동
@@ -813,24 +890,100 @@ onMounted(async () => {
 }
 
 /* 설명 섹션 */
-/* .description-section {
-  padding: 0.875rem 0.875rem 0.875rem 0;
-  background: rgba(45, 51, 107, 0.02);
-  border-radius: 0.75rem;
-} */
 .description-item {
   background-color: rgba(45, 51, 107, 0.02);
   border-left: 0.1875rem solid #3498db;
   border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
 }
 .description-text {
   font-size: 0.875rem;
   line-height: 1.6;
   color: var(--color-sub);
-  margin: 0 0 1.5rem 1rem;
+  margin: 0;
   font-weight: 500;
 }
+/* 아코디언 아이템 */
+.accordion-item {
+  margin-top: 1rem;
+  border: 0.0625rem solid rgba(45, 51, 107, 0.1);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: var(--color-white);
+  box-shadow: 0 0.125rem 0.25rem rgba(45, 51, 107, 0.05);
+  transition: all 0.3s ease;
+}
 
+.accordion-item:hover {
+  box-shadow: 0 0.25rem 0.5rem rgba(45, 51, 107, 0.1);
+}
+
+/* 아코디언 헤더 (클릭 가능한 버튼) */
+.accordion-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: rgba(45, 51, 107, 0.02);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  font-family: inherit;
+}
+
+.accordion-header:hover {
+  background: rgba(45, 51, 107, 0.05);
+}
+
+.accordion-header.expanded {
+  background: rgba(45, 51, 107, 0.08);
+  border-bottom: 0.0625rem solid rgba(45, 51, 107, 0.1);
+}
+
+.accordion-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-main);
+  flex: 1;
+}
+/* 토글 아이콘 */
+.accordion-toggle {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-sub);
+  transition: transform 0.3s ease;
+}
+
+.accordion-toggle svg {
+  width: 1rem;
+  height: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.accordion-toggle svg.rotated {
+  transform: rotate(180deg);
+}
+
+/* 아코디언 콘텐츠 */
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition:
+    max-height 0.3s ease,
+    padding 0.3s ease;
+  padding: 0 1.25rem;
+}
+
+.accordion-content.expanded {
+  max-height: 50rem; /* 충분히 큰 값 */
+  padding: 1rem 1.25rem 1.25rem;
+}
 /* 세부 서브섹션 */
 .detail-subsection {
   margin-top: 1.5rem;
@@ -852,9 +1005,10 @@ onMounted(async () => {
   gap: 0.5rem;
 }
 
+/* 아이콘 */
 .detail-icon {
-  width: 0.375rem;
-  height: 0.375rem;
+  width: 0.5rem;
+  height: 0.5rem;
   border-radius: 0.0625rem;
   flex-shrink: 0;
 }
@@ -947,7 +1101,7 @@ onMounted(async () => {
   font-weight: 500;
 }
 
-/* 전략 콘텐츠 */
+/* 투자전략 콘텐츠 */
 .strategy-content {
   padding: 1rem 1.125rem;
   background: rgba(59, 130, 246, 0.05);
@@ -1134,59 +1288,19 @@ onMounted(async () => {
   animation-delay: 0.3s;
 }
 
-/* 반응형 */
+/* 반응형 조정 */
 @media (max-width: 30rem) {
-  .result-page {
-    padding: 0.875rem 0;
-    gap: 1rem;
+  .accordion-header {
+    padding: 0.875rem 1rem;
+    gap: 0.5rem;
   }
 
-  .code-text {
-    font-size: 2.25rem;
+  .accordion-title {
+    font-size: 0.8rem;
   }
 
-  .type-summary {
-    gap: 0.75rem;
-  }
-
-  .type-value {
-    font-size: 0.75rem;
-    padding: 0.2rem 0.4rem;
-  }
-
-  .type-description {
-    font-size: 0.55rem;
-  }
-
-  .analysis-card,
-  .score-card,
-  .action-section {
-    padding: 1.25rem;
-  }
-
-  .bidirectional-bar {
-    height: 2rem;
-  }
-
-  .bar-progress {
-    height: 1.25rem;
-  }
-
-  .bar-center {
-    width: 1.5rem;
-    font-size: 0.65rem;
-  }
-
-  .bar-info {
-    font-size: 0.75rem;
-  }
-  .description-section {
-    padding: 0.75rem 0.75rem 0.75rem 1rem;
-  }
-
-  .detail-subsection {
-    margin-top: 1.25rem;
-    padding-top: 1rem;
+  .accordion-content.expanded {
+    padding: 0.875rem 1rem 1rem;
   }
 
   .strength-item,
@@ -1204,8 +1318,39 @@ onMounted(async () => {
     font-size: 0.75rem;
   }
 
-  .detail-title {
-    font-size: 0.75rem;
+  .description-item {
+    padding: 0.875rem;
   }
+}
+
+/* 애니메이션 효과 */
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.accordion-content.expanded > * {
+  animation: fadeInContent 0.3s ease-out;
+}
+
+/* 기존 detail-subsection 스타일 조정 */
+.detail-subsection {
+  margin-top: 1rem;
+}
+
+.detail-subsection:first-of-type {
+  margin-top: 1rem;
+}
+
+/* 세부 서브섹션이 아코디언이 아닌 경우의 기존 스타일 유지 */
+.detail-subsection:not(.accordion-item) {
+  padding-top: 1.25rem;
+  border-top: 0.0625rem solid rgba(45, 51, 107, 0.1);
 }
 </style>
