@@ -13,17 +13,7 @@
             <span class="nav-text">개요</span>
           </button>
         </li>
-        <li class="nav-item" role="presentation">
-          <button
-            class="nav-link"
-            :class="{ active: activeTab === 'comparison' }"
-            type="button"
-            role="tab"
-            @click="$emit('update:activeTab', 'comparison')"
-          >
-            <span class="nav-text">비교분석</span>
-          </button>
-        </li>
+
         <li class="nav-item" role="presentation">
           <button
             class="nav-link"
@@ -33,6 +23,17 @@
             @click="$emit('update:activeTab', 'allocation')"
           >
             <span class="nav-text">자산분배</span>
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            :class="{ active: activeTab === 'comparison' }"
+            type="button"
+            role="tab"
+            @click="$emit('update:activeTab', 'comparison')"
+          >
+            <span class="nav-text">비교분석</span>
           </button>
         </li>
         <li class="nav-item" role="presentation">
@@ -66,7 +67,7 @@ defineEmits(['update:activeTab']);
 
 // 활성 탭에 따른 인디케이터 위치 계산
 const indicatorStyle = computed(() => {
-  const tabs = ['overview', 'comparison', 'allocation', 'wmti'];
+  const tabs = ['overview', 'allocation', 'comparison', 'wmti'];
   const activeIndex = tabs.indexOf(props.activeTab);
   const translateX = activeIndex * 25; // 25% 간격
 

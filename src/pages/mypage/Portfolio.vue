@@ -5,6 +5,12 @@
 
   <div v-else>
     <PortfolioTabs v-model:active-tab="activeTab" />
+    <div v-if="activeTab !== 'overview'" class="tab-actions">
+      <button class="btn-add-product" :disabled="loading" @click="openAddModal">
+        <i class="fas fa-plus"></i>
+        상품 추가
+      </button>
+    </div>
 
     <div class="tab-content">
       <PortfolioOverview
@@ -40,11 +46,12 @@
     </div>
 
     <ProductList
+      v-if="activeTab === 'allocation'"
       :portfolio-items="portfolioItems"
       :editing-item="editingItem"
       :edit-form="editForm"
       :show-summary="true"
-      @add-new-product="openAddModal"
+      :hide-add-button="true"
       @refresh-portfolio="refreshPortfolio"
       @start-edit="startEdit"
       @save-edit="saveEdit"
@@ -88,6 +95,8 @@ import ProductAddModal from '../../components/mypage/portfolio/ProductAddModal.v
 import DeleteConfirmModal from '../../components/mypage/portfolio/DeleteConfirmModal.vue';
 import { portfolioAPI } from '@/api/portfolio';
 import { getWMTIResultAPI } from '@/api/wmti';
+import { useToast } from '@/composables/useToast';
+const { showToast } = useToast();
 
 import { useAuthStore } from '@/stores/useAuthStore';
 
@@ -126,7 +135,7 @@ const fetchWMTIResult = async () => {
       myWMTI.value = res.body.data.wmtiCode;
     }
   } catch (err) {
-    console.error('WMTI 결과 조회 실패:', err);
+    showToast('WMTI 결과 조회 실패', 'error');
     // 에러 시 기본값 설정
     myWMTI.value = '';
   }
@@ -163,7 +172,7 @@ const fetchPortfolioData = async () => {
     }
   } catch (err) {
     error.value = '포트폴리오 데이터를 불러오는데 실패했습니다.';
-    console.error('Portfolio fetch error:', err);
+    showToast('포트폴리오 데이터를 불러오는데 실패했습니다.', 'error');
   } finally {
     loading.value = false;
   }
@@ -343,43 +352,32 @@ const closeAddModal = () => {
 
 const openDeleteModal = (item) => {
   if (showDeleteModal.value || !item) {
-    console.log('🚫 삭제 모달 이미 열려있거나 잘못된 아이템');
     return;
   }
 
   productToDelete.value = item;
   showDeleteModal.value = true;
-  console.log('✅ 삭제 모달 열림:', item.customProductName);
 };
 
 const closeDeleteModal = () => {
   if (isDeleting.value) {
-    console.log('🚫 삭제 진행 중이므로 모달 닫기 무시');
     return;
   }
 
   showDeleteModal.value = false;
   productToDelete.value = null;
-  console.log('✅ 삭제 모달 닫힘');
 };
 
 // -------------------- 상품 추가 --------------------
 // -------------------- 상품 추가 --------------------
 const addNewProduct = async (newProduct) => {
   try {
-    console.log('🔥 상품 추가 시작:', newProduct);
-
     const response = await portfolioAPI.addPortfolio(newProduct);
-    console.log('✅ API 응답 전체:', response);
-    console.log('✅ 응답 상태:', response.status);
-    console.log('✅ 응답 데이터:', response.data || response.body);
 
-    // 응답이 존재하면 성공으로 처리 (상태 코드 관계없이)
     // DB에 저장되었다면 API 호출 자체는 성공한 것
     if (response) {
       // 1. 먼저 모달 닫기
       closeAddModal();
-      console.log('✅ 모달 닫기 완료');
 
       // 3. 포트폴리오 데이터 새로고침 (약간의 지연 후)
       setTimeout(async () => {
@@ -397,14 +395,10 @@ const addNewProduct = async (newProduct) => {
     setTimeout(async () => {
       try {
         await fetchPortfolioData();
-        console.log('✅ 에러 후 데이터 새로고침 완료');
 
         // 모달 닫기 (실제로는 성공했을 가능성이 높음)
         closeAddModal();
-        alert('✅ 상품이 추가되었습니다.');
       } catch (refreshError) {
-        console.error('새로고침도 실패:', refreshError);
-
         // 실제 에러 메시지 표시
         let errorMessage = '상품 추가 중 오류가 발생했습니다.';
         if (err.response?.status === 400) {
@@ -415,7 +409,7 @@ const addNewProduct = async (newProduct) => {
           errorMessage = '권한이 없습니다.';
         }
 
-        alert(`❌ ${errorMessage} 다시 시도해주세요.`);
+        showToast(errorMessage, 'error');
       }
     }, 1000);
   }
@@ -436,18 +430,15 @@ const cancelEdit = () => {
 };
 
 const saveEdit = async (item) => {
-  console.log('🔶 saveEdit 호출됨:', item);
-
   // item 파라미터에서 수정된 데이터 사용
   if (!item.amount || item.amount <= 0) {
-    alert('투자금액을 올바르게 입력해주세요.');
+    showToast('투자금액을 올바르게 입력해주세요.', 'error');
     return;
   }
 
   // portfolioId 확인
   if (!item.portfolioId) {
-    alert('상품 ID가 없어 수정할 수 없습니다.');
-    console.error('portfolioId 없음:', item);
+    showToast('상품 ID가 없어 수정할 수 없습니다.', 'error');
     return;
   }
 
@@ -474,12 +465,9 @@ const saveEdit = async (item) => {
     // 로컬 상태 업데이트 - item 데이터로 업데이트
     const idx = portfolioItems.value.findIndex((p) => p.portfolioId === item.portfolioId);
 
-    console.log('업데이트할 인덱스:', idx);
-
     if (idx !== -1) {
       // 전체 아이템 정보 업데이트
       portfolioItems.value[idx] = { ...portfolioItems.value[idx], ...item };
-      console.log('로컬 상태 업데이트 완료');
     }
 
     cancelEdit();
@@ -487,13 +475,6 @@ const saveEdit = async (item) => {
     // 전체 데이터 다시 불러오기 (요약 데이터 갱신을 위해)
     await fetchPortfolioData();
   } catch (err) {
-    console.error('수정 에러 상세:', {
-      status: err.response?.status,
-      statusText: err.response?.statusText,
-      data: err.response?.data,
-      message: err.message,
-    });
-
     let errorMessage = '수정에 실패했습니다.';
     if (err.response?.status === 400) {
       errorMessage = '잘못된 요청입니다. 입력값을 확인해주세요.';
@@ -503,32 +484,24 @@ const saveEdit = async (item) => {
       errorMessage = '해당 상품을 찾을 수 없습니다.';
     }
 
-    alert(`❌ ${errorMessage}`);
+    showToast(errorMessage, 'error');
   }
 };
 
 const deleteProduct = (item) => {
   if (showDeleteModal.value || isDeleting.value || !item) {
-    console.log('🚫 삭제 요청 무시 - 이미 처리 중 또는 잘못된 아이템:', {
-      showDeleteModal: showDeleteModal.value,
-      isDeleting: isDeleting.value,
-      item: !!item,
-    });
     return;
   }
 
   if (productToDelete.value?.portfolioId === item.portfolioId) {
-    console.log('🚫 같은 상품에 대한 중복 삭제 요청 무시');
     return;
   }
 
-  console.log('🗑️ 삭제 모달 열기:', item.customProductName);
   openDeleteModal(item);
 };
 
 const confirmDelete = async () => {
   if (!productToDelete.value || isDeleting.value) {
-    console.log('🚫 삭제 확인 무시 - 잘못된 상태');
     return;
   }
 
@@ -538,8 +511,6 @@ const confirmDelete = async () => {
   try {
     await portfolioAPI.deletePortfolio(productToDelete.value.portfolioId);
 
-    console.log('✅ 삭제 성공:', productName);
-
     // 모달 닫기
     showDeleteModal.value = false;
     productToDelete.value = null;
@@ -547,8 +518,7 @@ const confirmDelete = async () => {
     // 포트폴리오 데이터 새로고침
     await fetchPortfolioData();
   } catch (err) {
-    alert('❌ 삭제에 실패했습니다. 다시 시도해주세요.');
-    console.error('Delete error:', err);
+    showToast('삭제에 실패했습니다. 다시 시도해주세요.', 'error');
   } finally {
     isDeleting.value = false;
   }
@@ -568,5 +538,32 @@ onMounted(() => {
 <style scoped>
 .tab-content {
   margin-top: 1rem;
+}
+.btn-add-product {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-main);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(45, 51, 107, 0.2);
+}
+
+.btn-add-product:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.3);
+}
+
+.btn-add-product:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 </style>

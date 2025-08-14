@@ -83,6 +83,7 @@
 <script setup>
 import { ref, onMounted, nextTick, watch, onBeforeUnmount } from 'vue';
 import SubcategoryBreakdown from './SubcategoryBreakdown.vue';
+import { Chart } from 'chart.js/auto';
 
 const props = defineProps({
   processedSummary: {
@@ -127,50 +128,6 @@ const adjustColorOpacity = (color, opacity) => {
 // 총 자산 계산
 const getTotalAmount = () => {
   return props.processedSummary.reduce((sum, category) => sum + category.totalAmount, 0);
-};
-
-// 카테고리별 비율 가져오기
-const getCategoryRatio = (categoryName) => {
-  const category = props.processedSummary.find((cat) => cat.categoryName === categoryName);
-  return category ? category.ratio : 0;
-};
-
-// 안정성 지수 계산 (100점 만점)
-const getStabilityScore = () => {
-  const depositRatio = getCategoryRatio('예금');
-  const savingsRatio = getCategoryRatio('적금');
-  const insuranceRatio = getCategoryRatio('보험');
-
-  const safeAssetRatio = depositRatio + savingsRatio + insuranceRatio;
-  return Math.min(Math.round(safeAssetRatio * 1.2), 100);
-};
-
-// 성장성 지수 계산 (100점 만점)
-const getGrowthScore = () => {
-  const stockRatio = getCategoryRatio('주식');
-  const etcRatio = getCategoryRatio('기타'); // 부동산 등 대체투자 포함
-
-  const growthAssetRatio = stockRatio + etcRatio * 0.7; // 기타 자산은 70% 가중치
-  return Math.min(Math.round(growthAssetRatio * 1.5), 100);
-};
-
-// 다양성 지수 계산 (100점 만점)
-const getDiversityScore = () => {
-  const categoryCount = props.processedSummary.length;
-  const maxCategories = 6;
-
-  // 카테고리 수에 따른 기본 점수
-  let baseScore = (categoryCount / maxCategories) * 60;
-
-  // 분산도 보너스 (어느 한 카테고리가 너무 집중되지 않았는지)
-  const maxRatio = Math.max(...props.processedSummary.map((cat) => cat.ratio));
-  const balanceBonus = maxRatio < 50 ? 30 : maxRatio < 70 ? 20 : 10;
-
-  // 최소 투자 보너스 (모든 카테고리가 5% 이상인지)
-  const minRatio = Math.min(...props.processedSummary.map((cat) => cat.ratio));
-  const minInvestBonus = minRatio >= 5 ? 10 : 0;
-
-  return Math.min(Math.round(baseScore + balanceBonus + minInvestBonus), 100);
 };
 
 // 통화 포맷팅
