@@ -8,11 +8,10 @@
 
     <!-- 메인 콘텐츠 -->
     <div v-else>
-      <!-- 뒤로가기 버튼 -->
-      <BackButton to="/wmti/basic" />
-
       <!-- 헤더 섹션 -->
       <div class="result-header card-header">
+        <!-- 뒤로가기 버튼 -->
+        <BackButton to="/wmti/basic" />
         <div class="user-greeting">
           <span class="username-highlight">{{ userName }}</span
           >님의 투자 성향은
@@ -453,6 +452,7 @@ onMounted(async () => {
   background: linear-gradient(135deg, var(--color-main), var(--color-sub));
   color: var(--color-white);
   padding: 0.3rem 0.75rem;
+  margin-top: 2rem;
   border-radius: 1rem;
   font-weight: 700;
   display: inline-block;

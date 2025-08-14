@@ -661,7 +661,7 @@ onMounted(() => {
   text-align: center;
   background: linear-gradient(135deg, rgba(45, 51, 107, 0.02), rgba(125, 129, 162, 0.01));
   border-radius: 0.75rem;
-  padding: 1rem;
+  padding: 1rem 0 1rem 0;
 }
 
 .header-title {
@@ -929,10 +929,6 @@ onMounted(() => {
 
 /* 반응형 */
 @media (max-width: 26.875rem) {
-  .customed-portfolio-section {
-    padding: 1rem;
-  }
-
   .chart-container {
     height: 16.25rem;
   }

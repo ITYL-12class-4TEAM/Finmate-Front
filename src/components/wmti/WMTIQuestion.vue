@@ -55,8 +55,9 @@
         {{ question.left_ans }}
       </span>
       <span class="scale-label right">
-        {{ question.right_ans }}
+        
         <i class="fa-solid fa-arrow-right"></i>
+        {{ question.right_ans }}
       </span>
     </div>
 
@@ -422,7 +423,7 @@ defineProps({
 /* 반응형 - 모바일에서도 크기 차등 유지 */
 @media (max-width: 26.875rem) {
   .question-container {
-    padding: 1.25rem;
+    padding: 1.25rem 0.5rem 1.25rem;
   }
 
   .question-text {

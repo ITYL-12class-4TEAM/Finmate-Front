@@ -2,7 +2,7 @@
   <div class="preinfo-container">
     <div class="preinfo-form">
       <!-- 뒤로가기 버튼 -->
-      <BackButton title="돌아가기" to="/wmti/basic" />
+      <BackButton to="/wmti/basic" />
       <!-- 헤더 -->
       <div class="form-header">
         <div class="header-accent"></div>
@@ -530,11 +530,10 @@ onMounted(async () => {
 /* 컨테이너 */
 .preinfo-container {
   min-height: 100vh;
-  /* background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%); */
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 1rem 0 1rem;
 }
 
 .preinfo-form {
