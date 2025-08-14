@@ -28,7 +28,8 @@
             <label>
               <input v-model="selected" type="checkbox" :value="bank" @change="syncSelectAll" />
               <div class="bank-logo">
-                <div class="bank-logo-placeholder"></div>
+                <!-- 로고 플레이스홀더를 실제 로고로 대체 -->
+                <img :src="getBankLogoUrl(bank)" :alt="bank" class="bank-logo-image" />
               </div>
               <div class="bank-name">{{ bank }}</div>
             </label>
@@ -44,6 +45,7 @@
 
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue';
+import { resolveCompanyLogo } from '@/assets/companyLogoMap'; // 경로 수정: util 폴더 사용
 
 const props = defineProps({
   show: Boolean,
@@ -96,6 +98,12 @@ const bankCategories = computed(() => {
 });
 const displayedBanks = computed(() => bankCategories.value[activeTab.value]);
 const tabLabel = computed(() => (activeTab.value === 'bank' ? '은행' : '저축은행'));
+
+// 은행 로고 URL
+function getBankLogoUrl(bankName = '') {
+  const file = resolveCompanyLogo(bankName);
+  return `/images/companies/${file}`; // 빌드/배포 후에도 그대로 동작
+}
 
 // 탭 전환
 const setTab = (tab) => {
@@ -154,23 +162,6 @@ const onConfirm = () => {
   closeModal();
 };
 const closeModal = () => emit('close');
-
-// 모달 오픈 시 초기화 부분 수정
-watch(
-  () => props.show,
-  (isVisible) => {
-    if (isVisible) {
-      selected.value = props.initialSelectedBanks.length
-        ? [...props.initialSelectedBanks]
-        : [...bankCategories.value.bank];
-
-      activeTab.value = 'bank';
-      nextTick(() => {
-        syncSelectAll();
-      });
-    }
-  }
-);
 </script>
 
 <style scoped>
@@ -299,6 +290,13 @@ watch(
   width: 2.5rem;
   height: 2.5rem;
   background: var(--color-bg-light);
+  border-radius: 50%;
+}
+/* 은행 로고 이미지 스타일 추가 */
+.bank-logo-image {
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
   border-radius: 50%;
 }
 .bank-name {
