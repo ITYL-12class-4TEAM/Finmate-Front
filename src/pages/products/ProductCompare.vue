@@ -639,14 +639,12 @@ onMounted(() => {
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.03);
 }
 
-/* 🎨 [수정] 버튼 스타일 분리 및 리스트 이동 버튼 디자인 변경 */
 .list-btn {
-  /* 테두리만 있는 아웃라인 스타일 */
   background: #ffffff;
   border: 1px solid var(--color-sub);
   color: var(--color-main);
   font-size: 0.8rem;
-  font-weight: 600; /* 조금 더 강조 */
+  font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
   padding: 0.4rem 0.9rem;
@@ -655,7 +653,6 @@ onMounted(() => {
 }
 
 .clear-btn {
-  /* 기존의 은은한 회색 스타일 유지 */
   background: #ebebeb;
   border: 1px solid var(--color-sub);
   color: var(--color-sub);
@@ -669,7 +666,6 @@ onMounted(() => {
 }
 
 .list-btn:hover {
-  /* 호버 시 색상이 채워지는 효과 */
   background-color: var(--color-main);
   color: #ffffff;
 }
