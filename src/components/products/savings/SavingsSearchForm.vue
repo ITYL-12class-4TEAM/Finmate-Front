@@ -52,7 +52,9 @@
         <i class="fa-solid fa-chevron-down select-arrow"></i>
       </div>
 
-      <label class="filter-label"> <i class="fa-solid fa-percentage"></i> 금리 유형 </label>
+      <label class="filter-label"
+        ><i class="fa-solid fa-percentage"></i><FinancialTerm term="금리 유형" />
+      </label>
       <div class="option-buttons">
         <button
           type="button"
@@ -72,7 +74,9 @@
         </button>
       </div>
 
-      <label class="filter-label"> <i class="fa-solid fa-money-bill-wave"></i> 적립 방식 </label>
+      <label class="filter-label">
+        <i class="fa-solid fa-money-bill-wave"></i><FinancialTerm term="적립 방식" />
+      </label>
       <div class="option-buttons">
         <button
           type="button"
@@ -141,6 +145,7 @@
 import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import BankSelectModal from '../deposit/BankSelectModal.vue';
+import FinancialTerm from '@/components/common/FinancialTerm.vue';
 
 const router = useRouter();
 const route = useRoute();
