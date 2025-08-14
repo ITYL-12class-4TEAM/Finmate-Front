@@ -99,7 +99,7 @@
               @click="toggleSection('strengths')"
             >
               <span class="detail-icon strengths-icon"></span>
-              <span class="accordion-title">주요 강점</span>
+              <span class="accordion-title">강점</span>
               <span class="accordion-toggle">
                 <svg
                   :class="{ rotated: expandedSections.strengths }"
@@ -212,7 +212,6 @@
           <div class="section-icon score-icon"></div>
           <h3 class="section-title">항목별 분포</h3>
         </div>
-
         <ScoreChart
           :a-score="analysisObject.ascore || 0"
           :i-score="analysisObject.iscore || 0"
@@ -267,6 +266,10 @@
         </div>
 
         <div class="action-buttons">
+          <button class="action-button primary" @click="goToPortfolio">
+            <div class="button-icon portfolio-icon"></div>
+            직접 포트폴리오 구성하러 가기
+          </button>
           <button class="action-button secondary" @click="goToWMTIList">
             <div class="button-icon users-icon"></div>
             16가지 WMTI 투자성향 보기
@@ -429,6 +432,8 @@ const fetchAnalysis = async (wmtiCode) => {
 // 라우팅 함수
 const goToWMTIList = () => router.push('/wmti/collection');
 const goToHistory = () => router.push('/mypage/wmti-history');
+const goToPortfolio = () =>
+  router.push({ path: '/mypage/portfolio', query: { tab: 'allocation' } });
 
 // 스타일 클래스 및 라벨 유틸 함수
 const getResultTypeLabel = (type) =>
@@ -1169,7 +1174,16 @@ onMounted(async () => {
   font-family: inherit;
   width: 100%;
 }
-
+.action-button.primary {
+  background: linear-gradient(135deg, #8e44ad, #9b59b6);
+  color: var(--color-white);
+  box-shadow: 0 0.25rem 0.75rem rgba(142, 68, 173, 0.3);
+}
+.action-button.primary:hover {
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.5rem 1.25rem rgba(142, 68, 173, 0.4);
+  background: linear-gradient(135deg, #732d91, #8e44ad);
+}
 .action-button.secondary {
   background: linear-gradient(135deg, #3498db, #5dade2);
   color: var(--color-white);
