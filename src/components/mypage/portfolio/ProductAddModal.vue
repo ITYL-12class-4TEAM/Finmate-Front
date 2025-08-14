@@ -14,50 +14,202 @@
 
       <!-- 모달 바디 -->
       <div class="modal-body">
-        <div class="modal-subtitle">새로운 투자 상품을 포트폴리오에 추가해보세요</div>
+        <!-- 서브타이틀 -->
+        <div class="modal-subtitle with-help">새로운 투자 상품을 포트폴리오에 추가해보세요</div>
 
         <form class="add-form" @submit.prevent="handleSubmit">
           <div class="form-grid">
-            <!-- 상품명 (항상 표시) -->
+            <!-- 상품명 -->
             <div class="form-group">
               <label class="form-label required">
                 <i class="fas fa-tag"></i>
                 상품명
               </label>
-              <input
-                v-model="formData.customProductName"
-                type="text"
-                class="form-input"
-                placeholder="예: KB Star 정기예금"
-                required
-                maxlength="100"
-                autofocus
-              />
+              <div class="input-with-auto">
+                <input
+                  v-model="formData.customProductName"
+                  type="text"
+                  class="form-input"
+                  placeholder="예: KB Star 정기예금"
+                  required
+                  maxlength="100"
+                  autofocus
+                />
+              </div>
             </div>
 
-            <!-- 회사명 (항상 표시) -->
+            <!-- 회사명 -->
             <div class="form-group">
               <label class="form-label required">
                 <i class="fas fa-building"></i>
                 금융회사
               </label>
-              <input
-                v-model="formData.customCompanyName"
-                type="text"
-                class="form-input"
-                placeholder="예: 국민은행"
-                required
-                maxlength="50"
-                list="company-suggestions"
-              />
+
+              <!-- 인풋 + 자동입력 + 도움말 -->
+              <div class="input-with-auto tooltip-host">
+                <input
+                  v-model="formData.customCompanyName"
+                  type="text"
+                  class="form-input"
+                  placeholder="예: 국민은행"
+                  required
+                  maxlength="50"
+                  list="company-suggestions"
+                />
+
+                <button
+                  type="button"
+                  class="auto-fill-btn big"
+                  :disabled="isAutoFilling || !canAutoFill"
+                  :title="autoFillHint"
+                  aria-label="자동입력"
+                  @click="autoFillProduct"
+                >
+                  {{ isAutoFilling ? '검색중...' : '자동입력' }}
+                </button>
+
+                <!-- 도움말 버튼 -->
+                <button
+                  type="button"
+                  class="info-btn"
+                  aria-describedby="auto-fill-help"
+                  @mouseenter="showHelp = true"
+                  @mouseleave="showHelp = false"
+                  @focus="showHelp = true"
+                  @blur="showHelp = false"
+                >
+                  <i class="fas fa-question-circle"></i>
+                </button>
+
+                <!-- 툴팁 -->
+                <div id="auto-fill-help" class="tooltip" role="tooltip" :class="{ show: showHelp }">
+                  <div class="tooltip-title">자동입력 사용 안내</div>
+                  <ul>
+                    <li><b>상품명, 금융회사, 카테고리, 세부 카테고리</b>를 입력하면 활성화돼요.</li>
+                    <li>기간/우대금리 옵션 선택 시 적용 금리가 자동 계산돼요.</li>
+                    <li>“적용하기”를 누르면 폼에 값이 채워집니다.</li>
+                  </ul>
+                  <div class="tooltip-foot">※ 실제 금리는 금융사 정책에 따라 달라질 수 있어요.</div>
+                </div>
+              </div>
+
+              <!-- datalist -->
               <datalist id="company-suggestions">
                 <option v-for="company in companySuggestions" :key="company" :value="company">
                   {{ company }}
                 </option>
               </datalist>
             </div>
+            <!-- AI 자동입력 결과 표시 -->
+            <div v-if="autoFillResult && isCategoryReady" class="auto-fill-result full-width">
+              <div class="result-header">
+                <i class="fas fa-robot"></i>
+                <span>AI가 찾은 상품 정보</span>
+                <button class="apply-btn" @click="applyAutoFill">적용하기</button>
+                <button class="clear-btn" @click="clearAutoFill">×</button>
+              </div>
 
-            <!-- 카테고리 (항상 표시) -->
+              <div class="result-content">
+                <div class="result-grid">
+                  <div class="result-item">
+                    <span class="result-label">카테고리</span>
+                    <span class="result-value">{{ autoFillResult.category }}</span>
+                  </div>
+                  <div class="result-item">
+                    <span class="result-label">기본 금리</span>
+                    <span class="result-value">{{ autoFillResult.baseRate }}%</span>
+                  </div>
+                  <div class="result-item">
+                    <span class="result-label">최고 금리</span>
+                    <span class="result-value highlight">{{ autoFillResult.maxRate }}%</span>
+                  </div>
+                  <div class="result-item">
+                    <span class="result-label">계약 기간</span>
+                    <span class="result-value">{{ autoFillResult.termMonths }}개월</span>
+                  </div>
+                  <div v-if="autoFillResult.minAmount" class="result-item">
+                    <span class="result-label">최소 납입</span>
+                    <span class="result-value">{{ formatCurrency(autoFillResult.minAmount) }}</span>
+                  </div>
+                  <div v-if="autoFillResult.maxAmount" class="result-item">
+                    <span class="result-label">최대 납입</span>
+                    <span class="result-value">{{ formatCurrency(autoFillResult.maxAmount) }}</span>
+                  </div>
+                  <div
+                    v-if="autoFillResult.termOptions?.length"
+                    class="result-item"
+                    style="display: block"
+                  >
+                    <span class="result-label">기간 선택</span>
+                    <div style="margin-top: 0.5rem">
+                      <label
+                        v-for="opt in autoFillResult.termOptions"
+                        :key="opt.months"
+                        style="
+                          margin-right: 0.5rem;
+                          display: inline-flex;
+                          align-items: center;
+                          gap: 0.35rem;
+                        "
+                      >
+                        <input v-model="selectedTermMonths" type="radio" :value="opt.months" />
+                        {{ opt.description || opt.months + '개월' }}
+                        <span v-if="opt.interestRate">
+                          ({{ Number(opt.interestRate).toFixed(1) }}%)
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- 우대금리 선택 -->
+                  <div
+                    v-if="autoFillResult.rateOptions?.length"
+                    class="result-item"
+                    style="display: block"
+                  >
+                    <span class="result-label">우대금리 선택</span>
+                    <div class="features-list" style="margin-top: 0.5rem">
+                      <label
+                        v-for="opt in autoFillResult.rateOptions"
+                        :key="opt.condition"
+                        class="feature-tag"
+                        style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer"
+                        :title="opt.description"
+                      >
+                        <input v-model="selectedRateKeys" type="checkbox" :value="opt.condition" />
+                        {{ opt.condition }} (+{{ Number(opt.rate).toFixed(1) }}%p)
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- 적용 금리 미리보기 -->
+                  <div class="result-item">
+                    <span class="result-label">적용 금리</span>
+                    <span class="result-value highlight">{{ effectiveRate }}%</span>
+                  </div>
+                </div>
+
+                <div v-if="autoFillResult.features" class="result-features">
+                  <span class="features-label">주요 특징:</span>
+                  <div class="features-list">
+                    <span
+                      v-for="feature in autoFillResult.features"
+                      :key="feature"
+                      class="feature-tag"
+                    >
+                      {{ feature }}
+                    </span>
+                  </div>
+                </div>
+
+                <div v-if="autoFillResult.note" class="result-note">
+                  <i class="fas fa-info-circle"></i>
+                  {{ autoFillResult.note }}
+                </div>
+              </div>
+            </div>
+
+            <!-- 카테고리 -->
             <div class="form-group">
               <label class="form-label required">
                 <i class="fas fa-th-large"></i>
@@ -74,7 +226,7 @@
               </select>
             </div>
 
-            <!-- 세부 카테고리 (항상 표시) -->
+            <!-- 세부 카테고리 -->
             <div class="form-group">
               <label class="form-label">
                 <i class="fas fa-tags"></i>
@@ -248,20 +400,6 @@
               <template v-if="formData.category === '연금'">
                 <div class="form-group">
                   <label class="form-label">
-                    <i class="fas fa-coins"></i>
-                    연금 종류
-                  </label>
-                  <select v-model="formData.pensionType" class="form-input form-select">
-                    <option value="">종류 선택</option>
-                    <option value="연금저축">연금저축</option>
-                    <option value="개인연금">개인연금</option>
-                    <option value="IRP">IRP</option>
-                    <option value="DC형">DC형</option>
-                  </select>
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label">
                     <i class="fas fa-receipt"></i>
                     세제혜택
                   </label>
@@ -401,25 +539,19 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useToast } from '@/composables/useToast';
+import { portfolioAPI } from '../../../api/portfolio';
 
 const { showToast } = useToast();
-
 const props = defineProps({
-  isVisible: {
-    type: Boolean,
-    default: false,
-  },
+  isVisible: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['close', 'add-product']);
+const showHelp = ref(false);
 
-// 처리 상태
 const isProcessing = ref(false);
-
-// 오늘 날짜
 const todayDate = new Date().toISOString().split('T')[0];
 
-// 금융회사 추천 목록
 const companySuggestions = [
   '국민은행',
   'KB은행',
@@ -443,7 +575,6 @@ const companySuggestions = [
   'KB자산운용',
 ];
 
-// 카테고리별 세부 카테고리 매핑
 const subcategoryMapping = {
   예금: ['정기예금', '자유예금', '기업예금', 'CMA'],
   적금: ['정기적금', '자유적금', '펀드적금', '연금적금'],
@@ -453,66 +584,39 @@ const subcategoryMapping = {
   기타: ['부동산', '채권', '금', '암호화폐', '기타투자'],
 };
 
-// 상품군별 필드 설정
 const productFieldConfig = {
   예금: {
     required: ['customProductName', 'customCompanyName', 'amount', 'customRate'],
     hidden: [],
-    labels: {
-      amount: '예치금액',
-      customRate: '연 금리 (%)',
-      saveTrm: '예치 기간 (개월)',
-    },
+    labels: { amount: '예치금액', customRate: '연 금리 (%)', saveTrm: '예치 기간 (개월)' },
   },
   적금: {
     required: ['customProductName', 'customCompanyName', 'amount', 'customRate', 'saveTrm'],
     hidden: [],
-    labels: {
-      amount: '월 적립금액',
-      customRate: '연 금리 (%)',
-      saveTrm: '적립 기간 (개월)',
-    },
+    labels: { amount: '월 적립금액', customRate: '연 금리 (%)', saveTrm: '적립 기간 (개월)' },
   },
   보험: {
     required: ['customProductName', 'customCompanyName', 'amount'],
     hidden: ['customRate'],
-    labels: {
-      amount: '월 보험료',
-      saveTrm: '납입 기간 (개월)',
-    },
+    labels: { amount: '월 보험료', saveTrm: '납입 기간 (개월)' },
   },
   연금: {
     required: ['customProductName', 'customCompanyName', 'amount'],
     hidden: [],
-    labels: {
-      amount: '월 납입금액',
-      saveTrm: '납입 기간 (개월)',
-    },
+    labels: { amount: '월 납입금액', saveTrm: '납입 기간 (개월)' },
   },
   주식: {
     required: ['customProductName', 'customCompanyName', 'amount'],
     hidden: ['customRate', 'saveTrm'],
-    labels: {
-      amount: '투자금액',
-    },
+    labels: { amount: '투자금액' },
   },
   기타: {
     required: ['customProductName', 'customCompanyName', 'amount'],
     hidden: [],
-    labels: {
-      amount: '투자금액',
-      customRate: '예상 수익률 (%)',
-      saveTrm: '투자 기간 (개월)',
-    },
+    labels: { amount: '투자금액', customRate: '예상 수익률 (%)', saveTrm: '투자 기간 (개월)' },
   },
 };
 
-// 사용 가능한 세부 카테고리
-const availableSubcategories = computed(() => {
-  return subcategoryMapping[formData.value.category] || [];
-});
-
-// 폼 데이터 (기존 필드명 유지)
 const formData = ref({
   customProductName: '',
   customCompanyName: '',
@@ -523,133 +627,360 @@ const formData = ref({
   saveTrm: null,
   joinDate: todayDate,
   memo: '',
-  // 주식 관련 (기존 riskLevel 필드 재활용)
-  currentPrice: null, // riskLevel 대신 사용
-  quantity: null, // 새 필드
-  marketType: '', // 새 필드
+  // 주식 관련
+  currentPrice: null,
+  quantity: null,
+  marketType: '',
   // 보험 관련
-  coverage: null, // 새 필드
-  beneficiary: '', // 새 필드
+  coverage: null,
+  beneficiary: '',
   // 연금 관련
-  pensionType: '', // 새 필드
-  taxBenefit: '', // 새 필드
+  pensionType: '',
+  taxBenefit: '',
 });
 
-// 필드 표시 여부 확인
-const shouldShowField = (fieldName) => {
-  const config = productFieldConfig[formData.value.category];
-  if (!config) return true;
-  return !config.hidden.includes(fieldName);
-};
+// 세부 카테고리
+const availableSubcategories = computed(() => subcategoryMapping[formData.value?.category] || []);
+const isCategoryReady = computed(() => {
+  return !!formData.value?.category && !!formData.value?.subcategory;
+});
 
-// 필수 필드 여부 확인
-const isRequiredField = (fieldName) => {
-  const config = productFieldConfig[formData.value.category];
-  if (!config) return false;
-  return config.required.includes(fieldName);
-};
+// 자동입력 가능 여부
+const autoFillRequirements = computed(() => {
+  const missing = [];
+  if (!(formData.value?.customProductName || '').trim()) missing.push('상품명');
+  if (!(formData.value?.customCompanyName || '').trim()) missing.push('금융회사');
+  if (!formData.value?.category) missing.push('카테고리');
+  if (!formData.value?.subcategory) missing.push('세부 카테고리');
+  return {
+    ready: missing.length === 0,
+    missing,
+    message: missing.length ? `${missing.join(', ')} 입력 필요` : '자동입력 가능',
+  };
+});
 
-// 필드 라벨 가져오기
-const getFieldLabel = (fieldName) => {
-  const config = productFieldConfig[formData.value.category];
-  if (!config || !config.labels || !config.labels[fieldName]) {
-    // 기본 라벨
-    const defaultLabels = {
-      amount: '투자금액',
-      customRate: '연 금리 (%)',
-      saveTrm: '저축 기간 (개월)',
-    };
-    return defaultLabels[fieldName] || fieldName;
-  }
-  return config.labels[fieldName];
-};
+const canAutoFill = computed(() => autoFillRequirements.value.ready);
+
+// 자동입력 힌트
+const autoFillHint = computed(() =>
+  autoFillRequirements.value.ready ? 'AI로 자동입력' : autoFillRequirements.value.message
+);
 
 // 폼 유효성 검사
 const isFormValid = computed(() => {
-  const config = productFieldConfig[formData.value.category];
-  if (!config) return false;
-
-  // 필수 필드 검사
-  return config.required.every((field) => {
-    const value = formData.value[field];
-    if (typeof value === 'string') {
-      return value.trim().length > 0;
-    }
-    return value !== null && value !== undefined && value > 0;
+  const cfg = productFieldConfig[formData.value.category];
+  if (!cfg) return false;
+  return cfg.required.every((field) => {
+    const v = formData.value[field];
+    if (typeof v === 'string') return v.trim().length > 0;
+    return v !== null && v !== undefined && Number(v) > 0;
   });
 });
 
 // 미리보기 표시 여부
 const canShowPreview = computed(() => {
   return (
-    formData.value.amount > 0 &&
-    (formData.value.customRate > 0 ||
-      formData.value.saveTrm > 0 ||
-      formData.value.joinDate ||
+    Number(formData.value.amount) > 0 &&
+    (Number(formData.value.customRate) > 0 ||
+      Number(formData.value.saveTrm) > 0 ||
+      !!formData.value.joinDate ||
       (formData.value.category === '주식' &&
-        formData.value.currentPrice &&
-        formData.value.quantity) ||
-      (formData.value.category === '보험' && formData.value.coverage))
+        Number(formData.value.currentPrice) > 0 &&
+        Number(formData.value.quantity) > 0) ||
+      (formData.value.category === '보험' && Number(formData.value.coverage) > 0))
   );
 });
 
-// 통화 포맷팅
+// 자동입력 상태
+const isAutoFilling = ref(false);
+const isApplyingAutoFill = ref(false);
+const autoFillResult = ref(null); // 변환된 결과 객체
+const selectedTermMonths = ref(null); // 12,24,36...
+const selectedRateKeys = ref([]); // ['급여이체우대', ...]
+
+// autoFillResult 변경 시 선택 기본값 세팅
+watch(autoFillResult, (val) => {
+  if (!val) {
+    selectedTermMonths.value = null;
+    selectedRateKeys.value = [];
+    return;
+  }
+  const monthsList = val.termOptions?.map((o) => o.months) || [];
+  if (val.termMonths) selectedTermMonths.value = val.termMonths;
+  else if (monthsList.length) selectedTermMonths.value = monthsList[0];
+  else selectedTermMonths.value = null;
+  selectedRateKeys.value = []; // 기본 미선택
+});
+
+const baseRateForTerm = computed(() => {
+  const opts = autoFillResult.value?.termOptions || [];
+  const sel = Number(selectedTermMonths.value);
+  const found = opts.find((o) => Number(o.months) === sel);
+  const rate = found?.interestRate;
+  // 기간 금리가 정의돼 있으면 그걸, 없으면 기본금리
+  return Number.isFinite(rate) ? Number(rate) : Number(autoFillResult.value?.baseRate) || 0;
+});
+
+// 선택 우대금리 합계(%p) - 기존 그대로
+const selectedRateBonus = computed(() => {
+  if (!autoFillResult.value?.rateOptions?.length) return 0;
+  const map = new Map(
+    autoFillResult.value.rateOptions.map((o) => [o.condition, Number(o.rate) || 0])
+  );
+  return (selectedRateKeys.value || []).reduce((sum, key) => sum + (map.get(key) || 0), 0);
+});
+
+// 최종 적용 금리(기본 + 선택 우대)
+const effectiveRate = computed(() => {
+  const base = baseRateForTerm.value; // ← 변경 포인트
+  const bonus = selectedRateBonus.value || 0;
+  const raw = base + bonus;
+  const cap = Number(autoFillResult.value?.maxRate);
+  const final = Number.isFinite(cap) ? Math.min(raw, cap) : raw;
+  return Math.round(final * 100) / 100; // 소수 둘째 자리 반올림
+});
+
+// 통화 형식 변환
 const formatCurrency = (amount) => {
-  if (!amount || amount === 0) return '0원';
-  if (amount >= 100000000) {
-    const eok = Math.floor(amount / 100000000);
-    const remainder = amount % 100000000;
-    if (remainder === 0) return `${eok}억원`;
-    const man = Math.floor(remainder / 10000);
+  const n = Number(amount) || 0;
+  if (n === 0) return '0원';
+  if (n >= 100000000) {
+    const eok = Math.floor(n / 100000000);
+    const rem = n % 100000000;
+    if (rem === 0) return `${eok}억원`;
+    const man = Math.floor(rem / 10000);
     return `${eok}억 ${man}만원`;
   }
-  if (amount >= 10000) {
-    const man = Math.floor(amount / 10000);
-    const remainder = amount % 10000;
-    if (remainder === 0) return `${man}만원`;
-    return `${man}만 ${remainder.toLocaleString()}원`;
+  if (n >= 10000) {
+    const man = Math.floor(n / 10000);
+    const rem = n % 10000;
+    if (rem === 0) return `${man}만원`;
+    return `${man}만 ${rem.toLocaleString()}원`;
   }
-  return new Intl.NumberFormat('ko-KR').format(amount) + '원';
+  return new Intl.NumberFormat('ko-KR').format(n) + '원';
 };
 
 // 예상 이자 계산
 const calculateEstimatedInterest = () => {
-  if (!formData.value.amount || !formData.value.customRate || !formData.value.saveTrm) return 0;
-  const principal = formData.value.amount;
-  const rate = formData.value.customRate / 100;
-  const months = formData.value.saveTrm;
+  const principal = Number(formData.value.amount) || 0;
+  const rate = (Number(formData.value.customRate) || 0) / 100;
+  const months = Number(formData.value.saveTrm) || 0;
+  if (!principal || !rate || !months) return 0;
   const futureValue = principal * Math.pow(1 + rate / 12, months);
   return Math.round(futureValue - principal);
 };
 
-// 만기일 계산
+// 예상 만기일 계산
 const calculateMaturityDate = () => {
   if (!formData.value.joinDate || !formData.value.saveTrm) return '';
   const joinDate = new Date(formData.value.joinDate);
   const maturityDate = new Date(joinDate);
-  maturityDate.setMonth(maturityDate.getMonth() + formData.value.saveTrm);
+  maturityDate.setMonth(maturityDate.getMonth() + Number(formData.value.saveTrm));
   return maturityDate.toLocaleDateString('ko-KR');
 };
 
-// 카테고리 변경 시 처리
+// 필드 표시 여부
+const shouldShowField = (fieldName) => {
+  const cfg = productFieldConfig[formData.value.category];
+  if (!cfg) return true;
+  return !cfg.hidden.includes(fieldName);
+};
+
+// 필수 필드 여부
+const isRequiredField = (fieldName) => {
+  const cfg = productFieldConfig[formData.value.category];
+  if (!cfg) return false;
+  return cfg.required.includes(fieldName);
+};
+
+// 필드 라벨 가져오기
+const getFieldLabel = (fieldName) => {
+  const cfg = productFieldConfig[formData.value.category];
+  if (!cfg || !cfg.labels || !cfg.labels[fieldName]) {
+    const defaults = { amount: '투자금액', customRate: '연 금리 (%)', saveTrm: '저축 기간 (개월)' };
+    return defaults[fieldName] || fieldName;
+  }
+  return cfg.labels[fieldName];
+};
+
+// 위험 수준 가져오기
+const getRiskLevel = (category) => {
+  const m = { 예금: 'LOW', 적금: 'LOW', 보험: 'LOW', 연금: 'MEDIUM', 주식: 'HIGH', 기타: 'MEDIUM' };
+  return m[category] || 'MEDIUM';
+};
+
+// 자동입력 결과 변환
+const transformApiDataToUIFormat = (apiData) => {
+  const normalizedTerms = (apiData.termOptions || []).map((opt) => ({
+    months: Number(opt.months),
+    interestRate: opt.interestRate != null ? Number(opt.interestRate) : null,
+    description: opt.description || `${opt.months}개월`,
+  }));
+
+  const normalizedRates = (apiData.rateOptions || [])
+    .filter((opt) => opt.condition !== '기본금리') // 기본금리 제외
+    .map((opt) => ({
+      condition: String(opt.condition),
+      rate: Number(opt.rate), // %p
+      description: opt.description || '',
+    }));
+
+  const recommendedTermOption =
+    normalizedTerms.find((o) => o.months === apiData.recommendedTerm) || normalizedTerms[0];
+
+  const features = normalizedRates.map((o) => `${o.condition} ${o.rate}%p`);
+  let additionalFeatures = [];
+  if (apiData.rawResponse) {
+    try {
+      const rawData = JSON.parse(apiData.rawResponse);
+      if (Array.isArray(rawData.features)) additionalFeatures = rawData.features;
+    } catch (e) {
+      showToast('rawResponse 파싱 실패', 'error');
+    }
+  }
+
+  return {
+    productName: apiData.customProductName || '상품명 확인 필요',
+    companyName: apiData.customCompanyName || '회사명 확인 필요',
+    category: apiData.category,
+    subcategory: apiData.subcategory,
+
+    baseRate: apiData.baseRate,
+    maxRate: apiData.maxRate,
+
+    termMonths: recommendedTermOption?.months || apiData.recommendedTerm,
+
+    minAmount: apiData.minAmount,
+    maxAmount: apiData.maxAmount,
+    amountType: apiData.amountType,
+
+    riskLevel: apiData.riskLevel,
+
+    features: [...features, ...additionalFeatures],
+    note: apiData.memo || `기본금리 ${apiData.baseRate}%, 최고금리 ${apiData.maxRate}%`,
+    confidence: apiData.confidence,
+
+    termOptions: normalizedTerms,
+    rateOptions: normalizedRates,
+
+    originalData: apiData,
+  };
+};
+
+// 유효한 API 응답 여부
+const isValidApiResponse = (res) =>
+  !!(res && res.header?.status === 'OK' && res.body?.data?.success);
+
+// 자동입력 상품 정보 가져오기
+const autoFillProduct = async () => {
+  if (!canAutoFill.value || isAutoFilling.value) return;
+  isAutoFilling.value = true;
+
+  try {
+    // ref 자체를 전달 (API 구현이 formData.value를 내부에서 읽음)
+    const apiResponse = await portfolioAPI.getProductInfo(formData);
+
+    if (!isValidApiResponse(apiResponse)) {
+      throw new Error('유효하지 않은 응답');
+    }
+
+    const data = apiResponse.body.data;
+    const transformed = transformApiDataToUIFormat(data);
+
+    if (Number(transformed.confidence) > 0.7) {
+      autoFillResult.value = transformed;
+      showToast('상품 정보를 찾았습니다!', 'success');
+    } else {
+      autoFillResult.value = {
+        ...transformed,
+        note: '정확하지 않을 수 있습니다. 직접 확인 후 수정해주세요.',
+      };
+      showToast('정확한 정보를 찾지 못했습니다.', 'warning');
+    }
+  } catch (err) {
+    showToast('자동입력 실패', 'error');
+    autoFillResult.value = null;
+    showToast('상품 정보를 가져올 수 없습니다.', 'error');
+  } finally {
+    isAutoFilling.value = false;
+  }
+};
+
+// 자동입력 결과 초기화
+const clearAutoFill = () => {
+  autoFillResult.value = null;
+  selectedTermMonths.value = null;
+  selectedRateKeys.value = [];
+};
+
+// 자동입력 결과 적용
+const applyAutoFill = () => {
+  if (!autoFillResult.value) return;
+  const r = autoFillResult.value;
+
+  // 기본
+  formData.value.category = r.category;
+  formData.value.subcategory = r.subcategory;
+
+  // 금리/기간 (선택 반영)
+  formData.value.customRate = effectiveRate.value || r.maxRate || r.baseRate || null;
+  formData.value.saveTrm = selectedTermMonths.value || r.termMonths || null;
+
+  // 금액 기본값
+  if (r.amountType === 'MONTHLY') formData.value.amount = r.maxAmount || 500000;
+  else if (r.amountType === 'PREMIUM') formData.value.amount = r.minAmount || 50000;
+  else formData.value.amount = r.minAmount || 1000000;
+
+  // 주식 특수 처리
+  if (r.category === '주식' && r.originalData) {
+    const od = r.originalData;
+    formData.value.currentPrice = Number(od.minAmount) || 0;
+    formData.value.quantity = 1;
+    formData.value.amount = formData.value.currentPrice || r.minAmount || 0;
+    if (od.memo?.includes('코스피')) formData.value.marketType = '코스피';
+    else if (od.memo?.includes('코스닥')) formData.value.marketType = '코스닥';
+  }
+
+  // 보험 특수 처리
+  if (r.category === '보험' && r.originalData?.memo) {
+    const m = r.originalData.memo.match(/사망보험금:\s*(\d+)원/);
+    if (m) formData.value.coverage = Number(m[1]) || null;
+  }
+
+  // 메모 구성
+  const features = r.features?.join(', ') || '';
+  const note = r.note || '';
+  let memoContent = note;
+  if (features) memoContent += `\n\n[우대혜택]\n${features}`;
+  if (r.originalData?.memo && r.originalData.memo !== note) {
+    memoContent += `\n\n[상세정보]\n${r.originalData.memo}`;
+  }
+  formData.value.memo = memoContent;
+
+  showToast('정보가 자동입력되었습니다.', 'success');
+  autoFillResult.value = null; // 적용 후 결과 카드 닫기
+};
+
+// 카테고리 변경 감지
 watch(
   () => formData.value.category,
   (newCategory) => {
-    // 세부 카테고리 초기화
+    // 자동입력 중/적용 중에는 건드리지 않음
+    if (isAutoFilling.value || isApplyingAutoFill.value) return;
+
+    // 세부 카테고리 유효성만 점검
     if (newCategory && !availableSubcategories.value.includes(formData.value.subcategory)) {
       formData.value.subcategory = '';
     }
 
-    // 숨김 필드 초기화
-    const config = productFieldConfig[newCategory];
-    if (config && config.hidden) {
-      config.hidden.forEach((field) => {
-        if (field === 'customRate') formData.value.customRate = null;
-        if (field === 'saveTrm') formData.value.saveTrm = null;
-      });
+    // 숨김 필드 초기화(기존 로직 유지)
+    const cfg = productFieldConfig[newCategory];
+    if (cfg?.hidden?.length) {
+      if (cfg.hidden.includes('customRate')) formData.value.customRate = null;
+      if (cfg.hidden.includes('saveTrm')) formData.value.saveTrm = null;
     }
 
-    // 카테고리별 특수 필드 초기화
+    // 특수 필드 초기화(기존 로직 유지)
     if (newCategory !== '주식') {
       formData.value.currentPrice = null;
       formData.value.quantity = null;
@@ -686,13 +1017,11 @@ const resetForm = () => {
     pensionType: '',
     taxBenefit: '',
   };
+  clearAutoFill();
 };
 
-// 오버레이 클릭 처리
 const handleOverlayClick = () => {
-  if (!isProcessing.value) {
-    handleClose();
-  }
+  if (!isProcessing.value) handleClose();
 };
 
 // 모달 닫기
@@ -703,131 +1032,91 @@ const handleClose = () => {
   }
 };
 
-// 위험도 매핑 함수
-const getRiskLevel = (category) => {
-  const riskMapping = {
-    예금: 'LOW',
-    적금: 'LOW',
-    보험: 'LOW',
-    연금: 'MEDIUM',
-    주식: 'HIGH',
-    기타: 'MEDIUM',
-  };
-  return riskMapping[category] || 'MEDIUM';
-};
-
 // 폼 제출
 const handleSubmit = async () => {
   if (!isFormValid.value || isProcessing.value) return;
-
   isProcessing.value = true;
 
   try {
-    // API 명세에 맞는 데이터 구조로 변환
     const newProduct = {
       amount: formData.value.amount,
       category: formData.value.category,
       customCompanyName: formData.value.customCompanyName.trim(),
       customProductName: formData.value.customProductName.trim(),
       subcategory: formData.value.subcategory || null,
-
-      // 금리 관련 - 상품에 따라 다른 필드 사용
       customRate: formData.value.customRate || null,
-      interestRate: formData.value.customRate || null, // API에서 요구하는 필드
+      interestRate: formData.value.customRate || null,
       expectedReturn: (() => {
-        // 상품별로 다른 expectedReturn 계산
         if (
           formData.value.category === '주식' &&
-          formData.value.currentPrice &&
-          formData.value.quantity
+          Number(formData.value.currentPrice) > 0 &&
+          Number(formData.value.quantity) > 0
         ) {
-          // 주식: 현재가 대비 투자금액 차이를 수익률로 계산
           const totalValue = formData.value.currentPrice * formData.value.quantity;
           return formData.value.amount > 0
             ? ((totalValue - formData.value.amount) / formData.value.amount) * 100
             : null;
         } else if (formData.value.category === '기타' && formData.value.customRate) {
-          // 기타: 입력한 수익률 사용
           return formData.value.customRate;
         } else if (
           ['예금', '적금'].includes(formData.value.category) &&
           formData.value.customRate
         ) {
-          // 예금/적금: 금리를 수익률로 사용
           return formData.value.customRate;
         }
         return null;
       })(),
-
-      // 기간 관련
       saveTrm: formData.value.saveTrm || null,
       joinDate: formData.value.joinDate || null,
       maturityDate: (() => {
         if (formData.value.joinDate && formData.value.saveTrm) {
-          const joinDate = new Date(formData.value.joinDate);
-          const maturityDate = new Date(joinDate);
-          maturityDate.setMonth(maturityDate.getMonth() + formData.value.saveTrm);
-          return maturityDate.toISOString().split('T')[0];
+          const join = new Date(formData.value.joinDate);
+          const mat = new Date(join);
+          mat.setMonth(mat.getMonth() + Number(formData.value.saveTrm));
+          return mat.toISOString().split('T')[0];
         }
         return null;
       })(),
-
-      // 위험도 자동 설정
       riskLevel: getRiskLevel(formData.value.category),
-
-      // 메모에 추가 정보 포함
       memo: (() => {
-        let memo = formData.value.memo.trim();
-
-        // 상품별 특수 정보를 메모에 추가
-        const additionalInfo = [];
-
+        let memo = (formData.value.memo || '').trim();
+        const add = [];
         if (formData.value.category === '주식') {
           if (formData.value.currentPrice)
-            additionalInfo.push(`현재가: ${formData.value.currentPrice.toLocaleString()}원`);
-          if (formData.value.quantity)
-            additionalInfo.push(`보유수량: ${formData.value.quantity}주`);
-          if (formData.value.marketType) additionalInfo.push(`시장: ${formData.value.marketType}`);
+            add.push(`현재가: ${formData.value.currentPrice.toLocaleString()}원`);
+          if (formData.value.quantity) add.push(`보유수량: ${formData.value.quantity}주`);
+          if (formData.value.marketType) add.push(`시장: ${formData.value.marketType}`);
         } else if (formData.value.category === '보험') {
           if (formData.value.coverage)
-            additionalInfo.push(`보장금액: ${formData.value.coverage.toLocaleString()}원`);
-          if (formData.value.beneficiary)
-            additionalInfo.push(`수익자: ${formData.value.beneficiary}`);
+            add.push(`보장금액: ${formData.value.coverage.toLocaleString()}원`);
+          if (formData.value.beneficiary) add.push(`수익자: ${formData.value.beneficiary}`);
         } else if (formData.value.category === '연금') {
-          if (formData.value.pensionType)
-            additionalInfo.push(`연금종류: ${formData.value.pensionType}`);
-          if (formData.value.taxBenefit)
-            additionalInfo.push(`세제혜택: ${formData.value.taxBenefit}`);
+          if (formData.value.pensionType) add.push(`연금종류: ${formData.value.pensionType}`);
+          if (formData.value.taxBenefit) add.push(`세제혜택: ${formData.value.taxBenefit}`);
         }
-
-        if (additionalInfo.length > 0) {
+        if (add.length)
           memo = memo
-            ? `${memo}\n\n[추가정보]\n${additionalInfo.join(', ')}`
-            : `[추가정보]\n${additionalInfo.join(', ')}`;
-        }
-
+            ? `${memo}\n\n[추가정보]\n${add.join(', ')}`
+            : `[추가정보]\n${add.join(', ')}`;
         return memo || null;
       })(),
     };
 
+    // 실제 저장은 부모에서 처리 (@add-product)
     emit('add-product', newProduct);
     showToast('저장되었습니다!', 'success');
     resetForm();
-  } catch (error) {
+  } catch (e) {
     showToast('저장에 실패했습니다.', 'error');
   } finally {
     isProcessing.value = false;
   }
 };
 
-// ESC 키로 모달 닫기
-const handleKeydown = (event) => {
-  if (event.key === 'Escape' && props.isVisible && !isProcessing.value) {
-    handleClose();
-  }
+const handleKeydown = (e) => {
+  if (e.key === 'Escape' && props.isVisible && !isProcessing.value) handleClose();
 };
 
-// 이벤트 리스너 등록/해제
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown);
 });
@@ -836,17 +1125,18 @@ onUnmounted(() => {
   document.removeEventListener('keydown', handleKeydown);
 });
 
-// 모달이 열릴 때 스크롤 방지
 watch(
   () => props.isVisible,
-  (isVisible) => {
-    if (isVisible) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+  (v) => {
+    document.body.style.overflow = v ? 'hidden' : '';
   }
 );
+watch([() => formData.value.category, () => formData.value.subcategory], () => {
+  if (isAutoFilling.value || isApplyingAutoFill.value) return;
+  autoFillResult.value = null;
+  selectedTermMonths.value = null;
+  selectedRateKeys.value = [];
+});
 </script>
 
 <style scoped>
@@ -1224,5 +1514,389 @@ watch(
 .form-input:focus {
   outline: 0.125rem solid var(--color-main); /* 2px */
   outline-offset: 0.125rem; /* 2px */
+} /* ===== 자동입력(자동완성) 입력 UI ===== */
+.input-with-auto {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.input-with-auto .form-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.auto-fill-btn.big {
+  padding: 0.5rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 0.6rem;
+}
+
+.auto-fill-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auto-fill-btn.big:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.15);
+}
+/* ===== AI 자동입력 결과 카드 ===== */
+.auto-fill-result {
+  grid-column: 1 / -1;
+  border: 1px solid rgba(185, 187, 204, 0.35);
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, rgba(45, 51, 107, 0.04), rgba(125, 129, 162, 0.04));
+  overflow: hidden;
+}
+
+.auto-fill-result .result-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: space-between;
+  padding: 0.75rem 0.875rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid rgba(185, 187, 204, 0.25);
+}
+
+.result-header i {
+  color: var(--color-sub, #7d81a2);
+}
+
+.result-header > span {
+  margin-right: auto;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-main, #2d336b);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.result-header .apply-btn,
+.result-header .clear-btn {
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  font-size: 0.78rem;
+  padding: 0.4rem 0.6rem;
+}
+
+.result-header .apply-btn {
+  background: var(--color-main, #2d336b);
+  color: #fff;
+}
+
+.result-header .apply-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(45, 51, 107, 0.25);
+}
+
+.result-header .clear-btn {
+  background: transparent;
+  color: var(--color-sub, #7d81a2);
+  padding: 0.25rem 0.5rem;
+}
+
+.result-header .clear-btn:hover {
+  background: rgba(185, 187, 204, 0.15);
+}
+
+/* 결과 내용 */
+.auto-fill-result .result-content {
+  padding: 0.75rem 0.875rem 0.9rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.result-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.result-item {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(185, 187, 204, 0.25);
+  border-radius: 0.5rem;
+  padding: 0.55rem 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.result-label {
+  color: var(--color-sub, #7d81a2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.result-value {
+  color: var(--color-main, #2d336b);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.result-value.highlight {
+  color: #10b981; /* 최고 금리 강조 */
+}
+
+/* 특징(태그) 영역 */
+.result-features {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.features-label {
+  color: var(--color-sub, #7d81a2);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.features-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.feature-tag {
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.08);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* 참고/노트 */
+.result-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  padding: 0.55rem 0.6rem;
+  background: rgba(59, 130, 246, 0.06);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 0.5rem;
+  color: #1d4ed8;
+  font-size: 0.78rem;
+}
+
+.result-note i {
+  margin-top: 0.05rem;
+}
+
+/* ===== 작은 UX 보완들 ===== */
+
+/* select와 input의 disabled 시각 보완 */
+.form-input:disabled,
+.form-select:disabled {
+  background: rgba(245, 246, 250, 0.9);
+  color: rgba(125, 129, 162, 0.8);
+}
+
+/* datalist 화살표 간격 최소화 (브라우저별 차이 완화) */
+input[list]::-webkit-calendar-picker-indicator {
+  opacity: 0.6;
+}
+
+/* 숫자 입력에서 스핀 버튼 정리 (크롬/엣지) */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* 파이어폭스 */
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+/* 저장 버튼 로딩 스핀 아이콘 미세 정렬 */
+.save-btn .spin {
+  margin-left: 0.1rem;
+}
+/* ===== 옵션 선택 UI (기간/우대금리) 자연스러운 스타일 ===== */
+
+/* 라디오/체크박스 기본 색상을 테마 컬러로 */
+.auto-fill-result .result-item input[type='radio'],
+.auto-fill-result .result-item input[type='checkbox'] {
+  accent-color: var(--color-main);
+}
+
+/* 기간 선택 라벨(라디오)도 pill 형태로 */
+.auto-fill-result .result-item label {
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(185, 187, 204, 0.35);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-main);
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+/* 호버 시 살짝 떠오르게 */
+.auto-fill-result .result-item label:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(45, 51, 107, 0.12);
+}
+
+/* 체크/선택된 라벨 하이라이트 (브라우저가 :has 지원 시 적용) */
+@supports selector(:has(*)) {
+  .auto-fill-result .result-item label:has(input:checked) {
+    background: rgba(45, 51, 107, 0.08);
+    border-color: rgba(45, 51, 107, 0.35);
+  }
+}
+
+/* 우대금리 태그(label.feature-tag) 미세 조정 */
+.auto-fill-result .result-item .feature-tag {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #059669;
+}
+@supports selector(:has(*)) {
+  .auto-fill-result .result-item .feature-tag:has(input:checked) {
+    background: rgba(16, 185, 129, 0.14);
+    border-color: rgba(16, 185, 129, 0.5);
+  }
+}
+
+/* 적용 금리 행을 조금 더 강조 */
+.auto-fill-result .result-item:last-child {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(16, 185, 129, 0.03));
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+/* 카드 내 옵션 영역 여백/정렬 개선 */
+.auto-fill-result .result-item[style*='display: block'] {
+  align-items: flex-start;
+}
+.auto-fill-result .result-item[style*='display: block'] > div {
+  margin-top: 0.5rem;
+}
+
+.auto-hint {
+  font-size: 0.78rem;
+  color: var(--color-sub);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+
+/* 서브타이틀 + 도움말 */
+.modal-subtitle.with-help {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* 작은 원형 버튼 느낌 */
+.info-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem; /* 20px */
+  height: 1.25rem;
+  border-radius: 999px;
+  border: 1px solid rgba(185, 187, 204, 0.4);
+  background: #fff;
+  color: var(--color-sub);
+  font-size: 0.9rem;
+  cursor: help;
+  transition: all 0.2s ease;
+}
+.info-btn:hover,
+.info-btn:focus {
+  outline: none;
+  border-color: var(--color-main);
+  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.12);
+  color: var(--color-main);
+}
+
+/* 툴팁 */
+.tooltip {
+  position: absolute;
+  top: 100%;
+  right: -10%;
+  margin-top: 0.5rem;
+  width: min(28rem, 90vw);
+  padding: 0.75rem 0.85rem;
+  background: #fff;
+  border: 1px solid rgba(185, 187, 204, 0.35);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  color: var(--color-main);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  z-index: 1001;
+
+  /* 기본은 숨김 */
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+/* 화살표 */
+.tooltip::before {
+  content: '';
+  position: absolute;
+  right: 0.85rem;
+  top: -6px;
+  width: 10px;
+  height: 10px;
+  background: #fff;
+  border-left: 1px solid rgba(185, 187, 204, 0.35);
+  border-top: 1px solid rgba(185, 187, 204, 0.35);
+  transform: rotate(45deg);
+}
+
+/* 보이기 상태 */
+.tooltip.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.tooltip-title {
+  font-weight: 700;
+  font-size: 0.8rem;
+  margin-bottom: 0.35rem;
+}
+
+.tooltip ul {
+  margin: 0.25rem 0 0.4rem;
+  padding-left: 1rem;
+}
+.tooltip li {
+  margin: 0.15rem 0;
+  color: var(--color-sub);
+}
+
+.tooltip-foot {
+  font-size: 0.72rem;
+  color: var(--color-sub);
+  border-top: 1px dashed rgba(185, 187, 204, 0.4);
+  margin-top: 0.35rem;
+  padding-top: 0.35rem;
+}
+
+.input-with-auto.tooltip-host {
+  position: relative;
+  overflow: visible; /* 혹시 잘릴 일 방지 */
 }
 </style>
