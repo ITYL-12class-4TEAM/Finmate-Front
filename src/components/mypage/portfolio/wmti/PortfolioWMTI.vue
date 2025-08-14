@@ -142,14 +142,6 @@ const props = defineProps({
   },
 });
 
-// 디버깅용 로그 (문제 해결 후 제거 가능)
-console.log('PortfolioWMTI props:', {
-  myWMTI: props.myWMTI,
-  sameWMTIUsers: props.sameWMTIUsers,
-  wmtiComparisonChart: props.wmtiComparisonChart,
-  totalAmount: props.totalAmount,
-});
-
 const activeTab = ref(-1);
 
 const toggleTab = (index) => {

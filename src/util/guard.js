@@ -14,7 +14,7 @@ export async function authGuard(to, from, next) {
   // 로그인 안 한 유저가 인증 필요한 페이지 접근 시
   if (requiresAuth && !isLoggedIn) {
     const confirmed = await modalStore.showModal(
-      '로그인이 필요한 기능입니다. 로그인 하시겠습니까?'
+      '로그인이 필요한 기능입니다.\n로그인 하시겠습니까?'
     );
 
     if (confirmed) {

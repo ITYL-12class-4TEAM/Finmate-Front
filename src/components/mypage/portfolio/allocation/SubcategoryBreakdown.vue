@@ -166,7 +166,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, watch } from 'vue';
 
 const props = defineProps({
   processedSummary: {
@@ -250,41 +250,6 @@ const expandAll = () => {
 // 전체 접기
 const collapseAll = () => {
   expandedCategories.value.clear();
-};
-
-// 분산 수준 분석
-const getDiversificationLevel = () => {
-  const categoryCount = props.processedSummary.length;
-  const maxRatio = Math.max(...props.processedSummary.map((cat) => cat.ratio));
-
-  if (categoryCount >= 5 && maxRatio < 40) {
-    return { text: '매우 우수', class: 'excellent' };
-  } else if (categoryCount >= 4 && maxRatio < 50) {
-    return { text: '우수', class: 'good' };
-  } else if (categoryCount >= 3 && maxRatio < 60) {
-    return { text: '보통', class: 'average' };
-  } else if (categoryCount >= 2) {
-    return { text: '개선 필요', class: 'poor' };
-  } else {
-    return { text: '위험', class: 'dangerous' };
-  }
-};
-
-// 리스크 집중도 분석
-const getRiskConcentration = () => {
-  const maxRatio = Math.max(...props.processedSummary.map((cat) => cat.ratio));
-
-  if (maxRatio >= 70) {
-    return { text: '매우 높음', class: 'dangerous' };
-  } else if (maxRatio >= 50) {
-    return { text: '높음', class: 'poor' };
-  } else if (maxRatio >= 35) {
-    return { text: '보통', class: 'average' };
-  } else if (maxRatio >= 25) {
-    return { text: '낮음', class: 'good' };
-  } else {
-    return { text: '매우 낮음', class: 'excellent' };
-  }
 };
 
 // 초기 확장 상태 설정 (가장 높은 비중 카테고리만 확장)

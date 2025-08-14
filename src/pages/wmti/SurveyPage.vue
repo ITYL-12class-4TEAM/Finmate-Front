@@ -890,7 +890,7 @@ onUnmounted(() => {
 @media (max-width: 48rem) {
   /* 768px 이하 */
   .survey-page {
-    padding: 0.75rem;
+    padding: 0.75rem 0 0.75rem;
   }
 
   .back-button-section {

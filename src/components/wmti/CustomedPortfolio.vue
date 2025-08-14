@@ -13,7 +13,7 @@
     <!-- 2단계: 차트 영역 -->
     <div class="chart-section">
       <div class="chart-header">
-        <h4 class="chart-title">투자 포트폴리오</h4>
+        <h4 class="chart-title">추천 자산 분배</h4>
       </div>
 
       <!-- 차트 영역 -->
@@ -69,8 +69,29 @@
 
     <!-- 3단계: 포트폴리오 구성 근거 -->
     <div class="reasoning-section">
-      <h4 class="subsection-title"><i class="fa-regular fa-lightbulb"></i> 포트폴리오 구성 근거</h4>
-      <div class="reasoning-content">
+      <button
+        class="reasoning-header"
+        :class="{ expanded: isReasoningExpanded }"
+        @click="toggleReasoningSection"
+      >
+        <h4 class="subsection-title">
+          <i class="fa-regular fa-lightbulb"></i>
+          포트폴리오 구성 근거
+        </h4>
+        <span class="accordion-toggle">
+          <svg :class="{ rotated: isReasoningExpanded }" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M19 9l-7 7-7-7"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
+      </button>
+
+      <div class="reasoning-content" :class="{ expanded: isReasoningExpanded }">
         <div class="step">
           <h5>1단계: 기본 분배</h5>
           <p>
@@ -128,6 +149,7 @@ const props = defineProps({
   wscore: { type: Number, default: 50 },
   lscore: { type: Number, default: 50 },
   cscore: { type: Number, default: 50 },
+
   // PreInfo 데이터
   investmentCapacity: {
     type: String,
@@ -161,10 +183,16 @@ const props = defineProps({
 
 // 반응형 데이터
 const adjustmentReason = ref('');
+const isReasoningExpanded = ref(false); // 아코디언 토글 상태
 
 const chartCanvas = ref(null);
 const hiddenCategories = ref(new Set());
 let chartInstance = null;
+
+// 아코디언 토글 함수
+const toggleReasoningSection = () => {
+  isReasoningExpanded.value = !isReasoningExpanded.value;
+};
 
 // 포트폴리오 기본 데이터
 const categories = ['예금', '적금', '보험', '연금', '주식', '기타'];
@@ -657,11 +685,10 @@ onMounted(() => {
 
 /* 헤더 스타일 */
 .portfolio-header {
-  margin-bottom: 1.5rem;
   text-align: center;
   background: linear-gradient(135deg, rgba(45, 51, 107, 0.02), rgba(125, 129, 162, 0.01));
   border-radius: 0.75rem;
-  padding: 1rem;
+  padding: 1rem 0 1rem 0;
 }
 
 .header-title {
@@ -870,8 +897,46 @@ onMounted(() => {
   font-weight: 700;
   font-family: 'Inter', sans-serif;
 }
+/* 아코디언 근거 설명 섹션 */
+.reasoning-section {
+  margin-top: 1rem;
+  border: 0.0625rem solid rgba(45, 51, 107, 0.1);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: var(--color-white);
+  box-shadow: 0 0.125rem 0.25rem rgba(45, 51, 107, 0.05);
+  transition: all 0.3s ease;
+}
 
-/* 근거 설명 섹션 */
+.reasoning-section:hover {
+  box-shadow: 0 0.25rem 0.5rem rgba(45, 51, 107, 0.1);
+}
+
+/* 아코디언 헤더 (클릭 가능한 버튼) */
+.reasoning-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: rgba(45, 51, 107, 0.02);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  font-family: inherit;
+}
+
+.reasoning-header:hover {
+  background: rgba(45, 51, 107, 0.05);
+}
+
+.reasoning-header.expanded {
+  background: rgba(45, 51, 107, 0.08);
+  border-bottom: 0.0625rem solid rgba(45, 51, 107, 0.1);
+}
+
+/* 근거 설명 서브섹션 제목 */
 .subsection-title {
   font-size: 0.875rem;
   font-weight: 600;
@@ -882,33 +947,69 @@ onMounted(() => {
   gap: 0.3rem;
 }
 
-.reasoning-content {
+/* 토글 아이콘 */
+.accordion-toggle {
+  width: 1.25rem;
+  height: 1.25rem;
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-sub);
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
 }
 
-.step {
+.accordion-toggle svg {
+  width: 1rem;
+  height: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.accordion-toggle svg.rotated {
+  transform: rotate(180deg);
+}
+
+/* 아코디언 콘텐츠 */
+.reasoning-content {
+  max-height: 0;
+  overflow: hidden;
+  transition:
+    max-height 0.3s ease,
+    padding 0.3s ease;
+  padding: 0 1.25rem;
+}
+
+.reasoning-content.expanded {
+  max-height: 30rem; /* 충분히 큰 값 */
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+.reasoning-content .step {
   background: var(--color-white);
   border-radius: 0.5rem;
   padding: 0.75rem;
   border-left: 0.125rem solid var(--color-light);
   transition: all 0.3s ease;
+  margin-bottom: 0.75rem;
 }
 
-.step:hover {
+.reasoning-content .step:last-child {
+  margin-bottom: 0;
+}
+
+.reasoning-content .step:hover {
   border-left-color: var(--color-main);
   box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.08);
 }
 
-.step h5 {
+.reasoning-content .step h5 {
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--color-main);
   margin: 0 0 0.375rem 0;
 }
 
-.step p {
+.reasoning-content .step p {
   font-size: 0.8rem;
   color: var(--color-sub);
   line-height: 1.4;
@@ -926,13 +1027,35 @@ onMounted(() => {
     transform: translateY(0);
   }
 }
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reasoning-content.expanded .step {
+  animation: fadeInContent 0.3s ease-out;
+}
+
+.reasoning-content.expanded .step:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.reasoning-content.expanded .step:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.reasoning-content.expanded .step:nth-child(3) {
+  animation-delay: 0.3s;
+}
 
 /* 반응형 */
 @media (max-width: 26.875rem) {
-  .customed-portfolio-section {
-    padding: 1rem;
-  }
-
   .chart-container {
     height: 16.25rem;
   }
@@ -970,6 +1093,17 @@ onMounted(() => {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
+  }
+  .reasoning-header {
+    padding: 0.875rem 1rem;
+  }
+
+  .reasoning-content.expanded {
+    padding: 0.875rem 1rem 1rem;
+  }
+
+  .subsection-title {
+    font-size: 0.8rem;
   }
 }
 

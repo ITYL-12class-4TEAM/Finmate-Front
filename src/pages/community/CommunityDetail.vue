@@ -134,7 +134,7 @@
               <span class="count">{{ post.likes || 0 }}</span>
             </button>
 
-            <button class="reaction-btn" @click="toggleComments" aria-label="댓글 보기">
+            <button class="reaction-btn" aria-label="댓글 보기" @click="toggleComments">
               <i class="bi bi-chat" style="font-size: 1rem; color: currentColor"></i>
               <span class="count">{{ comments.length }}</span>
             </button>
@@ -178,7 +178,7 @@
           class="comment-input"
           @keypress.enter="submitComment"
         />
-        <button class="comment-submit" @click="submitComment" :disabled="!newComment.trim()">
+        <button class="comment-submit" :disabled="!newComment.trim()" @click="submitComment">
           등록
         </button>
       </div>
@@ -209,15 +209,10 @@
           class="comment-input"
           @keypress.enter="submitComment"
         />
-        <button class="comment-submit" @click="submitComment" :disabled="!newComment.trim()">
+        <button class="comment-submit" :disabled="!newComment.trim()" @click="submitComment">
           등록
         </button>
       </div>
-    </div>
-
-    <!-- 알림 토스트 -->
-    <div v-if="showToast" class="toast" :class="toastType">
-      {{ toastMessage }}
     </div>
   </div>
 </template>
@@ -237,11 +232,13 @@ import { togglePostScrapAPI } from '@/api/postScrap';
 
 import { useModal } from '@/composables/useModal';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useToast } from '@/composables/useToast';
 
 // 전역번수/ref 선언
 const route = useRoute();
 const router = useRouter();
 const { showModal } = useModal();
+const { showToast } = useToast();
 const authStore = useAuthStore();
 
 const memberId = computed(() => authStore.userInfo?.memberId || null);
@@ -253,9 +250,6 @@ const comments = ref([]);
 const newComment = ref('');
 const isAnonymous = ref(false);
 const showMoreMenu = ref(false);
-const showToast = ref(false);
-const toastMessage = ref('');
-const toastType = ref('success');
 
 // 날짜 배열 포맷: [2024, 7, 25, 13, 45] → "07/25 13:45"
 const formattedTime = (arr) => {
@@ -265,16 +259,6 @@ const formattedTime = (arr) => {
     2,
     '0'
   )} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-};
-
-// 토스트 메시지 표시
-const showToastMessage = (message, type = 'success') => {
-  toastMessage.value = message;
-  toastType.value = type;
-  showToast.value = true;
-  setTimeout(() => {
-    showToast.value = false;
-  }, 3000);
 };
 
 // 더보기 메뉴 토글
@@ -294,7 +278,7 @@ const reportPost = async () => {
   showMoreMenu.value = false;
   if (await showModal('이 게시글을 신고하시겠습니까?')) {
     // 신고 API 호출
-    showToastMessage('신고가 접수되었습니다.');
+    showToast('신고가 접수되었습니다.', 'success');
   }
 };
 
@@ -302,28 +286,29 @@ const blockUser = async () => {
   showMoreMenu.value = false;
   if (await showModal(`${post.value?.nickname}님을 차단하시겠습니까?`)) {
     // 차단 API 호출
-    showToastMessage('사용자가 차단되었습니다.');
+    showToast('사용자가 차단되었습니다.', 'success');
   }
 };
 
 const shareUrl = async () => {
   showMoreMenu.value = false;
-  const currentUrl = window.location.href;
+  // const currentUrl = window.location.href;
 
   try {
-    if (navigator.share) {
-      // 모바일 네이티브 공유
-      await navigator.share({
-        title: post.value?.title || '게시글',
-        url: currentUrl,
-      });
-    } else {
-      // 클립보드 복사
-      await navigator.clipboard.writeText(currentUrl);
-      showToastMessage('URL이 클립보드에 복사되었습니다.');
-    }
+    // if (navigator.share) {
+    //   // 모바일 네이티브 공유
+    //   await navigator.share({
+    //     title: post.value?.title || '게시글',
+    //     url: currentUrl,
+    //   });
+    // } else {
+    //   // 클립보드 복사
+    //   await navigator.clipboard.writeText(currentUrl);
+    //   showToast('URL이 클립보드에 복사되었습니다.', 'success');
+    // }
+    showToast('URL이 클립보드에 복사되었습니다.', 'success');
   } catch (error) {
-    showToastMessage('URL 공유에 실패했습니다.', 'error');
+    showToast('URL 공유에 실패했습니다.', 'error');
   }
 };
 
@@ -331,10 +316,15 @@ const shareUrl = async () => {
 const fetchPostDetail = async () => {
   try {
     post.value = await getPostByIdAPI(postId, memberId.value);
-    // post.value = mockPost;
   } catch (e) {
-    // alert('게시물을 불러오지 못했습니다.');
-    console.error('게시글 불러오기 실패:', e);
+    const status = e?.response?.status ?? e?.status ?? null;
+
+    if (status === 404) {
+      showToast('게시글을 찾을 수 없습니다.', 'error');
+      router.push('/community');
+    } else {
+      showToast('게시글 불러오기 실패', 'error');
+    }
   }
 };
 
@@ -852,29 +842,6 @@ onUnmounted(() => {
 
 .mobile-only {
   display: none;
-}
-
-/* 토스트 메시지 */
-.toast {
-  position: fixed;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: white;
-  z-index: 1000;
-  animation: slideUp 0.3s ease;
-}
-
-.toast.success {
-  background: #10b981;
-}
-
-.toast.error {
-  background: #ef4444;
 }
 
 @keyframes slideUp {

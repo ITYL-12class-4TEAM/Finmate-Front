@@ -8,9 +8,6 @@
 
     <!-- 메인 콘텐츠 -->
     <div v-else>
-      <!-- 뒤로가기 버튼 -->
-      <BackButton to="/wmti/basic" />
-
       <!-- 헤더 섹션 -->
       <div class="result-header card-header">
         <div class="user-greeting">
@@ -87,7 +84,125 @@
             <span class="subsection-icon description-icon"></span>
             상세 분석
           </h4>
-          <p class="description-text multiline-text">{{ analysis.description }}</p>
+          <div class="description-item">
+            <p class="description-text multiline-text">{{ analysis.description }}</p>
+          </div>
+
+          <!-- 강점 섹션 (아코디언) -->
+          <div
+            v-if="analysis.strengths && analysis.strengths.length > 0"
+            class="detail-subsection accordion-item"
+          >
+            <button
+              class="accordion-header"
+              :class="{ expanded: expandedSections.strengths }"
+              @click="toggleSection('strengths')"
+            >
+              <span class="detail-icon strengths-icon"></span>
+              <span class="accordion-title">강점</span>
+              <span class="accordion-toggle">
+                <svg
+                  :class="{ rotated: expandedSections.strengths }"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M19 9l-7 7-7-7"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+            </button>
+            <div class="accordion-content" :class="{ expanded: expandedSections.strengths }">
+              <div class="strengths-grid">
+                <div
+                  v-for="(strength, index) in analysis.strengths"
+                  :key="'strength-' + index"
+                  class="strength-item"
+                >
+                  <span class="strength-icon">✓</span>
+                  <span class="strength-text">{{ strength }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 개선 포인트 섹션 (아코디언) -->
+          <div
+            v-if="analysis.improvements && analysis.improvements.length > 0"
+            class="detail-subsection accordion-item"
+          >
+            <button
+              class="accordion-header"
+              :class="{ expanded: expandedSections.improvements }"
+              @click="toggleSection('improvements')"
+            >
+              <span class="detail-icon improvements-icon"></span>
+              <span class="accordion-title">개선 포인트</span>
+              <span class="accordion-toggle">
+                <svg
+                  :class="{ rotated: expandedSections.improvements }"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M19 9l-7 7-7-7"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+            </button>
+            <div class="accordion-content" :class="{ expanded: expandedSections.improvements }">
+              <div class="improvements-grid">
+                <div
+                  v-for="(improvement, index) in analysis.improvements"
+                  :key="'improvement-' + index"
+                  class="improvement-item"
+                >
+                  <span class="improvement-icon">!</span>
+                  <span class="improvement-text">{{ improvement }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 투자 전략 섹션 (아코디언) -->
+          <div v-if="analysis.investmentStrategy" class="detail-subsection accordion-item">
+            <button
+              class="accordion-header"
+              :class="{ expanded: expandedSections.strategy }"
+              @click="toggleSection('strategy')"
+            >
+              <span class="detail-icon strategy-icon"></span>
+              <span class="accordion-title">추천 투자 전략</span>
+              <span class="accordion-toggle">
+                <svg
+                  :class="{ rotated: expandedSections.strategy }"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M19 9l-7 7-7-7"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+            </button>
+            <div class="accordion-content" :class="{ expanded: expandedSections.strategy }">
+              <div class="strategy-content">
+                <p class="strategy-text">{{ analysis.investmentStrategy }}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -95,9 +210,8 @@
       <div class="score-card card-header">
         <div class="section-header">
           <div class="section-icon score-icon"></div>
-          <h3 class="section-title">성향 분석 결과</h3>
+          <h3 class="section-title">항목별 분포</h3>
         </div>
-
         <ScoreChart
           :a-score="analysisObject.ascore || 0"
           :i-score="analysisObject.iscore || 0"
@@ -115,7 +229,7 @@
       </div>
 
       <!-- 맞춤형 포트폴리오 -->
-      <div class="CustomedPortfolio-card card-header">
+      <div id="target-section" class="CustomedPortfolio-card card-header">
         <div class="section-header">
           <div class="section-icon customed-icon"></div>
           <h3 class="section-title">맞춤형 포트폴리오</h3>
@@ -152,6 +266,11 @@
         </div>
 
         <div class="action-buttons">
+          <!-- http://localhost:5173/mypage/portfolio 중 allocation탭으로 이동-->
+          <button class="action-button primary" @click="goToPortfolio">
+            <div class="button-icon portfolio-icon"></div>
+            직접 포트폴리오 구성하러 가기
+          </button>
           <button class="action-button secondary" @click="goToWMTIList">
             <div class="button-icon users-icon"></div>
             16가지 WMTI 투자성향 보기
@@ -176,46 +295,27 @@ import { getWMTIResultAPI, getWMTIAnalysisAPI, getPreInfoCalcAPI } from '@/api/w
 import { useToast } from '@/composables/useToast';
 import { useAuthStore } from '@/stores/useAuthStore';
 import ScoreChart from '@/components/wmti/ScoreChart.vue';
-import BackButton from '@/components/common/BackButton.vue';
 import CustomedPortfolio from '@/components/wmti/CustomedPortfolio.vue';
 import WMTIHeroCard from '@/components/wmti/WMTIHeroCard.vue';
 
-// ===== WMTI 캐릭터 이미지 정적 import =====
-import apmlImage from '@/assets/images/wmti-characters/apml.png';
-import apmcImage from '@/assets/images/wmti-characters/apmc.png';
-import apwlImage from '@/assets/images/wmti-characters/apwl.png';
-import apwcImage from '@/assets/images/wmti-characters/apwc.png';
-import abmlImage from '@/assets/images/wmti-characters/abml.png';
-import abmcImage from '@/assets/images/wmti-characters/abmc.png';
-import abwlImage from '@/assets/images/wmti-characters/abwl.png';
-import abwcImage from '@/assets/images/wmti-characters/abwc.png';
-import ipmlImage from '@/assets/images/wmti-characters/ipml.png';
-import ipmcImage from '@/assets/images/wmti-characters/ipmc.png';
-import ipwlImage from '@/assets/images/wmti-characters/ipwl.png';
-import ipwcImage from '@/assets/images/wmti-characters/ipwc.png';
-import ibmlImage from '@/assets/images/wmti-characters/ibml.png';
-import ibmcImage from '@/assets/images/wmti-characters/ibmc.png';
-import ibwlImage from '@/assets/images/wmti-characters/ibwl.png';
-import ibwcImage from '@/assets/images/wmti-characters/ibwc.png';
-
-// 이미지 맵 생성
+// ===== Public 폴더 절대경로로 WMTI 캐릭터 이미지 맵핑 =====
 const wmtiImageMap = {
-  APML: apmlImage,
-  APMC: apmcImage,
-  APWL: apwlImage,
-  APWC: apwcImage,
-  ABML: abmlImage,
-  ABMC: abmcImage,
-  ABWL: abwlImage,
-  ABWC: abwcImage,
-  IPML: ipmlImage,
-  IPMC: ipmcImage,
-  IPWL: ipwlImage,
-  IPWC: ipwcImage,
-  IBML: ibmlImage,
-  IBMC: ibmcImage,
-  IBWL: ibwlImage,
-  IBWC: ibwcImage,
+  APML: '/images/wmti-characters/apml.png',
+  APMC: '/images/wmti-characters/apmc.png',
+  APWL: '/images/wmti-characters/apwl.png',
+  APWC: '/images/wmti-characters/apwc.png',
+  ABML: '/images/wmti-characters/abml.png',
+  ABMC: '/images/wmti-characters/abmc.png',
+  ABWL: '/images/wmti-characters/abwl.png',
+  ABWC: '/images/wmti-characters/abwc.png',
+  IPML: '/images/wmti-characters/ipml.png',
+  IPMC: '/images/wmti-characters/ipmc.png',
+  IPWL: '/images/wmti-characters/ipwl.png',
+  IPWC: '/images/wmti-characters/ipwc.png',
+  IBML: '/images/wmti-characters/ibml.png',
+  IBMC: '/images/wmti-characters/ibmc.png',
+  IBWL: '/images/wmti-characters/ibwl.png',
+  IBWC: '/images/wmti-characters/ibwc.png',
 };
 
 const router = useRouter();
@@ -227,8 +327,8 @@ const analysisObject = ref({});
 const preInfoData = ref({});
 const analysis = ref({});
 const createdAt = ref([]);
-const characterImageUrl = ref(''); // ref로 변경
-const isLoading = ref(true); // 로딩 상태 추가
+const characterImageUrl = ref('');
+const isLoading = ref(true);
 
 // userInfo에서 userName을 가져오는 computed 속성
 const userName = computed(() => {
@@ -243,7 +343,7 @@ const formattedDate = computed(() => {
   return date.toLocaleString('ko-KR');
 });
 
-// ===== 수정된 WMTI 이미지 URL 계산 함수 =====
+// ===== Public 절대경로를 사용하는 WMTI 이미지 URL 계산 함수 =====
 const getWMTIImageUrl = (wmtiCode) => {
   if (!wmtiCode) {
     return '';
@@ -289,7 +389,7 @@ const fetchResult = async () => {
     // 분석 데이터와 이미지를 병렬로 로드
     const [analysisData, imageUrl] = await Promise.all([
       fetchAnalysis(data.wmtiCode),
-      getWMTIImageUrl(data.wmtiCode),
+      Promise.resolve(getWMTIImageUrl(data.wmtiCode)), // 동기 함수를 Promise로 래핑
     ]);
 
     characterImageUrl.value = imageUrl;
@@ -315,6 +415,12 @@ const fetchAnalysis = async (wmtiCode) => {
 // 라우팅 함수
 const goToWMTIList = () => router.push('/wmti/collection');
 const goToHistory = () => router.push('/mypage/wmti-history');
+const goToPortfolio = () => {
+  router.push({
+    path: '/mypage/portfolio',
+    query: { tab: 'allocation' },
+  });
+};
 
 // 스타일 클래스 및 라벨 유틸 함수
 const getResultTypeLabel = (type) =>
@@ -367,6 +473,18 @@ const getRiskPreferenceTextClass = (risk) =>
     ACTIVELY: 'text-actively',
     AGGRESSIVE: 'text-risk-aggressive',
   })[risk] || '';
+
+// 토글 상태 관리
+const expandedSections = ref({
+  strengths: false,
+  improvements: false,
+  strategy: false,
+});
+
+// 섹션 토글 함수
+const toggleSection = (sectionName) => {
+  expandedSections.value[sectionName] = !expandedSections.value[sectionName];
+};
 
 onMounted(async () => {
   // 페이지 로드 시 즉시 스크롤을 맨 위로 이동
@@ -453,6 +571,7 @@ onMounted(async () => {
   background: linear-gradient(135deg, var(--color-main), var(--color-sub));
   color: var(--color-white);
   padding: 0.3rem 0.75rem;
+  margin-top: 2rem;
   border-radius: 1rem;
   font-weight: 700;
   display: inline-block;
@@ -696,7 +815,7 @@ onMounted(async () => {
 
 /* 태그 섹션 */
 .tags-section {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   overflow: hidden;
   background: rgba(45, 51, 107, 0.02);
   border-radius: 0.75rem;
@@ -763,19 +882,244 @@ onMounted(async () => {
 }
 
 /* 설명 섹션 */
-.description-section {
-  border-left: 0.1875rem solid var(--color-main);
-  padding: 0.875rem 0.875rem 0.875rem 1.25rem;
-  background: rgba(45, 51, 107, 0.02);
+.description-item {
+  background-color: rgba(45, 51, 107, 0.02);
+  border-left: 0.1875rem solid #3498db;
   border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
 }
-
 .description-text {
   font-size: 0.875rem;
   line-height: 1.6;
   color: var(--color-sub);
   margin: 0;
   font-weight: 500;
+}
+/* 아코디언 아이템 */
+.accordion-item {
+  margin-top: 1rem;
+  border: 0.0625rem solid rgba(45, 51, 107, 0.1);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: var(--color-white);
+  box-shadow: 0 0.125rem 0.25rem rgba(45, 51, 107, 0.05);
+  transition: all 0.3s ease;
+}
+
+.accordion-item:hover {
+  box-shadow: 0 0.25rem 0.5rem rgba(45, 51, 107, 0.1);
+}
+
+/* 아코디언 헤더 (클릭 가능한 버튼) */
+.accordion-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: rgba(45, 51, 107, 0.02);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  font-family: inherit;
+}
+
+.accordion-header:hover {
+  background: rgba(45, 51, 107, 0.05);
+}
+
+.accordion-header.expanded {
+  background: rgba(45, 51, 107, 0.08);
+  border-bottom: 0.0625rem solid rgba(45, 51, 107, 0.1);
+}
+
+.accordion-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-main);
+  flex: 1;
+}
+/* 토글 아이콘 */
+.accordion-toggle {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-sub);
+  transition: transform 0.3s ease;
+}
+
+.accordion-toggle svg {
+  width: 1rem;
+  height: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.accordion-toggle svg.rotated {
+  transform: rotate(180deg);
+}
+
+/* 아코디언 콘텐츠 */
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition:
+    max-height 0.3s ease,
+    padding 0.3s ease;
+  padding: 0 1.25rem;
+}
+
+.accordion-content.expanded {
+  max-height: 50rem; /* 충분히 큰 값 */
+  padding: 1rem 1.25rem 1.25rem;
+}
+/* 세부 서브섹션 */
+.detail-subsection {
+  margin-top: 1.5rem;
+  border-top: 0.0625rem solid rgba(45, 51, 107, 0.1);
+}
+
+.detail-subsection:first-of-type {
+  margin-top: 1.25rem;
+}
+
+.detail-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-main);
+  margin: 0 0 0.875rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 아이콘 */
+.detail-icon {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 0.0625rem;
+  flex-shrink: 0;
+}
+
+.strengths-icon {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.improvements-icon {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.strategy-icon {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+/* 강점 그리드 */
+.strengths-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.strength-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  background: rgba(16, 185, 129, 0.05);
+  border-radius: 0.5rem;
+  border-left: 0.1875rem solid #10b981;
+  transition: all 0.2s ease;
+}
+
+.strength-item:hover {
+  background: rgba(16, 185, 129, 0.08);
+  transform: translateX(0.25rem);
+}
+
+.strength-icon {
+  color: #10b981;
+  font-weight: 700;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+  margin-top: 0.0625rem;
+}
+
+.strength-text {
+  color: var(--color-sub);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* 개선점 그리드 */
+.improvements-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.improvement-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  background: rgba(245, 158, 11, 0.05);
+  border-radius: 0.5rem;
+  border-left: 0.1875rem solid #f59e0b;
+  transition: all 0.2s ease;
+}
+
+.improvement-item:hover {
+  background: rgba(245, 158, 11, 0.08);
+  transform: translateX(0.25rem);
+}
+
+.improvement-icon {
+  color: #f59e0b;
+  font-weight: 700;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+  margin-top: 0.0625rem;
+}
+
+.improvement-text {
+  color: var(--color-sub);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* 투자전략 콘텐츠 */
+.strategy-content {
+  padding: 1rem 1.125rem;
+  background: rgba(59, 130, 246, 0.05);
+  border-radius: 0.625rem;
+  border-left: 0.1875rem solid #3b82f6;
+  position: relative;
+  overflow: hidden;
+}
+
+.strategy-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0.125rem;
+  background: linear-gradient(90deg, #3b82f6, #2563eb, #1d4ed8);
+  opacity: 0.6;
+}
+
+.strategy-text {
+  color: var(--color-sub);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  font-weight: 500;
+  margin: 0;
+  position: relative;
 }
 
 /* 줄바꿈 처리 */
@@ -816,7 +1160,16 @@ onMounted(async () => {
   font-family: inherit;
   width: 100%;
 }
-
+.action-button.primary {
+  background: linear-gradient(135deg, #8e44ad, #9b59b6);
+  color: var(--color-white);
+  box-shadow: 0 0.25rem 0.75rem rgba(142, 68, 173, 0.3);
+}
+.action-button.primary:hover {
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.5rem 1.25rem rgba(142, 68, 173, 0.4);
+  background: linear-gradient(135deg, #732d91, #8e44ad);
+}
 .action-button.secondary {
   background: linear-gradient(135deg, #3498db, #5dade2);
   color: var(--color-white);
@@ -908,51 +1261,96 @@ onMounted(async () => {
   }
 }
 
-/* 반응형 */
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.detail-subsection {
+  animation: slideInFromLeft 0.6s ease-out both;
+}
+
+.detail-subsection:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.detail-subsection:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.detail-subsection:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
+/* 반응형 조정 */
 @media (max-width: 30rem) {
-  .result-page {
+  .accordion-header {
+    padding: 0.875rem 1rem;
+    gap: 0.5rem;
+  }
+
+  .accordion-title {
+    font-size: 0.8rem;
+  }
+
+  .accordion-content.expanded {
+    padding: 0.875rem 1rem 1rem;
+  }
+
+  .strength-item,
+  .improvement-item {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .strategy-content {
+    padding: 0.875rem 1rem;
+  }
+
+  .strength-text,
+  .improvement-text,
+  .strategy-text {
+    font-size: 0.75rem;
+  }
+
+  .description-item {
     padding: 0.875rem;
-    gap: 1rem;
   }
+}
 
-  .code-text {
-    font-size: 2.25rem;
+/* 애니메이션 효과 */
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-  .type-summary {
-    gap: 0.75rem;
-  }
+.accordion-content.expanded > * {
+  animation: fadeInContent 0.3s ease-out;
+}
 
-  .type-value {
-    font-size: 0.75rem;
-    padding: 0.2rem 0.4rem;
-  }
+/* 기존 detail-subsection 스타일 조정 */
+.detail-subsection {
+  margin-top: 1rem;
+}
 
-  .type-description {
-    font-size: 0.55rem;
-  }
+.detail-subsection:first-of-type {
+  margin-top: 1rem;
+}
 
-  .analysis-card,
-  .score-card,
-  .action-section {
-    padding: 1.25rem;
-  }
-
-  .bidirectional-bar {
-    height: 2rem;
-  }
-
-  .bar-progress {
-    height: 1.25rem;
-  }
-
-  .bar-center {
-    width: 1.5rem;
-    font-size: 0.65rem;
-  }
-
-  .bar-info {
-    font-size: 0.75rem;
-  }
+/* 세부 서브섹션이 아코디언이 아닌 경우의 기존 스타일 유지 */
+.detail-subsection:not(.accordion-item) {
+  padding-top: 1.25rem;
+  border-top: 0.0625rem solid rgba(45, 51, 107, 0.1);
 }
 </style>
