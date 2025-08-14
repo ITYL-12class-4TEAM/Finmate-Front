@@ -62,7 +62,6 @@ const removeFavorite = async () => {
     showToast('즐겨찾기에서 삭제되었습니다!', 'success');
   } catch (err) {
     showToast('즐겨찾기 삭제에 실패했습니다.', 'error');
-    console.error('Remove favorite error:', err);
   } finally {
     externalLoading.value = false;
   }
@@ -76,7 +75,6 @@ const addFavorite = async () => {
     showToast('즐겨찾기에 추가되었습니다!', 'success');
   } catch (err) {
     showToast('즐겨찾기 추가에 실패했습니다.', 'error');
-    console.error('Add favorite error:', err);
   } finally {
     externalLoading.value = false;
   }

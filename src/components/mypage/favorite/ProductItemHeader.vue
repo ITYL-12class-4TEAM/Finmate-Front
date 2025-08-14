@@ -26,6 +26,9 @@
 import { ref, onMounted } from 'vue';
 import FavoriteButton from './FavoriteButton.vue';
 import { wishlistAPI } from '../../../api/favorite';
+import { useToast } from '@/composables/useToast';
+
+const { showToast } = useToast();
 
 const props = defineProps({
   favorite: {
@@ -45,7 +48,7 @@ onMounted(async () => {
     const response = await wishlistAPI.isFavorite(props.favorite.productId);
     isFavorite.value = response.body.data;
   } catch (error) {
-    console.error('즐겨찾기 상태 확인 실패:', error);
+    showToast('즐겨찾기 상태 확인 실패:', 'error');
   } finally {
     statusLoading.value = false;
   }

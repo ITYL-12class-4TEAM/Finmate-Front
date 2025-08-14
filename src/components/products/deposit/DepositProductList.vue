@@ -244,8 +244,18 @@ watch(
 const totalPages = computed(() => Math.ceil(props.totalCount / props.pageSize));
 const formatRate = (rate) => (rate == null ? '정보 없음' : parseFloat(rate).toFixed(2) + '%');
 
-const onProductClick = (product) => emit('product-click', product);
-const onPageChange = (page) => emit('page-change', page);
+const onProductClick = (product) => {
+  // 스크롤을 페이지 최상단으로 이동
+  window.scrollTo(0, 0);
+
+  emit('product-click', product);
+};
+const onPageChange = (page) => {
+  // 스크롤을 페이지 최상단으로 이동
+  window.scrollTo(0, 480);
+
+  emit('page-change', page);
+};
 const onSortChange = () => emit('sort-change', { sortBy: localSortBy.value });
 
 const handleWarning = (product) => {
@@ -371,7 +381,7 @@ const goToCompare = () => {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3.6rem;
 }
 
 .product-card {

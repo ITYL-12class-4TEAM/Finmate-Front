@@ -53,7 +53,9 @@
         <i class="fa-solid fa-chevron-down select-arrow"></i>
       </div>
 
-      <label class="filter-label"><i class="fa-solid fa-percentage"></i> 금리 유형</label>
+      <label class="filter-label"
+        ><i class="fa-solid fa-percentage"></i><FinancialTerm term="금리 유형" />
+      </label>
       <div class="option-buttons">
         <button
           type="button"
@@ -122,6 +124,7 @@
 import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import BankSelectModal from './BankSelectModal.vue';
+import FinancialTerm from '@/components/common/FinancialTerm.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -466,10 +469,14 @@ const onReset = () => {
 }
 
 /* 개선된 '전체' 태그 스타일 */
+.all-tag {
+  background-color: #6366f1;
+}
 .all-tag-improved {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+  width: 85%;
   font-size: 0.65rem;
   font-weight: 600;
   padding: 0.35rem 0.7rem;
@@ -495,11 +502,11 @@ const onReset = () => {
   background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   color: #ffffff;
   border-color: #4f46e5;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  /* box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); */
 }
 
 .all-tag-improved.active:hover {
-  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+  /* background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%); */
   transform: translateY(-1px);
 }
 
@@ -543,6 +550,21 @@ const onReset = () => {
   background: #2d336b;
   color: #fff;
   border-color: #2d336b;
+}
+.filter-tag.all-tag {
+  border-radius: 20px;
+}
+.filter-tag.all-tag.active {
+  background-color: #ccc;
+  border-color: #ccc;
+  color: #333;
+  border-radius: 20px;
+}
+.filter-tag.all-tag:hover {
+  background-color: #8f8f8f;
+}
+.filter-container.filter-tag.active.all-tag:hover {
+  background-color: #555;
 }
 
 .bank-select-button {

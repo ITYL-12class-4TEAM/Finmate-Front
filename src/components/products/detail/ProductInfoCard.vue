@@ -61,15 +61,15 @@ const getInterestTypeClass = (typeName) => {
 
 // ✨ URL의 rsrvType 코드만 보고 이름을 반환하도록 변경
 const savingsTypeName = computed(() => {
-  if (props.savingsTypeCode === 'S') return '자유적립식';
-  if (props.savingsTypeCode === 'F') return '정액적립식';
+  if (props.savingsTypeCode === 'F') return '자유적립식';
+  if (props.savingsTypeCode === 'S') return '정액적립식';
   return null;
 });
 
 // ✨ URL의 rsrvType 코드만 보고 클래스를 반환하도록 변경
 const getSavingTypeClass = () => {
-  if (props.savingsTypeCode === 'S') return 'flexible-saving';
-  if (props.savingsTypeCode === 'F') return 'fixed-saving';
+  if (props.savingsTypeCode === 'F') return 'flexible-saving';
+  if (props.savingsTypeCode === 'S') return 'fixed-saving';
   return '';
 };
 </script>
@@ -203,14 +203,14 @@ const getSavingTypeClass = () => {
 }
 
 /* 자유적립식 스타일 */
-.tag.flexible-saving {
+.tag.fixed-saving {
   background-color: #fefce8; /* 연한 노란색 */
   color: #ca8a04; /* 진한 노란색 */
   border: 1px solid #fde68a;
 }
 
 /* 정액적립식 스타일 */
-.tag.fixed-saving {
+.tag.flexible-saving {
   background-color: #f3e8ff; /* 연한 보라색 */
   color: #8e24aa; /* 진한 보라색 */
   border: 1px solid #e9d5ff;

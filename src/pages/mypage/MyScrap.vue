@@ -39,6 +39,9 @@ import ScrappedPostFilter from '@/components/mypage/myscrap/ScrapPostFilter.vue'
 import ScrappedPostActions from '@/components/mypage/myscrap/ScrapPostAction.vue';
 import ScrappedPostList from '@/components/mypage/myscrap/ScrapPostList.vue';
 import { postsAPI } from '@/api/mypost';
+import { useToast } from '@/composables/useToast';
+
+const { showToast } = useToast();
 
 const loading = ref(false);
 const error = ref('');
@@ -133,7 +136,7 @@ const fetchPosts = async () => {
     currentPage.value = 1;
   } catch (err) {
     error.value = '스크랩한 게시글을 불러오는데 실패했습니다.';
-    console.error('Scraps fetch error:', err);
+    showToast('스크랩한 게시글을 불러오는데 실패했습니다.', 'error');
   } finally {
     loading.value = false;
   }

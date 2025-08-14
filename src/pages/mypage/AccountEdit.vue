@@ -363,7 +363,7 @@ const updateProfile = async () => {
   validatePassword();
 
   if (!isFormValid.value) {
-    alert('입력 정보를 다시 확인해주세요.');
+    showToast('입력 정보를 다시 확인해주세요.', 'error');
     return;
   }
 
@@ -434,7 +434,7 @@ onMounted(async () => {
   // 2. 사용자 정보 조회
   try {
     const response = await memberAPI.getMyInfo();
-    console.log('🔍 사용자 정보 조회 결과:', response);
+    showToast('사용자 정보 조회 결과:', 'success');
     if (response.success) {
       userInfo.value = response.data;
 

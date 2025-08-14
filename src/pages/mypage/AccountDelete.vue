@@ -388,7 +388,6 @@ const confirmFinalDeletion = async () => {
       throw new Error(result.message || '회원탈퇴에 실패했습니다.');
     }
   } catch (error) {
-    console.error('회원탈퇴 처리 오류:', error);
     showToast(
       error.message || '회원탈퇴 처리 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.',
       'error'
@@ -411,7 +410,6 @@ onUnmounted(() => {
 });
 
 onMounted(() => {
-  console.log('AccountDelete mounted');
   if (!authStore.isAuthenticated) {
     showToast('로그인이 필요합니다.', 'error');
     router.push('/login');

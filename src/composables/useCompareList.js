@@ -156,6 +156,12 @@ export default function useCompareList() {
       rsrvTypeNm,
       minDeposit: product?.min_deposit ?? product?.minDeposit ?? 0,
       addedAt: new Date().toISOString(),
+
+      // 추가: company_url 정보 저장
+      companyUrl: product?.companyUrl ?? product?.company_url ?? product?.homp_url ?? null,
+
+      // 추가: 금융회사 코드 저장 (fallback용)
+      finCoNo: product?.fin_co_no ?? product?.finCoNo ?? null,
     };
 
     // 상품군에 맞는 비교함에 저장
