@@ -46,6 +46,20 @@
         }"
       >
         <div class="product-header" @click="onProductClick(product)">
+          <!-- 은행 로고 추가 -->
+          <div class="bank-logo">
+            <img
+              v-if="getBankLogo(product)"
+              :src="getBankLogo(product)"
+              :alt="product.kor_co_nm || product.korCoNm"
+              class="logo-image"
+              loading="lazy"
+            />
+            <div v-else class="bank-initial">
+              {{ getBankInitial(product) }}
+            </div>
+          </div>
+
           <div class="product-title-group">
             <span class="bank-name">{{ product.kor_co_nm || product.korCoNm }}</span>
             <div class="product-name">{{ product.product_name || product.finPrdtNm }}</div>
@@ -129,6 +143,8 @@ import Pagination from '../common/Pagination.vue';
 import CompareFloatingBar from '@/components/products/compare/CompareFloatingBar.vue';
 import useCompareList from '@/composables/useCompareList';
 import { useToast } from '@/composables/useToast';
+// 은행 로고 매핑 함수 가져오기
+import { resolveCompanyLogo } from '@/assets/companyLogoMap';
 
 const { showToast } = useToast();
 
@@ -154,7 +170,6 @@ const {
   addToCompareList,
   removeFromCompareList,
   isInCompareList,
-  getProductType,
 } = useCompareList();
 
 // 현재 페이지에 표시되는 상품 타입에 따라 적절한 비교함 선택
@@ -178,6 +193,23 @@ const currentCompareList = computed(() => {
 // 현재 상품 타입에 맞는 비교함만 비우기
 const clearCurrentCompareList = () => {
   clearCompareList(currentProductType.value);
+};
+
+// 은행 로고 URL 가져오기
+const getBankLogo = (product) => {
+  if (!product || (!product.kor_co_nm && !product.korCoNm)) return null;
+
+  const bankName = product.kor_co_nm || product.korCoNm;
+  const logoFile = resolveCompanyLogo(bankName);
+  return `/images/companies/${logoFile}`;
+};
+
+// 은행 이니셜 가져오기 (로고가 없을 경우)
+const getBankInitial = (product) => {
+  if (!product || (!product.kor_co_nm && !product.korCoNm)) return '';
+
+  const bankName = product.kor_co_nm || product.korCoNm;
+  return bankName.charAt(0);
 };
 
 const getSavingTypeClass = (product) => {
@@ -473,7 +505,7 @@ const goToCompare = () => {
 .product-card {
   background: #fff;
   border-radius: 0.75rem; /* 12px */
-  padding: 0.8rem 1.2rem;
+  padding: 0.6rem 1rem 0.8rem;
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.04);
   display: flex;
   flex-direction: column;
@@ -488,11 +520,44 @@ const goToCompare = () => {
 
 .product-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: flex-start; /* 상단 정렬 */
-  gap: 0.5rem;
+  gap: 0.75rem;
   margin-bottom: 0.5rem;
   cursor: pointer;
+}
+
+/* 은행 로고 스타일 추가 */
+.bank-logo {
+  width: 2.5rem; /* 40px */
+  height: 2.5rem; /* 40px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 0.0625rem solid var(--color-bg-light);
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+.bank-logo .logo-image {
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  object-fit: contain;
+}
+
+.bank-initial {
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-bg-light);
+  color: var(--color-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
 /* 새로 추가된 좌측 정보 그룹 */
