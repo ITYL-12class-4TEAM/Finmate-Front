@@ -93,7 +93,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useModal } from '@/composables/useModal';
 import useCompareList from '@/composables/useCompareList';
@@ -496,7 +496,9 @@ onMounted(() => {
     loadCompareData();
   }
 
-  window.scrollTo(0, 0);
+  nextTick(() => {
+    window.scrollTo(0, 0);
+  });
 });
 </script>
 
