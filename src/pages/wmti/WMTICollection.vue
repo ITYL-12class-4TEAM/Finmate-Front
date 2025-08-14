@@ -52,7 +52,7 @@
         >
           <div class="card-image">
             <img
-              :src="`/src/assets/images/wmti-characters/${wmti.code}.png`"
+              :src="getWMTIImagePath(wmti.code)"
               :alt="wmti.aka"
               class="character-image"
               @error="handleImageError"
@@ -82,7 +82,7 @@
             <button class="close-btn" @click="closeModal">&times;</button>
             <div class="modal-character">
               <img
-                :src="`/src/assets/images/wmti-characters/${selectedWMTI.code}.png`"
+                :src="getWMTIImagePath(selectedWMTI.code)"
                 :alt="selectedWMTI.aka"
                 class="modal-character-image"
                 @error="handleImageError"
@@ -170,6 +170,16 @@ const categories = ref(['전체']);
 const isLoading = ref(true);
 const error = ref(null);
 
+// ===== Public 폴더 절대경로로 WMTI 이미지 경로 생성 함수 =====
+const getWMTIImagePath = (wmtiCode) => {
+  if (!wmtiCode) {
+    return '/images/wmti-characters/default.png';
+  }
+
+  const upperCode = wmtiCode.toUpperCase();
+  return `/images/wmti-characters/${upperCode.toLowerCase()}.png`;
+};
+
 // WMTI 데이터 로드 함수
 const loadWMTIData = async () => {
   try {
@@ -220,12 +230,12 @@ const getCategoryFromTag = (firstTag) => {
   if (!firstTag) return '기타';
 
   const categoryMappings = {
-    리더형: ['리더', '선도', '지도자'],
+    리더형: ['리더', '선도', '지도자', '지휘관'],
     전문가형: ['달인', '전문가', '박학다식'],
     트렌디형: ['트렌디', '예술인', '탐정가'],
     전략가형: ['전략', '연구가', '트렌디세터'],
     자신감형: ['자신감', '당당', '유능한'],
-    현실주의형: ['현실', '아이콘', '노련한'],
+    현실주의형: ['현실', '아이콘', '노련한', '분산투자'],
     관찰가형: ['관찰가', '호기심', '새싹'],
     탐험가형: ['탐험가', '탐색가', '샛별'],
   };
@@ -325,7 +335,7 @@ const getWMTICodeStyle = (wmtiCode) => {
 // 이미지 에러 핸들링
 const handleImageError = (event) => {
   // 이미지 로드 실패시 기본 이미지로 대체
-  event.target.src = '/src/assets/images/wmti-characters/default.png';
+  event.target.src = '/images/wmti-characters/default.png';
 };
 </script>
 

@@ -298,42 +298,24 @@ import ScoreChart from '@/components/wmti/ScoreChart.vue';
 import CustomedPortfolio from '@/components/wmti/CustomedPortfolio.vue';
 import WMTIHeroCard from '@/components/wmti/WMTIHeroCard.vue';
 
-// ===== WMTI 캐릭터 이미지 정적 import =====
-import apmlImage from '@/assets/images/wmti-characters/apml.png';
-import apmcImage from '@/assets/images/wmti-characters/apmc.png';
-import apwlImage from '@/assets/images/wmti-characters/apwl.png';
-import apwcImage from '@/assets/images/wmti-characters/apwc.png';
-import abmlImage from '@/assets/images/wmti-characters/abml.png';
-import abmcImage from '@/assets/images/wmti-characters/abmc.png';
-import abwlImage from '@/assets/images/wmti-characters/abwl.png';
-import abwcImage from '@/assets/images/wmti-characters/abwc.png';
-import ipmlImage from '@/assets/images/wmti-characters/ipml.png';
-import ipmcImage from '@/assets/images/wmti-characters/ipmc.png';
-import ipwlImage from '@/assets/images/wmti-characters/ipwl.png';
-import ipwcImage from '@/assets/images/wmti-characters/ipwc.png';
-import ibmlImage from '@/assets/images/wmti-characters/ibml.png';
-import ibmcImage from '@/assets/images/wmti-characters/ibmc.png';
-import ibwlImage from '@/assets/images/wmti-characters/ibwl.png';
-import ibwcImage from '@/assets/images/wmti-characters/ibwc.png';
-
-// 이미지 맵 생성
+// ===== Public 폴더 절대경로로 WMTI 캐릭터 이미지 맵핑 =====
 const wmtiImageMap = {
-  APML: apmlImage,
-  APMC: apmcImage,
-  APWL: apwlImage,
-  APWC: apwcImage,
-  ABML: abmlImage,
-  ABMC: abmcImage,
-  ABWL: abwlImage,
-  ABWC: abwcImage,
-  IPML: ipmlImage,
-  IPMC: ipmcImage,
-  IPWL: ipwlImage,
-  IPWC: ipwcImage,
-  IBML: ibmlImage,
-  IBMC: ibmcImage,
-  IBWL: ibwlImage,
-  IBWC: ibwcImage,
+  APML: '/images/wmti-characters/apml.png',
+  APMC: '/images/wmti-characters/apmc.png',
+  APWL: '/images/wmti-characters/apwl.png',
+  APWC: '/images/wmti-characters/apwc.png',
+  ABML: '/images/wmti-characters/abml.png',
+  ABMC: '/images/wmti-characters/abmc.png',
+  ABWL: '/images/wmti-characters/abwl.png',
+  ABWC: '/images/wmti-characters/abwc.png',
+  IPML: '/images/wmti-characters/ipml.png',
+  IPMC: '/images/wmti-characters/ipmc.png',
+  IPWL: '/images/wmti-characters/ipwl.png',
+  IPWC: '/images/wmti-characters/ipwc.png',
+  IBML: '/images/wmti-characters/ibml.png',
+  IBMC: '/images/wmti-characters/ibmc.png',
+  IBWL: '/images/wmti-characters/ibwl.png',
+  IBWC: '/images/wmti-characters/ibwc.png',
 };
 
 const router = useRouter();
@@ -345,8 +327,8 @@ const analysisObject = ref({});
 const preInfoData = ref({});
 const analysis = ref({});
 const createdAt = ref([]);
-const characterImageUrl = ref(''); // ref로 변경
-const isLoading = ref(true); // 로딩 상태 추가
+const characterImageUrl = ref('');
+const isLoading = ref(true);
 
 // userInfo에서 userName을 가져오는 computed 속성
 const userName = computed(() => {
@@ -361,7 +343,7 @@ const formattedDate = computed(() => {
   return date.toLocaleString('ko-KR');
 });
 
-// ===== 수정된 WMTI 이미지 URL 계산 함수 =====
+// ===== Public 절대경로를 사용하는 WMTI 이미지 URL 계산 함수 =====
 const getWMTIImageUrl = (wmtiCode) => {
   if (!wmtiCode) {
     return '';
@@ -407,7 +389,7 @@ const fetchResult = async () => {
     // 분석 데이터와 이미지를 병렬로 로드
     const [analysisData, imageUrl] = await Promise.all([
       fetchAnalysis(data.wmtiCode),
-      getWMTIImageUrl(data.wmtiCode),
+      Promise.resolve(getWMTIImageUrl(data.wmtiCode)), // 동기 함수를 Promise로 래핑
     ]);
 
     characterImageUrl.value = imageUrl;
@@ -439,6 +421,7 @@ const goToPortfolio = () => {
     query: { tab: 'allocation' },
   });
 };
+
 // 스타일 클래스 및 라벨 유틸 함수
 const getResultTypeLabel = (type) =>
   ({
