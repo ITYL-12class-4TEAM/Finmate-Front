@@ -5,16 +5,15 @@
         <BackButton />
       </div>
       <div class="header-center">
-        <div class="compare-count">
-          {{ currentCompareList.length }}/3 {{ productTypeLabel }} 상품 비교 중
-        </div>
+        <button class="list-btn" @click="goToProductList">
+          {{ productTypeLabel }} 리스트 이동
+        </button>
       </div>
       <div class="header-right">
         <button class="clear-btn" @click="handleClearCompare">비교함 비우기</button>
       </div>
     </div>
 
-    <!-- 상품 타입 탭 추가 -->
     <div class="product-type-tabs">
       <button
         class="tab-btn"
@@ -32,7 +31,6 @@
       </button>
     </div>
 
-    <!-- 비교 가능한 상품이 부족할 때 (1개 이하) -->
     <div v-if="currentCompareList.length <= 1" class="not-enough-products">
       <div class="message-container">
         <div class="warning-icon">!</div>
@@ -44,13 +42,11 @@
       </div>
     </div>
 
-    <!-- 비교함이 완전히 비어있을 때는 기존 EmptyState 컴포넌트 사용 -->
     <CompareEmptyState
       v-else-if="currentCompareList.length === 0"
       @go-to-products="goToProductList"
     />
 
-    <!-- 비교 가능한 상품이 있을 때 (2개 이상) -->
     <div v-else class="compare-content">
       <CompareTable
         :items="currentCompareList"
@@ -88,7 +84,6 @@
       </button>
     </div>
 
-    <!-- GPT 비교 모달 -->
     <GptExampleModal
       :show="showGptModal"
       :compare-list="currentCompareList"
@@ -516,7 +511,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 기존 스타일 유지 */
 .compare-page {
   padding-bottom: 5rem;
   min-height: 100vh;
@@ -526,39 +520,38 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.25rem;
+  height: 42px;
   background-color: #ffffff;
-  padding: 0rem 1rem 0.5rem 1rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.03);
+  padding: 0 0rem;
+  border-bottom: 1px solid #f0f0f0;
+  box-sizing: border-box;
+}
+
+.header-left,
+.header-center,
+.header-right {
+  display: flex;
+  align-items: center;
+  /* flex: 1; */ /* flex 비율을 제거하여 내용에 맞게 크기 조절 */
 }
 
 .header-left {
-  /* 좌측 영역 - 뒤로가기 버튼 */
-  flex: 1;
-  display: flex;
   justify-content: flex-start;
+  flex: 0 0 auto; /* 뒤로가기 버튼 크기만큼만 차지 */
 }
-
 .header-center {
-  /* 중앙 영역 - 상품 비교 중 텍스트 */
-  flex: 1.5;
-  display: flex;
+  flex-grow: 1; /* 중앙 버튼이 남은 공간을 모두 차지하도록 설정 */
   justify-content: center;
 }
-
 .header-right {
-  /* 우측 영역 - 비교함 비우기 버튼 */
-  flex: 1;
-  display: flex;
   justify-content: flex-end;
+  flex: 0 0 auto; /* 비우기 버튼 크기만큼만 차지 */
 }
 
-/* 상품 타입 탭 스타일 */
 .product-type-tabs {
   display: flex;
   justify-content: center;
-  margin: 0rem auto 0.5rem;
+  margin: 0.5rem auto 0.5rem;
   background-color: var(--color-bg-light);
   border-radius: 2rem;
   padding: 0.25rem;
@@ -586,7 +579,6 @@ onMounted(() => {
   box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.1);
 }
 
-/* 상품이 부족할 때 표시되는 메시지 */
 .not-enough-products {
   display: flex;
   flex-direction: column;
@@ -644,10 +636,9 @@ onMounted(() => {
 }
 
 .go-to-list-btn:hover {
-  background-color: #373d7c; /* 약간 어두운 색상 */
+  background-color: #373d7c;
 }
 
-/* 기존 스타일 유지 */
 .compare-actions {
   display: flex;
   align-items: center;
@@ -658,32 +649,47 @@ onMounted(() => {
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.03);
 }
 
-.compare-count {
-  font-size: 0.8rem;
-  color: var(--color-sub);
-  font-weight: 500;
-}
-
-.compare-count strong {
+/* 🎨 [수정] 버튼 스타일 분리 및 리스트 이동 버튼 디자인 변경 */
+.list-btn {
+  /* 테두리만 있는 아웃라인 스타일 */
+  background: #ffffff;
+  border: 1px solid var(--color-sub);
   color: var(--color-main);
-  font-weight: 700;
+  font-size: 0.8rem;
+  font-weight: 600; /* 조금 더 강조 */
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 0.4rem 0.9rem;
+  border-radius: 2rem;
+  transition: all 0.2s ease;
 }
 
 .clear-btn {
-  background: none;
-  border: none;
+  /* 기존의 은은한 회색 스타일 유지 */
+  background: #ebebeb;
+  border: 1px solid var(--color-sub);
   color: var(--color-sub);
   font-size: 0.8rem;
+  font-weight: 500;
   cursor: pointer;
-  text-decoration: none;
-  padding: 0;
-  transition: color 0.2s;
+  white-space: nowrap;
+  padding: 0.4rem 0.9rem;
+  border-radius: 2rem;
+  transition: all 0.2s ease;
+}
+
+.list-btn:hover {
+  /* 호버 시 색상이 채워지는 효과 */
+  background-color: var(--color-main);
+  color: #ffffff;
 }
 
 .clear-btn:hover {
+  background-color: #f5f5f5;
+  border-color: #d0d0d0;
   color: var(--color-main);
-  text-decoration: underline;
 }
+/* ----- 버튼 스타일 수정 끝 ----- */
 
 .loading-state {
   display: flex;
@@ -705,7 +711,6 @@ onMounted(() => {
   margin-bottom: 1rem;
 }
 
-/* GPT 버튼 스타일 */
 .gpt-summary-btn-container {
   position: fixed;
   bottom: 2.5rem;
@@ -807,3 +812,6 @@ onMounted(() => {
   }
 }
 </style>
+
+리스트 이동 버튼만 남기고 뒤로가기랑 비교함 비우기 버튼은 삭제하고, 리스트 이동 버튼을 가운데
+정렬해줘

@@ -18,7 +18,7 @@
         </div>
         <button class="favorite-btn" title="즐겨찾는 상품" @click="goToFavorites">
           <span class="favorite-icon">★</span>
-          <span class="btn-text">즐겨찾기로 이동</span>
+          <span class="btn-text">즐겨찾기 이동</span>
         </button>
         <!-- GPT 상품 요약 버튼 (우측 상단) todo -->
         <!-- <button class="gpt-detail-btn" @click="handleGptDetail" title="GPT 상품 요약">
@@ -570,12 +570,21 @@ onMounted(() => {
 
 <style scoped>
 /* ==========================================================================
-   1. 페이지 기본 레이아웃 및 로딩/에러 상태 (유지)
-   ========================================================================== */
+ 1. 페이지 기본 레이아웃 및 로딩/에러 상태
+========================================================================== */
 .product-detail-page {
-  padding: 0 0.3rem;
-  padding-bottom: 6rem; /* 하단 플로팅 바를 위한 여백 확보 */
+  /* [수정] 전체 페이지에 box-sizing 적용 */
+  box-sizing: border-box;
+  padding: 0 0rem; /* 화면 좌우에 일관된 여백 적용 */
+  padding-bottom: 6rem;
   min-height: 100vh;
+  margin: 0 auto; /* 페이지 콘텐츠 중앙 정렬 */
+  max-width: 480px; /* 모바일 화면 최대 너비 설정 (선택 사항) */
+}
+
+.product-container {
+  /* [수정] 고정 너비를 제거하고 유연한 너비로 변경 */
+  width: 100%;
 }
 
 .loading-container,
@@ -625,23 +634,22 @@ onMounted(() => {
 }
 
 /* ==========================================================================
-   2. 페이지 헤더 (수정)
-   ========================================================================== */
+2. 페이지 헤더
+========================================================================== */
 .page-header {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* 양쪽 끝으로 배치 */
+  justify-content: space-between;
   margin-bottom: 0.5rem;
+  width: 100%; /* [추가] 헤더가 컨테이너 너비에 맞게 설정 */
 }
 
-/* 왼쪽 버튼 그룹 */
 .header-left {
   display: flex;
   align-items: center;
-  gap: 6.5rem; /* 버튼 사이 간격 */
+  /* [수정] 고정 gap 제거 */
 }
 
-/* 즐겨찾기 버튼 스타일 */
 .favorite-btn {
   display: flex;
   align-items: center;
@@ -666,7 +674,7 @@ onMounted(() => {
 }
 
 .favorite-btn .favorite-icon {
-  color: #ffd700; /* 골드 색상의 별 아이콘 */
+  color: #ffd700;
   font-size: 1rem;
 }
 
@@ -674,7 +682,6 @@ onMounted(() => {
   white-space: nowrap;
 }
 
-/* GPT 상품 요약 버튼 (우측 상단) */
 .gpt-detail-btn {
   display: flex;
   align-items: center;
@@ -720,37 +727,38 @@ onMounted(() => {
 }
 
 /* ==========================================================================
-   3. 정보 섹션 카드 (✨ 시각적 요소 추가)
-   ========================================================================== */
+3. 정보 섹션 카드
+========================================================================== */
 .info-section {
   background-color: #ffffff;
-  border-radius: 0.75rem; /* 12px */
-  padding: 0.5rem 1rem; /* 20px 16px */
+  border-radius: 0.75rem;
+  padding: 1.25rem 1rem;
   margin-bottom: 0.5rem;
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.04);
+  /* [추가] box-sizing 적용 */
+  box-sizing: border-box;
 }
 
 .section-title {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1rem; /* 18px */
+  font-size: 1.125rem;
   font-weight: 600;
   color: var(--color-main);
-  margin: 0 0 0.5rem 0;
-  padding-bottom: 0.25rem;
-  border-bottom: 0.0625rem solid var(--color-bg-light);
+  margin: 0 0 0.75rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-bg-light);
 }
 
 .info-content {
-  font-size: 0.8rem; /* 15px */
+  font-size: 0.9375rem;
   color: var(--color-text);
   line-height: 1.7;
   white-space: pre-wrap;
   word-break: keep-all;
 }
 
-/* ✨ '가입 대상'과 같이 간단한 정보는 강조된 텍스트로 표시 */
 .info-content.highlight-text {
   font-size: 1rem;
   font-weight: 500;
@@ -760,20 +768,20 @@ onMounted(() => {
 }
 
 /* ==========================================================================
-   4. 우대 조건 리스트 스타일 (✨ 시각적 개선)
-   ========================================================================== */
+4. 우대 조건 리스트 스타일
+========================================================================== */
 .conditions-list {
   padding-left: 0;
   margin: 0;
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem; /* 항목 간 간격 */
+  gap: 0.75rem;
 }
 
 .conditions-list li {
   position: relative;
-  padding-left: 1.75rem; /* 아이콘을 위한 공간 확보 */
+  padding-left: 1.75rem;
   font-size: 0.9375rem;
 }
 
@@ -794,18 +802,19 @@ onMounted(() => {
   font-weight: 600;
 }
 
-/* ✨ 내용이 없는 경우를 위한 스타일 */
 .info-content.empty {
   color: var(--color-sub);
   text-align: center;
   padding: 1rem 0;
 }
 
-/* 액션 섹션 스타일 */
+/* ==========================================================================
+   5. 액션 섹션 스타일
+   ========================================================================== */
 .action-section {
   display: flex;
   gap: 0.75rem;
-  margin-top: 1rem;
+  margin-top: 1.5rem; /* [수정] 상단 여백 추가 */
   margin-bottom: 1rem;
   width: 100%;
 }
@@ -813,11 +822,11 @@ onMounted(() => {
 .compare-btn,
 .join-btn {
   flex: 1;
-  height: 3rem; /* 48px */
+  height: 3rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.5rem; /* 8px */
+  border-radius: 0.5rem;
   font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
@@ -828,7 +837,7 @@ onMounted(() => {
 .add-compare-btn {
   background: #ffffff;
   color: var(--color-main);
-  border: 0.0625rem solid var(--color-light);
+  border: 1px solid var(--color-light);
 }
 
 .compare-btn.in-list {

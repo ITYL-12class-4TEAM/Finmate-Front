@@ -252,7 +252,7 @@ const onProductClick = (product) => {
 };
 const onPageChange = (page) => {
   // 스크롤을 페이지 최상단으로 이동
-  window.scrollTo(0, 520);
+  window.scrollTo(0, 480);
 
   emit('page-change', page);
 };
