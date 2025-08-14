@@ -144,6 +144,8 @@ import CompareFloatingBar from '@/components/products/compare/CompareFloatingBar
 import GptDetailModal from '@/components/products/detail/GptDetailModal.vue';
 import useCompareList from '@/composables/useCompareList';
 import { useToast } from '@/composables/useToast';
+// 수정된 부분: 경로를 정확하게 지정하고 명시적으로 가져오기
+import { resolveCompanyLogo } from '@/constants/companyLogoMap';
 
 const { showToast } = useToast();
 
@@ -154,7 +156,6 @@ const router = useRouter();
 const product = ref(null);
 const loading = ref(true);
 const error = ref(null);
-const showModal = ref(false);
 const selectedTerm = ref({ name: '', description: '' });
 
 // GPT 상품 요약 모달 상태
@@ -421,20 +422,12 @@ const getInterestTypeName = () => {
   }
 };
 
-// 은행 로고 URL 가져오기
+// 은행 로고 URL 가져오기 - 수정된 부분: resolveCompanyLogo 함수 직접 사용
 const getBankLogo = () => {
-  if (!product.value || !product.value.kor_co_nm) return null;
-
-  const bankLogos = {
-    국민은행: '/bank-logos/kb.png',
-    신한은행: '/bank-logos/shinhan.png',
-    우리은행: '/bank-logos/woori.png',
-    하나은행: '/bank-logos/hana.png',
-    농협은행: '/bank-logos/nh.png',
-    기업은행: '/bank-logos/ibk.png',
-  };
-
-  return bankLogos[product.value.kor_co_nm] || null;
+  // resolveCompanyLogo 함수를 사용하여 로고 파일명 가져오기
+  const logoFile = resolveCompanyLogo(product.value.korCoNm);
+  // 정적 경로 사용 - public 폴더 기준
+  return `/images/companies/${logoFile}`;
 };
 
 // 은행 이니셜 가져오기 (로고가 없을 경우)
