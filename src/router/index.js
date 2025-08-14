@@ -190,12 +190,11 @@ const router = createRouter({
           component: () => import('../pages/wmti/SurveyResult.vue'),
           meta: { requiresAuth: true },
         }, // WMTI 성향 결과지
-        // WMTI 컬렉션
-        // {
-        //   path: 'collection',
-        //   name: 'WMTICollection',
-        //   component: () => import('../pages/wmti/WMTICollection.vue'),
-        // },
+        {
+          path: 'collection',
+          name: 'WMTICollection',
+          component: () => import('../pages/wmti/WMTICollection.vue'),
+        }, // WMTI 컬렉션(16종 코드모아보기)
       ],
     },
 

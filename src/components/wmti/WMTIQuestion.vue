@@ -74,7 +74,7 @@ const emit = defineEmits(['update:value']);
 const handleChange = (score) => {
   emit('update:value', Number(score));
 };
-const props = defineProps({
+defineProps({
   question: {
     type: Object,
     required: true,

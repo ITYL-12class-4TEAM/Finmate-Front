@@ -5,18 +5,51 @@
         <BackButton />
       </div>
       <div class="header-center">
-        <div class="compare-count">{{ compareList.length }}/3 상품 비교 중</div>
+        <button class="list-btn" @click="goToProductList">
+          {{ productTypeLabel }} 리스트 이동
+        </button>
       </div>
       <div class="header-right">
         <button class="clear-btn" @click="handleClearCompare">비교함 비우기</button>
       </div>
     </div>
 
-    <CompareEmptyState v-if="compareList.length === 0" @go-to-products="goToProductList" />
+    <div class="product-type-tabs">
+      <button
+        class="tab-btn"
+        :class="{ active: productType === 'deposit' }"
+        @click="switchProductType('deposit')"
+      >
+        예금 상품
+      </button>
+      <button
+        class="tab-btn"
+        :class="{ active: productType === 'savings' }"
+        @click="switchProductType('savings')"
+      >
+        적금 상품
+      </button>
+    </div>
+
+    <div v-if="currentCompareList.length <= 1" class="not-enough-products">
+      <div class="message-container">
+        <div class="warning-icon">!</div>
+        <h3>2개 이상의 상품을 선택해주세요.</h3>
+        <p>상품 비교를 위해서는<br />최소 2개의 상품이 필요합니다.</p>
+        <button class="go-to-list-btn" @click="goToProductList">
+          {{ productTypeLabel }} 상품 목록으로
+        </button>
+      </div>
+    </div>
+
+    <CompareEmptyState
+      v-else-if="currentCompareList.length === 0"
+      @go-to-products="goToProductList"
+    />
 
     <div v-else class="compare-content">
       <CompareTable
-        :items="compareList"
+        :items="currentCompareList"
         :compare-data="compareData"
         :get-min-deposit-for-product="getMinDepositForProduct"
         :get-max-deposit-for-product="getMaxDepositForProduct"
@@ -39,7 +72,7 @@
       />
     </div>
 
-    <div v-if="compareList.length >= 2" class="gpt-summary-btn-container">
+    <div v-if="currentCompareList.length >= 2" class="gpt-summary-btn-container">
       <button class="gpt-summary-btn" :disabled="gptLoading" @click="handleGptSummary">
         <div v-if="gptLoading" class="btn-loading">
           <div class="mini-spinner"></div>
@@ -51,25 +84,18 @@
       </button>
     </div>
 
-    <!-- GPT 비교 모달 -->
     <GptExampleModal
       :show="showGptModal"
-      :compare-list="compareList"
+      :compare-list="currentCompareList"
       @close="showGptModal = false"
     />
-
-    <!-- 성공 토스트 (간단한 알림) -->
-    <div v-if="showSuccessToast" class="success-toast">
-      {{ toastMessage }}
-    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useModal } from '@/composables/useModal';
-import axios from 'axios';
 import useCompareList from '@/composables/useCompareList';
 import BackButton from '@/components/common/BackButton.vue';
 import CompareTable from '@/components/products/compare/CompareTable.vue';
@@ -82,7 +108,22 @@ import GptExampleModal from '@/components/products/compare/GptExampleModal.vue';
 const router = useRouter();
 const route = useRoute();
 const { showModal } = useModal();
-const { compareList, removeFromCompareList, clearCompareList } = useCompareList();
+
+// 상품 타입 및 비교함 사용
+const productType = ref(route.query.type || 'deposit'); // URL 쿼리 파라미터에서 가져오기 (기본값: 'deposit')
+
+const { depositCompareList, savingsCompareList, clearCompareList, removeFromCompareList } =
+  useCompareList();
+
+// 현재 선택된 상품 타입에 따른 비교함 리스트
+const currentCompareList = computed(() => {
+  return productType.value === 'deposit' ? depositCompareList.value : savingsCompareList.value;
+});
+
+// 상품 타입에 따른 라벨 표시
+const productTypeLabel = computed(() => {
+  return productType.value === 'deposit' ? '예금' : '적금';
+});
 
 // 상태 관리
 const isLoading = ref(false);
@@ -90,12 +131,41 @@ const compareData = ref(null);
 const error = ref(null);
 const showGptModal = ref(false);
 const gptLoading = ref(false);
-const showSuccessToast = ref(false);
-const toastMessage = ref('');
 
-// GPT 요약 처리 (개선된 버전)
+// 상품 타입 전환
+const switchProductType = (type) => {
+  productType.value = type;
+
+  // URL 쿼리 파라미터 업데이트
+  router.replace({
+    query: { ...route.query, type },
+  });
+
+  // 타입 변경 시 데이터 다시 로드
+  if (currentCompareList.value.length >= 2) {
+    loadCompareData();
+  }
+};
+
+// 비교함 비우기
+const handleClearCompare = async () => {
+  const confirmed = await showModal(`모든 상품을 제거하시겠습니까?`);
+
+  if (confirmed) {
+    try {
+      // 현재 타입에 맞는 비교함만 비우기
+      clearCompareList(productType.value);
+      compareData.value = null;
+      error.value = null;
+    } catch (err) {
+      console.error('비교함 비우기 실패:', err);
+    }
+  }
+};
+
+// GPT 요약 처리
 const handleGptSummary = async () => {
-  if (compareList.value.length < 2) {
+  if (currentCompareList.value.length < 2) {
     return;
   }
 
@@ -109,15 +179,7 @@ const handleGptSummary = async () => {
   }
 };
 
-// 플로팅 바에서 비교하기 버튼 클릭 시 처리
-const handleGoToCompare = () => {
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth',
-  });
-};
-
-// 데이터 탐색 유틸리티 함수 (개선된 버전)
+// 데이터 탐색 유틸리티 함수
 const getProductValue = (productId, fieldMapping, defaultValue = '정보 없음') => {
   // API 데이터에서 찾기
   if (compareData.value?.products) {
@@ -136,7 +198,7 @@ const getProductValue = (productId, fieldMapping, defaultValue = '정보 없음'
   }
 
   // 로컬 리스트에서 찾기
-  const listProduct = compareList.value.find(
+  const listProduct = currentCompareList.value.find(
     (item) => String(item.productId) === String(productId)
   );
 
@@ -152,14 +214,13 @@ const getProductValue = (productId, fieldMapping, defaultValue = '정보 없음'
   return defaultValue;
 };
 
-// 최소 가입금액 조회 (개선된 버전)
+// 최소 가입금액 조회
 const getMinDepositForProduct = (productId) => {
   const amount = getProductValue(productId, ['minDepositAmount', 'min_deposit_amount'], 0);
-
   return amount ? formatCurrency(amount) : '정보 없음';
 };
 
-// 최대 가입금액 조회 (개선된 버전)
+// 최대 가입금액 조회
 const getMaxDepositForProduct = (productId) => {
   const amount = getProductValue(
     productId,
@@ -181,7 +242,7 @@ const getInterestTypeForProduct = (productId, saveTrm, intrRateType) => {
   let interestTypeName = interestTypes[intrRateType] || intrRateType;
 
   if (!compareData.value?.products) {
-    const product = compareList.value.find(
+    const product = currentCompareList.value.find(
       (item) =>
         String(item.productId) === String(productId) && String(item.saveTrm) === String(saveTrm)
     );
@@ -212,15 +273,15 @@ const getInterestTypeForProduct = (productId, saveTrm, intrRateType) => {
 
 // 비교 요약 계산
 const comparisonSummary = computed(() => {
-  if (compareList.value.length < 2) return null;
+  if (currentCompareList.value.length < 2) return null;
 
-  const bestRateProduct = [...compareList.value].sort((a, b) => {
+  const bestRateProduct = [...currentCompareList.value].sort((a, b) => {
     const rateA = parseFloat(a.intrRate2 || a.intrRate || 0);
     const rateB = parseFloat(b.intrRate2 || b.intrRate || 0);
     return rateB - rateA;
   })[0];
 
-  const shortestTermProduct = [...compareList.value].sort((a, b) => {
+  const shortestTermProduct = [...currentCompareList.value].sort((a, b) => {
     const termA = parseInt(a.saveTrm || 12);
     const termB = parseInt(b.saveTrm || 12);
     return termA - termB;
@@ -240,24 +301,25 @@ const comparisonSummary = computed(() => {
   };
 });
 
-// API 호출 및 데이터 로드 (에러 핸들링 개선)
+// API 호출 및 데이터 로드
 const loadCompareData = async () => {
-  if (compareList.value.length < 2) return;
+  if (currentCompareList.value.length < 2) return;
 
   try {
     isLoading.value = true;
     error.value = null;
 
-    const productType = compareList.value[0].productType;
-    const productIds = compareList.value.map((item) => item.productId);
-    const saveTrm = compareList.value[0].saveTrm;
-    const intrRateType = compareList.value[0].intrRateType;
+    const productIds = currentCompareList.value.map((item) => item.productId);
+    const saveTrm = currentCompareList.value[0].saveTrm;
+    const intrRateType = currentCompareList.value[0].intrRateType;
 
-    const response = await compareProductsAPI(productIds, productType, saveTrm, intrRateType);
+    // 현재 선택된 상품 타입을 API 호출에 포함
+    const response = await compareProductsAPI(productIds, productType.value, saveTrm, intrRateType);
     compareData.value = response;
 
     if (response?.products && Array.isArray(response.products)) {
-      compareList.value = compareList.value.map((item) => {
+      // 반환된 데이터로 현재 비교함 정보 보강
+      const updatedList = currentCompareList.value.map((item) => {
         const apiProduct = response.products.find(
           (p) => String(p.product_id) === String(item.productId)
         );
@@ -277,6 +339,13 @@ const loadCompareData = async () => {
         }
         return item;
       });
+
+      // 상품 타입에 따라 적절한 비교함에 업데이트
+      if (productType.value === 'deposit') {
+        depositCompareList.value = updatedList;
+      } else {
+        savingsCompareList.value = updatedList;
+      }
     }
   } catch (err) {
     console.error('비교 데이터 로드 오류:', err);
@@ -294,34 +363,35 @@ const loadCompareData = async () => {
   }
 };
 
-const getCorrectProductType = (item) => {
-  // 상품명 또는 다른 정보를 기반으로 타입 판별
-  if (item.productType) {
-    return item.productType; // 이미 정의된 타입이 있으면 사용
-  }
-
-  // 상품명에 '적금'이 포함되어 있으면 savings로 설정
-  if (item.productName && item.productName.includes('적금')) {
-    return 'savings';
-  }
-
-  // 기본값은 deposit
-  return 'deposit';
-};
-
-// 비교함에서 상품 제거 (개선된 버전)
+// 비교함에서 상품 제거
 const handleRemoveItem = async (productId, saveTrm, intrRateType = 'S') => {
   const confirmed = await showModal('해당 상품을 제거하시겠습니까?');
 
   if (confirmed) {
     try {
-      removeFromCompareList(productId, saveTrm, intrRateType);
+      // 해당 상품 항목 찾기
+      const product = currentCompareList.value.find(
+        (item) => String(item.productId) === String(productId)
+      );
 
-      if (compareList.value.length < 2) {
-        compareData.value = null;
-        error.value = null;
-      } else {
-        await loadCompareData();
+      if (product) {
+        // 현재 비교함에서 제거
+        removeFromCompareList(
+          productId,
+          saveTrm,
+          intrRateType,
+          product.rsrvType,
+          productType.value
+        );
+
+        // 삭제 후 남은 상품 수가 2개 이상이면 데이터 다시 로드
+        if (currentCompareList.value.length >= 2) {
+          await loadCompareData();
+        } else {
+          // 1개 이하면 비교 데이터 초기화
+          compareData.value = null;
+          error.value = null;
+        }
       }
     } catch (error) {
       console.error('상품 제거 실패:', error);
@@ -329,72 +399,59 @@ const handleRemoveItem = async (productId, saveTrm, intrRateType = 'S') => {
   }
 };
 
-// 비교함 비우기 (개선된 버전)
-const handleClearCompare = async () => {
-  const confirmed = await showModal('비교함의 모든 상품을 제거하시겠습니까?');
-
-  if (confirmed) {
-    try {
-      localStorage.removeItem('finmate_compare_list');
-      clearCompareList();
-      compareData.value = null;
-      error.value = null;
-    } catch (err) {
-      console.error('비교함 비우기 실패:', err);
-    }
-  }
-};
-
 // 상품 목록으로 이동
 const goToProductList = () => {
-  if (compareList.value.length > 0) {
-    const defaultCategory = compareList.value[0].productType || 'deposit';
-    router.push(`/products/${defaultCategory}`);
-    return;
-  }
-
-  const queryProductIds = route.query.productIds;
-  if (queryProductIds) {
-    const productType = route.query.productType || 'deposit';
-    router.push(`/products/${productType}`);
-    return;
-  }
-
-  const lastCategory = localStorage.getItem('lastVisitedCategory') || 'deposit';
-  router.push(`/products/${lastCategory}`);
+  router.push(`/products/${productType.value}`);
 };
 
 // 상세 페이지로 이동
 const goToDetail = (productId, productType, saveTrm = null) => {
+  // 현재 선택된 상품 타입(전역 상태의 productType.value)을 기본값으로 사용
+  // productType 파라미터가 없거나 undefined인 경우에만 전역 상태를 사용
+  const actualProductType =
+    productType && productType !== 'undefined' ? productType : productType.value; // 현재 탭에 표시된 상품 타입
+
   const query = saveTrm ? { saveTrm } : {};
 
-  // 상품 타입 확인 로직 추가
-  let correctProductType = productType;
-
-  // compareList에서 해당 상품 찾기
-  const product = compareList.value.find((item) => String(item.productId) === String(productId));
+  // currentCompareList에서 해당 상품 찾기
+  const product = currentCompareList.value.find(
+    (item) => String(item.productId) === String(productId)
+  );
 
   if (product) {
-    // 상품 이름으로 적금 여부 판단
-    if (product.productName && product.productName.includes('적금')) {
-      correctProductType = 'savings';
+    // 적금 상품인 경우 추가 파라미터 설정
+    if (product.productType === 'savings' || actualProductType === 'savings') {
+      query.rsrvType = product.rsrvType || 'F'; // 기본값 'F'
+
+      // intrRateType도 추가
+      if (product.intrRateType) {
+        query.intrRateType = product.intrRateType;
+      }
     }
-    // 이미 저장된 productType 사용
-    else if (product.productType) {
-      correctProductType = product.productType;
-    }
+
+    router.push({
+      path: `/products/${actualProductType}/${productId}`,
+      query,
+    });
+    window.scrollTo(0, 0);
+  } else {
+    // 상품을 찾지 못한 경우 기본 경로로 이동
+    router.push({
+      path: `/products/${actualProductType}/${productId}`,
+      query,
+    });
   }
-
-  console.log('상세 페이지 이동:', productId, correctProductType, saveTrm);
-
-  router.push({
-    path: `/products/${correctProductType}/${productId}`,
-    query,
-  });
 };
 
 // 가입하기
 const handleJoinProduct = (item) => {
+  // 저장된 company_url이 있으면 우선 사용
+  if (item.companyUrl) {
+    window.open(item.companyUrl, '_blank');
+    return;
+  }
+
+  // 기존 fallback 로직 유지
   const bankWebsites = {
     국민은행: 'https://www.kbstar.com',
     신한은행: 'https://www.shinhan.com',
@@ -417,18 +474,34 @@ const formatCurrency = (value) => {
   return new Intl.NumberFormat('ko-KR').format(value) + '원';
 };
 
+// URL 쿼리 파라미터가 변경될 때 상품 타입 업데이트
+watch(
+  () => route.query.type,
+  (newType) => {
+    if (newType && ['deposit', 'savings'].includes(newType)) {
+      productType.value = newType;
+    }
+  }
+);
+
 // 페이지 로드 시 데이터 로드
 onMounted(() => {
-  if (compareList.value.length >= 2) {
+  // URL 쿼리 파라미터에서 상품 타입 확인
+  if (route.query.type && ['deposit', 'savings'].includes(route.query.type)) {
+    productType.value = route.query.type;
+  }
+
+  // 2개 이상 상품이 있으면 비교 데이터 로드
+  if (currentCompareList.value.length >= 2) {
     loadCompareData();
   }
+
+  window.scrollTo(0, 0);
 });
 </script>
 
 <style scoped>
-/* 기존 스타일 유지 */
 .compare-page {
-  /* padding: 1rem 0; */
   padding-bottom: 5rem;
   min-height: 100vh;
 }
@@ -437,32 +510,123 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.25rem;
+  height: 42px;
   background-color: #ffffff;
-  padding: 0.55rem 1rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.03);
+  padding: 0 0rem;
+  border-bottom: 1px solid #f0f0f0;
+  box-sizing: border-box;
+}
+
+.header-left,
+.header-center,
+.header-right {
+  display: flex;
+  align-items: center;
 }
 
 .header-left {
-  /* 좌측 영역 - 뒤로가기 버튼 */
-  flex: 1;
-  display: flex;
   justify-content: flex-start;
+  flex: 0 0 auto; /* 뒤로가기 버튼 크기만큼만 차지 */
+}
+.header-center {
+  flex-grow: 1; /* 중앙 버튼이 남은 공간을 모두 차지하도록 설정 */
+  justify-content: end;
+  margin-right: 0.5rem;
+}
+.header-right {
+  justify-content: flex-end;
+  flex: 0 0 auto; /* 비우기 버튼 크기만큼만 차지 */
 }
 
-.header-center {
-  /* 중앙 영역 - 상품 비교 중 텍스트 */
-  flex: 1.5;
+.product-type-tabs {
   display: flex;
   justify-content: center;
+  margin: 0.5rem auto 0.5rem;
+  background-color: var(--color-bg-light);
+  border-radius: 2rem;
+  padding: 0.25rem;
+  width: 90%;
+  max-width: 20rem;
 }
 
-.header-right {
-  /* 우측 영역 - 비교함 비우기 버튼 */
+.tab-btn {
   flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  border-radius: 2rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-sub);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+  background-color: #fff;
+  color: var(--color-main);
+  font-weight: 600;
+  box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.1);
+}
+
+.not-enough-products {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.message-container {
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: 0 0.25rem 1.5rem rgba(45, 51, 107, 0.08);
+  max-width: 28rem;
+  width: 100%;
+}
+
+.warning-icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  background-color: var(--color-main);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0 auto 1.5rem;
+}
+
+.not-enough-products h3 {
+  font-size: 1.1rem;
+  color: var(--color-main);
+  margin-bottom: 0.75rem;
+}
+
+.not-enough-products p {
+  color: var(--color-sub);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.go-to-list-btn {
+  background-color: var(--color-main);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.go-to-list-btn:hover {
+  background-color: #373d7c;
 }
 
 .compare-actions {
@@ -472,36 +636,46 @@ onMounted(() => {
   background-color: #ffffff;
   padding: 0.55rem 1.5rem;
   border-radius: 0.5rem;
-  /* margin-bottom: 1.25rem; */
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.03);
 }
 
-.compare-count {
-  font-size: 0.9375rem;
-  color: var(--color-sub);
-  font-weight: 500;
-}
-
-.compare-count strong {
+.list-btn {
+  background: #ffffff;
+  border: 1px solid var(--color-sub);
   color: var(--color-main);
-  font-weight: 700;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 0.4rem 0.9rem;
+  border-radius: 2rem;
+  transition: all 0.2s ease;
 }
 
 .clear-btn {
-  background: none;
-  border: none;
+  background: #ebebeb;
+  border: 1px solid var(--color-sub);
   color: var(--color-sub);
-  font-size: 0.875rem;
+  font-size: 0.8rem;
+  font-weight: 500;
   cursor: pointer;
-  text-decoration: none;
-  padding: 0;
-  transition: color 0.2s;
+  white-space: nowrap;
+  padding: 0.4rem 0.9rem;
+  border-radius: 2rem;
+  transition: all 0.2s ease;
+}
+
+.list-btn:hover {
+  background-color: var(--color-main);
+  color: #ffffff;
 }
 
 .clear-btn:hover {
+  background-color: #f5f5f5;
+  border-color: #d0d0d0;
   color: var(--color-main);
-  text-decoration: underline;
 }
+/* ----- 버튼 스타일 수정 끝 ----- */
 
 .loading-state {
   display: flex;
@@ -523,7 +697,6 @@ onMounted(() => {
   margin-bottom: 1rem;
 }
 
-/* GPT 버튼 스타일 (개선된 버전) */
 .gpt-summary-btn-container {
   position: fixed;
   bottom: 2.5rem;
@@ -624,21 +797,4 @@ onMounted(() => {
     transform: translate3d(0, -2px, 0);
   }
 }
-
-/* 반응형 디자인 */
-/* @media (max-width: 768px) {
-  .gpt-summary-btn {
-    padding: 0.625rem 1rem;
-    font-size: 0.8125rem;
-    min-width: 9rem;
-  }
-
-  .success-toast {
-    bottom: 5rem;
-    left: 1rem;
-    right: 1rem;
-    transform: none;
-    text-align: center;
-  }
-} */
 </style>

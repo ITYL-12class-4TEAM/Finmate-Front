@@ -3,7 +3,9 @@
     <h3 class="section-title">상품 주요 정보</h3>
     <div class="feature-grid">
       <div v-for="f in features" :key="f.label" class="feature-item">
-        <div class="feature-icon" :aria-label="f.label">{{ f.icon }}</div>
+        <div class="feature-icon" :aria-label="f.label">
+          <i :class="f.icon"></i>
+        </div>
         <div class="feature-content">
           <div class="feature-label">{{ f.label }}</div>
           <div class="feature-value">{{ f.value }}</div>
@@ -23,33 +25,79 @@ const props = defineProps({
   formatDate: { type: Function, required: true },
 });
 
-// ✨'금리 유형' 항목을 추가하여 2x3 그리드를 채우도록 구성
+// 통화 단위 포맷팅 함수 (만원, 천만원, 억원 단위로 변환)
+const formatKoreanCurrency = (amount) => {
+  if (amount === null || amount === undefined) {
+    return '홈페이지 참고';
+  }
+
+  // 숫자로 변환
+  const num = Number(amount);
+  if (isNaN(num)) {
+    return '홈페이지 참고';
+  }
+
+  // 0원인 경우
+  if (num === 0) {
+    return '0원';
+  }
+
+  // 1억 이상인 경우 (1억 = 100,000,000)
+  if (num >= 100000000) {
+    const billion = Math.floor(num / 100000000);
+    // 1억 이상일 경우 만원 단위는 생략
+    return `${billion}억원`;
+  }
+
+  // 1천만 이상인 경우 (1천만 = 10,000,000)
+  if (num >= 10000000) {
+    const tenMillion = Math.floor(num / 10000000);
+    return `${tenMillion}천만원`;
+  }
+
+  // 만원 단위로 표시 (1만원 = 10,000)
+  if (num >= 10000) {
+    const tenThousand = Math.floor(num / 10000);
+    return `${tenThousand}만원`;
+  }
+
+  // 천원 단위로 표시 (1천원 = 1,000)
+  if (num >= 1000) {
+    const thousand = Math.floor(num / 1000);
+    return `${thousand}천원`;
+  }
+
+  // 그 외의 경우
+  return `${num}원`;
+};
+
 const features = computed(() => {
   const p = props.product?.productDetail || {};
   const opt = props.selectedOption || {};
   return [
     {
-      icon: '💰',
+      // ✨ 아이콘 값을 전체 클래스 이름으로 변경
+      icon: 'fas fa-dollar-sign',
       label: '최소 가입금액',
-      value: props.formatCurrency?.(p.minDepositAmount) || '0원',
+      value: formatKoreanCurrency(p.minDepositAmount) || '0원',
     },
     {
-      icon: '📈',
+      icon: 'fas fa-chart-line',
       label: '최대 가입금액',
-      value: p.maxDepositAmount ? props.formatCurrency(p.maxDepositAmount) : '홈페이지 직접 참고',
+      value: p.maxDepositAmount ? formatKoreanCurrency(p.maxDepositAmount) : '홈페이지 참고',
     },
     {
-      icon: '⏰',
+      icon: 'fas fa-clock',
       label: '가입 기간',
       value: opt.save_trm || opt.saveTrm ? `${opt.save_trm || opt.saveTrm}개월` : '-',
     },
     {
-      icon: '📅',
+      icon: 'fas fa-calendar-days',
       label: '공시 시작일',
       value: props.formatDate?.(p.dcls_strt_day) || '-',
     },
     {
-      icon: '🔄',
+      icon: 'fas fa-right-left',
       label: '가입 방법',
       value: p.join_way || '제한 없음',
     },
@@ -111,6 +159,10 @@ const features = computed(() => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+.feature-icon i {
+  color: #9387d6;
 }
 
 .feature-content {

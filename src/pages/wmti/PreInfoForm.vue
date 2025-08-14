@@ -24,7 +24,9 @@
           <h3 class="section-title">
             <span class="title-number">01</span>
             기본 정보
-            <div v-if="isBasicInfoCompleted" class="check-icon">✓</div>
+            <div v-if="isBasicInfoCompleted" class="check-icon">
+              <i class="fa-solid fa-check"></i>
+            </div>
           </h3>
 
           <div class="input-groups">
@@ -78,7 +80,9 @@
           <h3 class="section-title">
             <span class="title-number">02</span>
             재정 정보
-            <div v-if="isFinancialInfoCompleted" class="check-icon">✓</div>
+            <div v-if="isFinancialInfoCompleted" class="check-icon">
+              <i class="fa-solid fa-check"></i>
+            </div>
           </h3>
 
           <div class="input-groups">
@@ -128,7 +132,9 @@
           <h3 class="section-title">
             <span class="title-number">03</span>
             투자 정보
-            <div v-if="isInvestmentInfoCompleted" class="check-icon">✓</div>
+            <div v-if="isInvestmentInfoCompleted" class="check-icon">
+              <i class="fa-solid fa-check"></i>
+            </div>
           </h3>
 
           <div class="input-groups">
@@ -216,7 +222,7 @@ const form = ref({
 
 // 상태 변수
 const isSubmitting = ref(false);
-const originalData = ref(null); // 이 줄 추가
+const originalData = ref(null);
 
 //Composable 사용
 const { backupFormData, restoreFormData, hasValidBackup, clearBackup, forceBackupFormData } =
@@ -226,7 +232,7 @@ const { backupFormData, restoreFormData, hasValidBackup, clearBackup, forceBacku
     formRef: form,
     autoBackup: true,
     submittedKey: 'preinfoSubmitted',
-    forceBackup: true, // 🔥 이 옵션 추가하면 제출 여부 무시하고 백업
+    forceBackup: true, // 제출 여부 무시하고 백업
   });
 
 const { processSubmissionError, resetRetryCount } = useAuthError({

@@ -30,7 +30,7 @@
             </svg>
             <!-- 사용자 메뉴 드롭다운 -->
             <div class="user-dropdown" :class="{ open: dropdownOpen }">
-              <p>{{ authStore.userInfo.nickname || '사용자' }}님</p>
+              <p>{{ authStore.userInfo?.nickname || '사용자' }}님</p>
               <router-link to="/mypage">마이페이지 이동</router-link>
               <button @click="handleLogout">로그아웃</button>
             </div>
