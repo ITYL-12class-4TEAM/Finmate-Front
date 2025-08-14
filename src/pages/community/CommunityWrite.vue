@@ -5,7 +5,7 @@
       <BackButton :to="'/community'" class="back-button" />
       <h1 class="board-title">글쓰기</h1>
       <div class="complete-section">
-        <button class="complete-btn" @click="submitPost" :disabled="!isFormValid">완료</button>
+        <button class="complete-btn" :disabled="!isFormValid" @click="submitPost">완료</button>
       </div>
     </div>
 
@@ -49,7 +49,7 @@
         </div>
       </div>
 
-       <!-- 익명 여부 선택 -->
+      <!-- 익명 여부 선택 -->
       <div class="input-group">
         <div class="checkbox-container">
           <CustomCheckbox id="edit-anonymous" v-model="isAnonymous">
