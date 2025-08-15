@@ -238,8 +238,6 @@ export const getProductSummaryWithGPT = async (product, selectedOption) => {
       throw new Error('상품 데이터를 변환할 수 없습니다.');
     }
 
-    console.log('상품 요약 API 요청 데이터:', requestData);
-
     const response = await fetch('/api/chat/summary', {
       method: 'POST',
       headers: {
@@ -253,7 +251,6 @@ export const getProductSummaryWithGPT = async (product, selectedOption) => {
     }
 
     const data = await response.json();
-    console.log('상품 요약 API 응답 데이터:', data);
 
     if (data.header?.status !== 'OK') {
       throw new Error(data.header?.message || 'API 응답 오류가 발생했습니다.');
