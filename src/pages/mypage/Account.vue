@@ -42,6 +42,7 @@ import VerifyPasswordForm from '@/components/mypage/verify/VerifyPasswordForm.vu
 import VerifySecurityNotice from '@/components/mypage/verify/VerifySecurityNotice.vue';
 import VerifyBottomLinks from '@/components/mypage/verify/VerifyBottomLinks.vue';
 import VerifySuccessModal from '@/components/mypage/verify/VerifySuccessModal.vue';
+import { useToast } from '@/composables/useToast';
 
 const router = useRouter();
 
@@ -52,6 +53,7 @@ const errorMessage = ref('');
 const currentPassword = ref('');
 const showPassword = ref(false);
 const showSuccessModal = ref(false);
+const { showToast } = useToast();
 
 // 사용자 정보
 const userInfo = ref({
@@ -81,7 +83,7 @@ onMounted(async () => {
       return;
     }
   } else {
-    alert('사용자 정보를 불러올 수 없습니다.');
+    showToast('사용자 정보를 불러올 수 없습니다.', 'error');
   }
 });
 

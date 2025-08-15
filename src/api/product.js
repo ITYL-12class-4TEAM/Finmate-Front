@@ -111,7 +111,8 @@ export const compareProductsAPI = async (
   productIds,
   productType = 'deposit',
   saveTrm,
-  intrRateType
+  intrRateType,
+  rsrvType
 ) => {
   try {
     // URL 직접 구성 (파라미터 문제를 확실히 해결하기 위해)
@@ -136,6 +137,10 @@ export const compareProductsAPI = async (
 
     if (intrRateType) {
       url += `&optionId=${encodeURIComponent(intrRateType)}`;
+    }
+
+    if (rsrvType) {
+      url += `&optionId=${encodeURIComponent(rsrvType)}`;
     }
 
     // API 호출

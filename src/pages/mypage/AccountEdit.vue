@@ -401,9 +401,9 @@ onMounted(async () => {
   // 2. 사용자 정보 조회
   try {
     const response = await memberAPI.getMyInfo();
-    if (response.success && response.data) {
-      userInfo.value = { ...response.data };
-
+    showToast('사용자 정보 조회 결과:', 'success');
+    if (response.success) {
+      userInfo.value = response.data;
       // 3. 폼 초기값 설정
       editForm.value.receivePushNotification = response.data.receivePushNotification;
     } else {

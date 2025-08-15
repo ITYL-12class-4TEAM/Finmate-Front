@@ -13,12 +13,18 @@
     <div v-else-if="product" class="product-container">
       <!-- 페이지 헤더 -->
       <div class="page-header">
-        <BackButton />
+        <div class="header-left">
+          <BackButton />
+        </div>
+        <button class="favorite-btn" title="즐겨찾는 상품" @click="goToFavorites">
+          <span class="favorite-icon">★</span>
+          <span class="btn-text">즐겨찾기 이동</span>
+        </button>
         <!-- GPT 상품 요약 버튼 (우측 상단) todo -->
         <!-- <button class="gpt-detail-btn" @click="handleGptDetail" title="GPT 상품 요약">
-          <span class="gpt-icon">🤖</span>
-          <span class="btn-text">AI 요약</span>
-        </button> -->
+              <span class="gpt-icon">🤖</span>
+              <span class="btn-text">AI 요약</span>
+             </button> -->
       </div>
 
       <!-- 상품 기본 정보 카드 -->
@@ -28,6 +34,8 @@
         :bank-initial="getBankInitial()"
         :category-name="getCategoryName()"
         :interest-type-name="getInterestTypeName()"
+        :selected-option="selectedOption"
+        :savings-type-code="route.query.rsrvType"
       />
 
       <!-- 금리 정보 섹션 -->
@@ -88,13 +96,7 @@
       <!-- 액션 섹션 -->
       <div class="action-section">
         <button
-          v-if="
-            isInCompareList(
-              product.product_id,
-              selectedOption?.save_trm || selectedOption?.saveTrm,
-              selectedOption?.intr_rate_type || selectedOption?.intrRateType || 'S'
-            )
-          "
+          v-if="isProductInCompareList"
           class="compare-btn in-list"
           @click="handleRemoveFromCompare"
         >
@@ -103,18 +105,20 @@
         <button v-else class="compare-btn add-compare-btn" @click="handleAddToCompare">
           비교함에 추가
         </button>
-        <button class="join-btn" @click="joinProduct">가입하기</button>
+        <button class="join-btn" @click="joinProduct">홈페이지 이동</button>
       </div>
 
       <!-- 하단 여백 (CompareFloatingBar가 가리는 콘텐츠 방지) -->
-      <div v-if="compareList.length > 0" style="height: 4rem"></div>
+      <div v-if="currentCompareList.length > 0" style="height: 4rem"></div>
     </div>
 
     <!-- 비교함 플로팅 바 -->
     <CompareFloatingBar
-      :compare-list="compareList"
+      v-if="currentCompareList.length > 0"
+      :compare-list="currentCompareList"
+      :product-type="productType"
       @go-to-compare="goToCompare"
-      @clear-compare-list="clearCompareList"
+      @clear-compare-list="clearCurrentCompareList"
     />
 
     <!-- GPT 상품 요약 모달 -->
@@ -139,7 +143,9 @@ import ProductFeatures from '@/components/products/detail/ProductFeatures.vue';
 import CompareFloatingBar from '@/components/products/compare/CompareFloatingBar.vue';
 import GptDetailModal from '@/components/products/detail/GptDetailModal.vue';
 import useCompareList from '@/composables/useCompareList';
-// import { useToast } from '@/composables/useToast';
+import { useToast } from '@/composables/useToast';
+// 수정된 부분: 경로를 정확하게 지정하고 명시적으로 가져오기
+import { resolveCompanyLogo } from '@/constants/companyLogoMap';
 
 // const { showToast } = useToast();
 
@@ -150,15 +156,82 @@ const router = useRouter();
 const product = ref(null);
 const loading = ref(true);
 const error = ref(null);
-// const showModal = ref(false);
-// const selectedTerm = ref({ name: '', description: '' });
+const selectedTerm = ref({ name: '', description: '' });
 
 // GPT 상품 요약 모달 상태
 const showGptDetailModal = ref(false);
 
-// 비교함 기능 (컴포저블 사용)
-const { compareList, clearCompareList, addToCompareList, removeFromCompareList, isInCompareList } =
-  useCompareList();
+// 비교함 기능 (컴포저블 사용) - 상품군별 비교함으로 업데이트
+const {
+  depositCompareList,
+  savingsCompareList,
+  clearCompareList,
+  addToCompareList,
+  removeFromCompareList,
+  isInCompareList,
+} = useCompareList();
+
+// 현재 상품 타입 결정 (URL 파라미터 기반)
+const productType = computed(() => {
+  // rsrvType 쿼리 파라미터가 있거나 category가 'savings'인 경우 적금으로 판단
+  if (route.query.rsrvType || route.params.category === 'savings') {
+    return 'savings';
+  }
+  // 그 외의 경우 예금 또는 route.params.category 값 사용
+  return route.params.category || 'deposit';
+});
+
+// 현재 상품 타입에 맞는 비교함 리스트
+const currentCompareList = computed(() => {
+  return productType.value === 'deposit' ? depositCompareList.value : savingsCompareList.value;
+});
+
+// 현재 상품 타입에 맞는 비교함만 비우기
+const clearCurrentCompareList = () => {
+  clearCompareList(productType.value);
+};
+
+// 🎯 CompanyUrl 추출 함수 추가
+const getCompanyUrl = () => {
+  if (!product.value) return null;
+  return (
+    product.value.companyUrl ||
+    product.value.company_url ||
+    product.value.productDetail?.companyUrl ||
+    null
+  );
+};
+
+// 즐겨찾기 페이지로 이동하는 함수
+const goToFavorites = () => {
+  router.push('/mypage/favorites');
+};
+
+// 비교함에 상품이 있는지 여부를 계산하는 computed 속성 추가
+const isProductInCompareList = computed(() => {
+  if (!product.value || !selectedOption.value) return false;
+
+  const productId = product.value.product_id || product.value.productId;
+  const saveTrm = selectedOption.value.save_trm || selectedOption.value.saveTrm;
+  const intrRateType =
+    selectedOption.value.intr_rate_type || selectedOption.value.intrRateType || 'S';
+
+  // 현재 상품이 적금인지 확인
+  const isSavings = productType.value === 'savings';
+
+  // 적금이면 rsrvType 값 추출, 아니면 null
+  let rsrvType = null;
+  if (isSavings) {
+    rsrvType =
+      selectedOption.value.rsrv_type ||
+      selectedOption.value.rsrvType ||
+      route.query.rsrvType ||
+      'F';
+  }
+
+  // 비교함 포함 여부 확인 (상품 타입 명시적 전달)
+  return isInCompareList(productId, saveTrm, intrRateType, rsrvType, productType.value);
+});
 
 // GPT 상품 요약 모달 열기
 // const handleGptDetail = () => {
@@ -222,13 +295,17 @@ const saveAsRecentViewed = async () => {
       }
     }
 
+    // 적금 상품인데 rsrvType이 없으면 기본값 'F' 사용
+    if (route.params.category === 'savings' && !rsrvType) {
+      rsrvType = 'F';
+    }
+
     if (!productId) {
       console.warn('상품 ID가 없어 최근 본 상품으로 저장할 수 없습니다.');
       return;
     }
 
     await recentViewAPI.saveRecentView(productId, saveTrm, intrRateType, rsrvType);
-    console.log('최근 본 상품 저장 성공');
   } catch (error) {
     console.error('최근 본 상품 저장 실패:', error);
   }
@@ -263,15 +340,20 @@ const handleAddToCompare = () => {
     return;
   }
 
-  console.log('비교함 추가 전 상품/옵션 정보:', {
-    product: product.value,
-    selectedOption: selectedOption.value,
-    category: route.params.category,
-  });
+  // 옵션 객체 복사 (원본 변경 방지)
+  const option = { ...selectedOption.value };
 
-  addToCompareList(product.value, selectedOption.value, route.params.category);
+  // 적금이고 rsrvType이 없으면 기본값 설정
+  if (productType.value === 'savings' && !option.rsrv_type && !option.rsrvType) {
+    option.rsrv_type = route.query.rsrvType || 'F';
+    option.rsrv_type_nm = option.rsrv_type === 'S' ? '정액적립식' : '자유적립식';
+  }
+
+  // 상품 타입 명시적으로 전달
+  addToCompareList(product.value, option, productType.value);
 };
 
+// 비교함에서 제거 핸들러
 const handleRemoveFromCompare = () => {
   if (!product.value || !selectedOption.value) return;
 
@@ -280,16 +362,32 @@ const handleRemoveFromCompare = () => {
   const intrRateType =
     selectedOption.value.intr_rate_type || selectedOption.value.intrRateType || 'S';
 
-  removeFromCompareList(productId, saveTrm, intrRateType);
+  // 적금이면 rsrvType 값 추출, 아니면 null
+  let rsrvType = null;
+  if (productType.value === 'savings') {
+    rsrvType =
+      selectedOption.value.rsrv_type ||
+      selectedOption.value.rsrvType ||
+      route.query.rsrvType ||
+      'F';
+  }
+
+  // 상품 타입 명시적으로 전달
+  removeFromCompareList(productId, saveTrm, intrRateType, rsrvType, productType.value);
 };
 
 // 비교 페이지로 이동
 const goToCompare = () => {
+  if (currentCompareList.value.length < 2) {
+    showToast('2개 이상의 상품을 선택해주세요.', 'warning');
+    return;
+  }
+
   router.push({
     path: '/products/compare',
     query: {
-      // compareList에 있는 상품 ID들을 쿼리 파라미터로 전달
-      productIds: compareList.value.map((item) => item.productId),
+      // 현재 상품 타입을 쿼리 파라미터로 전달
+      type: productType.value,
     },
   });
 };
@@ -325,20 +423,12 @@ const getInterestTypeName = () => {
   }
 };
 
-// 은행 로고 URL 가져오기
+// 은행 로고 URL 가져오기 - 수정된 부분: resolveCompanyLogo 함수 직접 사용
 const getBankLogo = () => {
-  if (!product.value || !product.value.kor_co_nm) return null;
-
-  const bankLogos = {
-    국민은행: '/bank-logos/kb.png',
-    신한은행: '/bank-logos/shinhan.png',
-    우리은행: '/bank-logos/woori.png',
-    하나은행: '/bank-logos/hana.png',
-    농협은행: '/bank-logos/nh.png',
-    기업은행: '/bank-logos/ibk.png',
-  };
-
-  return bankLogos[product.value.kor_co_nm] || null;
+  // resolveCompanyLogo 함수를 사용하여 로고 파일명 가져오기
+  const logoFile = resolveCompanyLogo(product.value.korCoNm);
+  // 정적 경로 사용 - public 폴더 기준
+  return `/images/companies/${logoFile}`;
 };
 
 // 은행 이니셜 가져오기 (로고가 없을 경우)
@@ -347,14 +437,23 @@ const getBankInitial = () => {
   return product.value.kor_co_nm.charAt(0);
 };
 
-// 상품 가입하기
+// 🎯 상품 가입하기 - CompanyUrl 활용하도록 수정
 const joinProduct = () => {
   if (!product.value) return;
-  const joinUrl = product.value.external_link || getBankWebsite();
-  window.open(joinUrl, '_blank');
+
+  const companyUrl = getCompanyUrl();
+
+  if (companyUrl && companyUrl.trim() !== '') {
+    // companyUrl이 있으면 새 창으로 해당 금융사 홈페이지 열기
+    window.open(companyUrl, '_blank', 'noopener,noreferrer');
+  } else {
+    // companyUrl이 없으면 기존 로직 사용 (external_link 또는 은행 웹사이트)
+    const fallbackUrl = product.value.external_link || getBankWebsite();
+    window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
+  }
 };
 
-// 은행 웹사이트 URL 가져오기
+// 은행 웹사이트 URL 가져오기 (fallback용)
 const getBankWebsite = () => {
   if (!product.value || !product.value.kor_co_nm) return '#';
 
@@ -423,27 +522,38 @@ const selectedOption = computed(() => {
 
   const saveTrm = route.query.saveTrm;
   const intrRateType = route.query.intrRateType;
+  const rsrvType = route.query.rsrvType;
 
-  // saveTrm과 intrRateType 모두 일치하는 옵션 찾기
+  // 1. 모든 조건이 일치하는 옵션 찾기 (saveTrm + intrRateType + rsrvType)
+  if (rsrvType) {
+    const fullMatch = options.find(
+      (opt) =>
+        String(opt.save_trm || opt.saveTrm) === String(saveTrm) &&
+        (opt.intr_rate_type || opt.intrRateType) === intrRateType &&
+        (opt.rsrv_type || opt.rsrvType) === rsrvType
+    );
+
+    if (fullMatch) return fullMatch;
+  }
+
+  // 2. saveTrm과 intrRateType 일치하는 옵션 찾기
   const matchedOption = options.find(
     (opt) =>
       String(opt.save_trm || opt.saveTrm) === String(saveTrm) &&
       (opt.intr_rate_type || opt.intrRateType) === intrRateType
   );
 
-  // 일치하는 옵션이 없으면 saveTrm만 일치하는 옵션 찾기
-  if (!matchedOption) {
-    const saveTrmMatchOnly = options.find(
-      (opt) => String(opt.save_trm || opt.saveTrm) === String(saveTrm)
-    );
+  if (matchedOption) return matchedOption;
 
-    if (saveTrmMatchOnly) {
-      return saveTrmMatchOnly;
-    }
-  }
+  // 3. saveTrm만 일치하는 옵션 찾기
+  const saveTrmMatchOnly = options.find(
+    (opt) => String(opt.save_trm || opt.saveTrm) === String(saveTrm)
+  );
 
-  // 일치하는 옵션이 있으면 반환, 없으면 첫 번째 옵션 반환
-  return matchedOption || options[0];
+  if (saveTrmMatchOnly) return saveTrmMatchOnly;
+
+  // 4. 일치하는 옵션이 없으면 첫 번째 옵션 반환
+  return options[0];
 });
 
 // 컴포넌트 마운트 시 데이터 로드
@@ -454,12 +564,21 @@ onMounted(() => {
 
 <style scoped>
 /* ==========================================================================
-   1. 페이지 기본 레이아웃 및 로딩/에러 상태 (유지)
-   ========================================================================== */
+ 1. 페이지 기본 레이아웃 및 로딩/에러 상태
+========================================================================== */
 .product-detail-page {
-  padding: 0 0.3rem;
-  padding-bottom: 6rem; /* 하단 플로팅 바를 위한 여백 확보 */
+  /* [수정] 전체 페이지에 box-sizing 적용 */
+  box-sizing: border-box;
+  padding: 0 0rem; /* 화면 좌우에 일관된 여백 적용 */
+  padding-bottom: 6rem;
   min-height: 100vh;
+  margin: 0 auto; /* 페이지 콘텐츠 중앙 정렬 */
+  max-width: 480px; /* 모바일 화면 최대 너비 설정 (선택 사항) */
+}
+
+.product-container {
+  /* [수정] 고정 너비를 제거하고 유연한 너비로 변경 */
+  width: 100%;
 }
 
 .loading-container,
@@ -509,16 +628,54 @@ onMounted(() => {
 }
 
 /* ==========================================================================
-   2. 페이지 헤더 (GPT 버튼 추가로 수정)
-   ========================================================================== */
+2. 페이지 헤더
+========================================================================== */
 .page-header {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* 양쪽 끝으로 배치 */
+  justify-content: space-between;
   margin-bottom: 0.5rem;
+  width: 100%; /* [추가] 헤더가 컨테이너 너비에 맞게 설정 */
 }
 
-/* GPT 상품 요약 버튼 (우측 상단) */
+.header-left {
+  display: flex;
+  align-items: center;
+  /* [수정] 고정 gap 제거 */
+}
+
+.favorite-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: #fff;
+  color: var(--color-main);
+  border: 1px solid var(--color-light);
+  border-radius: 1.5rem;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.favorite-btn:hover {
+  background-color: var(--color-bg-light);
+}
+
+.favorite-btn:active {
+  transform: translateY(1px);
+}
+
+.favorite-btn .favorite-icon {
+  color: #ffd700;
+  font-size: 1rem;
+}
+
+.favorite-btn .btn-text {
+  white-space: nowrap;
+}
+
 .gpt-detail-btn {
   display: flex;
   align-items: center;
@@ -564,37 +721,38 @@ onMounted(() => {
 }
 
 /* ==========================================================================
-   3. 정보 섹션 카드 (✨ 시각적 요소 추가)
-   ========================================================================== */
+3. 정보 섹션 카드
+========================================================================== */
 .info-section {
   background-color: #ffffff;
-  border-radius: 0.75rem; /* 12px */
-  padding: 0.5rem 1rem; /* 20px 16px */
+  border-radius: 0.75rem;
+  padding: 1.25rem 1rem;
   margin-bottom: 0.5rem;
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.04);
+  /* [추가] box-sizing 적용 */
+  box-sizing: border-box;
 }
 
 .section-title {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1rem; /* 18px */
+  font-size: 1.125rem;
   font-weight: 600;
   color: var(--color-main);
-  margin: 0 0 0.5rem 0;
-  padding-bottom: 0.25rem;
-  border-bottom: 0.0625rem solid var(--color-bg-light);
+  margin: 0 0 0.75rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-bg-light);
 }
 
 .info-content {
-  font-size: 0.8rem; /* 15px */
+  font-size: 0.9375rem;
   color: var(--color-text);
   line-height: 1.7;
   white-space: pre-wrap;
   word-break: keep-all;
 }
 
-/* ✨ '가입 대상'과 같이 간단한 정보는 강조된 텍스트로 표시 */
 .info-content.highlight-text {
   font-size: 1rem;
   font-weight: 500;
@@ -604,20 +762,20 @@ onMounted(() => {
 }
 
 /* ==========================================================================
-   4. 우대 조건 리스트 스타일 (✨ 시각적 개선)
-   ========================================================================== */
+4. 우대 조건 리스트 스타일
+========================================================================== */
 .conditions-list {
   padding-left: 0;
   margin: 0;
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem; /* 항목 간 간격 */
+  gap: 0.75rem;
 }
 
 .conditions-list li {
   position: relative;
-  padding-left: 1.75rem; /* 아이콘을 위한 공간 확보 */
+  padding-left: 1.75rem;
   font-size: 0.9375rem;
 }
 
@@ -638,18 +796,19 @@ onMounted(() => {
   font-weight: 600;
 }
 
-/* ✨ 내용이 없는 경우를 위한 스타일 */
 .info-content.empty {
   color: var(--color-sub);
   text-align: center;
   padding: 1rem 0;
 }
 
-/* 액션 버튼 스타일 */
+/* ==========================================================================
+   5. 액션 섹션 스타일
+   ========================================================================== */
 .action-section {
   display: flex;
   gap: 0.75rem;
-  margin-top: 1rem;
+  margin-top: 1.5rem; /* [수정] 상단 여백 추가 */
   margin-bottom: 1rem;
   width: 100%;
 }
@@ -657,11 +816,11 @@ onMounted(() => {
 .compare-btn,
 .join-btn {
   flex: 1;
-  height: 3rem; /* 48px */
+  height: 3rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.5rem; /* 8px */
+  border-radius: 0.5rem;
   font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
@@ -672,7 +831,7 @@ onMounted(() => {
 .add-compare-btn {
   background: #ffffff;
   color: var(--color-main);
-  border: 0.0625rem solid var(--color-light);
+  border: 1px solid var(--color-light);
 }
 
 .compare-btn.in-list {

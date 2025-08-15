@@ -13,7 +13,7 @@
 
     <!-- 질문 텍스트 -->
     <div class="question-text">
-      {{ question.question }}
+      <p class="multiline-text">{{ question.question }}</p>
     </div>
 
     <!-- 선택지 영역 -->
@@ -35,7 +35,7 @@
             :value="score"
             :checked="score === value"
             class="radio-input"
-            @change="$emit('update:value', Number(score))"
+            @change="handleChange(score)"
           />
           <div class="option-circle">
             <div v-if="score === value" class="option-inner">
@@ -50,13 +50,13 @@
 
     <!-- 좌우 라벨 -->
     <div class="scale-labels">
-      <span class="scale-label left">
+      <span class="scale-label left multiline-text">
         <i class="fa-solid fa-arrow-left"></i>
         {{ question.left_ans }}
       </span>
-      <span class="scale-label right">
-        {{ question.right_ans }}
+      <span class="scale-label right multiline-text">
         <i class="fa-solid fa-arrow-right"></i>
+        {{ question.right_ans }}
       </span>
     </div>
 
@@ -69,8 +69,12 @@
 
 <script setup>
 import { defineProps } from 'vue';
+const emit = defineEmits(['update:value']);
 
-const props = defineProps({
+const handleChange = (score) => {
+  emit('update:value', Number(score));
+};
+defineProps({
   question: {
     type: Object,
     required: true,
@@ -173,6 +177,11 @@ const props = defineProps({
   margin-bottom: 1.5rem;
   text-align: center;
   padding: 0 0.5rem;
+}
+
+/* 줄바꿈 처리 */
+.multiline-text {
+  white-space: pre-line; /* \n을 줄바꿈으로 처리 */
 }
 
 /* 선택지 섹션 */
@@ -413,7 +422,7 @@ const props = defineProps({
 /* 반응형 - 모바일에서도 크기 차등 유지 */
 @media (max-width: 26.875rem) {
   .question-container {
-    padding: 1.25rem;
+    padding: 1.25rem 0.5rem 1.25rem;
   }
 
   .question-text {

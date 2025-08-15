@@ -77,6 +77,9 @@
           <li>
             <router-link to="/wmti/result" @click="$emit('close')">투자 성향 결과</router-link>
           </li>
+          <li>
+            <router-link to="/wmti/collection" @click="$emit('close')">16가지 투자성향</router-link>
+          </li>
         </ul>
       </li>
 

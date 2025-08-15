@@ -29,6 +29,9 @@
           >
             {{ interestTypeName }}
           </span>
+          <span v-if="savingsTypeName" class="tag" :class="getSavingTypeClass()">
+            {{ savingsTypeName }}
+          </span>
         </div>
       </div>
       <WishButton />
@@ -37,6 +40,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import WishButton from '@/components/products/wishlist/WishlistButton.vue';
 
 const props = defineProps({
@@ -45,12 +49,27 @@ const props = defineProps({
   bankInitial: { type: String, default: '' },
   categoryName: { type: String, default: '금융상품' },
   interestTypeName: { type: String, default: '' },
+  savingsTypeCode: { type: String, default: null }, // ✨ prop 추가
 });
 
 // 금리 유형에 따른 클래스 반환
 const getInterestTypeClass = (typeName) => {
   if (typeName === '단리') return 'simple-interest';
   if (typeName === '복리') return 'compound-interest';
+  return '';
+};
+
+// ✨ URL의 rsrvType 코드만 보고 이름을 반환하도록 변경
+const savingsTypeName = computed(() => {
+  if (props.savingsTypeCode === 'F') return '자유적립식';
+  if (props.savingsTypeCode === 'S') return '정액적립식';
+  return null;
+});
+
+// ✨ URL의 rsrvType 코드만 보고 클래스를 반환하도록 변경
+const getSavingTypeClass = () => {
+  if (props.savingsTypeCode === 'F') return 'flexible-saving';
+  if (props.savingsTypeCode === 'S') return 'fixed-saving';
   return '';
 };
 </script>
@@ -145,6 +164,7 @@ const getInterestTypeClass = (typeName) => {
   padding: 0.25rem 0.625rem; /* 4px 10px */
   border-radius: 0.875rem; /* 14px, 알약 형태 */
   font-weight: 500;
+  text-align: center;
 }
 
 .tag.digital {
@@ -180,5 +200,19 @@ const getInterestTypeClass = (typeName) => {
 .tag.interest-type:not(.simple-interest):not(.compound-interest) {
   background: var(--color-bg-light);
   color: var(--color-main);
+}
+
+/* 자유적립식 스타일 */
+.tag.fixed-saving {
+  background-color: #fefce8; /* 연한 노란색 */
+  color: #ca8a04; /* 진한 노란색 */
+  border: 1px solid #fde68a;
+}
+
+/* 정액적립식 스타일 */
+.tag.flexible-saving {
+  background-color: #f3e8ff; /* 연한 보라색 */
+  color: #8e24aa; /* 진한 보라색 */
+  border: 1px solid #e9d5ff;
 }
 </style>

@@ -86,9 +86,8 @@ const saveAsRecentViewed = async (product) => {
       product.intrRateType,
       product.rsrvType || product.rstvValue
     );
-    console.log('최근 본 상품에 저장되었습니다.');
   } catch (error) {
-    console.error('최근 본 상품 저장 실패:', error);
+    showToast('최근 본 상품 저장 실패:', 'error');
     // 저장 실패해도 페이지 이동은 계속 진행
   }
 };
@@ -124,7 +123,7 @@ const clickFavorite = async (favorite) => {
     // 페이지 이동
     router.push(routePath);
   } catch (err) {
-    console.error('최근 본 상품 저장 실패:', err);
+    showToast('최근 본 상품 저장 실패:', 'error');
     // 저장에 실패해도 페이지는 이동
     router.push(routePath);
   }
@@ -139,7 +138,6 @@ const removeFavorite = (removedFavorite) => {
 
 const filteredFavorites = computed(() => {
   if (!Array.isArray(favorites.value)) {
-    console.warn('favorites.value is not an array:', favorites.value);
     return [];
   }
 
@@ -203,9 +201,6 @@ const fetchFavorites = async () => {
   try {
     const response = await wishlistAPI.getList();
 
-    console.log('API 응답:', response);
-    console.log('응답 타입:', typeof response);
-
     // API 응답 구조에 따른 데이터 추출
     if (response.body && Array.isArray(response.body.data)) {
       favorites.value = response.body.data;
@@ -214,14 +209,13 @@ const fetchFavorites = async () => {
     } else if (Array.isArray(response)) {
       favorites.value = response;
     } else {
-      console.warn('예상하지 못한 API 응답 구조:', response);
       favorites.value = [];
     }
 
     currentPage.value = 1;
   } catch (err) {
     error.value = '즐겨찾기를 불러오는데 실패했습니다.';
-    console.error('Favorites fetch error:', err);
+    showToast('즐겨찾기를 불러오는데 실패했습니다.', 'error');
     favorites.value = []; // 에러 시에도 배열로 초기화
   } finally {
     loading.value = false;
@@ -249,7 +243,7 @@ const viewDetail = async (favorite) => {
         rsrvType: favorite.rstvValue,
       });
     } catch (err) {
-      console.error('최근 본 상품 저장 실패:', err);
+      showToast('최근 본 상품 저장 실패:', 'error');
     }
 
     window.open(favorite.externalLink, '_blank');

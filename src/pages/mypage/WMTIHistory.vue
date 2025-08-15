@@ -97,6 +97,9 @@ import { ref, onMounted } from 'vue';
 import { getWMTIHistoryAPI } from '@/api/wmti';
 import router from '@/router';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useToast } from '@/composables/useToast';
+
+const { showToast } = useToast();
 
 // State
 const loading = ref(false);
@@ -113,10 +116,9 @@ const fetchHistoryData = async () => {
   loading.value = true;
   try {
     historyList.value = await getWMTIHistoryAPI(memberId);
-    console.log('🔍 히스토리 데이터:', historyList.value);
     historyList.value.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   } catch (e) {
-    console.error('히스토리 불러오기 실패:', e);
+    showToast('히스토리 불러오기 실패:', 'error');
   } finally {
     loading.value = false;
   }

@@ -103,7 +103,10 @@ const filteredProducts = computed(() => {
     return [];
   }
 
-  if (products.length === 0) {
+
+const paginatedProducts = computed(() => {
+  // 배열인지 확인
+  if (!Array.isArray(recentProducts.value)) {
     return [];
   }
 
@@ -247,15 +250,13 @@ const fetchRecentProducts = async () => {
     if (response.data && response.data.body && Array.isArray(response.data.body.data)) {
       recentProducts.value = response.data.body.data;
     } else {
-      console.warn('예상하지 못한 API 응답 구조:', response.data);
       recentProducts.value = [];
     }
 
     currentPage.value = 1;
   } catch (err) {
     error.value = '최근 본 상품을 불러오는데 실패했습니다.';
-    console.error('Recent products fetch error:', err);
-    recentProducts.value = [];
+    recentProducts.value = []; // 에러 시에도 배열로 초기화
   } finally {
     loading.value = false;
   }
@@ -279,7 +280,6 @@ const removeFromHistory = async (productId) => {
     showToast('상품이 삭제되었습니다.', 'success');
   } catch (err) {
     showToast('상품 삭제에 실패했습니다.', 'error');
-    console.error('Remove from history error:', err);
   }
 };
 
@@ -310,7 +310,6 @@ const deleteSelected = async () => {
     }
   } catch (err) {
     showToast('일부 삭제에 실패했습니다.', 'error');
-    console.error('Delete selected error:', err);
   }
 };
 
@@ -326,7 +325,6 @@ const clearAllHistory = async () => {
     showToast('모든 최근 본 상품이 삭제되었습니다.', 'success');
   } catch (err) {
     showToast('전체 삭제에 실패했습니다.', 'error');
-    console.error('Clear all history error:', err);
   }
 };
 

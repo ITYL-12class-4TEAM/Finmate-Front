@@ -34,6 +34,9 @@ import ErrorAlert from '@/components/mypage/common/ErrorAlert.vue';
 import LikePostFilter from '@/components/mypage/mylike/LikePostFilter.vue';
 import LikePostList from '@/components/mypage/mylike/LikePostList.vue';
 import { postsAPI } from '@/api/mypost';
+import { useToast } from '@/composables/useToast';
+
+const { showToast } = useToast();
 
 const loading = ref(false);
 const error = ref('');
@@ -111,7 +114,7 @@ const fetchPosts = async () => {
     currentPage.value = 1;
   } catch (err) {
     error.value = '좋아요 누른 게시글을 불러오는데 실패했습니다.';
-    console.error('My likes fetch error:', err);
+    showToast('좋아요 누른 게시글을 불러오는데 실패했습니다.', 'error');
   } finally {
     loading.value = false;
   }

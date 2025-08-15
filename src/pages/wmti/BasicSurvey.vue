@@ -17,7 +17,9 @@
     <!-- Step 1: 사전정보 입력 -->
     <section class="step-card">
       <div class="step-header">
-        <div v-if="step1Completed" class="step-icon completed">✓</div>
+        <div v-if="step1Completed" class="step-icon completed">
+          <i class="fa-solid fa-check"></i>
+        </div>
         <div v-else class="step-icon">1</div>
         <span>개인정보 / 투자목적</span>
         <div v-if="step1Completed" class="status-badge completed">완료</div>
@@ -63,34 +65,28 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from '@/composables/useToast';
 
-// ✅ Toast 기능 불러오기
+//Toast 기능 불러오기
 const { showToast } = useToast();
 
-// ✅ 라우터 사용
+// 라우터 사용
 const router = useRouter();
 
-// ✅ 상태 변수들
+// 상태 변수들
 const step1Completed = ref(false);
 const step2Enabled = ref(false);
 
-// ✅ 사전정보 입력 여부 체크
+// 사전정보 입력 여부 체크
 const checkPreinfoStatus = () => {
   const preinfoDone = localStorage.getItem('preinfoSubmitted');
   step1Completed.value = preinfoDone === 'true';
   step2Enabled.value = preinfoDone === 'true';
-
-  console.log('✅ Preinfo Status Check:', {
-    localStorage: preinfoDone,
-    step1Completed: step1Completed.value,
-    step2Enabled: step2Enabled.value,
-  });
 };
 
-// ✅ 라우팅 함수
+// 라우팅 함수
 const goToPreInfo = () => {
   router.push('/wmti/preinfo');
 };
@@ -103,23 +99,9 @@ const goToSurvey = () => {
   }
 };
 
-// ✅ 디버깅용 메서드
-const clearPreinfo = () => {
-  localStorage.removeItem('preinfoSubmitted');
-  checkPreinfoStatus();
-  console.log('🗑️ localStorage cleared');
-};
-
-const setPreinfo = () => {
-  localStorage.setItem('preinfoSubmitted', 'true');
-  checkPreinfoStatus();
-  console.log('✅ localStorage set to true');
-};
-
-// ✅ 컴포넌트 마운트 시 상태 확인
+// 컴포넌트 마운트 시 상태 확인
 onMounted(() => {
   checkPreinfoStatus();
-  console.log('🔍 BasicSurvey mounted!');
 });
 </script>
 

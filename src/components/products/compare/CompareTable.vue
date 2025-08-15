@@ -4,20 +4,34 @@
       <div v-for="item in items" :key="item.productId + item.saveTrm" class="product-header-card">
         <div class="bank-name" :title="item.korCoNm">{{ item.korCoNm }}</div>
         <div class="product-name" :title="item.productName">{{ item.productName }}</div>
+
         <div class="header-extra-info">
-          <span class="header-tag">{{ item.saveTrm }}개월</span>
-          <span
-            class="header-tag interest-type-pill"
-            :class="
-              getInterestTypeClass(
+          <div class="header-pills-row">
+            <span class="header-tag">{{ item.saveTrm }}개월</span>
+            <span
+              class="header-tag interest-type-pill"
+              :class="
+                getInterestTypeClass(
+                  getInterestTypeForProduct(item.productId, item.saveTrm, item.intrRateType || 'S')
+                )
+              "
+            >
+              {{
                 getInterestTypeForProduct(item.productId, item.saveTrm, item.intrRateType || 'S')
-              )
-            "
-            >{{
-              getInterestTypeForProduct(item.productId, item.saveTrm, item.intrRateType || 'S')
-            }}</span
-          >
+              }}
+            </span>
+          </div>
+          <div class="header-pills-row">
+            <span
+              v-if="isProductSavings(item) && item.rsrvType"
+              class="header-tag deposit-method-pill"
+              :class="getDepositMethodClass(item)"
+            >
+              {{ getDepositMethodLabel(item) }}
+            </span>
+          </div>
         </div>
+
         <button
           class="remove-btn"
           @click="$emit('remove', item.productId, item.saveTrm, item.intrRateType || 'S')"
@@ -28,8 +42,9 @@
     </div>
 
     <div class="compare-info-section">
+      <!-- 공통 비교 정보 행 -->
       <div
-        v-for="row in comparisonRows"
+        v-for="row in commonComparisonRows"
         :key="row.label"
         class="info-row"
         :class="{ tall: row.tall }"
@@ -70,7 +85,7 @@
           >
             상세 보기
           </button>
-          <button class="join-btn" @click="$emit('joinProduct', item)">가입 화면으로</button>
+          <button class="join-btn" @click="$emit('joinProduct', item)">홈페이지 이동</button>
         </div>
       </div>
     </div>
@@ -78,7 +93,6 @@
 </template>
 
 <script setup>
-// 스크립트 부분은 변경사항 없습니다.
 import { computed } from 'vue';
 
 const props = defineProps({
@@ -91,10 +105,34 @@ const props = defineProps({
 
 defineEmits(['remove', 'viewDetail', 'joinProduct']);
 
+// 적금 상품 여부 확인 (rsrvType 또는 productType으로 판별)
+const isProductSavings = (item) => {
+  return item.productType === 'savings' || item.rsrvType || item.rsrv_type;
+};
+
+// 적금 상품 포함 여부 (UI 분기 처리용)
+const hasSavingsProducts = computed(() => {
+  return props.items.some((item) => isProductSavings(item));
+});
+
 const getInterestTypeClass = (value) => {
   if (value === '단리') return 'simple';
   if (value === '복리') return 'compound';
   return '';
+};
+
+const getDepositMethodClass = (item) => {
+  const rsrvType = item.rsrvType || item.rsrv_type;
+  if (rsrvType === 'F') return 'free-deposit';
+  if (rsrvType === 'S') return 'fixed-deposit';
+  return '';
+};
+
+const getDepositMethodLabel = (item) => {
+  const rsrvType = item.rsrvType || item.rsrv_type;
+  if (rsrvType === 'F') return '자유적립식';
+  if (rsrvType === 'S') return '정액적립식';
+  return item.rsrvTypeNm || item.rsrv_type_nm || '정보 없음';
 };
 
 const formatRate = (rate) => {
@@ -102,21 +140,71 @@ const formatRate = (rate) => {
   return parseFloat(rate).toFixed(2) + '%';
 };
 
-const formatCurrencyKorean = (value) => {
-  const num = parseInt(String(value).replace(/,/g, ''), 10);
-  if (isNaN(num)) {
-    return typeof value === 'string' ? value : '정보 없음';
+/**
+ * 통화 단위 포맷팅 함수 (만원, 천만원, 억원 단위로 변환)
+ * 0원도 제대로 표시하도록 개선된 버전
+ */
+const formatKoreanCurrency = (amount, isMinDeposit = false) => {
+  // 입력값이 '0', '0원', '0,000' 등의 문자열인 경우 처리
+  if (typeof amount === 'string') {
+    // 콤마와 '원' 제거 후 숫자만 추출
+    const cleanAmount = amount.replace(/,|원/g, '');
+    if (cleanAmount === '0') {
+      return '0원';
+    }
+
+    // 숫자로 변환
+    amount = parseInt(cleanAmount, 10);
   }
-  if (num === 0) return '0원';
-  const hundredMillion = Math.floor(num / 100000000);
-  if (hundredMillion > 0) return `${hundredMillion.toLocaleString()}억원`;
-  const tenThousand = Math.floor(num / 10000);
-  if (tenThousand > 0) return `${tenThousand.toLocaleString()}만원`;
-  if (num >= 1000) return `${(num / 1000).toLocaleString()}천원`;
-  return `${num.toLocaleString()}원`;
+
+  // 명시적으로 0인 경우 체크
+  if (amount === 0) {
+    return '0원';
+  }
+
+  // null, undefined 처리
+  if (amount === null || amount === undefined) {
+    // 최소 가입금액일 경우 0원으로, 그 외에는 홈페이지 참고로 표시
+    return isMinDeposit ? '0원' : '홈페이지 참고';
+  }
+
+  // 숫자가 아닌 경우 처리
+  if (isNaN(amount)) {
+    // 최소 가입금액일 경우 0원으로, 그 외에는 홈페이지 참고로 표시
+    return isMinDeposit ? '0원' : '홈페이지 참고';
+  }
+
+  // 1억 이상인 경우 (1억 = 100,000,000)
+  if (amount >= 100000000) {
+    const billion = Math.floor(amount / 100000000);
+    // 1억 이상일 경우 만원 단위는 생략
+    return `${billion}억원`;
+  }
+
+  // 1천만 이상인 경우 (1천만 = 10,000,000)
+  if (amount >= 10000000) {
+    const tenMillion = Math.floor(amount / 10000000);
+    return `${tenMillion}천만원`;
+  }
+
+  // 만원 단위로 표시 (1만원 = 10,000)
+  if (amount >= 10000) {
+    const tenThousand = Math.floor(amount / 10000);
+    return `${tenThousand}만원`;
+  }
+
+  // 천원 단위로 표시 (1천원 = 1,000)
+  if (amount >= 1000) {
+    const thousand = Math.floor(amount / 1000);
+    return `${thousand}천원`;
+  }
+
+  // 그 외의 경우
+  return `${amount}원`;
 };
 
-const comparisonRows = computed(() => {
+// 공통 비교 정보 행 (예금, 적금 모두 표시)
+const commonComparisonRows = computed(() => {
   if (!props.items || !props.items.length) return [];
 
   const createRow = (config) => {
@@ -130,7 +218,7 @@ const comparisonRows = computed(() => {
     };
   };
 
-  const allRows = [
+  return [
     createRow({
       label: '기본 금리',
       type: 'rate',
@@ -154,12 +242,14 @@ const comparisonRows = computed(() => {
     createRow({
       label: '최소 금액',
       type: 'text',
-      valueMapFn: (item) => formatCurrencyKorean(props.getMinDepositForProduct(item.productId)),
+      valueMapFn: (item) =>
+        formatKoreanCurrency(props.getMinDepositForProduct(item.productId), true),
     }),
     createRow({
       label: '최대 금액',
       type: 'text',
-      valueMapFn: (item) => formatCurrencyKorean(props.getMaxDepositForProduct(item.productId)),
+      valueMapFn: (item) =>
+        formatKoreanCurrency(props.getMaxDepositForProduct(item.productId), false),
     }),
     createRow({
       label: '가입 대상',
@@ -167,7 +257,6 @@ const comparisonRows = computed(() => {
       valueMapFn: (item) => item.join_member || item.joinMember || '제한 없음',
     }),
   ];
-  return allRows;
 });
 </script>
 
@@ -181,10 +270,11 @@ const comparisonRows = computed(() => {
   --color-white: #ffffff;
   --color-accent: #e91e63;
 }
+
 .mobile-compare-container {
   width: 100%;
   max-width: 23.4375rem;
-  background-color: var(--color-white);
+  background-color: #fff;
   border-radius: 0.75rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   overflow: hidden;
@@ -211,9 +301,9 @@ const comparisonRows = computed(() => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
-  min-height: 4.5rem;
-  padding-bottom: 2.25rem; /* 알약 공간 확보 */
-  box-sizing: border-box; /* 패딩을 너비에 포함 */
+  min-height: 6.5rem;
+  padding-bottom: 3.25rem;
+  box-sizing: border-box;
 }
 
 .bank-name {
@@ -262,18 +352,28 @@ const comparisonRows = computed(() => {
   left: 0.5rem;
   right: 0.5rem;
   display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.header-pills-row {
+  display: flex;
   justify-content: center;
   align-items: center;
   gap: 0.25rem;
+  width: 100%;
 }
 
 .header-tag {
-  font-size: 0.6875rem;
+  font-size: 0.65rem;
   font-weight: 500;
   padding: 0.125rem 0.375rem;
   border-radius: 0.75rem;
   background-color: var(--color-bg-light);
   color: var(--color-sub);
+  border: 1px solid transparent; /* 테두리 공간 확보 */
 }
 
 .header-tag.interest-type-pill.simple {
@@ -284,6 +384,34 @@ const comparisonRows = computed(() => {
 .header-tag.interest-type-pill.compound {
   background-color: #e0f2f1;
   color: #00796b;
+}
+
+.header-tag.deposit-pill {
+  background-color: #e0e7ff;
+  color: #3730a3;
+  font-weight: 600;
+}
+
+.header-tag.savings-pill {
+  background-color: #d1fae5;
+  color: #047857;
+  font-weight: 600;
+}
+
+/* ✨ [수정] 자유적립식 스타일 */
+.header-tag.deposit-method-pill.free-deposit {
+  background-color: #f3e8ff; /* 연한 보라색 */
+  color: #8e24aa; /* 진한 보라색 */
+  border: 1px solid #e9d5ff;
+  font-size: 0.6rem;
+}
+
+/* ✨ [수정] 정액적립식 스타일 */
+.header-tag.deposit-method-pill.fixed-deposit {
+  background-color: #fefce8; /* 연한 노란색 */
+  color: #ca8a04; /* 진한 노란색 */
+  border: 1px solid #fde68a;
+  font-size: 0.6rem;
 }
 
 /* ==========================================================================
@@ -298,7 +426,6 @@ const comparisonRows = computed(() => {
   flex-direction: column;
   padding: 0.25rem 0;
   border-bottom: 1px solid var(--color-bg-light);
-  /* 행 배경색은 통일하여 깔끔하게 처리 */
   background-color: #fcfdff;
 }
 
@@ -306,18 +433,17 @@ const comparisonRows = computed(() => {
   border-bottom: none;
 }
 
-/* ✨ CHANGED: info-label 스타일 변경 */
 .info-label {
-  width: auto; /* 너비 자동 조정 */
-  display: inline-block; /* 인라인 블록으로 변경 */
-  margin: 0.15rem auto 0.2rem auto; /* 상하좌우 여백 조정 */
+  width: auto;
+  display: inline-block;
+  margin: 0.15rem auto 0.2rem auto;
   text-align: center;
-  font-size: 0.75rem; /* 폰트 크기 살짝 조정 */
+  font-size: 0.75rem;
   font-weight: 600;
-  color: #4338ca; /* 텍스트 색상 변경 */
-  padding: 0.25rem 0.75rem; /* 내부 여백 증가 */
-  border-radius: 1rem; /* 더 둥글게 */
-  background-color: #eef2ff; /* 하이라이트 배경색 추가 */
+  color: #4338ca;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  background-color: #eef2ff;
 }
 
 .info-values {
@@ -361,6 +487,24 @@ const comparisonRows = computed(() => {
   justify-content: center;
   padding: 0.5rem 0.25rem;
   height: 100%;
+}
+
+.deposit-method-info {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.deposit-method-info.free-deposit {
+  background-color: #fefce8;
+  color: #ca8a04;
+}
+
+.deposit-method-info.fixed-deposit {
+  background-color: #f3e8ff;
+  color: #8e24aa;
 }
 
 .tags-container {
