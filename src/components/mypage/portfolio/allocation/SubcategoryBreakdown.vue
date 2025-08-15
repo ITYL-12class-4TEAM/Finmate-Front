@@ -1,165 +1,181 @@
 <template>
-  <div class="stats-card">
-    <div class="stats-header">
-      <h5 class="stats-title">
-        <i class="bi bi-stack me-2"></i>
-        세부 카테고리 분포
-      </h5>
-      <small class="stats-subtitle"> 카테고리별 상세 구성 현황 </small>
+  <div class="stats-card collapsible-card">
+    <!-- 메인 헤더 (접기/펼치기 가능) -->
+    <div class="stats-header collapsible-header" @click="toggleMainSection">
+      <div class="header-content">
+        <h5 class="stats-title">
+          <i class="bi bi-stack me-2"></i>
+          세부 카테고리 분포
+        </h5>
+        <small class="stats-subtitle"> 카테고리별 상세 구성 현황 </small>
+      </div>
+      <div class="header-actions">
+        <div class="expand-hint">
+          {{ isMainOpen ? '접기' : '자세히 보기' }}
+        </div>
+        <div class="collapse-icon" :class="{ rotated: isMainOpen }">
+          <i class="bi bi-chevron-down"></i>
+        </div>
+      </div>
     </div>
 
-    <div class="stats-content">
-      <div v-if="processedSummary.length > 0" class="subcategory-breakdown">
-        <!-- 전체 펼치기/접기 버튼 -->
-        <div class="breakdown-controls">
-          <button
-            class="control-button"
-            :disabled="expandedCategories.size === processedSummary.length"
-            @click="expandAll"
-          >
-            <i class="bi bi-arrows-expand me-1"></i>
-            전체 펼치기
-          </button>
-          <button
-            class="control-button"
-            :disabled="expandedCategories.size === 0"
-            @click="collapseAll"
-          >
-            <i class="bi bi-arrows-collapse me-1"></i>
-            전체 접기
-          </button>
-        </div>
+    <!-- 메인 콘텐츠 (접을 수 있음) -->
+    <div class="collapsible-content" :class="{ collapsed: !isMainOpen }">
+      <div class="stats-content">
+        <div v-if="processedSummary.length > 0" class="subcategory-breakdown">
+          <!-- 전체 펼치기/접기 버튼 -->
+          <div class="breakdown-controls">
+            <button
+              class="control-button"
+              :disabled="expandedCategories.size === processedSummary.length"
+              @click="expandAll"
+            >
+              <i class="bi bi-arrows-expand me-1"></i>
+              전체 펼치기
+            </button>
+            <button
+              class="control-button"
+              :disabled="expandedCategories.size === 0"
+              @click="collapseAll"
+            >
+              <i class="bi bi-arrows-collapse me-1"></i>
+              전체 접기
+            </button>
+          </div>
 
-        <div
-          v-for="category in processedSummary"
-          :key="category.categoryName"
-          class="category-group"
-          :class="{ expanded: expandedCategories.has(category.categoryName) }"
-        >
-          <!-- 카테고리 헤더 -->
           <div
-            class="category-header"
-            role="button"
-            :aria-expanded="expandedCategories.has(category.categoryName)"
-            :aria-controls="`subcategory-${category.categoryName}`"
-            @click="toggleCategory(category.categoryName)"
+            v-for="category in processedSummary"
+            :key="category.categoryName"
+            class="category-group"
+            :class="{ expanded: expandedCategories.has(category.categoryName) }"
           >
-            <div class="category-info">
-              <div class="category-badge">
+            <!-- 카테고리 헤더 -->
+            <div
+              class="category-header"
+              role="button"
+              :aria-expanded="expandedCategories.has(category.categoryName)"
+              :aria-controls="`subcategory-${category.categoryName}`"
+              @click="toggleCategory(category.categoryName)"
+            >
+              <div class="category-info">
+                <div class="category-badge">
+                  <div
+                    class="badge-color"
+                    :style="{
+                      backgroundColor: getCategoryColor(category.categoryName),
+                    }"
+                  ></div>
+                  <span class="category-name">{{ category.categoryName }}</span>
+                  <span class="subcategory-count">
+                    {{ category.subcategories?.length || 0 }}개
+                  </span>
+                </div>
+
+                <div class="category-stats">
+                  <div class="category-total">
+                    {{ formatCurrency(category.totalAmount) }}
+                  </div>
+                  <div class="category-ratio">{{ category.ratio.toFixed(1) }}%</div>
+                </div>
+              </div>
+
+              <div class="expand-indicator">
+                <i
+                  :class="[
+                    'bi',
+                    expandedCategories.has(category.categoryName)
+                      ? 'bi-chevron-up'
+                      : 'bi-chevron-down',
+                  ]"
+                ></i>
+              </div>
+            </div>
+
+            <!-- 카테고리 진행률 바 -->
+            <div class="category-progress">
+              <div class="progress-track">
                 <div
-                  class="badge-color"
+                  class="progress-fill"
                   :style="{
+                    width: Math.min(category.ratio, 100) + '%',
                     backgroundColor: getCategoryColor(category.categoryName),
                   }"
                 ></div>
-                <span class="category-name">{{ category.categoryName }}</span>
-                <span class="subcategory-count"> {{ category.subcategories?.length || 0 }}개 </span>
-              </div>
-
-              <div class="category-stats">
-                <div class="category-total">
-                  {{ formatCurrency(category.totalAmount) }}
-                </div>
-                <div class="category-ratio">{{ category.ratio.toFixed(1) }}%</div>
               </div>
             </div>
 
-            <div class="expand-indicator">
-              <i
-                :class="[
-                  'bi',
-                  expandedCategories.has(category.categoryName)
-                    ? 'bi-chevron-up'
-                    : 'bi-chevron-down',
-                ]"
-              ></i>
-            </div>
-          </div>
-
-          <!-- 카테고리 진행률 바 -->
-          <div class="category-progress">
-            <div class="progress-track">
-              <div
-                class="progress-fill"
-                :style="{
-                  width: Math.min(category.ratio, 100) + '%',
-                  backgroundColor: getCategoryColor(category.categoryName),
-                }"
-              ></div>
-            </div>
-          </div>
-
-          <!-- 서브카테고리 리스트 (확장 가능) -->
-          <div
-            :id="`subcategory-${category.categoryName}`"
-            class="subcategory-list"
-            :class="{
-              collapsed: !expandedCategories.has(category.categoryName),
-            }"
-          >
+            <!-- 서브카테고리 리스트 (확장 가능) -->
             <div
-              v-for="(sub, index) in category.subcategories || []"
-              :key="sub.subcategoryName"
-              class="subcategory-item"
-              :style="{ animationDelay: `${index * 0.1}s` }"
+              :id="`subcategory-${category.categoryName}`"
+              class="subcategory-list"
+              :class="{
+                collapsed: !expandedCategories.has(category.categoryName),
+              }"
             >
-              <div class="subcategory-info">
-                <div
-                  class="subcategory-indicator"
-                  :style="{
-                    backgroundColor: adjustColorOpacity(
-                      getCategoryColor(category.categoryName),
-                      0.6
-                    ),
-                  }"
-                ></div>
-                <span class="subcategory-name">{{ sub.subcategoryName }}</span>
-
-                <!-- 서브카테고리 내 비율 표시 -->
-                <div class="subcategory-ratio-bar">
+              <div
+                v-for="(sub, index) in category.subcategories || []"
+                :key="sub.subcategoryName"
+                class="subcategory-item"
+                :style="{ animationDelay: `${index * 0.1}s` }"
+              >
+                <div class="subcategory-info">
                   <div
-                    class="ratio-fill"
+                    class="subcategory-indicator"
                     :style="{
-                      width: Math.min(sub.ratio, 100) + '%',
                       backgroundColor: adjustColorOpacity(
                         getCategoryColor(category.categoryName),
-                        0.4
+                        0.6
                       ),
                     }"
                   ></div>
+                  <span class="subcategory-name">{{ sub.subcategoryName }}</span>
+
+                  <!-- 서브카테고리 내 비율 표시 -->
+                  <div class="subcategory-ratio-bar">
+                    <div
+                      class="ratio-fill"
+                      :style="{
+                        width: Math.min(sub.ratio, 100) + '%',
+                        backgroundColor: adjustColorOpacity(
+                          getCategoryColor(category.categoryName),
+                          0.4
+                        ),
+                      }"
+                    ></div>
+                  </div>
+                </div>
+
+                <div class="subcategory-values">
+                  <div class="subcategory-amount">
+                    {{ formatCurrency(sub.totalAmount) }}
+                  </div>
+                  <div class="subcategory-percentage">카테고리 내 {{ sub.ratio.toFixed(1) }}%</div>
+                  <div class="subcategory-global-percentage">
+                    전체 {{ ((category.ratio * sub.ratio) / 100).toFixed(1) }}%
+                  </div>
                 </div>
               </div>
 
-              <div class="subcategory-values">
-                <div class="subcategory-amount">
-                  {{ formatCurrency(sub.totalAmount) }}
-                </div>
-                <div class="subcategory-percentage">카테고리 내 {{ sub.ratio.toFixed(1) }}%</div>
-                <div class="subcategory-global-percentage">
-                  전체 {{ ((category.ratio * sub.ratio) / 100).toFixed(1) }}%
-                </div>
+              <!-- 서브카테고리가 없는 경우 -->
+              <div
+                v-if="!category.subcategories || category.subcategories.length === 0"
+                class="no-subcategories"
+              >
+                <i class="bi bi-info-circle me-2"></i>
+                세부 분류가 없는 단일 카테고리입니다
               </div>
-            </div>
-
-            <!-- 서브카테고리가 없는 경우 -->
-            <div
-              v-if="!category.subcategories || category.subcategories.length === 0"
-              class="no-subcategories"
-            >
-              <i class="bi bi-info-circle me-2"></i>
-              세부 분류가 없는 단일 카테고리입니다
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- 빈 상태 -->
-      <div v-else class="empty-state">
-        <div class="empty-icon">
-          <i class="bi bi-stack"></i>
+        <!-- 빈 상태 -->
+        <div v-else class="empty-state">
+          <div class="empty-icon">
+            <i class="bi bi-stack"></i>
+          </div>
+          <p class="empty-text">분석할 카테고리가 없습니다.</p>
+          <small class="empty-subtitle">투자 상품을 추가해주세요</small>
         </div>
-        <p class="empty-text">분석할 카테고리가 없습니다.</p>
-        <small class="empty-subtitle">투자 상품을 추가해주세요</small>
       </div>
     </div>
   </div>
@@ -178,15 +194,21 @@ const props = defineProps({
 
 // 반응형 데이터
 const expandedCategories = ref(new Set());
+const isMainOpen = ref(false); // 메인 섹션은 기본적으로 닫힌 상태
 
-// 6개 메인 카테고리에 맞춘 색상 팔레트
+// 메인 섹션 토글
+const toggleMainSection = () => {
+  isMainOpen.value = !isMainOpen.value;
+};
+
+// 6개 메인 카테고리에 맞춘 색상 팔레트 (메인 컴포넌트와 통일)
 const CATEGORY_COLORS = {
-  예금: '#2d336b', // 진한 네이비
-  적금: '#5a6085', // 미디엄 네이비
-  보험: '#6b7394', // 그레이 네이비
-  대출: '#9ca0b8', // 라이트 그레이
-  주식: '#7d81a2', // 퍼플 그레이
-  기타: '#8a8ea6', // 중간 그레이
+  예금: '#10B981',
+  적금: '#3B82F6',
+  보험: '#8B5CF6',
+  연금: '#F59E0B',
+  주식: '#EF4444',
+  기타: '#6B7280',
 };
 
 // 색상 가져오기
@@ -269,7 +291,7 @@ watch(
 .stats-card {
   background: var(--color-white);
   border-radius: 1rem;
-  padding: 1.5rem;
+  padding: 0;
   border: 1px solid rgba(185, 187, 204, 0.3);
   box-shadow:
     0 4px 6px -1px rgba(45, 51, 107, 0.1),
@@ -277,12 +299,92 @@ watch(
   backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   height: fit-content;
+  overflow: hidden;
 }
 
-.stats-header {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(45, 51, 107, 0.15);
+}
+
+/* 접을 수 있는 헤더 스타일 */
+.collapsible-header {
+  margin-bottom: 0;
+  padding: 1.25rem;
   border-bottom: 1px solid rgba(185, 187, 204, 0.2);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-white);
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.collapsible-header:hover {
+  background: var(--color-bg-light);
+}
+
+.header-content {
+  flex: 1;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.expand-hint {
+  font-size: 0.85rem;
+  color: var(--color-sub);
+  font-weight: 500;
+}
+
+.collapse-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--color-bg-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.collapse-icon i {
+  color: var(--color-main);
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.collapse-icon.rotated i {
+  transform: rotate(180deg);
+}
+
+.collapsible-header:hover .collapse-icon {
+  background: var(--color-bg-light);
+  transform: scale(1.05);
+}
+
+/* 접을 수 있는 콘텐츠 스타일 */
+.collapsible-content {
+  max-height: 2000px;
+  opacity: 1;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.collapsible-content.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.stats-content {
+  padding: 1.5rem;
 }
 
 .stats-title {
@@ -307,10 +409,6 @@ watch(
   color: var(--color-sub);
   font-weight: 500;
   font-size: 0.85rem;
-}
-
-.stats-content {
-  padding: 0;
 }
 
 /* 컨트롤 버튼 */
@@ -575,7 +673,6 @@ watch(
   padding: 3rem 1rem;
   background: var(--color-bg-light);
   border-radius: 0.75rem;
-  margin-bottom: 1.5rem;
 }
 
 .empty-icon {
@@ -607,128 +704,6 @@ watch(
   margin: 0;
 }
 
-/* 요약 정보 */
-.breakdown-summary {
-  margin-top: 1.5rem;
-  padding: 1.5rem;
-  background: var(--color-bg-light);
-  border-radius: 0.75rem;
-  border: 1px solid rgba(185, 187, 204, 0.2);
-}
-
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.summary-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 0.5rem;
-  border: 1px solid rgba(185, 187, 204, 0.15);
-}
-
-.summary-icon {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 0.5rem;
-  background: var(--color-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 0.9rem;
-  flex-shrink: 0;
-}
-
-.summary-content {
-  display: flex;
-  flex-direction: column;
-}
-
-.summary-label {
-  color: var(--color-sub);
-  font-size: 0.75rem;
-  font-weight: 500;
-  margin-bottom: 0.125rem;
-}
-
-.summary-value {
-  color: var(--color-main);
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-/* 집중도 분석 */
-.concentration-analysis {
-  padding-top: 1rem;
-  border-top: 1px solid rgba(185, 187, 204, 0.2);
-}
-
-.analysis-title {
-  color: var(--color-main);
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-}
-
-.analysis-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.concentration-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.concentration-label {
-  color: var(--color-sub);
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.concentration-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.concentration-badge.excellent {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.concentration-badge.good {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.concentration-badge.average {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.concentration-badge.poor {
-  background: #fed7d7;
-  color: #c53030;
-}
-
-.concentration-badge.dangerous {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
 /* 애니메이션 */
 @keyframes slideInUp {
   from {
@@ -743,7 +718,19 @@ watch(
 
 /* 반응형 */
 @media (max-width: 768px) {
-  .stats-card {
+  .collapsible-header {
+    padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .stats-content {
     padding: 1rem;
   }
 
@@ -765,19 +752,6 @@ watch(
   .subcategory-values {
     width: 100%;
     text-align: left;
-  }
-
-  .breakdown-summary {
-    padding: 1rem;
-  }
-
-  .summary-grid {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
-
-  .summary-item {
-    padding: 0.5rem;
   }
 
   .breakdown-controls {
@@ -807,19 +781,15 @@ watch(
     margin-top: 0.5rem;
     max-width: none;
   }
-
-  .concentration-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
-  }
 }
 
 /* 접근성 개선 */
 @media (prefers-reduced-motion: reduce) {
   .category-group,
   .subcategory-item,
-  .control-button {
+  .control-button,
+  .collapsible-content,
+  .collapse-icon {
     transition: none;
   }
 
@@ -834,11 +804,16 @@ watch(
     display: none;
   }
 
+  .collapsible-header {
+    cursor: default;
+  }
+
   .category-group {
     break-inside: avoid;
   }
 
-  .subcategory-list {
+  .subcategory-list,
+  .collapsible-content {
     max-height: none !important;
     opacity: 1 !important;
   }
