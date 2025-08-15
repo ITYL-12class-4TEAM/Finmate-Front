@@ -96,23 +96,15 @@ const currentFilters = ref({
 const updateSelectedRecent = (newSelected) => {
   selectedRecent.value = newSelected;
 };
-// filteredProducts computed를 다음과 같이 수정
+
 const filteredProducts = computed(() => {
-  const products = recentProducts.value;
-  if (!products || !Array.isArray(products)) {
-    return [];
-  }
-
-
-const paginatedProducts = computed(() => {
-  // 배열인지 확인
   if (!Array.isArray(recentProducts.value)) {
     return [];
   }
 
   let filtered = [...recentProducts.value];
 
-  // 검색 필터 추가
+  // 검색 필터
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase().trim();
     filtered = filtered.filter((product) => {
@@ -130,12 +122,11 @@ const paginatedProducts = computed(() => {
     });
   }
 
-  // 기간 필터 (기존 코드 유지)
+  // 기간 필터
   if (currentFilters.value.period !== 'all') {
     const now = new Date();
     filtered = filtered.filter((product) => {
       if (!product.viewedAt) return false;
-
       const viewed = new Date(product.viewedAt);
       const diffInDays = Math.floor((now - viewed) / (1000 * 60 * 60 * 24));
 
@@ -161,9 +152,6 @@ const paginatedProducts = computed(() => {
       filtered.sort((a, b) => a.korCoNm.localeCompare(b.korCoNm));
       break;
     case 'popular':
-      // 인기순 정렬 로직이 있다면 여기에 추가
-      // 예: filtered.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-      // 없다면 최신순으로 폴백
       filtered.sort((a, b) => new Date(b.viewedAt) - new Date(a.viewedAt));
       break;
     case 'recent':
