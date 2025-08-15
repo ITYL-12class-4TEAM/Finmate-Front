@@ -1,8 +1,6 @@
 <template>
   <div class="community-list">
-    <!-- 상품군 & 속성 필터 -->
     <section class="filter-section">
-      <!-- 상품군 -->
       <div class="filter-group">
         <div class="filter-label">
           <i class="fas fa-filter"></i>
@@ -247,36 +245,36 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
 
 <style scoped>
 .community-list {
-  padding: 1rem; /* 16px / 16 */
-  max-width: 48rem; /* 768px / 16 */
+  padding: 1rem;
+  max-width: 48rem;
   margin: 0 auto;
-  padding-bottom: 5rem; /* 80px / 16 - 플로팅 버튼을 위한 하단 여백 */
+  padding-bottom: 5rem;
 }
 
 .filter-section {
-  padding: 1rem; /* 16px / 16 */
-  border: 0.125rem solid var(--color-bg-light); /* 2px / 16 */
-  border-radius: 1.25rem; /* 20px / 16 */
-  margin-bottom: 0.5rem; /* 8px / 16 */
+  padding: 1rem;
+  border: 0.125rem solid var(--color-bg-light);
+  border-radius: 1.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .filter-label {
-  font-size: 0.9rem; /* 14.4px / 16 */
+  font-size: 0.9rem;
   font-weight: 600;
-  margin-bottom: 0.5rem; /* 8px / 16 */
+  margin-bottom: 0.5rem;
   color: var(--color-main);
   display: flex;
   align-items: center;
-  gap: 0.5rem; /* 8px / 16 */
+  gap: 0.5rem;
 }
 
 .filter-label i {
-  font-size: 0.875rem; /* 14px / 16 */
+  font-size: 0.875rem;
   color: var(--color-sub);
 }
 
 .filter-group {
-  margin-bottom: 1rem; /* 16px / 16 */
+  margin-bottom: 1rem;
 }
 
 .filter-group:last-child {
@@ -286,27 +284,27 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
 .tag-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem; /* 8px / 16 */
-  margin-top: 0.5rem; /* 8px / 16 */
+  gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .tag-button {
-  font-size: 0.8rem; /* 12.8px / 16 */
-  padding: 0.4rem 1rem; /* 6.4px 16px / 16 */
-  border-radius: 1.25rem; /* 20px / 16 */
-  border: 0.125rem solid var(--color-bg-light); /* 2px / 16 */
+  font-size: 0.8rem;
+  padding: 0.4rem 1rem;
+  border-radius: 1.25rem;
+  border: 0.125rem solid var(--color-bg-light);
   background-color: white;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  outline: none; /* 포커스 아웃라인 제거 */
+  outline: none;
   display: flex;
   align-items: center;
-  gap: 0.25rem; /* 4px / 16 */
+  gap: 0.25rem;
 }
 
 .tag-button i {
-  font-size: 0.7rem; /* 11.2px / 16 */
+  font-size: 0.7rem;
 }
 
 .tag-button:hover {
@@ -315,7 +313,7 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
 }
 
 .tag-button:focus {
-  outline: none; /* 포커스 시에도 아웃라인 제거 */
+  outline: none;
 }
 
 .tag-button.selected {
@@ -327,25 +325,25 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
 .post-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem; /* 8px / 16 */
-  margin-top: 1rem; /* 16px / 16 */
-  min-height: 25rem; /* 400px / 16 */
+  gap: 0.5rem;
+  margin-top: 1rem;
+  min-height: 25rem;
 }
 
 .empty-message {
   text-align: center;
   color: #9ca3af;
-  font-size: 0.875rem; /* 14px / 16 */
-  padding: 2rem; /* 32px / 16 */
+  font-size: 0.875rem;
+  padding: 2rem;
   margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem; /* 12px / 16 */
+  gap: 0.75rem;
 }
 
 .empty-message i {
-  font-size: 2rem; /* 32px / 16 */
+  font-size: 2rem;
   color: #d1d5db;
 }
 
@@ -353,79 +351,77 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
   margin: 0;
 }
 
-/* 플로팅 글 작성 버튼 */
 .floating-write-button {
   position: fixed;
-  bottom: 2rem; /* 32px / 16 */
+  bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
   width: auto;
-  min-width: 5.5rem; /* 88px / 16 */
-  height: 3rem; /* 48px / 16 */
-  padding: 0 1.5rem; /* 0 24px / 16 */
+  min-width: 5.5rem;
+  height: 3rem;
+  padding: 0 1.5rem;
   background-color: var(--color-main);
   color: white;
   border: none;
-  border-radius: 1.5rem; /* 24px / 16 */
-  font-size: 1rem; /* 16px / 16 */
+  border-radius: 1.5rem;
+  font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
-  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15); /* 0 4px 12px / 16 */
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem; /* 8px / 16 */
-  outline: none; /* 포커스 아웃라인 제거 */
+  gap: 0.5rem;
+  outline: none;
 }
 
 .floating-write-button i {
-  font-size: 0.875rem; /* 14px / 16 */
+  font-size: 0.875rem;
 }
 
 .floating-write-button:hover {
   background-color: var(--color-sub);
-  transform: translateX(-50%) translateY(-0.125rem) scale(1.05); /* -2px / 16 */
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2); /* 0 8px 16px / 16 */
+  transform: translateX(-50%) translateY(-0.125rem) scale(1.05);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2);
 }
 
 .floating-write-button:focus {
-  outline: none; /* 포커스 시에도 아웃라인 제거 */
+  outline: none;
 }
 
 .floating-write-button:active {
   transform: translateX(-50%) translateY(0) scale(0.95);
 }
 
-/* 페이징 스타일 */
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.5rem; /* 8px / 16 */
-  margin: 2rem 0 1rem 0; /* 32px 0 16px 0 / 16 */
+  gap: 0.5rem;
+  margin: 2rem 0 1rem 0;
 }
 
 .page-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem; /* 40px / 16 */
-  height: 2.5rem; /* 40px / 16 */
-  border: 0.0625rem solid #e5e7eb; /* 1px / 16 */
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0.0625rem solid #e5e7eb;
   background-color: white;
-  border-radius: 0.5rem; /* 8px / 16 */
-  font-size: 0.875rem; /* 14px / 16 */
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
   font-weight: 500;
   color: #6b7280;
   cursor: pointer;
   transition: all 0.2s ease;
-  outline: none; /* 포커스 아웃라인 제거 */
+  outline: none;
 }
 
 .page-btn i {
-  font-size: 0.875rem; /* 14px / 16 */
+  font-size: 0.875rem;
 }
 
 .page-btn:hover:not(:disabled) {
@@ -435,7 +431,7 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
 }
 
 .page-btn:focus {
-  outline: none; /* 포커스 시에도 아웃라인 제거 */
+  outline: none;
 }
 
 .page-btn.active {
@@ -453,111 +449,107 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
 
 .prev-btn,
 .next-btn {
-  font-size: 1rem; /* 16px / 16 */
+  font-size: 1rem;
 }
 
 .page-numbers {
   display: flex;
-  gap: 0.25rem; /* 4px / 16 */
+  gap: 0.25rem;
 }
 
-/* 페이지 정보 */
 .page-info {
   text-align: center;
-  font-size: 0.75rem; /* 12px / 16 */
+  font-size: 0.75rem;
   color: #9ca3af;
-  margin-bottom: 1rem; /* 16px / 16 */
+  margin-bottom: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.375rem; /* 6px / 16 */
+  gap: 0.375rem;
 }
 
 .page-info i {
-  font-size: 0.75rem; /* 12px / 16 */
+  font-size: 0.75rem;
   color: var(--color-sub);
 }
 
-/* 반응형 - 모바일 기준 */
 @media (max-width: 26.875rem) {
-  /* 430px / 16 */
   .community-list {
-    padding: 0.5rem; /* 8px / 16 */
-    padding-bottom: 5rem; /* 80px / 16 - 모바일에서도 플로팅 버튼 여백 유지 */
+    padding: 0.5rem;
+    padding-bottom: 5rem;
   }
 
   .filter-section {
-    padding: 0.75rem; /* 12px / 16 */
+    padding: 0.75rem;
   }
 
   .filter-label {
-    font-size: 0.8125rem; /* 13px / 16 */
+    font-size: 0.8125rem;
   }
 
   .filter-label i {
-    font-size: 0.8125rem; /* 13px / 16 */
+    font-size: 0.8125rem;
   }
 
   .tag-button {
-    font-size: 0.75rem; /* 12px / 16 */
-    padding: 0.3rem 0.8rem; /* 4.8px 12.8px / 16 */
+    font-size: 0.75rem;
+    padding: 0.3rem 0.8rem;
   }
 
   .tag-button i {
-    font-size: 0.65rem; /* 10.4px / 16 */
+    font-size: 0.65rem;
   }
 
   .pagination {
-    gap: 0.25rem; /* 4px / 16 */
-    margin: 1.5rem 0 0.5rem 0; /* 24px 0 8px 0 / 16 */
+    gap: 0.25rem;
+    margin: 1.5rem 0 0.5rem 0;
   }
 
   .page-btn {
-    width: 2.25rem; /* 36px / 16 */
-    height: 2.25rem; /* 36px / 16 */
-    font-size: 0.8125rem; /* 13px / 16 */
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 0.8125rem;
   }
 
   .page-btn i {
-    font-size: 0.8125rem; /* 13px / 16 */
+    font-size: 0.8125rem;
   }
 
   .page-info {
-    font-size: 0.6875rem; /* 11px / 16 */
+    font-size: 0.6875rem;
   }
 
   .page-info i {
-    font-size: 0.6875rem; /* 11px / 16 */
+    font-size: 0.6875rem;
   }
 
   .post-list {
-    min-height: 21.875rem; /* 350px / 16 */
+    min-height: 21.875rem;
   }
 
   .empty-message {
-    font-size: 0.8125rem; /* 13px / 16 */
+    font-size: 0.8125rem;
   }
 
   .empty-message i {
-    font-size: 1.75rem; /* 28px / 16 */
+    font-size: 1.75rem;
   }
 
-  /* 모바일에서 플로팅 버튼 크기 조정 */
   .floating-write-button {
-    min-width: 5rem; /* 80px / 16 */
-    height: 2.75rem; /* 44px / 16 */
-    bottom: 1.5rem; /* 24px / 16 */
-    font-size: 0.9rem; /* 14.4px / 16 */
-    padding: 0 1.25rem; /* 0 20px / 16 */
-    gap: 0.375rem; /* 6px / 16 */
+    min-width: 5rem;
+    height: 2.75rem;
+    bottom: 1.5rem;
+    font-size: 0.9rem;
+    padding: 0 1.25rem;
+    gap: 0.375rem;
   }
 
   .floating-write-button i {
-    font-size: 0.8125rem; /* 13px / 16 */
+    font-size: 0.8125rem;
   }
 
   .floating-write-button:hover {
-    transform: translateX(-50%) translateY(-0.125rem) scale(1.05); /* -2px / 16 */
+    transform: translateX(-50%) translateY(-0.125rem) scale(1.05);
   }
 
   .floating-write-button:active {

@@ -5,7 +5,7 @@
       <BackButton :to="'/community'" class="back-button" />
       <h1 class="board-title">글수정</h1>
       <div class="complete-section">
-        <button class="complete-btn" :disabled="!isFormValid" @click="submitPost">
+        <button class="complete-btn" :disabled="!isFormValid" @click="updatePost">
           <i class="fas fa-check"></i>
           완료
         </button>
@@ -135,7 +135,7 @@ onMounted(() => {
   fetchPost();
 });
 
-const submitPost = async () => {
+const updatePost = async () => {
   if (!isFormValid.value) {
     alert('모든 항목을 입력해주세요.');
     return;
@@ -163,47 +163,47 @@ const submitPost = async () => {
 
 <style scoped>
 .community-edit {
-  max-width: 42rem; /* 672px / 16 */
+  max-width: 42rem;
   margin: 0 auto;
-  padding: 1rem; /* 16px / 16 */
+  padding: 1rem;
 }
 
 .edit-form {
   background: white;
-  border-radius: 0.875rem; /* 14px / 16 */
-  padding: 1.5rem; /* 24px / 16 */
-  margin-top: 1rem; /* 16px / 16 */
-  border: 0.0625rem solid #f3f4f6; /* 1px / 16 */
-  box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.02); /* 0 1px 3px / 16 */
+  border-radius: 0.875rem;
+  padding: 1.5rem;
+  margin-top: 1rem;
+  border: 0.0625rem solid #f3f4f6;
+  box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.02);
 }
 
 .input-group {
-  margin-bottom: 1.5rem; /* 24px / 16 */
+  margin-bottom: 1.5rem;
 }
 
 .input-label {
   display: flex;
   align-items: center;
-  gap: 0.5rem; /* 8px / 16 */
-  font-size: 0.875rem; /* 14px / 16 */
+  gap: 0.5rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-main);
-  margin-bottom: 0.5rem; /* 8px / 16 */
+  margin-bottom: 0.5rem;
 }
 
 .input-label i {
-  font-size: 0.875rem; /* 14px / 16 */
+  font-size: 0.875rem;
   color: var(--color-sub);
-  width: 1rem; /* 16px / 16 */
+  width: 1rem;
 }
 
 .form-input,
 .form-textarea {
   width: 100%;
-  border: 0.0625rem solid var(--color-light); /* 1px / 16 */
-  border-radius: 0.5rem; /* 8px / 16 */
-  padding: 0.75rem 1rem; /* 12px 16px / 16 */
-  font-size: 0.875rem; /* 14px / 16 */
+  border: 0.0625rem solid var(--color-light);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
   background: white;
   transition: all 0.2s ease;
   resize: none;
@@ -213,7 +213,7 @@ const submitPost = async () => {
 .form-input:focus,
 .form-textarea:focus {
   border-color: var(--color-sub);
-  box-shadow: 0 0 0 0.1875rem rgba(125, 129, 162, 0.1); /* 0 0 0 3px / 16 */
+  box-shadow: 0 0 0 0.1875rem rgba(125, 129, 162, 0.1);
 }
 
 .form-input::placeholder,
@@ -222,69 +222,68 @@ const submitPost = async () => {
 }
 
 .form-textarea {
-  min-height: 7.5rem; /* 120px / 16 */
+  min-height: 7.5rem;
   line-height: 1.5;
 }
 
 .char-limit {
   text-align: right;
-  font-size: 0.6875rem; /* 11px / 16 */
+  font-size: 0.6875rem;
   color: #9ca3af;
-  margin-top: 0.25rem; /* 4px / 16 */
+  margin-top: 0.25rem;
 }
 
-/* 태그 컨테이너 */
 .tag-container {
   display: flex;
-  gap: 0.5rem; /* 8px / 16 */
+  gap: 0.5rem;
   background: rgba(238, 238, 243, 0.3);
-  padding: 0.75rem; /* 12px / 16 */
-  border-radius: 1rem; /* 16px / 16 */
+  padding: 0.75rem;
+  border-radius: 1rem;
   overflow-x: auto;
 }
 
 .tag-btn {
   background: white;
-  border: 0.0625rem solid rgba(185, 187, 204, 0.2); /* 1px / 16 */
+  border: 0.0625rem solid rgba(185, 187, 204, 0.2);
   color: var(--color-sub);
-  font-size: 0.9rem; /* 14.4px / 16 */
+  font-size: 0.9rem;
   font-weight: 500;
-  padding: 0.5rem 1rem; /* 8px 16px / 16 */
-  border-radius: 1.5rem; /* 24px / 16 */
+  padding: 0.5rem 1rem;
+  border-radius: 1.5rem;
   transition: all 0.3s ease;
   cursor: pointer;
-  box-shadow: 0 0.0625rem 0.25rem rgba(0, 0, 0, 0.05); /* 0 1px 4px / 16 */
+  box-shadow: 0 0.0625rem 0.25rem rgba(0, 0, 0, 0.05);
   white-space: nowrap;
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 0.25rem; /* 4px / 16 */
+  gap: 0.25rem;
 }
 
 .tag-btn i {
-  font-size: 0.75rem; /* 12px / 16 */
+  font-size: 0.75rem;
 }
 
 .tag-btn:hover {
   background: var(--color-bg-light);
   border-color: var(--color-sub);
   color: var(--color-main);
-  transform: translateY(-0.0625rem); /* -1px / 16 */
-  box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.08); /* 0 2px 8px / 16 */
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.08);
 }
 
 .tag-btn.active {
   background: linear-gradient(135deg, var(--color-main), var(--color-sub));
   border-color: transparent;
   color: white;
-  transform: translateY(-0.0625rem); /* -1px / 16 */
-  box-shadow: 0 0.1875rem 0.75rem rgba(45, 51, 107, 0.2); /* 0 3px 12px / 16 */
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.1875rem 0.75rem rgba(45, 51, 107, 0.2);
 }
 
 .tag-btn.active:hover {
   background: linear-gradient(135deg, var(--color-sub), var(--color-light));
-  transform: translateY(-0.0625rem); /* -1px / 16 */
-  box-shadow: 0 0.25rem 0.875rem rgba(45, 51, 107, 0.25); /* 0 4px 14px / 16 */
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.25rem 0.875rem rgba(45, 51, 107, 0.25);
 }
 
 .checkbox-container {
@@ -293,16 +292,16 @@ const submitPost = async () => {
 }
 
 .checkbox-label {
-  font-size: 0.8125rem; /* 13px / 16 */
+  font-size: 0.8125rem;
   color: var(--color-sub);
   font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 0.375rem; /* 6px / 16 */
+  gap: 0.375rem;
 }
 
 .checkbox-label i {
-  font-size: 0.875rem; /* 14px / 16 */
+  font-size: 0.875rem;
   color: var(--color-sub);
 }
 
@@ -310,43 +309,43 @@ const submitPost = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem 1.25rem; /* 16px 20px / 16 */
+  padding: 1rem 1.25rem;
   background: white;
   position: sticky;
   top: 0;
   z-index: 10;
-  border-bottom: 0.0625rem solid #f3f4f6; /* 1px / 16 */
+  border-bottom: 0.0625rem solid #f3f4f6;
   position: relative;
 }
 
 .back-button {
   position: absolute;
-  left: 1.25rem; /* 20px / 16 */
+  left: 1.25rem;
 }
 
 .complete-section {
   position: absolute;
-  right: 1.25rem; /* 20px / 16 */
+  right: 1.25rem;
 }
 
 .complete-btn {
   background: var(--color-main);
   color: white;
   border: none;
-  font-size: 0.875rem; /* 14px / 16 */
+  font-size: 0.875rem;
   font-weight: 600;
-  padding: 0.5rem 1rem; /* 8px 16px / 16 */
-  border-radius: 1rem; /* 16px / 16 */
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
   transition: all 0.2s ease;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.375rem; /* 6px / 16 */
+  gap: 0.375rem;
 }
 
 .complete-btn:hover:not(:disabled) {
   background: var(--color-sub);
-  transform: translateY(-0.0625rem); /* -1px / 16 */
+  transform: translateY(-0.0625rem);
 }
 
 .complete-btn:disabled {
@@ -356,93 +355,91 @@ const submitPost = async () => {
 }
 
 .complete-btn i {
-  font-size: 0.8125rem; /* 13px / 16 */
+  font-size: 0.8125rem;
 }
 
 .board-title {
-  font-size: 1.125rem; /* 18px / 16 */
+  font-size: 1.125rem;
   font-weight: 600;
   color: var(--color-main);
   margin: 0;
 }
 
-/* 반응형 - 모바일 기준 */
 @media (max-width: 26.875rem) {
-  /* 430px / 16 */
   .community-edit {
-    padding: 0.75rem; /* 12px / 16 */
+    padding: 0.75rem;
   }
 
   .edit-form {
-    padding: 1rem; /* 16px / 16 */
+    padding: 1rem;
   }
 
   .input-group {
-    margin-bottom: 1.25rem; /* 20px / 16 */
+    margin-bottom: 1.25rem;
   }
 
   .input-label {
-    font-size: 0.8125rem; /* 13px / 16 */
+    font-size: 0.8125rem;
   }
 
   .input-label i {
-    font-size: 0.8125rem; /* 13px / 16 */
+    font-size: 0.8125rem;
   }
 
   .form-input,
   .form-textarea {
-    padding: 0.625rem 0.875rem; /* 10px 14px / 16 */
-    font-size: 0.8125rem; /* 13px / 16 */
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8125rem;
   }
 
   .form-textarea {
-    min-height: 6rem; /* 96px / 16 */
+    min-height: 6rem;
   }
 
   .tag-container {
-    gap: 0.375rem; /* 6px / 16 */
+    gap: 0.375rem;
   }
 
   .tag-btn {
-    padding: 0.375rem 0.75rem; /* 6px 12px / 16 */
-    font-size: 0.6875rem; /* 11px / 16 */
+    padding: 0.375rem 0.75rem;
+    font-size: 0.6875rem;
   }
 
   .tag-btn i {
-    font-size: 0.6875rem; /* 11px / 16 */
+    font-size: 0.6875rem;
   }
 
   .board-title {
-    font-size: 1rem; /* 16px / 16 */
+    font-size: 1rem;
   }
 
   .header-bar {
-    padding: 0.875rem 1rem; /* 14px 16px / 16 */
+    padding: 0.875rem 1rem;
   }
 
   .back-button {
-    left: 1rem; /* 16px / 16 */
+    left: 1rem;
   }
 
   .complete-section {
-    right: 1rem; /* 16px / 16 */
+    right: 1rem;
   }
 
   .complete-btn {
-    font-size: 0.8125rem; /* 13px / 16 */
-    padding: 0.375rem 0.875rem; /* 6px 14px / 16 */
+    font-size: 0.8125rem;
+    padding: 0.375rem 0.875rem;
   }
 
   .complete-btn i {
-    font-size: 0.75rem; /* 12px / 16 */
+    font-size: 0.75rem;
   }
 
   .checkbox-label {
-    font-size: 0.75rem; /* 12px / 16 */
+    font-size: 0.75rem;
   }
 
   .checkbox-label i {
-    font-size: 0.8125rem; /* 13px / 16 */
+    font-size: 0.8125rem;
   }
 }
 </style>

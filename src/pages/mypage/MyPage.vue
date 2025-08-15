@@ -358,11 +358,9 @@ onUnmounted(() => {
 * {
   box-sizing: border-box;
 }
-
-/* 전체 컨테이너 */
 .mypage-container {
   width: 100%;
-  max-width: 26.875rem; /* 430px */
+  max-width: 26.875rem;
   min-height: 100vh;
   margin: 0 auto;
   background: var(--color-white);

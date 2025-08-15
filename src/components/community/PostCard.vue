@@ -10,19 +10,16 @@
 
       <div class="post-meta">
         <div class="post-stats">
-          <!-- 좋아요 버튼: Font Awesome heart icon -->
           <div class="stat-item" :class="{ liked: isLiked }" @click.stop="handleLike">
             <i class="fa-heart interaction-icon" :class="isLiked ? 'fas' : 'far'"></i>
             <span class="stat-count">{{ post.likes || 0 }}</span>
           </div>
 
-          <!-- 댓글 아이콘: Font Awesome comment icon -->
           <div class="stat-item">
             <i class="fas fa-comment interaction-icon"></i>
             <span class="stat-count">{{ post.comments || 0 }}</span>
           </div>
 
-          <!-- 스크랩 버튼: Font Awesome bookmark icon -->
           <div class="stat-item" :class="{ scraped: isScrapped }" @click.stop="handleScrap">
             <i class="fa-bookmark interaction-icon" :class="isScrapped ? 'fas' : 'far'"></i>
             <span class="stat-count">{{ post.scraps || post.scrapCount || 0 }}</span>
@@ -77,22 +74,21 @@ const formattedDate = computed(() => {
 </script>
 
 <style scoped>
-/* 기존 첫 번째 버전 스타일 유지 */
 .post-card {
   background: white;
-  border-radius: 0.75rem; /* 12px / 16 */
-  padding: 0.75rem; /* 12px / 16 */
-  border: 0.0625rem solid #f3f4f6; /* 1px / 16 */
-  box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.02); /* 0 1px 3px / 16 */
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  border: 0.0625rem solid #f3f4f6;
+  box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.02);
   cursor: pointer;
   transition: all 0.2s ease;
-  height: 7rem; /* 112px / 16 */
+  height: 7rem;
 }
 
 .post-card:hover {
   border-color: var(--color-light);
-  box-shadow: 0 0.25rem 1rem rgba(45, 51, 107, 0.08); /* 0 4px 16px / 16 */
-  transform: translateY(-0.0625rem); /* -1px / 16 */
+  box-shadow: 0 0.25rem 1rem rgba(45, 51, 107, 0.08);
+  transform: translateY(-0.0625rem);
 }
 
 .post-card-inner {
@@ -106,11 +102,11 @@ const formattedDate = computed(() => {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 0.5rem; /* 8px / 16 */
+  margin-bottom: 0.5rem;
 }
 
 .post-title {
-  font-size: 0.875rem; /* 14px / 16 */
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-main);
   margin: 0;
@@ -121,18 +117,18 @@ const formattedDate = computed(() => {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  padding-right: 0.5rem; /* 8px / 16 */
+  padding-right: 0.5rem;
 }
 
 .post-date {
-  font-size: 0.5625rem; /* 9px / 16 */
+  font-size: 0.5625rem;
   color: #9ca3af;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .post-content {
-  font-size: 0.6875rem; /* 11px / 16 */
+  font-size: 0.6875rem;
   line-height: 1.4;
   color: #6b7280;
   margin: 0 0 0rem 0;
@@ -154,40 +150,39 @@ const formattedDate = computed(() => {
 .post-stats {
   display: flex;
   align-items: center;
-  gap: 1rem; /* 16px / 16 - 스크랩과 다른 버튼들 사이 간격 증가 */
+  gap: 1rem;
 }
 
-/* 작성자 영역 */
 .post-author {
   display: flex;
   align-items: center;
-  gap: 0.375rem; /* 6px / 16 */
+  gap: 0.375rem;
 }
 
 .author-avatar {
-  width: 1.375rem; /* 22px / 16 */
-  height: 1.375rem; /* 22px / 16 */
+  width: 1.375rem;
+  height: 1.375rem;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--color-sub), var(--color-light));
   color: white;
-  font-size: 0.5625rem; /* 9px / 16 */
+  font-size: 0.5625rem;
   font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 0.0625rem 0.1875rem rgba(45, 51, 107, 0.2); /* 0 1px 3px / 16 */
+  box-shadow: 0 0.0625rem 0.1875rem rgba(45, 51, 107, 0.2);
 }
 
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 0.1875rem; /* 3px / 16 */
+  gap: 0.1875rem;
   color: var(--color-sub);
   transition: color 0.2s ease;
   cursor: pointer;
-  padding: 0.1875rem; /* 3px / 16 */
-  border-radius: 0.25rem; /* 4px / 16 */
+  padding: 0.1875rem;
+  border-radius: 0.25rem;
 }
 
 .stat-item:hover {
@@ -206,9 +201,8 @@ const formattedDate = computed(() => {
   color: var(--color-sub);
 }
 
-/* Font Awesome 아이콘 스타일 */
 .interaction-icon {
-  font-size: 0.65rem; /* 10.4px / 16 */
+  font-size: 0.65rem;
   color: var(--color-sub);
   transition: color 0.2s ease;
 }
@@ -222,57 +216,55 @@ const formattedDate = computed(() => {
 }
 
 .stat-count {
-  font-size: 0.625rem; /* 10px / 16 */
+  font-size: 0.625rem;
   font-weight: 500;
 }
 
 .post-owner {
-  font-size: 0.6875rem; /* 11px / 16 */
+  font-size: 0.6875rem;
   font-weight: 600;
   color: var(--color-sub);
-  white-space: nowrap; /* 줄바꿈 방지 */
+  white-space: nowrap;
 }
 
-/* 반응형 - 모바일 기준 (23.4375rem = 375px / 16) */
 @media (max-width: 26.875rem) {
-  /* 430px / 16 */
   .post-card {
-    padding: 0.8rem; /* 12.8px / 16 */
-    height: 6.5rem; /* 104px / 16 */
+    padding: 0.8rem;
+    height: 6.5rem;
   }
 
   .post-title {
-    font-size: 0.8125rem; /* 13px / 16 */
+    font-size: 0.8125rem;
   }
 
   .post-content {
-    font-size: 0.65rem; /* 10.4px / 16 */
+    font-size: 0.65rem;
   }
 
   .post-date {
-    font-size: 0.5rem; /* 8px / 16 */
+    font-size: 0.5rem;
   }
 
   .stat-count {
-    font-size: 0.5625rem; /* 9px / 16 */
+    font-size: 0.5625rem;
   }
 
   .author-avatar {
-    width: 1.25rem; /* 20px / 16 */
-    height: 1.25rem; /* 20px / 16 */
-    font-size: 0.5rem; /* 8px / 16 */
+    width: 1.25rem;
+    height: 1.25rem;
+    font-size: 0.5rem;
   }
 
   .post-owner {
-    font-size: 0.625rem; /* 10px / 16 */
+    font-size: 0.625rem;
   }
 
   .post-stats {
-    gap: 0.75rem; /* 12px / 16 - 모바일에서도 충분한 간격 유지 */
+    gap: 0.75rem;
   }
 
   .interaction-icon {
-    font-size: 0.6rem; /* 9.6px / 16 */
+    font-size: 0.6rem;
   }
 }
 </style>

@@ -109,7 +109,6 @@ const isAnonymous = ref(false);
 const toggleLike = async (id) => {
   try {
     await toggleCommentLikeAPI(id);
-    // props를 직접 변경하지 않고 refresh로 업데이트
     if (props.refresh) await props.refresh();
   } catch (e) {
     console.error('좋아요 토글 실패:', e);
@@ -166,8 +165,8 @@ const formattedTime = (arr) => {
 <style scoped>
 .comment {
   background: white;
-  padding: 0.75rem; /* 12px / 16 */
-  border-bottom: 0.0625rem solid #f1f3f4; /* 1px / 16 */
+  padding: 0.75rem;
+  border-bottom: 0.0625rem solid #f1f3f4;
   transition: all 0.2s ease;
 }
 
@@ -179,56 +178,55 @@ const formattedTime = (arr) => {
   border-bottom: none;
 }
 
-/* 댓글 헤더 */
 .comment-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.5rem; /* 8px / 16 */
+  margin-bottom: 0.5rem;
 }
 
 .author-info {
   display: flex;
   align-items: center;
-  gap: 0.5rem; /* 8px / 16 */
+  gap: 0.5rem;
 }
 
 .author-avatar {
-  width: 1.5rem; /* 24px / 16 */
-  height: 1.5rem; /* 24px / 16 */
+  width: 1.5rem;
+  height: 1.5rem;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--color-sub), var(--color-light));
   color: white;
-  font-size: 0.625rem; /* 10px / 16 */
+  font-size: 0.625rem;
   font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 0.0625rem 0.1875rem rgba(45, 51, 107, 0.1); /* 0 1px 3px / 16 */
+  box-shadow: 0 0.0625rem 0.1875rem rgba(45, 51, 107, 0.1);
 }
 
 .author-details {
   display: flex;
   flex-direction: column;
-  gap: 0.125rem; /* 2px / 16 */
+  gap: 0.125rem;
 }
 
 .nickname {
   font-weight: 600;
-  font-size: 0.75rem; /* 12px / 16 */
+  font-size: 0.75rem;
   color: var(--color-main);
 }
 
 .time {
-  font-size: 0.625rem; /* 10px / 16 */
+  font-size: 0.625rem;
   color: #9ca3af;
 }
 
 .action-buttons {
   display: flex;
   align-items: center;
-  gap: 0.375rem; /* 6px / 16 */
+  gap: 0.375rem;
 }
 
 .like-btn {
@@ -237,10 +235,10 @@ const formattedTime = (arr) => {
   color: #9ca3af;
   display: flex;
   align-items: center;
-  gap: 0.25rem; /* 4px / 16 */
-  font-size: 0.75rem; /* 12px / 16 */
-  padding: 0.25rem 0.375rem; /* 4px 6px / 16 */
-  border-radius: 0.25rem; /* 4px / 16 */
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.375rem;
+  border-radius: 0.25rem;
   transition: all 0.2s ease;
   cursor: pointer;
 }
@@ -260,7 +258,7 @@ const formattedTime = (arr) => {
 }
 
 .like-btn i {
-  font-size: 0.875rem; /* 14px / 16 */
+  font-size: 0.875rem;
 }
 
 .count {
@@ -269,14 +267,14 @@ const formattedTime = (arr) => {
 
 .reply-toggle-btn {
   background: none;
-  border: 0.0625rem solid var(--color-light); /* 1px / 16 */
+  border: 0.0625rem solid var(--color-light);
   color: var(--color-sub);
-  font-size: 0.625rem; /* 10px / 16 */
+  font-size: 0.625rem;
   display: flex;
   align-items: center;
-  gap: 0.25rem; /* 4px / 16 */
-  padding: 0.25rem 0.5rem; /* 4px 8px / 16 */
-  border-radius: 1rem; /* 16px / 16 */
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
   transition: all 0.2s ease;
   cursor: pointer;
   font-weight: 500;
@@ -289,19 +287,19 @@ const formattedTime = (arr) => {
 }
 
 .reply-toggle-btn i {
-  font-size: 0.75rem; /* 12px / 16 */
+  font-size: 0.75rem;
 }
 
 .delete-btn {
   background: none;
   border: none;
   color: #ef4444;
-  font-size: 0.625rem; /* 10px / 16 */
+  font-size: 0.625rem;
   display: flex;
   align-items: center;
-  gap: 0.25rem; /* 4px / 16 */
-  padding: 0.25rem 0.375rem; /* 4px 6px / 16 */
-  border-radius: 0.25rem; /* 4px / 16 */
+  gap: 0.25rem;
+  padding: 0.25rem 0.375rem;
+  border-radius: 0.25rem;
   transition: all 0.2s ease;
   cursor: pointer;
 }
@@ -312,63 +310,61 @@ const formattedTime = (arr) => {
 }
 
 .delete-btn i {
-  font-size: 0.75rem; /* 12px / 16 */
+  font-size: 0.75rem;
 }
 
-/* 댓글 내용 */
 .comment-content {
-  margin-bottom: 0.5rem; /* 8px / 16 */
+  margin-bottom: 0.5rem;
 }
 
 .comment-content p {
-  font-size: 0.75rem; /* 12px / 16 */
+  font-size: 0.75rem;
   line-height: 1.5;
   color: #374151;
   margin: 0;
 }
 
-/* 대댓글 작성 폼 */
 .reply-form {
-  margin-top: 0.75rem; /* 12px / 16 */
-  padding: 0.75rem; /* 12px / 16 */
+  margin-top: 0.75rem;
+  padding: 0.75rem;
   background: var(--color-bg-light);
-  border-radius: 0.5rem; /* 8px / 16 */
-  border: 0.0625rem solid rgba(185, 187, 204, 0.15); /* 1px / 16 */
+  border-radius: 0.5rem;
+  border: 0.0625rem solid rgba(185, 187, 204, 0.15);
 }
 
 .reply-form-header {
   display: flex;
   align-items: center;
-  margin-bottom: 0.5rem; /* 8px / 16 */
+  margin-bottom: 0.5rem;
 }
 
 .checkbox-label {
-  font-size: 0.75rem; /* 12px / 16 */
+  font-size: 0.75rem;
   color: var(--color-sub);
   font-weight: 500;
 }
 
 .reply-input-container {
   display: flex;
-  gap: 0.5rem; /* 8px / 16 */
+  gap: 0.5rem;
   align-items: center;
 }
 
 .reply-input {
   flex: 1;
-  padding: 0.5rem 0.75rem; /* 8px 12px / 16 */
-  border: 0.0625rem solid rgba(185, 187, 204, 0.25); /* 1px / 16 */
-  border-radius: 1.5rem; /* 24px / 16 */
-  font-size: 0.75rem; /* 12px / 16 */
+  padding: 0.5rem 0.75rem;
+  border: 0.0625rem solid rgba(185, 187, 204, 0.25);
+  border-radius: 1.5rem;
+  font-size: 0.75rem;
   background: white;
   transition: all 0.2s ease;
   outline: none;
-  height: 2rem; /* 32px / 16 */
+  height: 2rem;
 }
 
 .reply-input:focus {
   border-color: var(--color-sub);
-  box-shadow: 0 0 0 0.125rem rgba(125, 129, 162, 0.08); /* 0 0 0 2px / 16 */
+  box-shadow: 0 0 0 0.125rem rgba(125, 129, 162, 0.08);
 }
 
 .reply-input::placeholder {
@@ -379,15 +375,15 @@ const formattedTime = (arr) => {
   background: var(--color-main);
   border: none;
   color: white;
-  padding: 0.5rem; /* 8px / 16 */
+  padding: 0.5rem;
   border-radius: 50%;
   transition: all 0.2s ease;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2rem; /* 32px / 16 */
-  height: 2rem; /* 32px / 16 */
+  width: 2rem;
+  height: 2rem;
   flex-shrink: 0;
 }
 
@@ -403,21 +399,20 @@ const formattedTime = (arr) => {
 }
 
 .reply-submit i {
-  font-size: 0.875rem; /* 14px / 16 */
+  font-size: 0.875rem;
 }
 
-/* 대댓글 */
 .replies {
-  margin-top: 0.75rem; /* 12px / 16 */
-  border-top: 0.0625rem solid #f1f3f4; /* 1px / 16 */
-  padding-top: 0.75rem; /* 12px / 16 */
+  margin-top: 0.75rem;
+  border-top: 0.0625rem solid #f1f3f4;
+  padding-top: 0.75rem;
 }
 
 .reply-wrapper {
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem; /* 12px / 16 */
-  margin-bottom: 0.5rem; /* 8px / 16 */
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .reply-wrapper:last-child {
@@ -426,21 +421,21 @@ const formattedTime = (arr) => {
 
 .reply-arrow {
   flex-shrink: 0;
-  margin-top: 0.375rem; /* 6px / 16 */
+  margin-top: 0.375rem;
   color: var(--color-light);
   opacity: 0.7;
 }
 
 .reply-arrow i {
-  font-size: 0.75rem; /* 12px / 16 */
+  font-size: 0.75rem;
 }
 
 .reply {
   flex: 1;
   background: rgba(248, 250, 252, 0.5);
-  border: 0.0625rem solid rgba(185, 187, 204, 0.1); /* 1px / 16 */
-  border-radius: 0.5rem; /* 8px / 16 */
-  padding: 0.75rem; /* 12px / 16 */
+  border: 0.0625rem solid rgba(185, 187, 204, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
   transition: all 0.2s ease;
 }
 
@@ -449,71 +444,69 @@ const formattedTime = (arr) => {
   border-color: rgba(185, 187, 204, 0.2);
 }
 
-/* 반응형 - 모바일 기준 */
 @media (max-width: 26.875rem) {
-  /* 430px / 16 */
   .comment {
-    padding: 0.625rem; /* 10px / 16 */
+    padding: 0.625rem;
   }
 
   .author-avatar {
-    width: 1.25rem; /* 20px / 16 */
-    height: 1.25rem; /* 20px / 16 */
-    font-size: 0.5625rem; /* 9px / 16 */
+    width: 1.25rem;
+    height: 1.25rem;
+    font-size: 0.5625rem;
   }
 
   .action-buttons {
-    gap: 0.25rem; /* 4px / 16 */
+    gap: 0.25rem;
   }
 
   .reply-wrapper {
-    gap: 0.5rem; /* 8px / 16 */
+    gap: 0.5rem;
   }
 
   .reply-input-container {
-    gap: 0.375rem; /* 6px / 16 */
+    gap: 0.375rem;
   }
 
   .reply-submit {
-    width: 1.75rem; /* 28px / 16 */
-    height: 1.75rem; /* 28px / 16 */
+    width: 1.75rem;
+    height: 1.75rem;
   }
 
   .nickname {
-    font-size: 0.6875rem; /* 11px / 16 */
+    font-size: 0.6875rem;
   }
 
   .time {
-    font-size: 0.5625rem; /* 9px / 16 */
+    font-size: 0.5625rem;
   }
 
   .comment-content p {
-    font-size: 0.6875rem; /* 11px / 16 */
+    font-size: 0.6875rem;
   }
 
   .like-btn {
-    font-size: 0.6875rem; /* 11px / 16 */
-    padding: 0.1875rem 0.3125rem; /* 3px 5px / 16 */
+    font-size: 0.6875rem;
+    padding: 0.1875rem 0.3125rem;
   }
 
   .like-btn i {
-    font-size: 0.8125rem; /* 13px / 16 */
+    font-size: 0.8125rem;
   }
 
   .reply-toggle-btn i {
-    font-size: 0.6875rem; /* 11px / 16 */
+    font-size: 0.6875rem;
   }
 
   .delete-btn i {
-    font-size: 0.6875rem; /* 11px / 16 */
+    font-size: 0.6875rem;
   }
 
   .reply-submit i {
-    font-size: 0.8125rem; /* 13px / 16 */
+    font-size: 0.8125rem;
   }
 
   .reply-arrow i {
-    font-size: 0.6875rem; /* 11px / 16 */
+    font-size: 0.6875rem;
   }
 }
 </style>
