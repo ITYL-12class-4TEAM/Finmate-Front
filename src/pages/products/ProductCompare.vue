@@ -768,8 +768,9 @@ onMounted(() => {
     padding: 0 0.75rem;
   }
 
-  .gpt-summary-btn .btn-text {
-    display: none;
+  .gpt-summary-btn {
+    padding: 0.625rem 1rem;
+    font-size: 0.8rem;
   }
 }
 </style>
