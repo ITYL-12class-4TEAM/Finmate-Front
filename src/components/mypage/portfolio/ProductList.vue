@@ -361,7 +361,7 @@ const handleDeleteProduct = (item) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .section-title {
@@ -428,8 +428,8 @@ const handleDeleteProduct = (item) => {
 }
 
 .stats-item i {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: 0.5rem;
   background: var(--color-main);
   color: white;
@@ -446,7 +446,7 @@ const handleDeleteProduct = (item) => {
 
 .stats-value {
   color: var(--color-main);
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   font-weight: 700;
   margin-bottom: 0.25rem;
 }
@@ -461,8 +461,8 @@ const handleDeleteProduct = (item) => {
 .controls-section {
   background: white;
   border-radius: 1rem;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.2);
 }
 
