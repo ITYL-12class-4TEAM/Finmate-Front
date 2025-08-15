@@ -40,7 +40,7 @@ const handleToggleProduct = (tag) => {
 </script>
 
 <style scoped>
-/* 필터 섹션 - 커뮤니티와 동일한 스타일 */
+/* 필터 섹션 */
 .filter-section {
   padding: 1rem;
   border: 0.125rem solid var(--color-bg-light);
@@ -73,18 +73,14 @@ const handleToggleProduct = (tag) => {
 
 .tag-list {
   display: flex;
-  flex-wrap: nowrap; /* 줄바꿈 방지 */
+  flex-wrap: wrap;
   gap: 0.2rem;
   margin-top: 0.5rem;
-  -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
-  padding-bottom: 0.25rem;
-  text-align: center;
-  justify-content: center;
 }
 
 .tag-button {
-  font-size: 0.8rem;
-  padding: 0.4rem 1rem;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
   border-radius: 1.25rem;
   border: 0.125rem solid var(--color-bg-light);
   background-color: white;
@@ -95,10 +91,6 @@ const handleToggleProduct = (tag) => {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-}
-
-.tag-button i {
-  font-size: 0.7rem;
 }
 
 .tag-button:hover {
@@ -119,7 +111,7 @@ const handleToggleProduct = (tag) => {
 /* 반응형 디자인 */
 @media (max-width: 48rem) {
   .filter-section {
-    padding: 0.75rem;
+    padding: 0.7rem;
   }
 
   .filter-label {
@@ -131,8 +123,8 @@ const handleToggleProduct = (tag) => {
   }
 
   .tag-button {
-    font-size: 0.75rem;
-    padding: 0.3rem 0.8rem;
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
   }
 
   .tag-button i {
