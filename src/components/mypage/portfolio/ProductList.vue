@@ -318,7 +318,7 @@ const handleDeleteProduct = (item) => {
 
 <style scoped>
 .products-section {
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
+  background: var(--color-white);
   border-radius: 0.875rem;
   padding: 1.25rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
@@ -511,7 +511,7 @@ const handleDeleteProduct = (item) => {
 
 /* 상품 리스트 */
 .products-list {
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
+  background: var(--color-white);
   border-radius: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
   box-shadow:
@@ -547,7 +547,7 @@ const handleDeleteProduct = (item) => {
 
 /* 검색 결과 없음 */
 .no-results {
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
+  background: var(--color-white);
   border-radius: 1rem;
   border: 2px dashed rgba(185, 187, 204, 0.4);
   padding: 2rem;
@@ -558,7 +558,7 @@ const handleDeleteProduct = (item) => {
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-sub) 100%);
+  background: var(--color-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -604,7 +604,7 @@ const handleDeleteProduct = (item) => {
 
 /* 빈 상태 */
 .empty-state {
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
+  background: var(--color-white);
   border-radius: 1rem;
   border: 2px dashed rgba(185, 187, 204, 0.4);
   padding: 3rem 2rem;
@@ -614,14 +614,14 @@ const handleDeleteProduct = (item) => {
 
 .empty-state:hover {
   border-color: rgba(185, 187, 204, 0.6);
-  background: linear-gradient(135deg, var(--color-bg-light) 0%, var(--color-light) 100%);
+  background: var(--color-bg-light);
 }
 
 .empty-icon {
   width: 4rem;
   height: 4rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-sub) 100%);
+  background: var(--color-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -652,7 +652,7 @@ const handleDeleteProduct = (item) => {
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
+  background: var(--color-main);
   color: white;
   border: none;
   border-radius: 0.75rem;

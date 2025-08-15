@@ -971,7 +971,7 @@ watch(
 
 /* 모달 컨테이너 */
 .modal-container {
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
+  background: var(--color-white);
   border-radius: 1rem;
   max-width: 26.875rem;
   width: 100%;
@@ -988,7 +988,7 @@ watch(
   align-items: flex-start;
   padding: 1.5rem;
   border-bottom: 2px solid rgba(185, 187, 204, 0.15);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 252, 0.9) 100%);
+  background: var(--color-white);
 }
 
 .modal-title-section {
@@ -1152,7 +1152,7 @@ watch(
 /* 자동 계산 섹션 */
 .auto-calculate-section {
   padding: 1.25rem;
-  background: linear-gradient(135deg, rgba(45, 51, 107, 0.05), rgba(125, 129, 162, 0.05));
+  background: var(--color-bg-light);
   border-radius: 0.75rem;
   border: 1px solid rgba(185, 187, 204, 0.2);
 }
@@ -1210,7 +1210,7 @@ watch(
 .modal-footer {
   padding: 1rem;
   border-top: 1px solid rgba(185, 187, 204, 0.15);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 252, 0.9) 100%);
+  background: var(--color-white);
   display: flex;
   gap: 0.5rem;
   justify-content: flex-end;

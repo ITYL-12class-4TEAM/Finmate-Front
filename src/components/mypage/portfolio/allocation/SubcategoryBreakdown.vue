@@ -267,7 +267,7 @@ watch(
 
 <style scoped>
 .stats-card {
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: var(--color-white);
   border-radius: 1rem;
   padding: 1.5rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
@@ -573,7 +573,7 @@ watch(
   align-items: center;
   justify-content: center;
   padding: 3rem 1rem;
-  background: linear-gradient(135deg, rgba(185, 187, 204, 0.1) 0%, rgba(125, 129, 162, 0.1) 100%);
+  background: var(--color-bg-light);
   border-radius: 0.75rem;
   margin-bottom: 1.5rem;
 }
@@ -582,7 +582,7 @@ watch(
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-sub) 100%);
+  background: var(--color-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -611,7 +611,7 @@ watch(
 .breakdown-summary {
   margin-top: 1.5rem;
   padding: 1.5rem;
-  background: linear-gradient(135deg, rgba(185, 187, 204, 0.1) 0%, rgba(125, 129, 162, 0.1) 100%);
+  background: var(--color-bg-light);
   border-radius: 0.75rem;
   border: 1px solid rgba(185, 187, 204, 0.2);
 }
@@ -637,7 +637,7 @@ watch(
   width: 2rem;
   height: 2rem;
   border-radius: 0.5rem;
-  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-sub) 100%);
+  background: var(--color-light);
   display: flex;
   align-items: center;
   justify-content: center;

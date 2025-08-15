@@ -1,4 +1,5 @@
 <template>
+  <BackButton class="mb-3" />
   <LoadingSpinner v-if="loading" />
 
   <ErrorAlert v-else-if="error" :message="error" />
@@ -98,6 +99,7 @@ import DeleteConfirmModal from '../../components/mypage/portfolio/DeleteConfirmM
 import { portfolioAPI } from '@/api/portfolio';
 import { getWMTIResultAPI } from '@/api/wmti';
 import { useToast } from '@/composables/useToast';
+import BackButton from '@/components/common/BackButton.vue';
 const { showToast } = useToast();
 const route = useRoute(); // 추가
 

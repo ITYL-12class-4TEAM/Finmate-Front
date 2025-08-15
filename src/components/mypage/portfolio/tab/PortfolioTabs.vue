@@ -85,7 +85,7 @@ const indicatorStyle = computed(() => {
 
 .nav-container {
   position: relative;
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
+  background: var(--color-white);
   border-radius: 1rem;
   padding: 0.375rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
@@ -171,7 +171,7 @@ const indicatorStyle = computed(() => {
   left: 0.375rem;
   width: calc(25% - 0.1875rem);
   height: calc(100% - 0.75rem);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
+  background: var(--color-white);
   border-radius: 0.75rem;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1;

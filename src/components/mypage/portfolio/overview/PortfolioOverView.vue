@@ -390,7 +390,7 @@ onBeforeUnmount(() => {
 }
 
 .stats-card {
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
+  background: var(--color-white);
   border-radius: 1rem;
   padding: 1rem;
   box-shadow:
@@ -470,7 +470,7 @@ onBeforeUnmount(() => {
 
 /* 빈 상태 */
 .chart-empty-state {
-  background: linear-gradient(135deg, rgba(185, 187, 204, 0.1) 0%, rgba(125, 129, 162, 0.1) 100%);
+  background: var(--color-bg-light);
   border-radius: 0.75rem;
   padding: 2rem;
   text-align: center;
@@ -480,7 +480,7 @@ onBeforeUnmount(() => {
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-sub) 100%);
+  background: var(--color-bg-light);
   display: flex;
   align-items: center;
   justify-content: center;

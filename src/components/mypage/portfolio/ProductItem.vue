@@ -492,11 +492,11 @@ const handleDelete = () => {
 }
 
 .product-item.expanded::before {
-  background: linear-gradient(to bottom, var(--color-main) 0%, var(--color-sub) 100%);
+  background: var(--color-main);
 }
 
 .product-item.editing {
-  background: linear-gradient(135deg, rgba(45, 51, 107, 0.08) 0%, rgba(125, 129, 162, 0.08) 100%);
+  background: var(--color-bg-light);
   border-color: var(--color-main);
   cursor: default;
 }

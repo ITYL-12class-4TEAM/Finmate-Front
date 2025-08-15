@@ -320,7 +320,7 @@ onBeforeUnmount(cleanup);
 }
 
 .stats-card {
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: var(--color-white);
   border-radius: 1rem;
   padding: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
@@ -412,7 +412,7 @@ onBeforeUnmount(cleanup);
   align-items: center;
   justify-content: center;
   padding: 3rem 1rem;
-  background: linear-gradient(135deg, rgba(185, 187, 204, 0.1) 0%, rgba(125, 129, 162, 0.1) 100%);
+  background: var(--color-bg-light);
   border-radius: 0.75rem;
   margin-bottom: 1.5rem;
 }
@@ -421,7 +421,7 @@ onBeforeUnmount(cleanup);
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-sub) 100%);
+  background: var(--color-light);
   display: flex;
   align-items: center;
   justify-content: center;

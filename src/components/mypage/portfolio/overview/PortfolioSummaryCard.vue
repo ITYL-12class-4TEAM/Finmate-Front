@@ -154,7 +154,7 @@ const getAverageInsight = () => {
 .summary-card {
   max-width: 26.875rem;
   width: 100%;
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
+  background: var(--color-white);
   border-radius: 1rem;
   padding: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
@@ -302,12 +302,7 @@ const getAverageInsight = () => {
 }
 
 .summary-item.loading .summary-value {
-  background: linear-gradient(
-    90deg,
-    var(--color-bg-light) 25%,
-    var(--color-light) 50%,
-    var(--color-bg-light) 75%
-  );
+  background: var(--color-light);
   background-size: 200% 100%;
   animation: loading 1.5s infinite;
   border-radius: 4px;

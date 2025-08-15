@@ -153,7 +153,7 @@ const toggleTab = (index) => {
 <style scoped>
 /* 카드 기본 스타일 */
 .stats-card {
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: var(--color-white);
   border-radius: 1rem;
   padding: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
@@ -202,13 +202,13 @@ const toggleTab = (index) => {
 }
 
 .my-bar {
-  background: linear-gradient(90deg, var(--color-main) 0%, var(--color-sub) 100%);
+  background: var(--color-main);
   border-radius: 1rem;
   transition: width 1s ease-out;
   height: 100%;
 }
 .avg-bar {
-  background: linear-gradient(90deg, var(--color-light) 0%, var(--color-sub) 100%);
+  background: var(--color-light);
   border-radius: 1rem;
   transition: width 1s ease-out 0.2s;
   height: 100%;
@@ -364,7 +364,7 @@ const toggleTab = (index) => {
 .empty-comparison {
   text-align: center;
   padding: 2rem;
-  background: linear-gradient(135deg, rgba(185, 187, 204, 0.1) 0%, rgba(125, 129, 162, 0.1) 100%);
+  background: var(--color-bg-light);
   border-radius: 0.75rem;
   border: 1px solid rgba(185, 187, 204, 0.2);
 }
@@ -373,7 +373,7 @@ const toggleTab = (index) => {
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-sub) 100%);
+  background: var(--color-light);
   display: flex;
   align-items: center;
   justify-content: center;
