@@ -237,6 +237,18 @@ const router = createRouter({
       component: () => import('../pages/NotFound/NotFound.vue'), // NotFound 컴포넌트
     },
   ],
+  scrollBehavior(to, from, savedPosition) {
+    // 뒤로/앞으로 가기일 때는 기존 위치 복원
+    if (savedPosition) {
+      return savedPosition;
+    }
+    // 해시가 있으면 앵커로 이동
+    if (to.hash) {
+      return { el: to.hash, behavior: 'smooth' };
+    }
+    // 그 외에는 항상 최상단
+    return { left: 0, top: 0 };
+  },
 });
 
 // 인증 가드 적용
