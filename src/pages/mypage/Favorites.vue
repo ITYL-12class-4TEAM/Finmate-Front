@@ -1,32 +1,34 @@
 <template>
-  <LoadingSpinner v-if="loading" />
+  <div class="favorites-container">
+    <LoadingSpinner v-if="loading" />
 
-  <ErrorAlert v-else-if="error" :message="error" />
+    <ErrorAlert v-else-if="error" :message="error" />
 
-  <div v-else>
-    <FavoritesFilter
-      v-model:search-query="searchQuery"
-      v-model:selected-type="selectedType"
-      v-model:sort-by="sortBy"
-      @filter="filterAndSortFavorites"
-    />
-
-    <div>
-      <FavoritesSummary :count="filteredFavorites.length" />
-
-      <FavoritesList
-        :favorites="paginatedFavorites"
-        @click-favorite="clickFavorite"
-        @view-detail="viewDetail"
-        @remove-favorite="removeFavorite"
+    <div v-else class="favorites-content">
+      <FavoritesFilter
+        v-model:search-query="searchQuery"
+        v-model:selected-type="selectedType"
+        v-model:sort-by="sortBy"
+        @filter="filterAndSortFavorites"
       />
 
-      <Pagination
-        v-if="totalPages > 1"
-        :current-page="currentPage"
-        :total-pages="totalPages"
-        @change-page="changePage"
-      />
+      <div class="favorites-main">
+        <FavoritesSummary :count="filteredFavorites.length" />
+
+        <FavoritesList
+          :favorites="paginatedFavorites"
+          @click-favorite="clickFavorite"
+          @view-detail="viewDetail"
+          @remove-favorite="removeFavorite"
+        />
+
+        <Pagination
+          v-if="totalPages > 1"
+          :current-page="currentPage"
+          :total-pages="totalPages"
+          @change-page="changePage"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -255,4 +257,29 @@ onMounted(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.favorites-container {
+  width: 100%;
+  max-width: 26.875rem; /* 430px */
+  margin: 0 auto;
+  padding: 1rem;
+  background-color: var(--color-white);
+  min-height: 100vh;
+}
+
+.favorites-content {
+  width: 100%;
+}
+
+.favorites-main {
+  width: 100%;
+}
+
+/* 모바일 최적화 - 작은 화면에서 패딩 조정 */
+@media (max-width: 23.4375rem) {
+  /* 375px */
+  .favorites-container {
+    padding: 0.75rem;
+  }
+}
+</style>

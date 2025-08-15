@@ -5,14 +5,20 @@
       <BackButton :to="'/community'" class="back-button" />
       <h1 class="board-title">글쓰기</h1>
       <div class="complete-section">
-        <button class="complete-btn" :disabled="!isFormValid" @click="submitPost">완료</button>
+        <button class="complete-btn" :disabled="!isFormValid" @click="submitPost">
+          <i class="fas fa-check"></i>
+          완료
+        </button>
       </div>
     </div>
 
     <div class="write-form">
       <!-- 제목 입력 -->
       <div class="input-group">
-        <label class="input-label">제목</label>
+        <label class="input-label">
+          <i class="fas fa-heading"></i>
+          제목
+        </label>
         <input
           v-model="title"
           type="text"
@@ -24,7 +30,10 @@
 
       <!-- 내용 입력 -->
       <div class="input-group">
-        <label class="input-label">내용</label>
+        <label class="input-label">
+          <i class="fas fa-align-left"></i>
+          내용
+        </label>
         <textarea
           v-model="content"
           placeholder="내용을 입력해주세요."
@@ -36,7 +45,10 @@
 
       <!-- 상품군 선택 -->
       <div class="input-group">
-        <label class="input-label">상품군</label>
+        <label class="input-label">
+          <i class="fas fa-tags"></i>
+          상품군
+        </label>
         <div class="tag-container">
           <button
             v-for="tag in productTags"
@@ -44,7 +56,7 @@
             :class="['tag-btn', { active: selectedProduct === tag }]"
             @click="selectProduct(tag)"
           >
-            #{{ tag }}
+            <i class="fas fa-hashtag"></i>{{ tag }}
           </button>
         </div>
       </div>
@@ -53,7 +65,7 @@
       <div class="input-group">
         <div class="checkbox-container">
           <CustomCheckbox id="edit-anonymous" v-model="isAnonymous">
-            <span class="checkbox-label">익명으로 작성</span>
+            <span class="checkbox-label"> 익명으로 작성 </span>
           </CustomCheckbox>
         </div>
       </div>
@@ -91,18 +103,6 @@ const isFormValid = computed(() => {
 
 // 태그 선택
 const selectProduct = (tag) => (selectedProduct.value = tag);
-
-const toggleTag = (tag) => {
-  const index = selectedTags.value.indexOf(tag);
-  if (index > -1) {
-    selectedTags.value.splice(index, 1);
-  } else {
-    if (selectedTags.value.length < 3) {
-      // 최대 3개까지 선택 가능
-      selectedTags.value.push(tag);
-    }
-  }
-};
 
 // 게시글 등록
 const submitPost = async () => {
@@ -144,7 +144,6 @@ const submitPost = async () => {
   padding: 0;
 }
 
-/* 헤더 바 */
 .header-bar {
   display: flex;
   align-items: center;
@@ -154,7 +153,7 @@ const submitPost = async () => {
   position: sticky;
   top: 0;
   z-index: 10;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 0.0625rem solid #f3f4f6;
   position: relative;
 }
 
@@ -185,11 +184,14 @@ const submitPost = async () => {
   border-radius: 1rem;
   transition: all 0.2s ease;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
 .complete-btn:hover:not(:disabled) {
   background: var(--color-sub);
-  transform: translateY(-1px);
+  transform: translateY(-0.0625rem);
 }
 
 .complete-btn:disabled {
@@ -198,33 +200,43 @@ const submitPost = async () => {
   transform: none;
 }
 
+.complete-btn i {
+  font-size: 0.8125rem;
+}
+
 .write-form {
   background: white;
   border-radius: 1.25rem;
   padding: 1.5rem;
   margin: 1rem 1.25rem;
-  border: 1px solid #f3f4f6;
-  box-shadow: 0 4px 16px rgba(45, 51, 107, 0.06);
+  border: 0.0625rem solid #f3f4f6;
+  box-shadow: 0 0.25rem 1rem rgba(45, 51, 107, 0.06);
 }
 
-/* 입력 그룹 */
 .input-group {
   margin-bottom: 1.5rem;
 }
 
 .input-label {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-main);
   margin-bottom: 0.5rem;
 }
 
-/* 폼 입력 필드 */
+.input-label i {
+  font-size: 0.875rem;
+  color: var(--color-sub);
+  width: 1rem;
+}
+
 .form-input,
 .form-textarea {
   width: 100%;
-  border: 1px solid rgba(185, 187, 204, 0.3);
+  border: 0.0625rem solid rgba(185, 187, 204, 0.3);
   border-radius: 1rem;
   padding: 0.875rem 1.25rem;
   font-size: 0.875rem;
@@ -238,8 +250,8 @@ const submitPost = async () => {
 .form-textarea:focus {
   border-color: var(--color-sub);
   background: white;
-  box-shadow: 0 0 0 3px rgba(125, 129, 162, 0.08);
-  transform: translateY(-1px);
+  box-shadow: 0 0 0 0.1875rem rgba(125, 129, 162, 0.08);
+  transform: translateY(-0.0625rem);
 }
 
 .form-input::placeholder,
@@ -260,10 +272,9 @@ const submitPost = async () => {
   opacity: 0.7;
 }
 
-/* 태그 컨테이너 */
 .tag-container {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.2rem;
   background: rgba(238, 238, 243, 0.3);
   padding: 1rem;
   border-radius: 1rem;
@@ -273,7 +284,7 @@ const submitPost = async () => {
 
 .tag-btn {
   background: white;
-  border: 1px solid rgba(185, 187, 204, 0.3);
+  border: 0.0625rem solid rgba(185, 187, 204, 0.3);
   color: var(--color-sub);
   font-size: 0.75rem;
   font-weight: 500;
@@ -281,31 +292,38 @@ const submitPost = async () => {
   border-radius: 1.25rem;
   transition: all 0.3s ease;
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 0.0625rem 0.25rem rgba(0, 0, 0, 0.05);
   white-space: nowrap;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.tag-btn i {
+  font-size: 0.65rem;
 }
 
 .tag-btn:hover {
   background: var(--color-bg-light);
   border-color: var(--color-sub);
   color: var(--color-main);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(45, 51, 107, 0.08);
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.08);
 }
 
 .tag-btn.active {
   background: linear-gradient(135deg, var(--color-main), var(--color-sub));
   border-color: transparent;
   color: white;
-  transform: translateY(-1px);
-  box-shadow: 0 3px 12px rgba(45, 51, 107, 0.2);
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.1875rem 0.75rem rgba(45, 51, 107, 0.2);
 }
 
 .tag-btn.active:hover {
   background: linear-gradient(135deg, var(--color-sub), var(--color-light));
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(45, 51, 107, 0.25);
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.25rem 0.875rem rgba(45, 51, 107, 0.25);
 }
 
 .tag-btn.secondary {
@@ -326,7 +344,6 @@ const submitPost = async () => {
   color: white;
 }
 
-/* 체크박스 컨테이너 */
 .checkbox-container {
   display: flex;
   align-items: center;
@@ -336,10 +353,17 @@ const submitPost = async () => {
   font-size: 0.8125rem;
   color: var(--color-sub);
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
-/* 반응형 */
-@media (max-width: 768px) {
+.checkbox-label i {
+  font-size: 0.875rem;
+  color: var(--color-sub);
+}
+
+@media (max-width: 26.875rem) {
   .header-bar {
     padding: 0.875rem 1rem;
   }
@@ -361,6 +385,10 @@ const submitPost = async () => {
     padding: 0.375rem 0.875rem;
   }
 
+  .complete-btn i {
+    font-size: 0.75rem;
+  }
+
   .write-form {
     margin: 1rem;
     padding: 1.25rem;
@@ -368,6 +396,14 @@ const submitPost = async () => {
 
   .input-group {
     margin-bottom: 1.25rem;
+  }
+
+  .input-label {
+    font-size: 0.8125rem;
+  }
+
+  .input-label i {
+    font-size: 0.8125rem;
   }
 
   .form-input,
@@ -388,6 +424,18 @@ const submitPost = async () => {
   .tag-btn {
     padding: 0.5rem 0.875rem;
     font-size: 0.6rem;
+  }
+
+  .tag-btn i {
+    font-size: 0.6rem;
+  }
+
+  .checkbox-label {
+    font-size: 0.75rem;
+  }
+
+  .checkbox-label i {
+    font-size: 0.8125rem;
   }
 }
 </style>

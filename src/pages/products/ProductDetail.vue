@@ -147,7 +147,7 @@ import { useToast } from '@/composables/useToast';
 // 수정된 부분: 경로를 정확하게 지정하고 명시적으로 가져오기
 import { resolveCompanyLogo } from '@/constants/companyLogoMap';
 
-const { showToast } = useToast();
+// const { showToast } = useToast();
 
 const route = useRoute();
 const router = useRouter();
@@ -234,9 +234,9 @@ const isProductInCompareList = computed(() => {
 });
 
 // GPT 상품 요약 모달 열기
-const handleGptDetail = () => {
-  showGptDetailModal.value = true;
-};
+// const handleGptDetail = () => {
+//   showGptDetailModal.value = true;
+// };
 
 // 상품 정보 로드
 const loadProductDetail = async () => {
@@ -323,6 +323,7 @@ const parsedPreferentialConditions = computed(() => {
   for (const condition of conditions) {
     if (condition.trim() === '') continue;
 
+    // eslint-disable-next-line no-useless-escape
     const cleanCondition = condition.replace(/^\d+[\.\)]\s*|\-\s*|\*\s*/, '').trim();
 
     if (cleanCondition) {

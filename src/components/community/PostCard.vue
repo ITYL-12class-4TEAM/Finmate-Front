@@ -10,41 +10,18 @@
 
       <div class="post-meta">
         <div class="post-stats">
-          <!-- 좋아요 버튼: @click.stop 추가하여 이벤트 전파 방지 -->
           <div class="stat-item" :class="{ liked: isLiked }" @click.stop="handleLike">
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              :fill="isLiked ? 'currentColor' : 'none'"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-              />
-            </svg>
+            <i class="fa-heart interaction-icon" :class="isLiked ? 'fas' : 'far'"></i>
             <span class="stat-count">{{ post.likes || 0 }}</span>
           </div>
 
-          <!-- 댓글 아이콘 (Bootstrap Icons bi-chat-fill로 통일) -->
           <div class="stat-item">
-            <i class="bi bi-chat interaction-icon" style="font-size: 0.65rem; color: #6b7280"></i>
+            <i class="fas fa-comment interaction-icon"></i>
             <span class="stat-count">{{ post.comments || 0 }}</span>
           </div>
 
-          <!-- 스크랩 버튼: @click.stop 추가하여 이벤트 전파 방지 -->
           <div class="stat-item" :class="{ scraped: isScrapped }" @click.stop="handleScrap">
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              :fill="isScrapped ? 'currentColor' : 'none'"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-            </svg>
+            <i class="fa-bookmark interaction-icon" :class="isScrapped ? 'fas' : 'far'"></i>
             <span class="stat-count">{{ post.scraps || post.scrapCount || 0 }}</span>
           </div>
         </div>
@@ -87,6 +64,7 @@ const handleScrap = () => {
 const formattedDate = computed(() => {
   const arr = props.post.createdAt;
   if (!arr || arr.length < 5) return '';
+  // eslint-disable-next-line no-unused-vars
   const [_, month, day, hour, minute] = arr;
   return `${String(month).padStart(2, '0')}/${String(day).padStart(
     2,
@@ -96,7 +74,6 @@ const formattedDate = computed(() => {
 </script>
 
 <style scoped>
-/* 기존 첫 번째 버전 스타일 유지 */
 .post-card {
   background: white;
   border-radius: 0.75rem;
@@ -173,10 +150,9 @@ const formattedDate = computed(() => {
 .post-stats {
   display: flex;
   align-items: center;
-  gap: 1rem; /* 스크랩과 다른 버튼들 사이 간격 증가 */
+  gap: 1rem;
 }
 
-/* 작성자 영역 */
 .post-author {
   display: flex;
   align-items: center;
@@ -202,7 +178,7 @@ const formattedDate = computed(() => {
   display: flex;
   align-items: center;
   gap: 0.1875rem;
-  color: #9ca3af;
+  color: var(--color-sub);
   transition: color 0.2s ease;
   cursor: pointer;
   padding: 0.1875rem;
@@ -218,16 +194,25 @@ const formattedDate = computed(() => {
 }
 
 .stat-item.scraped {
-  color: var(--color-main);
+  color: var(--color-sub);
 }
 
 .post-card:hover .stat-item:not(.liked):not(.scraped) {
   color: var(--color-sub);
 }
 
-/* 댓글 아이콘 스타일 추가 */
 .interaction-icon {
-  color: #6b7280;
+  font-size: 0.65rem;
+  color: var(--color-sub);
+  transition: color 0.2s ease;
+}
+
+.stat-item.liked .interaction-icon {
+  color: #ef4444;
+}
+
+.stat-item.scraped .interaction-icon {
+  color: var(--color-sub);
 }
 
 .stat-count {
@@ -239,11 +224,10 @@ const formattedDate = computed(() => {
   font-size: 0.6875rem;
   font-weight: 600;
   color: var(--color-sub);
-  white-space: nowrap; /* 줄바꿈 방지 */
+  white-space: nowrap;
 }
 
-/* 반응형 */
-@media (max-width: 768px) {
+@media (max-width: 26.875rem) {
   .post-card {
     padding: 0.8rem;
     height: 6.5rem;
@@ -266,12 +250,6 @@ const formattedDate = computed(() => {
   }
 
   .author-avatar {
-    width: 1.5rem;
-    height: 1.5rem;
-    font-size: 0.625rem;
-  }
-
-  .author-avatar {
     width: 1.25rem;
     height: 1.25rem;
     font-size: 0.5rem;
@@ -282,7 +260,11 @@ const formattedDate = computed(() => {
   }
 
   .post-stats {
-    gap: 0.75rem; /* 모바일에서도 충분한 간격 유지 */
+    gap: 0.75rem;
+  }
+
+  .interaction-icon {
+    font-size: 0.6rem;
   }
 }
 </style>

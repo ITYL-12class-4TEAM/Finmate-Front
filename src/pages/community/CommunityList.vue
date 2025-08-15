@@ -1,10 +1,11 @@
 <template>
   <div class="community-list">
-    <!-- 상품군 & 속성 필터 -->
     <section class="filter-section">
-      <!-- 상품군 -->
       <div class="filter-group">
-        <div class="filter-label">상품군</div>
+        <div class="filter-label">
+          <i class="fas fa-filter"></i>
+          상품군
+        </div>
         <div class="tag-list">
           <button
             v-for="tag in productTags"
@@ -13,7 +14,7 @@
             :class="{ selected: selectedProducts.includes(tag) }"
             @click="toggleProduct(tag)"
           >
-            #{{ tag }}
+            <i class="fas fa-hashtag"></i>{{ tag }}
           </button>
         </div>
       </div>
@@ -21,14 +22,17 @@
 
     <!-- 게시글 목록 -->
     <section class="post-list">
-      <p v-if="filteredPosts.length === 0" class="empty-message">조건에 맞는 게시글이 없습니다.</p>
+      <div v-if="filteredPosts.length === 0" class="empty-message">
+        <i class="fas fa-search"></i>
+        <p>조건에 맞는 게시글이 없습니다.</p>
+      </div>
       <PostCard
         v-for="post in paginatedPosts"
         v-else
-        :key="post.id"
+        :key="post.postId"
         :post="post"
-        :isLiked="post.liked"
-        :isScrapped="post.scraped"
+        :is-liked="post.liked"
+        :is-scrapped="post.scraped"
         @click="goToDetailPage(post.id)"
         @like="handleLike"
         @scrap="handleScrap"
@@ -42,7 +46,7 @@
         :disabled="currentPage === 1"
         @click="changePage(currentPage - 1)"
       >
-        <i class="bi bi-chevron-left"></i>
+        <i class="fas fa-chevron-left"></i>
       </button>
 
       <div class="page-numbers">
@@ -62,18 +66,19 @@
         :disabled="currentPage === totalPages"
         @click="changePage(currentPage + 1)"
       >
-        <i class="bi bi-chevron-right"></i>
+        <i class="fas fa-chevron-right"></i>
       </button>
     </div>
 
     <!-- 페이지 정보 -->
     <div v-if="filteredPosts.length > 0" class="page-info">
+      <i class="fas fa-info-circle"></i>
       총 {{ filteredPosts.length }}개 게시글 중 {{ startIndex + 1 }}-{{ endIndex }}번째
     </div>
 
     <!-- 플로팅 글 작성 버튼 -->
     <button class="floating-write-button" @click="goToWritePage">
-      <i class="bi bi-pencil"></i>
+      <i class="fas fa-pen"></i>
       글 쓰기
     </button>
   </div>
@@ -243,7 +248,7 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
   padding: 1rem;
   max-width: 48rem;
   margin: 0 auto;
-  padding-bottom: 5rem; /* 플로팅 버튼을 위한 하단 여백 */
+  padding-bottom: 5rem;
 }
 
 .filter-section {
@@ -258,6 +263,14 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
   font-weight: 600;
   margin-bottom: 0.5rem;
   color: var(--color-main);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-label i {
+  font-size: 0.875rem;
+  color: var(--color-sub);
 }
 
 .filter-group {
@@ -284,7 +297,14 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  outline: none; /* 포커스 아웃라인 제거 */
+  outline: none;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.tag-button i {
+  font-size: 0.7rem;
 }
 
 .tag-button:hover {
@@ -293,7 +313,7 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
 }
 
 .tag-button:focus {
-  outline: none; /* 포커스 시에도 아웃라인 제거 */
+  outline: none;
 }
 
 .tag-button.selected {
@@ -316,9 +336,21 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
   font-size: 0.875rem;
   padding: 2rem;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-/* 플로팅 글 작성 버튼 */
+.empty-message i {
+  font-size: 2rem;
+  color: #d1d5db;
+}
+
+.empty-message p {
+  margin: 0;
+}
+
 .floating-write-button {
   position: fixed;
   bottom: 2rem;
@@ -342,24 +374,27 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  outline: none; /* 포커스 아웃라인 제거 */
+  outline: none;
+}
+
+.floating-write-button i {
+  font-size: 0.875rem;
 }
 
 .floating-write-button:hover {
   background-color: var(--color-sub);
-  transform: translateY(-0.125rem) scale(1.05);
+  transform: translateX(-50%) translateY(-0.125rem) scale(1.05);
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2);
 }
 
 .floating-write-button:focus {
-  outline: none; /* 포커스 시에도 아웃라인 제거 */
+  outline: none;
 }
 
 .floating-write-button:active {
-  transform: translateY(0) scale(0.95);
+  transform: translateX(-50%) translateY(0) scale(0.95);
 }
 
-/* 페이징 스타일 */
 .pagination {
   display: flex;
   justify-content: center;
@@ -382,7 +417,11 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
   color: #6b7280;
   cursor: pointer;
   transition: all 0.2s ease;
-  outline: none; /* 포커스 아웃라인 제거 */
+  outline: none;
+}
+
+.page-btn i {
+  font-size: 0.875rem;
 }
 
 .page-btn:hover:not(:disabled) {
@@ -392,7 +431,7 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
 }
 
 .page-btn:focus {
-  outline: none; /* 포커스 시에도 아웃라인 제거 */
+  outline: none;
 }
 
 .page-btn.active {
@@ -418,28 +457,47 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
   gap: 0.25rem;
 }
 
-/* 페이지 정보 */
 .page-info {
   text-align: center;
   font-size: 0.75rem;
   color: #9ca3af;
   margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
 }
 
-/* 반응형 */
-@media (max-width: 48rem) {
+.page-info i {
+  font-size: 0.75rem;
+  color: var(--color-sub);
+}
+
+@media (max-width: 26.875rem) {
   .community-list {
     padding: 0.5rem;
-    padding-bottom: 5rem; /* 모바일에서도 플로팅 버튼 여백 유지 */
+    padding-bottom: 5rem;
   }
 
   .filter-section {
     padding: 0.75rem;
   }
 
+  .filter-label {
+    font-size: 0.8125rem;
+  }
+
+  .filter-label i {
+    font-size: 0.8125rem;
+  }
+
   .tag-button {
     font-size: 0.75rem;
     padding: 0.3rem 0.8rem;
+  }
+
+  .tag-button i {
+    font-size: 0.65rem;
   }
 
   .pagination {
@@ -453,7 +511,15 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
     font-size: 0.8125rem;
   }
 
+  .page-btn i {
+    font-size: 0.8125rem;
+  }
+
   .page-info {
+    font-size: 0.6875rem;
+  }
+
+  .page-info i {
     font-size: 0.6875rem;
   }
 
@@ -461,7 +527,14 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
     min-height: 21.875rem;
   }
 
-  /* 모바일에서 플로팅 버튼 크기 조정 */
+  .empty-message {
+    font-size: 0.8125rem;
+  }
+
+  .empty-message i {
+    font-size: 1.75rem;
+  }
+
   .floating-write-button {
     min-width: 5rem;
     height: 2.75rem;
@@ -469,6 +542,18 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
     font-size: 0.9rem;
     padding: 0 1.25rem;
     gap: 0.375rem;
+  }
+
+  .floating-write-button i {
+    font-size: 0.8125rem;
+  }
+
+  .floating-write-button:hover {
+    transform: translateX(-50%) translateY(-0.125rem) scale(1.05);
+  }
+
+  .floating-write-button:active {
+    transform: translateX(-50%) translateY(0) scale(0.95);
   }
 }
 </style>

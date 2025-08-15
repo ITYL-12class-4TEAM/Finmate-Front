@@ -1,293 +1,414 @@
+<!-- RecentViewInfo.vue -->
 <template>
   <div class="recent-view-info">
-    <div class="product-details">
-      <h6 class="product-name">{{ product.productName }}</h6>
-      <div class="recent-meta">
-        <span class="company-name">{{ product.korCoNm }}</span>
-        <div class="viewed-time">
-          <i class="fa-regular fa-clock"></i>
-          <span>{{ formatViewTime(product.viewedAt) }}</span>
-        </div>
+    <!-- 상품명과 시간 -->
+    <div class="product-header">
+      <h6 class="product-name">{{ product.productName || '상품명 없음' }}</h6>
+      <div class="viewed-time">
+        <i class="fa-regular fa-clock"></i>
+        <span>{{ formatViewedTime(product.viewedAt) }}</span>
       </div>
     </div>
+
+    <!-- 은행명 -->
+    <p class="company-name">{{ product.korCoNm || '금융기관' }}</p>
+
+    <!-- 금리 정보 -->
+    <div v-if="hasRateInfo(product)" class="rate-section">
+      <div v-if="hasBaseRate(product)" class="rate-item">
+        <span class="rate-label">기본</span>
+        <span class="rate-value">{{ formatRate(product.baseRate) }}%</span>
+      </div>
+      <div v-if="hasMaxRate(product)" class="rate-item">
+        <span class="rate-label">{{ getMaxRateLabel(product) }}</span>
+        <span class="rate-value highlight">{{ formatRate(product.maxRate) }}%</span>
+      </div>
+      <div v-if="!hasBaseRate(product) && !hasMaxRate(product)" class="rate-item">
+        <span class="rate-label">금리</span>
+        <span class="rate-value no-rate">문의</span>
+      </div>
+    </div>
+
+    <!-- 상품 세부 정보 -->
+    <div v-if="hasDetailInfo(product)" class="details-section">
+      <div class="detail-tags">
+        <span v-if="product.saveTrm" class="detail-tag">
+          <i class="fa-regular fa-calendar"></i>
+          {{ product.saveTrm }}개월
+        </span>
+        <span v-if="product.rstvValue" class="detail-tag">
+          <i class="fa-solid fa-won-sign"></i>
+          {{ formatAmount(product.rstvValue) }}
+        </span>
+        <span v-if="product.intrRateType" class="detail-tag">
+          <i class="fa-solid fa-chart-line"></i>
+          {{ product.intrRateType }}
+        </span>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script setup>
-defineProps({
+const props = defineProps({
   product: {
     type: Object,
     required: true,
   },
+  isFavorite: {
+    type: Boolean,
+    default: false,
+  },
 });
-// 조회 시간 포맷팅
-const formatViewTime = (viewedAt) => {
-  if (!viewedAt) return '방금 전';
 
-  const now = new Date();
-  const viewed = new Date(viewedAt);
-  const diffInMinutes = Math.floor((now - viewed) / (1000 * 60));
+const emit = defineEmits(['toggle-favorite']);
 
-  if (diffInMinutes < 1) return '방금 전';
-  if (diffInMinutes < 60) return `${diffInMinutes}분 전`;
+// 금리 관련 헬퍼 함수들
+const hasBaseRate = (product) => {
+  return product.baseRate !== null && product.baseRate !== undefined && product.baseRate > 0;
+};
 
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) return `${diffInHours}시간 전`;
+const hasMaxRate = (product) => {
+  return product.maxRate !== null && product.maxRate !== undefined && product.maxRate > 0;
+};
 
-  const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 7) return `${diffInDays}일 전`;
+const hasRateInfo = (product) => {
+  return hasBaseRate(product) || hasMaxRate(product);
+};
 
-  return viewed.toLocaleDateString('ko-KR', {
-    month: 'short',
-    day: 'numeric',
-  });
+const getMaxRateLabel = (product) => {
+  return hasBaseRate(product) ? '우대' : '최고';
+};
+
+const hasDetailInfo = (product) => {
+  return product.saveTrm || product.rstvValue || product.intrRateType;
+};
+
+// 포맷팅 함수들
+const formatRate = (rate) => {
+  if (rate === null || rate === undefined || rate === 0) return '0.00';
+  return typeof rate === 'number' ? rate.toFixed(2) : parseFloat(rate || 0).toFixed(2);
+};
+
+const formatAmount = (amount) => {
+  if (!amount) return amount;
+  // 숫자인 경우 천단위 콤마 추가
+  if (typeof amount === 'number') {
+    return amount.toLocaleString();
+  }
+  return amount;
+};
+
+const formatViewedTime = (viewedAt) => {
+  if (!viewedAt) return '';
+
+  try {
+    const viewedDate = new Date(viewedAt);
+    const now = new Date();
+    const diffInMinutes = Math.floor((now - viewedDate) / (1000 * 60));
+
+    if (diffInMinutes < 1) return '방금';
+    if (diffInMinutes < 60) return `${diffInMinutes}분 전`;
+
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours}시간 전`;
+
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays}일 전`;
+
+    return viewedDate.toLocaleDateString('ko-KR', {
+      month: 'short',
+      day: 'numeric',
+    });
+  } catch (error) {
+    return '';
+  }
+};
+
+const toggleFavorite = () => {
+  emit('toggle-favorite', props.product.productId);
 };
 </script>
 
 <style scoped>
-.recent-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
 .recent-view-info {
-  width: 100%;
-  max-width: 26.875rem;
-  padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 0.75rem;
-  border: 1px solid rgba(185, 187, 204, 0.15);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-  margin-bottom: 0.75rem;
-}
-
-.recent-view-info::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 3px;
-  height: 100%;
-  background: linear-gradient(180deg, rgba(45, 51, 107, 0.4) 0%, rgba(125, 129, 162, 0.4) 100%);
-  transform: scaleY(0);
-  transition: transform 0.3s ease;
-  transform-origin: top;
-}
-/* 최근 조회 메타 정보 */
-.recent-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 0.75rem;
-  gap: 0.75rem;
-}
-
-.viewed-time {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  color: var(--color-sub);
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.viewed-time i {
-  font-size: 0.7rem;
-  color: var(--color-light);
-}
-.recent-view-info:hover {
-  background: rgba(255, 255, 255, 0.8);
-  border-color: rgba(185, 187, 204, 0.3);
-  transform: translateY(-1px);
-}
-
-.recent-view-info:hover::before {
-  transform: scaleY(1);
-}
-
-.product-details {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
+/* 상품명과 시간 */
+.product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
 .product-name {
-  font-size: 1rem;
-  font-weight: 700;
-  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
   color: var(--color-main);
   line-height: 1.4;
-  transition: color 0.2s ease;
+  margin: 0;
+  flex: 1;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.company-info {
+.viewed-time {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  color: var(--color-light);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
+.viewed-time i {
+  font-size: 0.625rem;
+}
+
+/* 은행명 */
 .company-name {
-  font-size: 0.8rem;
+  font-size: 0.8125rem;
   color: var(--color-sub);
+  margin: 0;
   font-weight: 500;
-  opacity: 0.9;
-  line-height: 1.3;
-  flex: 1;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-/* 호버 시 제목 색상 변화 */
-.recent-view-info:hover .product-name {
+/* 금리 섹션 */
+.rate-section {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  background: #f8fafc;
+  border-radius: 0.5rem;
+  border: 1px solid #f1f5f9;
+}
+
+.rate-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  align-items: center;
+}
+
+.rate-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--color-sub);
+}
+
+.rate-value {
+  font-size: 0.875rem;
+  font-weight: 600;
   color: var(--color-main);
 }
 
-/* 반응형 디자인 */
+.rate-value.highlight {
+  color: #059669;
+  font-weight: 700;
+}
+
+.rate-value.no-rate {
+  color: var(--color-light);
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+/* 상세 정보 */
+.details-section {
+  margin-top: 0.25rem;
+}
+
+.detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.detail-tag {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  color: var(--color-sub);
+  background: #f8fafc;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid #f1f5f9;
+}
+
+.detail-tag i {
+  font-size: 0.625rem;
+}
+
+/* 액션 섹션 */
+.action-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.left-actions,
+.right-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 즐겨찾기 버튼 */
+.favorite-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid #e2e8f0;
+  background: var(--color-white);
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #cbd5e1;
+}
+
+.favorite-btn:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.favorite-btn.active {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: var(--color-white);
+}
+
+.favorite-btn i {
+  font-size: 0.8125rem;
+}
+
+/* 상세보기 링크 */
+.detail-link {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  background: var(--color-main);
+  color: var(--color-white);
+  text-decoration: none;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.detail-link:hover {
+  background: var(--color-sub);
+  color: var(--color-white);
+  text-decoration: none;
+}
+
+.detail-link i {
+  font-size: 0.6875rem;
+}
+
+/* 모바일 반응형 */
 @media (max-width: 768px) {
   .recent-view-info {
-    padding: 0.5rem 0.75rem;
-    margin-bottom: 0.5rem;
-    max-width: none;
+    gap: 0.375rem;
   }
 
-  .product-name {
-    font-size: 0.95rem;
-  }
-
-  .company-info {
-    flex-direction: column;
-    align-items: stretch;
+  .product-header {
     gap: 0.5rem;
   }
 
-  .interest-rate {
-    align-self: flex-end;
-    font-size: 0.65rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .recent-view-info {
-    padding: 0.375rem 0.5rem;
-  }
-
   .product-name {
-    font-size: 0.9rem;
+    font-size: 0.875rem;
+  }
+
+  .viewed-time {
+    font-size: 0.625rem;
   }
 
   .company-name {
     font-size: 0.75rem;
   }
 
-  .interest-rate {
-    font-size: 0.6rem;
-    padding: 0.2rem 0.4rem;
+  .rate-section {
+    padding: 0.375rem 0.625rem;
+    gap: 0.75rem;
+  }
+
+  .rate-label {
+    font-size: 0.625rem;
+  }
+
+  .rate-value {
+    font-size: 0.8125rem;
+  }
+
+  .detail-tag {
+    font-size: 0.625rem;
+    padding: 0.1875rem 0.375rem;
+  }
+
+  .detail-tag i {
+    font-size: 0.5625rem;
+  }
+
+  .favorite-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .favorite-btn i {
+    font-size: 0.75rem;
+  }
+
+  .detail-link {
+    padding: 0.3125rem 0.625rem;
+    font-size: 0.6875rem;
+  }
+
+  .detail-link i {
+    font-size: 0.625rem;
   }
 }
 
-/* 로딩 상태 애니메이션 */
-.recent-view-info.loading .product-name,
-.recent-view-info.loading .company-name {
-  background: linear-gradient(
-    90deg,
-    var(--color-bg-light) 25%,
-    var(--color-light) 50%,
-    var(--color-bg-light) 75%
-  );
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-  border-radius: 4px;
-  color: transparent;
-}
-
-@keyframes loading {
-  0% {
-    background-position: 200% 0;
+@media (max-width: 480px) {
+  .product-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
   }
-  100% {
-    background-position: -200% 0;
+
+  .viewed-time {
+    align-self: flex-end;
   }
-}
 
-/* 포커스 상태 */
-.recent-view-info:focus-within {
-  outline: 2px solid var(--color-main);
-  outline-offset: 2px;
-}
-
-/* 최근 조회 특화 스타일 */
-.recent-view-info.highlighted {
-  background: linear-gradient(135deg, rgba(5, 150, 105, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%);
-  border-color: rgba(5, 150, 105, 0.2);
-}
-
-.recent-view-info.highlighted::before {
-  background: linear-gradient(180deg, #059669 0%, #10b981 100%);
-}
-
-/* 새로 조회된 항목 스타일 */
-.recent-view-info.newly-viewed {
-  animation: newlyViewedPulse 0.8s ease-out;
-}
-
-@keyframes newlyViewedPulse {
-  0% {
-    background: rgba(5, 150, 105, 0.1);
-    transform: scale(1);
+  .rate-section {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
   }
-  50% {
-    background: rgba(5, 150, 105, 0.05);
-    transform: scale(1.01);
-  }
-  100% {
-    background: rgba(255, 255, 255, 0.6);
-    transform: scale(1);
-  }
-}
 
-/* 즐겨찾기 상품 표시 */
-.recent-view-info.is-favorite .product-name::after {
-  content: '❤️';
-  margin-left: 0.5rem;
-  font-size: 0.8rem;
-  opacity: 0.8;
-}
-
-/* 특별 상품 배지 (선택적 사용) */
-.recent-view-info.special-product::after {
-  content: 'HOT';
-  position: absolute;
-  top: -0.25rem;
-  right: -0.25rem;
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-  color: white;
-  font-size: 0.6rem;
-  font-weight: 700;
-  padding: 0.1rem 0.3rem;
-  border-radius: 0.5rem;
-  transform: rotate(12deg);
-  animation: hotBadge 2s infinite;
-}
-
-@keyframes hotBadge {
-  0%,
-  100% {
-    transform: rotate(12deg) scale(1);
+  .rate-item {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
   }
-  50% {
-    transform: rotate(12deg) scale(1.1);
+
+  .action-section {
+    flex-direction: row-reverse;
+    justify-content: space-between;
   }
 }
 </style>

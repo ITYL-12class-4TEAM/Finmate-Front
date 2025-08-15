@@ -26,8 +26,6 @@ export const getPostsAPI = async (boardId) => {
 export const getPostByIdAPI = async (postId, memberId) => {
   const res = await api.get(`/api/posts/${postId}`);
   const post = res.data.body.data;
-  console.log('memberId from localStorage:', memberId);
-  console.log('post.memberId from API:', post.memberId);
 
   return {
     id: post.postId,
