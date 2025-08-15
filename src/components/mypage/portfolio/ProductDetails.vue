@@ -947,7 +947,6 @@ const handleDelete = (event) => {
 .modal-container {
   background: var(--color-white);
   border-radius: 1rem; /* 16px */
-  box-shadow: 0 1.25rem 3.75rem rgba(0, 0, 0, 0.3); /* 0 20px 60px */
   max-width: 35rem; /* 560px - 조금 더 넓게 */
   width: 100%;
   max-height: 80svh;
@@ -1046,7 +1045,7 @@ const handleDelete = (event) => {
 }
 
 .amount-value {
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #059669;
   margin-bottom: 0.25rem;
@@ -1082,7 +1081,6 @@ const handleDelete = (event) => {
   font-size: 0.6rem;
   font-weight: 600;
   white-space: nowrap;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .category-badge i {
@@ -1115,7 +1113,6 @@ const handleDelete = (event) => {
   background: rgba(255, 255, 255, 0.95);
   border-color: rgba(185, 187, 204, 0.3);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(45, 51, 107, 0.08);
 }
 
 .detail-icon {
@@ -1321,7 +1318,6 @@ const handleDelete = (event) => {
 
 .edit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.3);
 }
 
 .delete-btn {
@@ -1331,7 +1327,6 @@ const handleDelete = (event) => {
 
 .delete-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
 }
 
 .btn-text {

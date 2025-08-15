@@ -29,8 +29,8 @@
               <div v-if="processedSummary.length > 0" class="chart-container">
                 <canvas
                   ref="pieChart"
-                  width="200"
-                  height="200"
+                  width="150"
+                  height="150"
                   :aria-label="getChartAriaLabel()"
                 ></canvas>
 
@@ -354,9 +354,6 @@ onBeforeUnmount(cleanup);
   border-radius: 1rem;
   padding: 0;
   border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow:
-    0 4px 6px -1px rgba(45, 51, 107, 0.1),
-    0 2px 4px -1px rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
@@ -364,7 +361,6 @@ onBeforeUnmount(cleanup);
 
 .stats-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px -5px rgba(45, 51, 107, 0.15);
 }
 
 /* 접을 수 있는 헤더 스타일 */
@@ -467,7 +463,7 @@ onBeforeUnmount(cleanup);
 
 .stats-title {
   color: var(--color-main);
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
   font-family:
@@ -512,7 +508,7 @@ onBeforeUnmount(cleanup);
 }
 
 .total-amount {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--color-main);
   font-family: 'Pretendard', sans-serif;
@@ -607,11 +603,10 @@ onBeforeUnmount(cleanup);
 }
 
 .legend-color {
-  width: 1.125rem;
-  height: 1.125rem;
+  width: 1rem;
+  height: 1rem;
   border-radius: 0.25rem;
   flex-shrink: 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
@@ -621,7 +616,7 @@ onBeforeUnmount(cleanup);
 
 .legend-name {
   color: var(--color-main);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
@@ -631,7 +626,7 @@ onBeforeUnmount(cleanup);
 
 .legend-percentage {
   color: var(--color-main);
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 700;
   margin-bottom: 0.25rem;
   font-family: 'Pretendard', sans-serif;
@@ -700,7 +695,7 @@ onBeforeUnmount(cleanup);
   }
 
   .total-amount-header {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 
   .stats-content {

@@ -157,16 +157,12 @@ const toggleTab = (index) => {
   border-radius: 1rem;
   padding: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow:
-    0 4px 6px -1px rgba(45, 51, 107, 0.1),
-    0 2px 4px -1px rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .stats-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px -5px rgba(45, 51, 107, 0.15);
 }
 
 .stats-header {
@@ -177,7 +173,7 @@ const toggleTab = (index) => {
 
 .stats-title {
   color: var(--color-main);
-  font-size: 1.2rem;
+  font-size: 1em;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
   display: flex;
@@ -314,7 +310,7 @@ const toggleTab = (index) => {
 
 .mobile-category-title {
   color: var(--color-main);
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   margin: 0 0 1rem 0;
   text-align: center;

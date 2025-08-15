@@ -977,7 +977,6 @@ watch(
   width: 100%;
   max-height: 110vh;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   animation: slideUp 0.3s ease-out;
 }
 
@@ -1110,7 +1109,6 @@ watch(
 .form-input:focus {
   outline: none;
   border-color: var(--color-main);
-  box-shadow: 0 0 0 3px rgba(45, 51, 107, 0.1);
   background: white;
 }
 
@@ -1190,7 +1188,6 @@ watch(
 
 .auto-calc-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(125, 129, 162, 0.3);
 }
 
 .calc-note {
@@ -1244,7 +1241,6 @@ watch(
 
 .cancel-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
 }
 
 .reset-btn {
@@ -1254,7 +1250,6 @@ watch(
 
 .reset-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
 }
 
 .save-btn {
@@ -1264,7 +1259,6 @@ watch(
 
 .save-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.3);
 }
 
 /* 애니메이션 */

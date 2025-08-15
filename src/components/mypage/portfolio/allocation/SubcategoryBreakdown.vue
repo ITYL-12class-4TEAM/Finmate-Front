@@ -293,9 +293,6 @@ watch(
   border-radius: 1rem;
   padding: 0;
   border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow:
-    0 4px 6px -1px rgba(45, 51, 107, 0.1),
-    0 2px 4px -1px rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   height: fit-content;
@@ -304,7 +301,6 @@ watch(
 
 .stats-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px -5px rgba(45, 51, 107, 0.15);
 }
 
 /* 접을 수 있는 헤더 스타일 */
@@ -389,7 +385,7 @@ watch(
 
 .stats-title {
   color: var(--color-main);
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
   font-family:
@@ -490,10 +486,9 @@ watch(
 }
 
 .badge-color {
-  width: 1.125rem;
-  height: 1.125rem;
+  width: 1rem;
+  height: 1rem;
   border-radius: 0.25rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
@@ -503,7 +498,7 @@ watch(
 
 .category-name {
   color: var(--color-main);
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 700;
   font-family: 'Pretendard', sans-serif;
 }
@@ -603,7 +598,6 @@ watch(
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 50%;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .subcategory-name {

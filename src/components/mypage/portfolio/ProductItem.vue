@@ -487,7 +487,6 @@ const handleDelete = () => {
   border-radius: 0.75rem;
   margin: 0.5rem auto;
   border: 1px solid rgba(185, 187, 204, 0.4);
-  box-shadow: 0 8px 25px rgba(45, 51, 107, 0.12);
   transform: translateY(-2px);
 }
 
@@ -615,7 +614,6 @@ const handleDelete = () => {
   font-size: 0.6rem;
   font-weight: 600;
   white-space: nowrap;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
 }
 

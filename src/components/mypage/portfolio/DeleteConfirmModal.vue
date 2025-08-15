@@ -140,12 +140,11 @@ watch(
 .modal-container {
   background: var(--color-white);
   border-radius: 1rem;
-  box-shadow: 0 20px 60px rgba(220, 38, 38, 0.2);
   max-width: 450px;
   width: 100%;
   overflow: hidden;
   animation: slideUp 0.3s ease-out;
-  border: 2px solid rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(185, 187, 204, 0.3);
 }
 
 .modal-header {
@@ -269,7 +268,6 @@ watch(
 
 .cancel-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
   border-color: var(--color-light);
 }
 
@@ -281,7 +279,6 @@ watch(
 
 .delete-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
   border-color: #991b1b;
 }
 

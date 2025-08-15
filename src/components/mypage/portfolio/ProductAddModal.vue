@@ -1161,7 +1161,6 @@ watch([() => formData.value.category, () => formData.value.subcategory], () => {
 .modal-container {
   background: var(--color-white);
   border-radius: 1rem; /* 16px */
-  box-shadow: 0 1.25rem 3.75rem rgba(0, 0, 0, 0.3); /* 0 20px 60px */
   max-width: 26.875rem; /* 430px */
   width: 100%;
   max-height: 80svh;
@@ -1297,7 +1296,6 @@ watch([() => formData.value.category, () => formData.value.subcategory], () => {
 .form-input:focus {
   outline: none;
   border-color: var(--color-main);
-  box-shadow: 0 0 0 3px rgba(45, 51, 107, 0.1);
   background: white;
 }
 .form-select {
@@ -1424,7 +1422,6 @@ watch([() => formData.value.category, () => formData.value.subcategory], () => {
 
 .cancel-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
 }
 
 .reset-btn {
@@ -1434,7 +1431,6 @@ watch([() => formData.value.category, () => formData.value.subcategory], () => {
 
 .reset-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
 }
 
 .save-btn {
@@ -1444,7 +1440,6 @@ watch([() => formData.value.category, () => formData.value.subcategory], () => {
 
 .save-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.3);
 }
 
 /* 애니메이션 */
@@ -1540,7 +1535,6 @@ watch([() => formData.value.category, () => formData.value.subcategory], () => {
 
 .auto-fill-btn.big:not(:disabled):hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.15);
 }
 /* ===== AI 자동입력 결과 카드 ===== */
 .auto-fill-result {
@@ -1593,7 +1587,6 @@ watch([() => formData.value.category, () => formData.value.subcategory], () => {
 
 .result-header .apply-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(45, 51, 107, 0.25);
 }
 
 .result-header .clear-btn {
@@ -1747,7 +1740,6 @@ input[type='number'] {
 /* 호버 시 살짝 떠오르게 */
 .auto-fill-result .result-item label:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(45, 51, 107, 0.12);
 }
 
 /* 체크/선택된 라벨 하이라이트 (브라우저가 :has 지원 시 적용) */
@@ -1821,7 +1813,6 @@ input[type='number'] {
 .info-btn:focus {
   outline: none;
   border-color: var(--color-main);
-  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.12);
   color: var(--color-main);
 }
 
@@ -1836,7 +1827,6 @@ input[type='number'] {
   background: #fff;
   border: 1px solid rgba(185, 187, 204, 0.35);
   border-radius: 0.5rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
   color: var(--color-main);
   font-size: 0.78rem;
   line-height: 1.45;

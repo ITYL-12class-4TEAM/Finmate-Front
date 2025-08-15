@@ -90,9 +90,6 @@ const indicatorStyle = computed(() => {
   border-radius: 1rem;
   padding: 0.375rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow:
-    0 2px 4px -1px rgba(45, 51, 107, 0.1),
-    0 1px 2px -1px rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(10px);
   max-width: 26.875rem;
   width: 100%;
@@ -154,10 +151,8 @@ const indicatorStyle = computed(() => {
   color: var(--color-main);
   background: rgba(255, 255, 255, 0.9);
   font-weight: 600;
-  box-shadow:
-    0 2px 4px rgba(45, 51, 107, 0.1),
-    0 1px 2px rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(5px);
+  border: 1px solid rgba(185, 187, 204, 0.3);
 }
 
 .nav-tabs .nav-link.active i {

@@ -158,16 +158,12 @@ const getAverageInsight = () => {
   border-radius: 1rem;
   padding: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow:
-    0 4px 6px -1px rgba(45, 51, 107, 0.1),
-    0 2px 4px -1px rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .summary-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px -5px rgba(45, 51, 107, 0.15);
 }
 
 .summary-grid {
@@ -277,7 +273,7 @@ const getAverageInsight = () => {
 }
 
 .summary-value {
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 700;
   margin: 0 0 0.25rem 0;
   color: var(--color-main);
