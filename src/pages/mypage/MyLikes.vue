@@ -1,5 +1,6 @@
 <template>
   <div class="my-likes-container">
+    <BackButton class="mb-3" />
     <LoadingSpinner v-if="loading" />
     <ErrorAlert v-else-if="error" :message="error" />
 
@@ -35,6 +36,7 @@ import LikePostFilter from '@/components/mypage/mylike/LikePostFilter.vue';
 import LikePostList from '@/components/mypage/mylike/LikePostList.vue';
 import { postsAPI } from '@/api/mypost';
 import { useToast } from '@/composables/useToast';
+import BackButton from '@/components/common/BackButton.vue';
 
 const { showToast } = useToast();
 
@@ -219,20 +221,11 @@ defineExpose({ refreshPost });
   width: 100%;
   max-width: 26.875rem; /* 430px */
   margin: 0 auto;
-  padding: 1rem;
   background-color: var(--color-white);
   min-height: 100vh;
 }
 
 .my-likes-content {
   width: 100%;
-}
-
-/* 모바일 최적화 - 작은 화면에서 패딩 조정 */
-@media (max-width: 23.4375rem) {
-  /* 375px */
-  .my-likes-container {
-    padding: 0.75rem;
-  }
 }
 </style>

@@ -1,5 +1,6 @@
 <template>
   <div class="my-comments-container">
+    <BackButton class="mb-3" />
     <LoadingSpinner v-if="loading" />
     <ErrorAlert v-else-if="error" :message="error" />
 
@@ -34,6 +35,7 @@ import CommentPostFilter from '@/components/mypage/mycomment/CommentPostFilter.v
 import CommentPostList from '@/components/mypage/mycomment/CommentPostList.vue';
 import { postsAPI } from '@/api/mypost';
 import { useToast } from '@/composables/useToast';
+import BackButton from '@/components/common/BackButton.vue';
 
 const { showToast } = useToast();
 
@@ -197,20 +199,11 @@ defineExpose({ fetchPosts });
   width: 100%;
   max-width: 26.875rem; /* 430px */
   margin: 0 auto;
-  padding: 1rem;
   background-color: var(--color-white);
   min-height: 100vh;
 }
 
 .my-comments-content {
   width: 100%;
-}
-
-/* 모바일 최적화 - 작은 화면에서 패딩 조정 */
-@media (max-width: 23.4375rem) {
-  /* 375px */
-  .my-comments-container {
-    padding: 0.75rem;
-  }
 }
 </style>
