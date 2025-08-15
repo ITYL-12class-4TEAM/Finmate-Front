@@ -256,7 +256,6 @@ const handleConfirmPasswordInput = (event) => {
   width: 100%;
   max-width: 26.875rem; /* 430px */
   margin: 0 auto;
-  padding: 1rem;
   background-color: var(--color-white);
 }
 

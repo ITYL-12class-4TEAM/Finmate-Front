@@ -1,5 +1,6 @@
 <template>
   <div class="delete-account">
+    <BackButton class="mb-3" />
     <!-- 경고 메시지 -->
     <DeleteWarningSection />
 
@@ -48,6 +49,7 @@ import DeleteDataSection from '@/components/mypage/account/DeleteDataSection.vue
 import DeleteConfirmSection from '@/components/mypage/account/DeleteConfirmSection.vue';
 import DeleteStartSection from '@/components/mypage/account/DeleteStartSection.vue';
 import DeleteFinalModal from '@/components/mypage/account/DeleteFinalModal.vue';
+import BackButton from '@/components/common/BackButton.vue';
 
 const { showToast } = useToast();
 const authStore = useAuthStore();
@@ -183,16 +185,7 @@ onMounted(() => {
   width: 100%;
   max-width: 26.875rem; /* 430px */
   margin: 0 auto;
-  padding: 1rem;
   background-color: var(--color-white);
   min-height: 100vh;
-}
-
-/* 모바일 최적화 - 작은 화면에서 패딩 조정 */
-@media (max-width: 23.4375rem) {
-  /* 375px */
-  .delete-account {
-    padding: 0.75rem;
-  }
 }
 </style>

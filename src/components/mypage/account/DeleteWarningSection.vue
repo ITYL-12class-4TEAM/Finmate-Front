@@ -17,7 +17,6 @@
 
 <style scoped>
 .warning-section {
-  padding: 1.5rem;
   border-bottom: 1px solid var(--color-bg-light);
 }
 
@@ -53,10 +52,6 @@
 }
 
 @media (max-width: 768px) {
-  .warning-section {
-    padding: 1.5rem;
-  }
-
   .warning-header i {
     font-size: 1.25rem;
   }

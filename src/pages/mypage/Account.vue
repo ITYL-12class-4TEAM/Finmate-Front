@@ -1,6 +1,7 @@
 <template>
   <div class="password-verify">
     <div class="verify-container">
+      <BackButton class="mb-3" />
       <!-- 사용자 정보 -->
       <!-- <VerifyUserCard :userInfo="userInfo" /> -->
 
@@ -43,6 +44,7 @@ import VerifySecurityNotice from '@/components/mypage/verify/VerifySecurityNotic
 import VerifyBottomLinks from '@/components/mypage/verify/VerifyBottomLinks.vue';
 import VerifySuccessModal from '@/components/mypage/verify/VerifySuccessModal.vue';
 import { useToast } from '@/composables/useToast';
+import BackButton from '@/components/common/BackButton.vue';
 
 const router = useRouter();
 
@@ -153,24 +155,12 @@ const proceedToEdit = () => {
   width: 100%;
   max-width: 26.875rem; /* 430px */
   margin: 0 auto;
-  padding: 1rem;
   background: var(--color-white);
-  min-height: 100vh;
   display: flex;
   align-items: center;
 }
 
 .verify-container {
   width: 100%;
-}
-
-/* 모바일 최적화 - 작은 화면에서 패딩 조정 */
-@media (max-width: 23.4375rem) {
-  /* 375px */
-  .password-verify {
-    padding: 0.75rem;
-    align-items: flex-start;
-    padding-top: 2rem;
-  }
 }
 </style>

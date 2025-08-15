@@ -47,8 +47,8 @@
 
 <style scoped>
 .data-section {
-  padding: 1.5rem;
   border-bottom: 1px solid var(--color-bg-light);
+  padding: 1.5cap 0rem;
 }
 
 .section-title {
@@ -108,10 +108,6 @@
 }
 
 @media (max-width: 768px) {
-  .data-section {
-    padding: 1.5rem;
-  }
-
   .data-list {
     gap: 0.75rem;
   }

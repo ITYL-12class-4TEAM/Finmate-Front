@@ -423,20 +423,11 @@ onMounted(async () => {
   width: 100%;
   max-width: 26.875rem; /* 430px */
   margin: 0 auto;
-  padding: 1rem;
   background: var(--color-white);
   min-height: 100vh;
 }
 
 .edit-container {
   width: 100%;
-}
-
-/* 모바일 최적화 - 작은 화면에서 패딩 조정 */
-@media (max-width: 23.4375rem) {
-  /* 375px */
-  .edit-profile {
-    padding: 0.75rem;
-  }
 }
 </style>
