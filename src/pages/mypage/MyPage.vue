@@ -370,7 +370,6 @@ onUnmounted(() => {
 /* 콘텐츠 영역 */
 .content {
   width: 100%;
-  padding: 1rem 1rem;
   background: var(--color-white);
   min-height: 100vh;
 }

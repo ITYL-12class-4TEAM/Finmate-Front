@@ -1,5 +1,6 @@
 <template>
   <div class="recent-view-page">
+    <BackButton class="mb-3" />
     <!-- 로딩 상태 -->
     <div v-if="loading" class="loading-container">
       <div class="loading-spinner">
@@ -50,11 +51,12 @@
         @remove-from-history="removeFromHistory"
       />
       <!-- 페이지네이션 -->
-      <div v-if="totalPages > 1" class="pagination-container">
+      <div class="pagination-container">
         <Pagination
-          :current-page="currentPage"
+          v-if="totalPages >= 1"
           :total-pages="totalPages"
-          @change-page="changePage"
+          :current-page="currentPage"
+          @page-change="onPageChange"
         />
       </div>
     </div>
@@ -62,7 +64,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import router from '@/router';
 import { useModal } from '@/composables/useModal';
 import { useToast } from '@/composables/useToast';
@@ -73,9 +75,10 @@ const { showToast } = useToast();
 import { recentViewAPI } from '@/api/recentView';
 
 // 컴포넌트
-import Pagination from '@/components/mypage/common/Pagination.vue';
+import Pagination from '@/components/products/common/Pagination.vue';
 import RecentViewSummary from '@/components/mypage/recentview/RecentViewSummary.vue';
 import RecentViewList from '@/components/mypage/recentview/RecentViewList.vue';
+import BackButton from '@/components/common/BackButton.vue';
 
 // 상태 관리
 const loading = ref(false);
@@ -322,6 +325,20 @@ const changePage = (page) => {
   }
 };
 
+// 템플릿에서 사용하는 이름(onPageChange)으로 연결
+const onPageChange = (page) => changePage(page);
+
+// 필터/검색/정렬로 목록이 바뀌면 1페이지로 이동
+watch(filteredProducts, () => {
+  currentPage.value = 1;
+});
+
+// 총 페이지 수가 줄어들 때 현재 페이지 보정
+watch(totalPages, (newTotal) => {
+  if (currentPage.value > newTotal) {
+    currentPage.value = Math.max(newTotal, 1);
+  }
+});
 onMounted(() => {
   fetchRecentProducts();
 });
@@ -332,7 +349,6 @@ onMounted(() => {
   width: 100%;
   max-width: 26.875rem; /* 430px */
   margin: 0 auto;
-  padding: 1rem;
   background-color: var(--color-white);
   min-height: 100vh;
 }
@@ -489,20 +505,12 @@ onMounted(() => {
 .pagination-container {
   display: flex;
   justify-content: center;
-  padding: 1rem;
   background: var(--color-white);
   border-radius: 1rem;
-  border: 0.0625rem solid var(--color-bg-light);
-  box-shadow: 0 0.125rem 0.75rem -0.25rem rgba(45, 51, 107, 0.05);
 }
 
 /* 모바일 최적화 - 작은 화면에서 패딩 조정 */
 @media (max-width: 23.4375rem) {
-  /* 375px */
-  .recent-view-page {
-    padding: 0.75rem;
-  }
-
   .main-content {
     gap: 1.25rem;
   }
@@ -532,10 +540,6 @@ onMounted(() => {
   .retry-btn {
     padding: 0.625rem 1.25rem;
     font-size: 0.8rem;
-  }
-
-  .pagination-container {
-    padding: 0.75rem;
   }
 }
 

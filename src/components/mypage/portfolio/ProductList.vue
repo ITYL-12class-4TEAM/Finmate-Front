@@ -1,7 +1,7 @@
 <template>
   <div class="products-section mt-4">
-    <!-- 헤더 섹션 -->
-    <div class="products-header">
+    <!-- 헤더 섹션 - 카드 밖으로 분리 -->
+    <div class="section-header">
       <div class="header-content">
         <div class="header-top">
           <h5 class="section-title">
@@ -17,109 +17,137 @@
         </div>
 
         <div class="header-stats">
-          <span class="stats-item">
-            <i class="fas fa-box"></i>
-            총 {{ portfolioItems.length }}개 상품
-          </span>
-          <span class="stats-item">
-            <i class="fas fa-coins"></i>
-            {{ formatTotalAmount() }}
-          </span>
-          <span v-if="portfolioItems.length > 0" class="stats-item">
-            <i class="fas fa-chart-line"></i>
-            평균 {{ formatAverageAmount() }}
-          </span>
+          <div class="stats-card">
+            <span class="stats-item">
+              <i class="fas fa-box"></i>
+              <div class="stats-content">
+                <div class="stats-value">{{ portfolioItems.length }}</div>
+                <div class="stats-label">총 상품</div>
+              </div>
+            </span>
+          </div>
+          <div class="stats-card">
+            <span class="stats-item">
+              <i class="fas fa-coins"></i>
+              <div class="stats-content">
+                <div class="stats-value">{{ formatTotalAmount() }}</div>
+                <div class="stats-label">총 자산</div>
+              </div>
+            </span>
+          </div>
+          <div v-if="portfolioItems.length > 0" class="stats-card">
+            <span class="stats-item">
+              <i class="fas fa-chart-line"></i>
+              <div class="stats-content">
+                <div class="stats-value">{{ formatAverageAmount() }}</div>
+                <div class="stats-label">평균 금액</div>
+              </div>
+            </span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- 필터 및 정렬 -->
-    <div v-if="portfolioItems.length > 0" class="list-controls">
+    <!-- 필터 및 정렬 - 독립적인 영역 -->
+    <div v-if="portfolioItems.length > 0" class="controls-section">
       <div class="filter-controls">
-        <select v-model="selectedCategory" class="category-filter">
-          <option value="">전체 카테고리</option>
-          <option v-for="category in availableCategories" :key="category" :value="category">
-            {{ category }}
-          </option>
-        </select>
+        <div class="filter-group">
+          <label>카테고리</label>
+          <select v-model="selectedCategory" class="category-filter">
+            <option value="">전체 카테고리</option>
+            <option v-for="category in availableCategories" :key="category" :value="category">
+              {{ category }}
+            </option>
+          </select>
+        </div>
 
-        <select v-model="sortBy" class="sort-control">
-          <option value="amount-desc">금액 높은순</option>
-          <option value="amount-asc">금액 낮은순</option>
-          <option value="date-desc">최신순</option>
-          <option value="date-asc">오래된순</option>
-          <option value="name-asc">이름순</option>
-        </select>
-      </div>
+        <div class="filter-group">
+          <label>정렬</label>
+          <select v-model="sortBy" class="sort-control">
+            <option value="amount-desc">금액 높은순</option>
+            <option value="amount-asc">금액 낮은순</option>
+            <option value="date-desc">최신순</option>
+            <option value="date-asc">오래된순</option>
+            <option value="name-asc">이름순</option>
+          </select>
+        </div>
 
-      <div class="search-control">
-        <div class="search-input-wrapper">
-          <i class="fas fa-search"></i>
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="상품명 또는 회사명 검색..."
-            class="search-input"
-          />
-          <button v-if="searchQuery" class="clear-search" @click="searchQuery = ''">
-            <i class="fas fa-times"></i>
-          </button>
+        <div class="filter-group search-group">
+          <label>검색</label>
+          <div class="search-input-wrapper">
+            <i class="fas fa-search"></i>
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="상품명 또는 회사명 검색..."
+              class="search-input"
+            />
+            <button v-if="searchQuery" class="clear-search" @click="searchQuery = ''">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- 상품 리스트 -->
-    <div v-if="filteredItems.length > 0" class="products-list" :class="[viewMode]">
-      <template v-for="(item, index) in filteredItems" :key="item.portfolioId">
-        <ProductItem
-          v-if="!isEditing(item)"
-          :item="item"
-          :index="index"
-          :total-items="filteredItems.length"
-          :is-processing="isProcessing"
-          :view-mode="viewMode"
-          @start-edit="handleStartEdit"
-          @save-product="handleSaveProduct"
-          @delete-product="handleDeleteProduct"
-        />
-        <ProductEditForm
-          v-else
-          :item="item"
-          :edit-form="editForm"
-          :is-processing="isProcessing"
-          @save-edit="handleSaveEdit"
-          @cancel-edit="handleCancelEdit"
-        />
-      </template>
+    <!-- 상품 리스트 - 더 넓고 시원하게 -->
+    <div v-if="filteredItems.length > 0" class="products-container">
+      <div class="products-list" :class="[viewMode]">
+        <template v-for="(item, index) in filteredItems" :key="item.portfolioId">
+          <ProductItem
+            v-if="!isEditing(item)"
+            :item="item"
+            :index="index"
+            :total-items="filteredItems.length"
+            :is-processing="isProcessing"
+            :view-mode="viewMode"
+            @start-edit="handleStartEdit"
+            @save-product="handleSaveProduct"
+            @delete-product="handleDeleteProduct"
+          />
+          <ProductEditForm
+            v-else
+            :item="item"
+            :edit-form="editForm"
+            :is-processing="isProcessing"
+            @save-edit="handleSaveEdit"
+            @cancel-edit="handleCancelEdit"
+          />
+        </template>
+      </div>
     </div>
 
     <!-- 검색 결과 없음 -->
     <div v-else-if="portfolioItems.length > 0 && filteredItems.length === 0" class="no-results">
-      <div class="no-results-icon">
-        <i class="fas fa-search"></i>
+      <div class="no-results-content">
+        <div class="no-results-icon">
+          <i class="fas fa-search"></i>
+        </div>
+        <h6 class="no-results-title">검색 결과가 없습니다</h6>
+        <p class="no-results-description">다른 검색어를 시도하거나 필터를 변경해보세요</p>
+        <button class="btn-reset-filters" @click="resetFilters">
+          <i class="fas fa-sync-alt"></i>
+          필터 초기화
+        </button>
       </div>
-      <h6 class="no-results-title">검색 결과가 없습니다</h6>
-      <p class="no-results-description">다른 검색어를 시도하거나 필터를 변경해보세요</p>
-      <button class="btn-reset-filters" @click="resetFilters">
-        <i class="fas fa-sync-alt"></i>
-        필터 초기화
-      </button>
     </div>
 
     <!-- 빈 상태 -->
     <div v-else class="empty-state">
-      <div class="empty-icon">
-        <i class="fas fa-folder-open"></i>
+      <div class="empty-content">
+        <div class="empty-icon">
+          <i class="fas fa-folder-open"></i>
+        </div>
+        <h6 class="empty-title">아직 보유한 상품이 없습니다</h6>
+        <p class="empty-description">
+          첫 번째 투자 상품을 추가하여<br />
+          포트폴리오 관리를 시작해보세요
+        </p>
+        <button class="btn-add-first" @click="handleAddNewProduct">
+          <i class="fas fa-plus"></i>
+          첫 상품 추가하기
+        </button>
       </div>
-      <h6 class="empty-title">아직 보유한 상품이 없습니다</h6>
-      <p class="empty-description">
-        첫 번째 투자 상품을 추가하여<br />
-        포트폴리오 관리를 시작해보세요
-      </p>
-      <button class="btn-add-first" @click="handleAddNewProduct">
-        <i class="fas fa-plus"></i>
-        첫 상품 추가하기
-      </button>
     </div>
   </div>
 </template>
@@ -283,9 +311,7 @@ const handleStartEdit = (item) => {
 const handleSaveProduct = (updatedItem) => {
   if (!isProcessing.value) {
     isProcessing.value = true;
-    emit('save-edit', updatedItem); // 메인 컴포넌트로 전달
-
-    // 처리 완료 후 상태 초기화
+    emit('save-edit', updatedItem);
     setTimeout(() => {
       isProcessing.value = false;
     }, 1000);
@@ -296,7 +322,6 @@ const handleSaveEdit = (item) => {
   if (!isProcessing.value) {
     isProcessing.value = true;
     emit('save-edit', item);
-    // 메인에서 처리 완료 후 isProcessing을 false로 변경
     setTimeout(() => {
       isProcessing.value = false;
     }, 1000);
@@ -318,99 +343,58 @@ const handleDeleteProduct = (item) => {
 
 <style scoped>
 .products-section {
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
-  border-radius: 0.875rem;
-  padding: 1.25rem;
-  border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow:
-    0 4px 6px -1px rgba(45, 51, 107, 0.1),
-    0 2px 4px -1px rgba(45, 51, 107, 0.06);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  max-width: 26.875rem;
-
   width: 100%;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
+  padding: 0;
 }
 
-/* 헤더 */
-.products-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid rgba(185, 187, 204, 0.2);
+/* 헤더 섹션 - 카드 밖으로 분리 */
+.section-header {
+  border-radius: 1rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(185, 187, 204, 0.15);
 }
+
 .header-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.75rem;
-}
-
-.header-content {
-  flex: 1;
+  margin-bottom: 1rem;
 }
 
 .section-title {
   color: var(--color-main);
   font-size: 1rem;
   font-weight: 700;
-  margin: 0 0 0.75rem 0;
+  margin: 0;
   display: flex;
   align-items: center;
 }
 
 .section-title i {
   color: var(--color-sub);
-}
-
-.header-stats {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.stats-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--color-sub);
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.stats-item i {
-  font-size: 0.75rem;
-  opacity: 0.8;
-}
-
-.header-actions {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
+  margin-right: 0.75rem;
 }
 
 .btn-add-product {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.4rem 0.75rem;
+  padding: 0.5rem 1rem;
   background: var(--color-main);
   color: white;
   border: none;
   border-radius: 0.75rem;
-  font-size: 0.6rem;
+  font-size: 0.7rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(45, 51, 107, 0.2);
 }
 
 .btn-add-product:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.3);
 }
 
 .btn-add-product:disabled {
@@ -418,40 +402,105 @@ const handleDeleteProduct = (item) => {
   cursor: not-allowed;
 }
 
-/* 리스트 컨트롤 */
-.list-controls {
-  flex-direction: column;
-  display: flex;
-  justify-content: space-between;
-  align-items: stretch;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.8);
+/* 통계 카드들 */
+.header-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.stats-card {
+  background: white;
   border-radius: 0.75rem;
+  padding: 0.5rem;
+  border: 1px solid rgba(185, 187, 204, 0.2);
+  transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+}
+
+.stats-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.stats-item i {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  background: var(--color-main);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.stats-content {
+  flex: 1;
+}
+
+.stats-value {
+  color: var(--color-main);
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.stats-label {
+  color: var(--color-sub);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* 필터 컨트롤 섹션 */
+.controls-section {
+  background: white;
+  border-radius: 1rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
   border: 1px solid rgba(185, 187, 204, 0.2);
 }
 
 .filter-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: 1.5rem;
+  align-items: end;
+}
+
+.filter-group {
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
+}
+
+.filter-group label {
+  color: var(--color-main);
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
 .category-filter,
 .sort-control {
-  padding: 0.4rem 0.75rem;
+  padding: 0.75rem 1rem;
   background: white;
   border: 1px solid rgba(185, 187, 204, 0.3);
   border-radius: 0.5rem;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--color-main);
-  width: 100%;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.search-control {
-  flex: 1;
-  max-width: none;
+.category-filter:focus,
+.sort-control:focus {
+  outline: none;
+  border-color: var(--color-main);
 }
 
 .search-input-wrapper {
@@ -462,19 +511,26 @@ const handleDeleteProduct = (item) => {
 
 .search-input-wrapper i {
   position: absolute;
-  left: 0.75rem;
+  left: 1rem;
   color: var(--color-sub);
-  font-size: 0.8rem;
+  font-size: 1rem;
+  z-index: 1;
 }
 
 .search-input {
   width: 100%;
-  padding: 0.4rem 0.75rem 0.4rem 2rem;
+  padding: 0.75rem 3rem 0.75rem 2.5rem;
   background: white;
   border: 1px solid rgba(185, 187, 204, 0.3);
   border-radius: 0.5rem;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--color-main);
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--color-main);
 }
 
 .search-input::placeholder {
@@ -482,48 +538,37 @@ const handleDeleteProduct = (item) => {
   opacity: 0.8;
 }
 
-.search-input {
-  width: 100%;
-  padding: 0.4rem 2rem 0.4rem 2rem;
-  background: white;
-  border: 1px solid rgba(185, 187, 204, 0.3);
-  border-radius: 0.5rem;
-  font-size: 0.75rem;
-  color: var(--color-main);
-  box-sizing: border-box;
-}
-
 .clear-search {
   position: absolute;
-  right: 1.5rem;
-  top: 50%;
-  transform: translateY(-50%);
+  right: 1rem;
   background: none;
   border: none;
   color: var(--color-sub);
   cursor: pointer;
-  padding: 0.25rem;
+  padding: 0.5rem;
   border-radius: 0.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition: all 0.3s ease;
 }
 
-/* 상품 리스트 */
+.clear-search:hover {
+  color: var(--color-main);
+  background: rgba(185, 187, 204, 0.1);
+}
+
+/* 상품 컨테이너 - 더 넓고 시원하게 */
+.products-container {
+  margin-bottom: 2rem;
+}
+
 .products-list {
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
+  background: white;
   border-radius: 1rem;
-  border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow:
-    0 4px 6px -1px rgba(45, 51, 107, 0.1),
-    0 2px 4px -1px rgba(45, 51, 107, 0.06);
-  backdrop-filter: blur(10px);
+  border: 1px solid rgba(185, 187, 204, 0.2);
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
 }
 
 .products-list:hover {
-  box-shadow: 0 8px 25px -5px rgba(45, 51, 107, 0.15);
 }
 
 .products-list.card,
@@ -533,7 +578,7 @@ const handleDeleteProduct = (item) => {
 }
 
 .products-list :deep(.product-item) {
-  border-bottom: 1px solid rgba(185, 187, 204, 0.2);
+  border-bottom: 1px solid rgba(185, 187, 204, 0.15);
   transition: all 0.3s ease;
 }
 
@@ -542,57 +587,62 @@ const handleDeleteProduct = (item) => {
 }
 
 .products-list :deep(.product-item:hover) {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(45, 51, 107, 0.02);
 }
 
 /* 검색 결과 없음 */
 .no-results {
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
+  background: white;
   border-radius: 1rem;
-  border: 2px dashed rgba(185, 187, 204, 0.4);
-  padding: 2rem;
+  border: 2px dashed rgba(185, 187, 204, 0.3);
+  padding: 0;
+  overflow: hidden;
+}
+
+.no-results-content {
+  padding: 3rem 2rem;
   text-align: center;
 }
 
 .no-results-icon {
-  width: 3rem;
-  height: 3rem;
+  width: 4rem;
+  height: 4rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-sub) 100%);
+  background: var(--color-light);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 1rem;
+  margin: 0 auto 1.5rem;
 }
 
 .no-results-icon i {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   color: white;
 }
 
 .no-results-title {
   color: var(--color-main);
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.75rem 0;
 }
 
 .no-results-description {
   color: var(--color-sub);
-  font-size: 0.85rem;
-  margin: 0 0 1rem 0;
+  font-size: 0.9rem;
+  margin: 0 0 1.5rem 0;
 }
 
 .btn-reset-filters {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.25rem;
   background: var(--color-sub);
   color: white;
   border: none;
-  border-radius: 0.5rem;
-  font-size: 0.8rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -600,71 +650,87 @@ const handleDeleteProduct = (item) => {
 
 .btn-reset-filters:hover {
   background: var(--color-main);
+  transform: translateY(-2px);
 }
 
 /* 빈 상태 */
 .empty-state {
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
+  background: white;
   border-radius: 1rem;
-  border: 2px dashed rgba(185, 187, 204, 0.4);
-  padding: 3rem 2rem;
-  text-align: center;
+  border: 2px dashed rgba(185, 187, 204, 0.3);
+  padding: 0;
   transition: all 0.3s ease;
+  overflow: hidden;
 }
 
 .empty-state:hover {
-  border-color: rgba(185, 187, 204, 0.6);
-  background: linear-gradient(135deg, var(--color-bg-light) 0%, var(--color-light) 100%);
+  border-color: rgba(185, 187, 204, 0.5);
+}
+
+.empty-content {
+  padding: 4rem 2rem;
+  text-align: center;
 }
 
 .empty-icon {
-  width: 4rem;
-  height: 4rem;
+  width: 5rem;
+  height: 5rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-sub) 100%);
+  background: var(--color-light);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 1.5rem;
+  margin: 0 auto 2rem;
 }
 
 .empty-icon i {
-  font-size: 1.75rem;
+  font-size: 2rem;
   color: white;
 }
 
 .empty-title {
   color: var(--color-main);
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   font-weight: 600;
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 1rem 0;
 }
 
 .empty-description {
   color: var(--color-sub);
-  font-size: 0.9rem;
-  line-height: 1.5;
-  margin: 0 0 2rem 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0 0 2.5rem 0;
 }
 
 .btn-add-first {
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
+  padding: 1rem 1.5rem;
+  background: var(--color-main);
   color: white;
   border: none;
   border-radius: 0.75rem;
-  font-size: 0.85rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.2);
+  box-shadow: 0 4px 16px rgba(45, 51, 107, 0.2);
 }
 
 .btn-add-first:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(45, 51, 107, 0.3);
+  transform: translateY(-3px);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .filter-controls {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .search-group {
+    grid-column: 1 / -1;
+  }
 }
 </style>

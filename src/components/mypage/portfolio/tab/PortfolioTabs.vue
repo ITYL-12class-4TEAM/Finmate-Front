@@ -81,18 +81,20 @@ const indicatorStyle = computed(() => {
 .tab-navigation {
   max-width: 26.875rem;
   width: 100%;
+  margin: 0 auto;
 }
 
 .nav-container {
   position: relative;
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
+  background: var(--color-white);
   border-radius: 1rem;
   padding: 0.375rem;
   border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow:
-    0 2px 4px -1px rgba(45, 51, 107, 0.1),
-    0 1px 2px -1px rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(10px);
+  max-width: 26.875rem;
+  width: 100%;
+
+  margin: 0 auto;
 }
 
 .nav-tabs {
@@ -149,10 +151,8 @@ const indicatorStyle = computed(() => {
   color: var(--color-main);
   background: rgba(255, 255, 255, 0.9);
   font-weight: 600;
-  box-shadow:
-    0 2px 4px rgba(45, 51, 107, 0.1),
-    0 1px 2px rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(5px);
+  border: 1px solid rgba(185, 187, 204, 0.3);
 }
 
 .nav-tabs .nav-link.active i {
@@ -171,7 +171,7 @@ const indicatorStyle = computed(() => {
   left: 0.375rem;
   width: calc(25% - 0.1875rem);
   height: calc(100% - 0.75rem);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
+  background: var(--color-white);
   border-radius: 0.75rem;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1;

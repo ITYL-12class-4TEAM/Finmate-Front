@@ -390,12 +390,9 @@ onBeforeUnmount(() => {
 }
 
 .stats-card {
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
+  background: var(--color-white);
   border-radius: 1rem;
   padding: 1rem;
-  box-shadow:
-    0 4px 6px -1px rgba(45, 51, 107, 0.1),
-    0 2px 4px -1px rgba(45, 51, 107, 0.06);
   border: 1px solid rgba(185, 187, 204, 0.3);
   backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -406,7 +403,6 @@ onBeforeUnmount(() => {
 
 .stats-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px -5px rgba(45, 51, 107, 0.15);
 }
 
 .stats-header {
@@ -417,7 +413,7 @@ onBeforeUnmount(() => {
 
 .stats-title {
   color: var(--color-main);
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
   display: flex;
@@ -470,7 +466,7 @@ onBeforeUnmount(() => {
 
 /* 빈 상태 */
 .chart-empty-state {
-  background: linear-gradient(135deg, rgba(185, 187, 204, 0.1) 0%, rgba(125, 129, 162, 0.1) 100%);
+  background: var(--color-bg-light);
   border-radius: 0.75rem;
   padding: 2rem;
   text-align: center;
@@ -480,7 +476,7 @@ onBeforeUnmount(() => {
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-sub) 100%);
+  background: var(--color-bg-light);
   display: flex;
   align-items: center;
   justify-content: center;

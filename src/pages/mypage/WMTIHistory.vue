@@ -1,5 +1,6 @@
 <template>
   <div class="wmti-history">
+    <BackButton class="mb-3" />
     <!-- Header -->
     <div class="header">
       <h1>검사 히스토리</h1>
@@ -98,6 +99,7 @@ import { getWMTIHistoryAPI } from '@/api/wmti';
 import router from '@/router';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useToast } from '@/composables/useToast';
+import BackButton from '@/components/common/BackButton.vue';
 
 const { showToast } = useToast();
 

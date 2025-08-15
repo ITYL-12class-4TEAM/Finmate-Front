@@ -945,9 +945,8 @@ const handleDelete = (event) => {
 
 /* 모달 컨테이너 */
 .modal-container {
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
+  background: var(--color-white);
   border-radius: 1rem; /* 16px */
-  box-shadow: 0 1.25rem 3.75rem rgba(0, 0, 0, 0.3); /* 0 20px 60px */
   max-width: 35rem; /* 560px - 조금 더 넓게 */
   width: 100%;
   max-height: 80svh;
@@ -1035,7 +1034,7 @@ const handleDelete = (event) => {
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: linear-gradient(135deg, rgba(45, 51, 107, 0.05), rgba(125, 129, 162, 0.05));
+  background: var(--color-bg-light);
   border-radius: 0.75rem;
   border: 0.0625rem solid rgba(185, 187, 204, 0.2);
   margin-bottom: 1.5rem;
@@ -1046,7 +1045,7 @@ const handleDelete = (event) => {
 }
 
 .amount-value {
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #059669;
   margin-bottom: 0.25rem;
@@ -1082,7 +1081,6 @@ const handleDelete = (event) => {
   font-size: 0.6rem;
   font-weight: 600;
   white-space: nowrap;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .category-badge i {
@@ -1115,7 +1113,6 @@ const handleDelete = (event) => {
   background: rgba(255, 255, 255, 0.95);
   border-color: rgba(185, 187, 204, 0.3);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(45, 51, 107, 0.08);
 }
 
 .detail-icon {
@@ -1133,60 +1130,60 @@ const handleDelete = (event) => {
 
 /* 기본 아이콘 색상 - 기존 스타일과 통일 */
 .detail-icon.calendar {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: var(--color-sub);
 }
 .detail-icon.category {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  background: var(--color-sub);
 }
 .detail-icon.company {
-  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  background: var(--color-sub);
 }
 .detail-icon.duration {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  background: var(--color-sub);
 }
 .detail-icon.rate {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: var(--color-sub);
 }
 .detail-icon.maturity {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: var(--color-sub);
 }
 .detail-icon.profit {
-  background: linear-gradient(135deg, #84cc16 0%, #65a30d 100%);
+  background: var(--color-sub);
 }
 .detail-icon.memo {
-  background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+  background: var(--color-sub);
 }
 .detail-icon.info {
-  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+  background: var(--color-sub);
 }
 
 /* 상품별 특수 아이콘 */
 .detail-icon.stock-price {
-  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+  background: var(--color-sub);
 }
 .detail-icon.market {
-  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  background: var(--color-sub);
 }
 .detail-icon.profit-rate {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: var(--color-sub);
 }
 .detail-icon.loss-rate {
-  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  background: var(--color-sub);
 }
 .detail-icon.coverage {
-  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  background: var(--color-sub);
 }
 .detail-icon.beneficiary {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  background: var(--color-sub);
 }
 .detail-icon.pension-type {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  background: var(--color-sub);
 }
 .detail-icon.tax-benefit {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: var(--color-sub);
 }
 .detail-icon.loan-rate {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  background: var(--color-sub);
 }
 
 .detail-content {
@@ -1266,7 +1263,7 @@ const handleDelete = (event) => {
 
 /* 특별 상태 */
 .info-notice {
-  background: linear-gradient(135deg, rgba(185, 187, 204, 0.1) 0%, rgba(125, 129, 162, 0.1) 100%);
+  background: var(--color-bg-light);
   border: 1px dashed rgba(185, 187, 204, 0.4);
 }
 
@@ -1281,7 +1278,7 @@ const handleDelete = (event) => {
 .modal-footer {
   padding: 0.75rem;
   border-top: 1px solid rgba(185, 187, 204, 0.15);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 252, 0.9) 100%);
+  background: var(--color-white);
   display: flex;
   gap: 0.5rem;
   justify-content: flex-end;
@@ -1321,7 +1318,6 @@ const handleDelete = (event) => {
 
 .edit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.3);
 }
 
 .delete-btn {
@@ -1331,7 +1327,6 @@ const handleDelete = (event) => {
 
 .delete-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
 }
 
 .btn-text {

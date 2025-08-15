@@ -3,66 +3,79 @@
     <div class="row">
       <!-- 파이 차트 섹션 -->
       <div class="mb-4">
-        <div class="stats-card">
-          <div class="stats-header">
-            <h5 class="stats-title">
-              <i class="bi bi-pie-chart me-2"></i>
-              카테고리별 자산 분배
-            </h5>
-            <small class="stats-subtitle"> 총 {{ processedSummary.length }}개 카테고리 </small>
+        <div class="stats-card collapsible-card">
+          <div class="stats-header collapsible-header" @click="togglePieChart">
+            <div class="header-content">
+              <h5 class="stats-title">
+                <i class="bi bi-pie-chart me-2"></i>
+                카테고리별 자산 분배
+              </h5>
+              <small class="stats-subtitle"> 총 {{ processedSummary.length }}개 카테고리 </small>
+            </div>
+            <div class="header-actions">
+              <div class="total-summary">
+                <div class="total-amount-header">{{ formatCurrency(getTotalAmount()) }}</div>
+                <div class="total-label-header">총 자산</div>
+              </div>
+              <div class="collapse-icon" :class="{ rotated: isPieChartOpen }">
+                <i class="bi bi-chevron-down"></i>
+              </div>
+            </div>
           </div>
 
-          <div class="stats-content">
-            <!-- 차트 영역 -->
-            <div v-if="processedSummary.length > 0" class="chart-container">
-              <canvas
-                ref="pieChart"
-                width="200"
-                height="200"
-                :aria-label="getChartAriaLabel()"
-              ></canvas>
+          <div class="collapsible-content" :class="{ collapsed: !isPieChartOpen }">
+            <div class="stats-content">
+              <!-- 차트 영역 -->
+              <div v-if="processedSummary.length > 0" class="chart-container">
+                <canvas
+                  ref="pieChart"
+                  width="150"
+                  height="150"
+                  :aria-label="getChartAriaLabel()"
+                ></canvas>
 
-              <!-- 중앙 총액 표시 (도넛 차트 중앙) -->
-              <div class="chart-center-info">
-                <div class="total-amount">
-                  {{ formatCurrency(getTotalAmount()) }}
-                </div>
-                <div class="total-label">총 자산</div>
-              </div>
-            </div>
-
-            <!-- 빈 상태 -->
-            <div v-else class="empty-state">
-              <div class="empty-icon">
-                <i class="bi bi-pie-chart"></i>
-              </div>
-              <p class="empty-text">투자 상품이 없습니다.</p>
-              <small class="empty-subtitle">상품을 추가하여 자산 분배를 확인해보세요</small>
-            </div>
-
-            <!-- 범례 -->
-            <div v-if="processedSummary.length > 0" class="chart-legend">
-              <div
-                v-for="(category, index) in processedSummary"
-                :key="category.categoryName"
-                class="legend-item"
-                :class="{ 'legend-hidden': hiddenCategories.has(index) }"
-                @click="toggleCategoryVisibility(index)"
-              >
-                <div class="legend-info">
-                  <div class="legend-indicator">
-                    <div
-                      class="legend-color"
-                      :style="{
-                        backgroundColor: getCategoryColor(category.categoryName),
-                      }"
-                    ></div>
-                    <span class="legend-name">{{ category.categoryName }}</span>
+                <!-- 중앙 총액 표시 (도넛 차트 중앙) -->
+                <div class="chart-center-info">
+                  <div class="total-amount">
+                    {{ formatCurrency(getTotalAmount()) }}
                   </div>
-                  <div class="legend-values">
-                    <div class="legend-percentage">{{ category.ratio.toFixed(1) }}%</div>
-                    <div class="legend-amount">
-                      {{ formatCurrency(category.totalAmount) }}
+                  <div class="total-label">총 자산</div>
+                </div>
+              </div>
+
+              <!-- 빈 상태 -->
+              <div v-else class="empty-state">
+                <div class="empty-icon">
+                  <i class="bi bi-pie-chart"></i>
+                </div>
+                <p class="empty-text">투자 상품이 없습니다.</p>
+                <small class="empty-subtitle">상품을 추가하여 자산 분배를 확인해보세요</small>
+              </div>
+
+              <!-- 범례 -->
+              <div v-if="processedSummary.length > 0" class="chart-legend">
+                <div
+                  v-for="(category, index) in processedSummary"
+                  :key="category.categoryName"
+                  class="legend-item"
+                  :class="{ 'legend-hidden': hiddenCategories.has(index) }"
+                  @click="toggleCategoryVisibility(index)"
+                >
+                  <div class="legend-info">
+                    <div class="legend-indicator">
+                      <div
+                        class="legend-color"
+                        :style="{
+                          backgroundColor: getCategoryColor(category.categoryName),
+                        }"
+                      ></div>
+                      <span class="legend-name">{{ category.categoryName }}</span>
+                    </div>
+                    <div class="legend-values">
+                      <div class="legend-percentage">{{ category.ratio.toFixed(1) }}%</div>
+                      <div class="legend-amount">
+                        {{ formatCurrency(category.totalAmount) }}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -71,10 +84,11 @@
           </div>
         </div>
       </div>
-
       <!-- 서브카테고리 분석 섹션 -->
       <div>
-        <SubcategoryBreakdown :processed-summary="processedSummary" />
+        <div class="stats-card collapsible-card">
+          <SubcategoryBreakdown :processed-summary="processedSummary" />
+        </div>
       </div>
     </div>
   </div>
@@ -96,8 +110,14 @@ const props = defineProps({
 // 반응형 데이터
 const pieChart = ref(null);
 const hiddenCategories = ref(new Set());
+const isPieChartOpen = ref(true); // 파이차트는 기본적으로 열림
 let chartInstance = null;
 let isChartLoading = ref(false);
+
+// 접기/펼치기 토글 함수들
+const togglePieChart = () => {
+  isPieChartOpen.value = !isPieChartOpen.value;
+};
 
 // 6개 메인 카테고리에 맞춘 색상 팔레트
 const CATEGORY_COLORS = {
@@ -108,6 +128,7 @@ const CATEGORY_COLORS = {
   주식: '#EF4444',
   기타: '#6B7280',
 };
+
 // 색상 가져오기
 const getCategoryColor = (categoryName) => {
   return CATEGORY_COLORS[categoryName] || CATEGORY_COLORS['기타'];
@@ -182,7 +203,7 @@ const loadChartJS = async () => {
 
 // 파이차트 생성
 const createPieChart = async () => {
-  if (!pieChart.value || props.processedSummary.length === 0) return;
+  if (!pieChart.value || props.processedSummary.length === 0 || !isPieChartOpen.value) return;
 
   isChartLoading.value = true;
 
@@ -293,11 +314,20 @@ const cleanup = () => {
   }
 };
 
+// 파이차트가 열릴 때 차트를 다시 생성
+watch(isPieChartOpen, (newValue) => {
+  if (newValue) {
+    nextTick(() => {
+      setTimeout(createPieChart, 300);
+    });
+  }
+});
+
 // 데이터 변경 감지
 watch(
   () => props.processedSummary,
   (newData) => {
-    if (newData && newData.length > 0) {
+    if (newData && newData.length > 0 && isPieChartOpen.value) {
       nextTick(() => {
         setTimeout(createPieChart, 100);
       });
@@ -316,35 +346,124 @@ onBeforeUnmount(cleanup);
 
 <style scoped>
 .tab-pane {
-  min-height: 400px;
+  min-height: 200px;
 }
 
 .stats-card {
-  background: linear-gradient(135deg, var(--color-white) 0%, #f8f9fc 100%);
+  background: var(--color-white);
   border-radius: 1rem;
-  padding: 1rem;
+  padding: 0;
   border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow:
-    0 4px 6px -1px rgba(45, 51, 107, 0.1),
-    0 2px 4px -1px rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(10px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
 }
 
 .stats-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px -5px rgba(45, 51, 107, 0.15);
 }
 
-.stats-header {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
+/* 접을 수 있는 헤더 스타일 */
+.collapsible-header {
+  margin-bottom: 0;
+  padding: 1.25rem;
   border-bottom: 1px solid rgba(185, 187, 204, 0.2);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-white);
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.collapsible-header:hover {
+  background: var(--color-bg-light);
+}
+
+.header-content {
+  flex: 1;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.total-summary {
+  text-align: right;
+}
+
+.total-amount-header {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-main);
+  font-family: 'Pretendard', sans-serif;
+  line-height: 1.2;
+}
+
+.total-label-header {
+  font-size: 0.75rem;
+  color: var(--color-sub);
+  font-weight: 500;
+}
+
+.expand-hint {
+  font-size: 0.85rem;
+  color: var(--color-sub);
+  font-weight: 500;
+}
+
+.collapse-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--color-bg-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.collapse-icon i {
+  color: var(--color-main);
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.collapse-icon.rotated i {
+  transform: rotate(180deg);
+}
+
+.collapsible-header:hover .collapse-icon {
+  background: var(--color-bg-light);
+  transform: scale(1.05);
+}
+
+/* 접을 수 있는 콘텐츠 스타일 */
+.collapsible-content {
+  max-height: 2000px;
+  opacity: 1;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.collapsible-content.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.stats-content {
+  padding: 1.5rem;
 }
 
 .stats-title {
   color: var(--color-main);
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
   font-family:
@@ -366,10 +485,6 @@ onBeforeUnmount(cleanup);
   font-size: 0.85rem;
 }
 
-.stats-content {
-  padding: 0;
-}
-
 .chart-container {
   position: relative;
   height: 15rem;
@@ -380,6 +495,7 @@ onBeforeUnmount(cleanup);
   background: rgba(255, 255, 255, 0.8);
   border-radius: 0.75rem;
   backdrop-filter: blur(5px);
+  margin-bottom: 1.5rem;
 }
 
 .chart-center-info {
@@ -392,7 +508,7 @@ onBeforeUnmount(cleanup);
 }
 
 .total-amount {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--color-main);
   font-family: 'Pretendard', sans-serif;
@@ -412,7 +528,7 @@ onBeforeUnmount(cleanup);
   align-items: center;
   justify-content: center;
   padding: 3rem 1rem;
-  background: linear-gradient(135deg, rgba(185, 187, 204, 0.1) 0%, rgba(125, 129, 162, 0.1) 100%);
+  background: var(--color-bg-light);
   border-radius: 0.75rem;
   margin-bottom: 1.5rem;
 }
@@ -421,7 +537,7 @@ onBeforeUnmount(cleanup);
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-light) 0%, var(--color-sub) 100%);
+  background: var(--color-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -487,11 +603,10 @@ onBeforeUnmount(cleanup);
 }
 
 .legend-color {
-  width: 1.125rem;
-  height: 1.125rem;
+  width: 1rem;
+  height: 1rem;
   border-radius: 0.25rem;
   flex-shrink: 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
@@ -501,7 +616,7 @@ onBeforeUnmount(cleanup);
 
 .legend-name {
   color: var(--color-main);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
@@ -511,7 +626,7 @@ onBeforeUnmount(cleanup);
 
 .legend-percentage {
   color: var(--color-main);
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 700;
   margin-bottom: 0.25rem;
   font-family: 'Pretendard', sans-serif;
@@ -554,12 +669,37 @@ onBeforeUnmount(cleanup);
 /* 접근성 개선 */
 @media (prefers-reduced-motion: reduce) {
   .legend-item,
-  .analysis-item {
+  .analysis-item,
+  .collapsible-content,
+  .collapse-icon {
     transition: none;
   }
 
   .chart-container.loading::after {
     animation: none;
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .collapsible-header {
+    padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .total-amount-header {
+    font-size: 0.9rem;
+  }
+
+  .stats-content {
+    padding: 1rem;
   }
 }
 </style>

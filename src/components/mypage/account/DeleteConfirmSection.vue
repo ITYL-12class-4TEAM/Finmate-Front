@@ -34,7 +34,7 @@
           <i class="fas fa-comment"></i>
           탈퇴 사유를 선택해주세요 (선택사항)
         </label>
-        <div class="custom-select" ref="reasonSelectRef">
+        <div ref="reasonSelectRef" class="custom-select">
           <div
             class="select-trigger"
             :class="{
@@ -292,8 +292,8 @@ onUnmounted(() => {
 
 <style scoped>
 .confirm-section {
-  padding: 2rem;
   border-bottom: 1px solid var(--color-bg-light);
+  padding: 1.5cap 0rem;
 }
 
 .section-title {
@@ -686,10 +686,6 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
-  .confirm-section {
-    padding: 1.5rem;
-  }
-
   .form-label {
     font-size: 0.7rem;
   }

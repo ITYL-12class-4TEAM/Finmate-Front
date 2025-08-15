@@ -38,15 +38,14 @@
         </span>
         <span v-if="product.rstvValue" class="detail-tag">
           <i class="fa-solid fa-won-sign"></i>
-          {{ formatAmount(product.rstvValue) }}
+          {{ formatAmount(getRstvValue(product.rstvValue)) }}
         </span>
         <span v-if="product.intrRateType" class="detail-tag">
           <i class="fa-solid fa-chart-line"></i>
-          {{ product.intrRateType }}
+          {{ getIntrRateType(product.intrRateType) }}
         </span>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -61,6 +60,18 @@ const props = defineProps({
     default: false,
   },
 });
+
+const getIntrRateType = (intrRateType) => {
+  if (intrRateType === 'S') return '단리';
+  if (intrRateType === 'M') return '복리';
+  return intrRateType;
+};
+
+const getRstvValue = (rstvValue) => {
+  if (rstvValue === 'S') return '정액적립식';
+  if (rstvValue === 'F') return '자유적립식';
+  return rstvValue;
+};
 
 const emit = defineEmits(['toggle-favorite']);
 

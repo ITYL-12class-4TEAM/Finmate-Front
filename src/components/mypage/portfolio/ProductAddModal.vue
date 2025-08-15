@@ -1159,9 +1159,8 @@ watch([() => formData.value.category, () => formData.value.subcategory], () => {
 
 /* 모달 컨테이너 */
 .modal-container {
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
+  background: var(--color-white);
   border-radius: 1rem; /* 16px */
-  box-shadow: 0 1.25rem 3.75rem rgba(0, 0, 0, 0.3); /* 0 20px 60px */
   max-width: 26.875rem; /* 430px */
   width: 100%;
   max-height: 80svh;
@@ -1297,7 +1296,6 @@ watch([() => formData.value.category, () => formData.value.subcategory], () => {
 .form-input:focus {
   outline: none;
   border-color: var(--color-main);
-  box-shadow: 0 0 0 3px rgba(45, 51, 107, 0.1);
   background: white;
 }
 .form-select {
@@ -1340,7 +1338,7 @@ watch([() => formData.value.category, () => formData.value.subcategory], () => {
 .preview-section {
   margin-top: 1rem; /* 16px */
   padding: 1rem; /* 16px */
-  background: linear-gradient(135deg, rgba(45, 51, 107, 0.05), rgba(125, 129, 162, 0.05));
+  background: var(--color-bg-light);
   border-radius: 0.75rem; /* 12px */
   border: 0.0625rem solid rgba(185, 187, 204, 0.2); /* 1px */
 }
@@ -1390,7 +1388,7 @@ watch([() => formData.value.category, () => formData.value.subcategory], () => {
 .modal-footer {
   padding: 1rem;
   border-top: 1px solid rgba(185, 187, 204, 0.15);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 252, 0.9) 100%);
+  background: var(--color-white);
   display: flex;
   gap: 0.5rem;
   justify-content: flex-end;
@@ -1424,7 +1422,6 @@ watch([() => formData.value.category, () => formData.value.subcategory], () => {
 
 .cancel-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
 }
 
 .reset-btn {
@@ -1434,7 +1431,6 @@ watch([() => formData.value.category, () => formData.value.subcategory], () => {
 
 .reset-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
 }
 
 .save-btn {
@@ -1444,7 +1440,6 @@ watch([() => formData.value.category, () => formData.value.subcategory], () => {
 
 .save-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.3);
 }
 
 /* 애니메이션 */
@@ -1540,14 +1535,13 @@ watch([() => formData.value.category, () => formData.value.subcategory], () => {
 
 .auto-fill-btn.big:not(:disabled):hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.15);
 }
 /* ===== AI 자동입력 결과 카드 ===== */
 .auto-fill-result {
   grid-column: 1 / -1;
   border: 1px solid rgba(185, 187, 204, 0.35);
   border-radius: 0.75rem;
-  background: linear-gradient(135deg, rgba(45, 51, 107, 0.04), rgba(125, 129, 162, 0.04));
+  background: var(--color-bg-light);
   overflow: hidden;
 }
 
@@ -1593,7 +1587,6 @@ watch([() => formData.value.category, () => formData.value.subcategory], () => {
 
 .result-header .apply-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(45, 51, 107, 0.25);
 }
 
 .result-header .clear-btn {
@@ -1747,7 +1740,6 @@ input[type='number'] {
 /* 호버 시 살짝 떠오르게 */
 .auto-fill-result .result-item label:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(45, 51, 107, 0.12);
 }
 
 /* 체크/선택된 라벨 하이라이트 (브라우저가 :has 지원 시 적용) */
@@ -1773,7 +1765,7 @@ input[type='number'] {
 
 /* 적용 금리 행을 조금 더 강조 */
 .auto-fill-result .result-item:last-child {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(16, 185, 129, 0.03));
+  background: var(--color-bg-light);
   border-color: rgba(16, 185, 129, 0.25);
 }
 
@@ -1821,7 +1813,6 @@ input[type='number'] {
 .info-btn:focus {
   outline: none;
   border-color: var(--color-main);
-  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.12);
   color: var(--color-main);
 }
 
@@ -1836,7 +1827,6 @@ input[type='number'] {
   background: #fff;
   border: 1px solid rgba(185, 187, 204, 0.35);
   border-radius: 0.5rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
   color: var(--color-main);
   font-size: 0.78rem;
   line-height: 1.45;

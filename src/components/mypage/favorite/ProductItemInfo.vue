@@ -38,11 +38,11 @@
         </span>
         <span v-if="favorite.rstvValue" class="detail-tag">
           <i class="fa-solid fa-won-sign"></i>
-          {{ formatAmount(favorite.rstvValue) }}
+          {{ formatAmount(getRstvValue(favorite.rstvValue)) }}
         </span>
         <span v-if="favorite.intrRateType" class="detail-tag">
           <i class="fa-solid fa-chart-line"></i>
-          {{ favorite.intrRateType }}
+          {{ getIntrRateType(favorite.intrRateType) }}
         </span>
       </div>
     </div>
@@ -60,6 +60,19 @@ const props = defineProps({
     default: true, // 즐겨찾기 목록이므로 기본값 true
   },
 });
+
+//s냐 m이냐
+const getRstvValue = (rstvValue) => {
+  if (rstvValue === 'S') return '정액적립식';
+  if (rstvValue === 'F') return '자유적립식';
+  return rstvValue;
+};
+
+const getIntrRateType = (intrRateType) => {
+  if (intrRateType === 'S') return '단리';
+  if (intrRateType === 'M') return '복리';
+  return intrRateType;
+};
 
 const emit = defineEmits(['toggle-favorite']);
 

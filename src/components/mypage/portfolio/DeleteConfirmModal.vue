@@ -138,20 +138,19 @@ watch(
 }
 
 .modal-container {
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
+  background: var(--color-white);
   border-radius: 1rem;
-  box-shadow: 0 20px 60px rgba(220, 38, 38, 0.2);
   max-width: 450px;
   width: 100%;
   overflow: hidden;
   animation: slideUp 0.3s ease-out;
-  border: 2px solid rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(185, 187, 204, 0.3);
 }
 
 .modal-header {
   padding: 1rem;
   border-bottom: 1px solid rgba(220, 38, 38, 0.2);
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.05), rgba(239, 68, 68, 0.05));
+  background: var(--color-bg-light);
 }
 
 .modal-title {
@@ -176,7 +175,7 @@ watch(
   width: 4rem;
   height: 4rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, #fef2f2, #fee2e2);
+  background: var(--color-bg-light);
   border: 3px solid #fecaca;
   display: flex;
   align-items: center;
@@ -219,7 +218,7 @@ watch(
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem;
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+  background: var(--color-bg-light);
   border-radius: 0.5rem;
   border: 1px solid rgba(220, 38, 38, 0.2);
   font-size: 0.85rem;
@@ -234,7 +233,7 @@ watch(
 .modal-footer {
   padding: 1rem;
   border-top: 1px solid rgba(185, 187, 204, 0.2);
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--color-white);
   display: flex;
   gap: 0.75rem;
   justify-content: flex-end;
@@ -269,19 +268,17 @@ watch(
 
 .cancel-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
   border-color: var(--color-light);
 }
 
 .delete-btn {
-  background: linear-gradient(135deg, #dc2626, #ef4444);
+  background: var(--color-sub);
   color: white;
   border: 2px solid transparent;
 }
 
 .delete-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
   border-color: #991b1b;
 }
 
