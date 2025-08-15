@@ -1,81 +1,83 @@
 <template>
-  <BackButton class="mb-3" />
-  <LoadingSpinner v-if="loading" />
+  <div class="portfolio-page">
+    <BackButton class="mb-3" />
+    <LoadingSpinner v-if="loading" />
 
-  <ErrorAlert v-else-if="error" :message="error" />
+    <ErrorAlert v-else-if="error" :message="error" />
 
-  <div v-else>
-    <PortfolioTabs v-model:active-tab="activeTab" />
-    <div v-if="activeTab !== 'overview'" class="tab-actions">
-      <button class="btn-add-product" :disabled="loading" @click="openAddModal">
-        <i class="fas fa-plus"></i>
-        상품 추가
-      </button>
-    </div>
+    <div v-else>
+      <PortfolioTabs v-model:active-tab="activeTab" />
+      <div v-if="activeTab !== 'overview'" class="tab-actions">
+        <button class="btn-add-product" :disabled="loading" @click="openAddModal">
+          <i class="fas fa-plus"></i>
+          상품 추가
+        </button>
+      </div>
 
-    <div class="tab-content">
-      <PortfolioOverview
-        v-if="activeTab === 'overview'"
+      <div class="tab-content">
+        <PortfolioOverview
+          v-if="activeTab === 'overview'"
+          :portfolio-items="portfolioItems"
+          :processed-summary="processedSummary"
+          :total-amount="totalAmount"
+          :average-amount="averageAmount"
+          :top-category="topCategory"
+          :diversity-score="diversityScore"
+          :recent-product="recentProduct"
+        />
+
+        <PortfolioComparison
+          v-else-if="activeTab === 'comparison'"
+          :user-age-group="userAgeGroup"
+          :age-comparison-chart="ageComparisonChart"
+          :total-amount="totalAmount"
+        />
+
+        <PortfolioAllocation
+          v-else-if="activeTab === 'allocation'"
+          :processed-summary="processedSummary"
+        />
+
+        <!-- <PortfolioWMTI  v-else-if="activeTab === 'wmti'":wmtiData="wmtiData" /> -->
+        <PortfolioWMTI
+          v-else-if="activeTab === 'wmti'"
+          :my-w-m-t-i="myWMTI || 'UNKNOWN'"
+          :wmti-comparison-chart="wmtiComparisonChart"
+          :total-amount="totalAmount"
+        />
+      </div>
+
+      <ProductList
+        v-if="activeTab === 'allocation'"
         :portfolio-items="portfolioItems"
-        :processed-summary="processedSummary"
-        :total-amount="totalAmount"
-        :average-amount="averageAmount"
-        :top-category="topCategory"
-        :diversity-score="diversityScore"
-        :recent-product="recentProduct"
+        :editing-item="editingItem"
+        :edit-form="editForm"
+        :show-summary="true"
+        :hide-add-button="false"
+        @add-new-product="openAddModal"
+        @refresh-portfolio="refreshPortfolio"
+        @start-edit="startEdit"
+        @save-edit="saveEdit"
+        @cancel-edit="cancelEdit"
+        @delete-product="deleteProduct"
       />
 
-      <PortfolioComparison
-        v-else-if="activeTab === 'comparison'"
-        :user-age-group="userAgeGroup"
-        :age-comparison-chart="ageComparisonChart"
-        :total-amount="totalAmount"
+      <!-- 상품 추가 모달 -->
+      <ProductAddModal
+        :is-visible="showAddModal"
+        @close="closeAddModal"
+        @add-product="addNewProduct"
       />
 
-      <PortfolioAllocation
-        v-else-if="activeTab === 'allocation'"
-        :processed-summary="processedSummary"
-      />
-
-      <!-- <PortfolioWMTI  v-else-if="activeTab === 'wmti'":wmtiData="wmtiData" /> -->
-      <PortfolioWMTI
-        v-else-if="activeTab === 'wmti'"
-        :my-w-m-t-i="myWMTI || 'UNKNOWN'"
-        :wmti-comparison-chart="wmtiComparisonChart"
-        :total-amount="totalAmount"
+      <!-- 삭제 확인 모달 -->
+      <DeleteConfirmModal
+        :is-visible="showDeleteModal"
+        :product-name="productToDelete?.customProductName || '상품'"
+        :is-processing="isDeleting"
+        @close="closeDeleteModal"
+        @confirm="confirmDelete"
       />
     </div>
-
-    <ProductList
-      v-if="activeTab === 'allocation'"
-      :portfolio-items="portfolioItems"
-      :editing-item="editingItem"
-      :edit-form="editForm"
-      :show-summary="true"
-      :hide-add-button="false"
-      @add-new-product="openAddModal"
-      @refresh-portfolio="refreshPortfolio"
-      @start-edit="startEdit"
-      @save-edit="saveEdit"
-      @cancel-edit="cancelEdit"
-      @delete-product="deleteProduct"
-    />
-
-    <!-- 상품 추가 모달 -->
-    <ProductAddModal
-      :is-visible="showAddModal"
-      @close="closeAddModal"
-      @add-product="addNewProduct"
-    />
-
-    <!-- 삭제 확인 모달 -->
-    <DeleteConfirmModal
-      :is-visible="showDeleteModal"
-      :product-name="productToDelete?.customProductName || '상품'"
-      :is-processing="isDeleting"
-      @close="closeDeleteModal"
-      @confirm="confirmDelete"
-    />
   </div>
 </template>
 
@@ -550,6 +552,13 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.portfolio-page {
+  width: 100%;
+  max-width: 26.875rem; /* 430px */
+  margin: 0 auto;
+  background-color: var(--color-white);
+  min-height: 100vh;
+}
 .tab-content {
   margin-top: 1rem;
 }

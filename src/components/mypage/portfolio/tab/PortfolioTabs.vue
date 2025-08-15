@@ -81,6 +81,7 @@ const indicatorStyle = computed(() => {
 .tab-navigation {
   max-width: 26.875rem;
   width: 100%;
+  margin: 0 auto;
 }
 
 .nav-container {
@@ -93,6 +94,10 @@ const indicatorStyle = computed(() => {
     0 2px 4px -1px rgba(45, 51, 107, 0.1),
     0 1px 2px -1px rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(10px);
+  max-width: 26.875rem;
+  width: 100%;
+
+  margin: 0 auto;
 }
 
 .nav-tabs {
