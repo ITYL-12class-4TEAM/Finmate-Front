@@ -17,16 +17,6 @@
       @navigate-to-survey="navigateToSurvey"
     />
 
-    <ServiceButtons
-      v-if="showServiceButtons"
-      class="service-buttons-overlay"
-      :is-authenticated="isAuthenticated()"
-      :available-services="getAvailableServices()"
-      :member-only-features="memberOnlyFeatures"
-      @service-action="handleServiceAction"
-      @navigate-to-login="navigateToLogin"
-    />
-
     <ChatInput
       :messages="messages"
       :input-message="inputMessage"
@@ -100,7 +90,6 @@ import { useRouter } from 'vue-router';
 
 import ChatHeader from './ChatHeader.vue';
 import MessagesContainer from './MessagesContainer.vue';
-import ServiceButtons from './ServiceButtons.vue';
 import ChatInput from './ChatInput.vue';
 
 // API 모듈 import
@@ -124,11 +113,91 @@ const sessionUpdateInterval = ref(null);
 const showSessionExpiredModal = ref(false);
 const showClearChatModal = ref(false);
 
+// 로컬 스토리지 키 생성 (사용자별로 다른 키 사용)
+const getChatStorageKey = () => {
+  const token = getAccessToken();
+  const userKey = token ? `user_${btoa(token).slice(0, 8)}` : 'guest';
+  return `chatHistory_${userKey}`;
+};
+
+// 대화 기록을 로컬 스토리지에 저장
+const saveChatToStorage = () => {
+  try {
+    const chatData = {
+      messages: messages.value,
+      sessionId: sessionId.value,
+      sessionStartTime: sessionStartTime.value,
+      isSessionActive: isSessionActive.value,
+      sessionTimeRemaining: sessionTimeRemaining.value,
+      timestamp: Date.now(),
+      userAuthenticated: isAuthenticated(),
+    };
+    localStorage.setItem(getChatStorageKey(), JSON.stringify(chatData));
+  } catch (error) {
+    console.warn('채팅 데이터 저장 실패:', error);
+  }
+};
+
+// 로컬 스토리지에서 대화 기록 복원
+const loadChatFromStorage = () => {
+  try {
+    const savedData = localStorage.getItem(getChatStorageKey());
+    if (!savedData) return false;
+
+    const chatData = JSON.parse(savedData);
+    const now = Date.now();
+
+    // 1시간 이내의 데이터이고, 같은 인증 상태인 경우만 복원
+    if (
+      now - chatData.timestamp < SESSION_DURATION &&
+      chatData.userAuthenticated === isAuthenticated() &&
+      chatData.messages &&
+      chatData.messages.length > 0
+    ) {
+      messages.value = chatData.messages;
+      sessionId.value = chatData.sessionId;
+
+      // 남은 세션 시간 계산
+      const elapsed = now - chatData.timestamp;
+      const remainingTime = SESSION_DURATION - elapsed;
+
+      if (remainingTime > 0) {
+        sessionTimeRemaining.value = remainingTime;
+        sessionStartTime.value = now - elapsed;
+        isSessionActive.value = true;
+        return true;
+      }
+    }
+
+    // 만료되거나 유효하지 않은 데이터 제거
+    clearChatStorage();
+    return false;
+  } catch (error) {
+    console.warn('채팅 데이터 복원 실패:', error);
+    clearChatStorage();
+    return false;
+  }
+};
+
+// 채팅 스토리지 정리
+const clearChatStorage = () => {
+  try {
+    localStorage.removeItem(getChatStorageKey());
+  } catch (error) {
+    console.warn('채팅 스토리지 정리 실패:', error);
+  }
+};
+
 // 세션 타이머 시작
 const startSessionTimer = () => {
-  sessionStartTime.value = Date.now();
+  // 기존 타이머 정리
+  stopSessionTimer();
+
+  if (!sessionStartTime.value) {
+    sessionStartTime.value = Date.now();
+  }
+
   isSessionActive.value = true;
-  sessionTimeRemaining.value = SESSION_DURATION;
 
   // 1초마다 남은 시간 업데이트
   sessionUpdateInterval.value = setInterval(() => {
@@ -140,13 +209,17 @@ const startSessionTimer = () => {
       handleSessionExpired();
     } else {
       sessionTimeRemaining.value = remaining;
+      // 주기적으로 저장 (30초마다)
+      if (Math.floor(remaining / 1000) % 30 === 0) {
+        saveChatToStorage();
+      }
     }
   }, 1000);
 
   // 1시간 후 세션 종료
   sessionTimer.value = setTimeout(() => {
     handleSessionExpired();
-  }, SESSION_DURATION);
+  }, sessionTimeRemaining.value);
 };
 
 // 세션 타이머 정지
@@ -162,14 +235,16 @@ const stopSessionTimer = () => {
   }
 
   isSessionActive.value = false;
-  sessionTimeRemaining.value = SESSION_DURATION;
-  sessionStartTime.value = null;
 };
 
 // 세션 만료 처리
 const handleSessionExpired = async () => {
   stopSessionTimer();
   isSessionActive.value = false;
+  sessionTimeRemaining.value = 0;
+
+  // 만료된 데이터 정리
+  clearChatStorage();
 
   // 현재 세션 종료
   await endChatSession();
@@ -192,18 +267,35 @@ const startNewSession = async () => {
   try {
     showSessionExpiredModal.value = false;
 
+    // 기존 데이터 정리
+    clearChatStorage();
+    messages.value = [];
+    inputMessage.value = '';
+    isTyping.value = false;
+    showServiceButtons.value = true;
+    showServiceMenu.value = false;
+
     // 새 세션 생성
     await createChatSession();
     await waitForSession();
 
     // 새 세션 타이머 시작
+    sessionStartTime.value = Date.now();
+    sessionTimeRemaining.value = SESSION_DURATION;
     startSessionTimer();
 
     // 환영 메시지
-    addMessage(
-      '<i class="fas fa-refresh text-success"></i> 새로운 세션이 시작되었습니다. 무엇을 도와드릴까요?',
-      'bot'
-    );
+    if (!isAuthenticated()) {
+      addMessage(
+        '안녕하세요! 🤖 금융 상담 챗봇입니다.\n\n기본적인 금융 정보는 누구나 이용 가능하며, 로그인하시면 개인화된 상담과 더 많은 기능을 이용하실 수 있습니다.',
+        'bot'
+      );
+    } else {
+      addMessage(
+        '안녕하세요! 🤖 금융 상담 챗봇입니다.\n\n개인화된 금융 상담과 다양한 서비스를 이용해보세요!',
+        'bot'
+      );
+    }
   } catch (error) {
     console.error('새 세션 시작 실패:', error);
     addMessage(
@@ -228,6 +320,9 @@ const confirmClearChat = async () => {
   try {
     showClearChatModal.value = false;
 
+    // 로컬 스토리지 정리
+    clearChatStorage();
+
     // 현재 세션 종료
     await endChatSession();
 
@@ -244,6 +339,10 @@ const confirmClearChat = async () => {
     // 새 세션 시작
     await createChatSession();
     await waitForSession();
+
+    // 새 세션 타이머 시작
+    sessionStartTime.value = Date.now();
+    sessionTimeRemaining.value = SESSION_DURATION;
     startSessionTimer();
 
     // 환영 메시지
@@ -276,11 +375,12 @@ const setupRouterGuard = () => {
   if (routerGuardRemover) return;
 
   routerGuardRemover = router.beforeEach((to, from, next) => {
-    endChatSession().finally(() => {
-      stopSessionTimer();
-      emit('close');
-      next();
-    });
+    // 페이지 이동시 현재 채팅 상태 저장 (세션 종료하지 않음)
+    if (isSessionActive.value && messages.value.length > 0) {
+      saveChatToStorage();
+    }
+    emit('close');
+    next();
   });
 };
 
@@ -436,6 +536,11 @@ const addMessage = (
 
   messages.value.push(newMessage);
 
+  // 메시지 추가시마다 로컬 스토리지에 저장 (세션이 활성화된 경우에만)
+  if (isSessionActive.value) {
+    saveChatToStorage();
+  }
+
   nextTick(() => {
     scrollToBottom();
   });
@@ -566,7 +671,11 @@ const waitForSession = async (maxWaitTime = 10000) => {
 
 // 핸들러들
 const handleClose = async () => {
-  await endChatSession();
+  // 세션 종료 전에 채팅 데이터 저장
+  if (isSessionActive.value && messages.value.length > 0) {
+    saveChatToStorage();
+  }
+
   stopSessionTimer();
   removeRouterGuard();
   emit('close');
@@ -581,6 +690,11 @@ const scrollToBottom = () => {
 
 // 네비게이션 함수들
 const navigateToLogin = () => {
+  // 채팅 데이터 저장
+  if (isSessionActive.value && messages.value.length > 0) {
+    saveChatToStorage();
+  }
+
   stopSessionTimer();
   removeRouterGuard();
   emit('close');
@@ -590,7 +704,11 @@ const navigateToLogin = () => {
 };
 
 const navigateToPost = async (postId) => {
-  await endChatSession();
+  // 채팅 데이터 저장
+  if (isSessionActive.value && messages.value.length > 0) {
+    saveChatToStorage();
+  }
+
   stopSessionTimer();
   removeRouterGuard();
   emit('close');
@@ -603,6 +721,11 @@ const navigateToMore = (url) => {
   if (!url || typeof url !== 'string') {
     console.warn('유효하지 않은 URL:', url);
     return;
+  }
+
+  // 채팅 데이터 저장
+  if (isSessionActive.value && messages.value.length > 0) {
+    saveChatToStorage();
   }
 
   stopSessionTimer();
@@ -619,6 +742,11 @@ const navigateToMore = (url) => {
 };
 
 const navigateToSurvey = () => {
+  // 채팅 데이터 저장
+  if (isSessionActive.value && messages.value.length > 0) {
+    saveChatToStorage();
+  }
+
   stopSessionTimer();
   removeRouterGuard();
   emit('close');
@@ -1006,22 +1134,41 @@ onMounted(async () => {
   setupRouterGuard();
 
   try {
-    await createChatSession();
-    await waitForSession();
-    // 세션 타이머 시작
-    startSessionTimer();
+    // 저장된 대화 기록 복원 시도
+    const hasRestoredChat = loadChatFromStorage();
 
-    // 비회원에게 환영 메시지 표시
-    if (!isAuthenticated()) {
-      addMessage(
-        '안녕하세요! 🤖 금융 상담 챗봇입니다.\n\n기본적인 금융 정보는 누구나 이용 가능하며, 로그인하시면 개인화된 상담과 더 많은 기능을 이용하실 수 있습니다.',
-        'bot'
-      );
+    if (hasRestoredChat) {
+      // 복원된 세션의 경우 타이머 재시작
+      startSessionTimer();
+
+      // 복원 후 스크롤을 맨 아래로 이동
+      nextTick(() => {
+        scrollToBottom();
+      });
+
+      console.log('✅ 채팅 기록이 성공적으로 복원되었습니다.');
     } else {
-      addMessage(
-        '안녕하세요! 🤖 금융 상담 챗봇입니다.\n\n개인화된 금융 상담과 다양한 서비스를 이용해보세요!',
-        'bot'
-      );
+      // 새로운 세션 시작
+      await createChatSession();
+      await waitForSession();
+
+      // 세션 타이머 시작
+      sessionStartTime.value = Date.now();
+      sessionTimeRemaining.value = SESSION_DURATION;
+      startSessionTimer();
+
+      // 환영 메시지 표시
+      if (!isAuthenticated()) {
+        addMessage(
+          '안녕하세요! 🤖 금융 상담 챗봇입니다.\n\n기본적인 금융 정보는 누구나 이용 가능하며, 로그인하시면 개인화된 상담과 더 많은 기능을 이용하실 수 있습니다.',
+          'bot'
+        );
+      } else {
+        addMessage(
+          '안녕하세요! 🤖 금융 상담 챗봇입니다.\n\n개인화된 금융 상담과 다양한 서비스를 이용해보세요!',
+          'bot'
+        );
+      }
     }
   } catch (error) {
     console.error('초기 세션 생성 실패:', error);
@@ -1034,7 +1181,11 @@ onMounted(async () => {
 });
 
 onUnmounted(async () => {
-  await endChatSession();
+  // 컴포넌트 언마운트시 채팅 데이터 저장
+  if (isSessionActive.value && messages.value.length > 0) {
+    saveChatToStorage();
+  }
+
   stopSessionTimer();
   removeRouterGuard();
 });
@@ -1049,6 +1200,9 @@ defineExpose({
   sendMessageToGPT,
   sessionTimeRemaining,
   isSessionActive,
+  saveChatToStorage,
+  loadChatFromStorage,
+  clearChatStorage,
 });
 </script>
 
@@ -1058,8 +1212,9 @@ defineExpose({
   flex-direction: column;
   height: 100vh;
   width: 100vw;
-  max-width: 30rem;
+  max-width: 26.875rem; /* 430px / 16 */
   overflow: hidden;
+  background-color: var(--color-white);
 }
 
 .service-buttons-overlay {
@@ -1081,7 +1236,7 @@ defineExpose({
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(0.25rem); /* 4px / 16 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1090,10 +1245,10 @@ defineExpose({
 }
 
 .modal-content {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  max-width: 400px;
+  background: var(--color-white);
+  border-radius: 0.75rem; /* 12px / 16 */
+  box-shadow: 0 0.625rem 2.5rem rgba(0, 0, 0, 0.3); /* 10px, 40px / 16 */
+  max-width: 25rem; /* 400px / 16 */
   width: 90%;
   max-height: 80vh;
   overflow: hidden;
@@ -1103,30 +1258,31 @@ defineExpose({
 .modal-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 24px 24px 16px;
-  border-bottom: 1px solid #e5e7eb;
+  gap: 0.75rem; /* 12px / 16 */
+  padding: 1.5rem 1.5rem 1rem; /* 24px, 24px, 16px / 16 */
+  border-bottom: 0.0625rem solid var(--color-bg-light); /* 1px / 16 */
 }
 
 .modal-header i {
-  font-size: 20px;
+  font-size: 1.25rem; /* 20px / 16 */
 }
 
 .modal-header h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: 1.125rem; /* 18px / 16 */
   font-weight: 600;
-  color: #1f2937;
+  color: var(--color-main);
 }
 
 .modal-body {
-  padding: 20px 24px;
+  padding: 1.25rem 1.5rem; /* 20px, 24px / 16 */
 }
 
 .modal-body p {
-  margin: 0 0 12px;
-  color: #6b7280;
+  margin: 0 0 0.75rem; /* 12px / 16 */
+  color: var(--color-sub);
   line-height: 1.5;
+  font-size: 0.875rem; /* 14px / 16 */
 }
 
 .modal-body p:last-child {
@@ -1135,19 +1291,19 @@ defineExpose({
 
 .modal-footer {
   display: flex;
-  gap: 12px;
-  padding: 16px 24px 24px;
+  gap: 0.75rem; /* 12px / 16 */
+  padding: 1rem 1.5rem 1.5rem; /* 16px, 24px, 24px / 16 */
   justify-content: flex-end;
 }
 
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
+  gap: 0.5rem; /* 8px / 16 */
+  padding: 0.625rem 1rem; /* 10px, 16px / 16 */
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 0.5rem; /* 8px / 16 */
+  font-size: 0.875rem; /* 14px / 16 */
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1155,37 +1311,37 @@ defineExpose({
 }
 
 .btn i {
-  font-size: 14px;
+  font-size: 0.875rem; /* 14px / 16 */
 }
 
 .btn-primary {
-  background: #3b82f6;
-  color: white;
+  background: var(--color-main);
+  color: var(--color-white);
 }
 
 .btn-primary:hover {
-  background: #2563eb;
-  transform: translateY(-1px);
+  background: #1e2659;
+  transform: translateY(-0.0625rem); /* 1px / 16 */
 }
 
 .btn-danger {
   background: #ef4444;
-  color: white;
+  color: var(--color-white);
 }
 
 .btn-danger:hover {
   background: #dc2626;
-  transform: translateY(-1px);
+  transform: translateY(-0.0625rem); /* 1px / 16 */
 }
 
 .btn-secondary {
-  background: #6b7280;
-  color: white;
+  background: var(--color-sub);
+  color: var(--color-white);
 }
 
 .btn-secondary:hover {
-  background: #4b5563;
-  transform: translateY(-1px);
+  background: #6a6d8a;
+  transform: translateY(-0.0625rem); /* 1px / 16 */
 }
 
 /* 텍스트 컬러 클래스 */
@@ -1204,7 +1360,7 @@ defineExpose({
 /* Font Awesome 아이콘 애니메이션 효과 */
 .fas {
   transition: all 0.3s ease;
-  margin-right: 8px;
+  margin-right: 0.5rem; /* 8px / 16 */
 }
 
 .fas:hover {
@@ -1242,7 +1398,7 @@ defineExpose({
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(1.25rem); /* 20px / 16 */
   }
   to {
     opacity: 1;
@@ -1289,6 +1445,33 @@ defineExpose({
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* 모바일 반응형 */
+@media (max-width: 23.4375rem) {
+  /* 375px / 16 */
+  .modal-content {
+    width: 95%;
+    margin: 0 0.625rem; /* 10px / 16 */
+  }
+
+  .modal-header {
+    padding: 1rem 1rem 0.75rem; /* 16px, 16px, 12px / 16 */
+  }
+
+  .modal-body {
+    padding: 1rem; /* 16px / 16 */
+  }
+
+  .modal-footer {
+    padding: 0.75rem 1rem 1rem; /* 12px, 16px, 16px / 16 */
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 </style>

@@ -58,25 +58,26 @@ defineEmits(['close', 'proceed']);
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: transparent; /* 배경 투명하게 변경 */
 }
 
 .modal-content {
   background: var(--color-white);
-  border-radius: 16px;
+  border-radius: 1rem; /* 16px → 1rem */
   padding: 2.5rem 2rem 2rem;
   text-align: center;
-  max-width: 400px;
+  max-width: 25rem; /* 400px → 25rem */
   width: 100%;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1.25rem 2.5rem rgba(0, 0, 0, 0.15); /* px → rem */
   position: relative;
   animation: modalSlideIn 0.4s ease-out;
+  border: 0.0625rem solid var(--color-bg-light); /* 경계선 추가로 모달 구분 */
 }
 
 @keyframes modalSlideIn {
   from {
     opacity: 0;
-    transform: scale(0.9) translateY(20px);
+    transform: scale(0.9) translateY(1.25rem); /* 20px → 1.25rem */
   }
   to {
     opacity: 1;
@@ -85,15 +86,15 @@ defineEmits(['close', 'proceed']);
 }
 
 .success-icon {
-  width: 80px;
-  height: 80px;
+  width: 5rem; /* 80px → 5rem */
+  height: 5rem;
   margin: 0 auto 2rem;
   border-radius: 50%;
   background: #10b981;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--color-white);
   font-size: 2rem;
   animation: iconScale 0.5s ease-out 0.2s both;
 }
@@ -131,9 +132,9 @@ defineEmits(['close', 'proceed']);
   width: 100%;
   padding: 1.125rem 2rem;
   background: var(--color-main);
-  color: white;
+  color: var(--color-white);
   border: none;
-  border-radius: 12px;
+  border-radius: 0.75rem; /* 12px → 0.75rem */
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
@@ -146,14 +147,14 @@ defineEmits(['close', 'proceed']);
 }
 
 .modal-btn:hover {
-  background: #252968;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(45, 51, 107, 0.25);
+  background: var(--color-sub);
+  transform: translateY(-0.125rem); /* -2px → -0.125rem */
+  box-shadow: 0 0.5rem 1.25rem rgba(45, 51, 107, 0.25); /* px → rem */
 }
 
 .modal-btn:active {
   transform: translateY(0);
-  box-shadow: 0 4px 12px rgba(45, 51, 107, 0.2);
+  box-shadow: 0 0.25rem 0.75rem rgba(45, 51, 107, 0.2); /* px → rem */
 }
 
 .modal-btn i {
@@ -162,23 +163,24 @@ defineEmits(['close', 'proceed']);
 }
 
 .modal-btn:hover i {
-  transform: translateX(2px);
+  transform: translateX(0.125rem); /* 2px → 0.125rem */
 }
 
-@media (max-width: 768px) {
+@media (max-width: 23.4375rem) {
+  /* 375px → 23.4375rem */
   .success-modal {
     padding: 1rem;
   }
 
   .modal-content {
-    border-radius: 12px;
+    border-radius: 0.75rem; /* 12px → 0.75rem */
     padding: 2rem 1.5rem 1.5rem;
     max-width: calc(100vw - 2rem);
   }
 
   .success-icon {
-    width: 60px;
-    height: 60px;
+    width: 3.75rem; /* 60px → 3.75rem */
+    height: 3.75rem;
     font-size: 1.5rem;
     margin-bottom: 1.25rem;
   }

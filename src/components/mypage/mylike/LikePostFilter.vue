@@ -73,9 +73,13 @@ const handleToggleProduct = (tag) => {
 
 .tag-list {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  flex-wrap: nowrap; /* 줄바꿈 방지 */
+  gap: 0.2rem;
   margin-top: 0.5rem;
+  -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
+  padding-bottom: 0.25rem;
+  text-align: center;
+  justify-content: center;
 }
 
 .tag-button {

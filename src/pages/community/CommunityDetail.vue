@@ -65,7 +65,7 @@
               <span class="count">{{ post.likes || 0 }}</span>
             </button>
 
-            <button class="reaction-btn" @click="toggleComments" aria-label="댓글 보기">
+            <button class="reaction-btn" aria-label="댓글 보기" @click="toggleComments">
               <i class="fas fa-comment"></i>
               <span class="count">{{ comments.length }}</span>
             </button>
@@ -89,7 +89,7 @@
           class="comment-input"
           @keypress.enter="submitComment"
         />
-        <button class="comment-submit" @click="submitComment" :disabled="!newComment.trim()">
+        <button class="comment-submit" :disabled="!newComment.trim()" @click="submitComment">
           등록
         </button>
       </div>
@@ -120,7 +120,7 @@
           class="comment-input"
           @keypress.enter="submitComment"
         />
-        <button class="comment-submit" @click="submitComment" :disabled="!newComment.trim()">
+        <button class="comment-submit" :disabled="!newComment.trim()" @click="submitComment">
           등록
         </button>
       </div>
@@ -171,6 +171,7 @@ const toastType = ref('success');
 // 날짜 배열 포맷: [2024, 7, 25, 13, 45] → "07/25 13:45"
 const formattedTime = (arr) => {
   if (!arr || arr.length < 5) return '';
+  // eslint-disable-next-line no-unused-vars
   const [_, month, day, hour, minute] = arr;
   return `${String(month).padStart(2, '0')}/${String(day).padStart(
     2,

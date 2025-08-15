@@ -6,16 +6,16 @@
     <div v-else class="my-likes-content">
       <!-- 필터 섹션 -->
       <LikePostFilter
-        :productTags="productTags"
-        :selectedProducts="selectedProducts"
+        :product-tags="productTags"
+        :selected-products="selectedProducts"
         @toggle-product="toggleProduct"
       />
 
       <!-- 좋아요 게시글 목록 섹션 -->
       <LikePostList
         :posts="filteredPosts"
-        :currentPage="currentPage"
-        :postsPerPage="postsPerPage"
+        :current-page="currentPage"
+        :posts-per-page="postsPerPage"
         @page-change="changePage"
         @post-click="goToDetailPage"
         @like="handleLike"
@@ -213,21 +213,23 @@ defineExpose({ refreshPost });
 
 <style scoped>
 .my-likes-container {
-  padding: 1rem;
-  max-width: 48rem;
+  width: 100%;
+  max-width: 26.875rem; /* 430px */
   margin: 0 auto;
-  background-color: white;
+  padding: 1rem;
+  background-color: var(--color-white);
   min-height: 100vh;
 }
 
 .my-likes-content {
-  margin: 0 auto;
+  width: 100%;
 }
 
-/* 반응형 디자인 */
-@media (max-width: 48rem) {
+/* 모바일 최적화 - 작은 화면에서 패딩 조정 */
+@media (max-width: 23.4375rem) {
+  /* 375px */
   .my-likes-container {
-    padding: 0.5rem;
+    padding: 0.75rem;
   }
 }
 </style>

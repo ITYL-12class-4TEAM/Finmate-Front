@@ -343,10 +343,12 @@ onMounted(() => {
 
 <style scoped>
 .recent-view-page {
-  min-height: 100vh;
-  padding: 0rem;
-  max-width: 1200px;
+  width: 100%;
+  max-width: 26.875rem; /* 430px */
   margin: 0 auto;
+  padding: 1rem;
+  background-color: var(--color-white);
+  min-height: 100vh;
 }
 
 /* 로딩 상태 */
@@ -354,7 +356,7 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 50vh;
+  min-height: 31.25rem; /* 500px */
 }
 
 .loading-spinner {
@@ -362,8 +364,8 @@ onMounted(() => {
   padding: 2rem;
   background: var(--color-white);
   border-radius: 1rem;
-  border: 1px solid rgba(185, 187, 204, 0.2);
-  box-shadow: 0 2px 12px -4px rgba(45, 51, 107, 0.05);
+  border: 0.0625rem solid var(--color-bg-light);
+  box-shadow: 0 0.125rem 0.75rem -0.25rem rgba(45, 51, 107, 0.05);
 }
 
 .spinner-icon {
@@ -399,8 +401,8 @@ onMounted(() => {
 }
 
 .loading-dots span {
-  width: 6px;
-  height: 6px;
+  width: 0.375rem;
+  height: 0.375rem;
   background: var(--color-main);
   border-radius: 50%;
   animation: loadingDots 1.4s ease-in-out infinite both;
@@ -431,7 +433,7 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 50vh;
+  min-height: 31.25rem; /* 500px */
 }
 
 .error-content {
@@ -439,9 +441,9 @@ onMounted(() => {
   padding: 2rem;
   background: var(--color-white);
   border-radius: 1rem;
-  border: 1px solid rgba(185, 187, 204, 0.2);
-  box-shadow: 0 2px 12px -4px rgba(45, 51, 107, 0.05);
-  max-width: 400px;
+  border: 0.0625rem solid var(--color-bg-light);
+  box-shadow: 0 0.125rem 0.75rem -0.25rem rgba(45, 51, 107, 0.05);
+  max-width: 25rem; /* 400px */
 }
 
 .error-icon {
@@ -483,7 +485,7 @@ onMounted(() => {
 
 .retry-btn:hover {
   background: var(--color-sub);
-  transform: translateY(-1px);
+  transform: translateY(-0.0625rem);
 }
 
 .retry-btn i {
@@ -497,42 +499,6 @@ onMounted(() => {
   gap: 1.5rem;
 }
 
-/* 페이지 헤더 */
-.page-header {
-  text-align: center;
-}
-
-.header-content {
-  background: var(--color-white);
-  border-radius: 1rem;
-  padding: 2rem;
-  border: 1px solid rgba(185, 187, 204, 0.2);
-  box-shadow: 0 2px 12px -4px rgba(45, 51, 107, 0.05);
-}
-
-.page-title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-main);
-  margin-bottom: 0.75rem;
-}
-
-.page-title i {
-  font-size: 1.25rem;
-  color: var(--color-sub);
-}
-
-.page-description {
-  font-size: 0.875rem;
-  color: var(--color-sub);
-  font-weight: 400;
-  margin: 0;
-}
-
 /* 페이지네이션 */
 .pagination-container {
   display: flex;
@@ -540,105 +506,24 @@ onMounted(() => {
   padding: 1rem;
   background: var(--color-white);
   border-radius: 1rem;
-  border: 1px solid rgba(185, 187, 204, 0.2);
-  box-shadow: 0 2px 12px -4px rgba(45, 51, 107, 0.05);
+  border: 0.0625rem solid var(--color-bg-light);
+  box-shadow: 0 0.125rem 0.75rem -0.25rem rgba(45, 51, 107, 0.05);
 }
 
-/* 웹 최적화 (데스크톱) */
-@media (min-width: 769px) {
+/* 모바일 최적화 - 작은 화면에서 패딩 조정 */
+@media (max-width: 23.4375rem) {
+  /* 375px */
   .recent-view-page {
-    padding: 0rem;
-  }
-
-  .main-content {
-    gap: 2rem;
-  }
-
-  .header-content {
-    padding: 2.5rem;
-    border-radius: 1.25rem;
-  }
-
-  .page-title {
-    font-size: 1.75rem;
-    gap: 1rem;
-  }
-
-  .page-title i {
-    font-size: 1.5rem;
-  }
-
-  .page-description {
-    font-size: 1rem;
-  }
-
-  .loading-spinner,
-  .error-content {
-    padding: 3rem;
-    border-radius: 1.25rem;
-  }
-
-  .pagination-container {
-    padding: 1.5rem;
-    border-radius: 1.25rem;
-  }
-}
-
-/* 태블릿 최적화 */
-@media (max-width: 768px) and (min-width: 481px) {
-  .recent-view-page {
-    padding: 0rem;
-  }
-
-  .header-content {
-    padding: 1.75rem;
-  }
-
-  .page-title {
-    font-size: 1.375rem;
-  }
-
-  .loading-spinner,
-  .error-content {
-    padding: 2.5rem;
-    margin: 0 1rem;
-  }
-}
-
-/* 모바일 최적화 */
-@media (max-width: 480px) {
-  .recent-view-page {
-    padding: 0rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding: 0.75rem;
   }
 
   .main-content {
     gap: 1.25rem;
   }
 
-  .header-content {
-    padding: 1.5rem;
-  }
-
-  .page-title {
-    font-size: 1.25rem;
-    gap: 0.5rem;
-    flex-direction: column;
-  }
-
-  .page-title i {
-    font-size: 1.125rem;
-  }
-
-  .page-description {
-    font-size: 0.8rem;
-  }
-
   .loading-spinner,
   .error-content {
     padding: 1.5rem;
-    margin: 0 0.5rem;
   }
 
   .spinner-icon i,
@@ -668,67 +553,15 @@ onMounted(() => {
   }
 }
 
-/* 접근성 & 기타 최적화 */
+/* 접근성 최적화 */
 @media (prefers-reduced-motion: reduce) {
   .spinner-icon i,
   .loading-dots span {
     animation: none;
   }
-}
-
-@media (prefers-contrast: high) {
-  .header-content,
-  .loading-spinner,
-  .error-content,
-  .pagination-container {
-    border-width: 2px;
-    border-color: var(--color-main);
-  }
-}
-
-/* 다크 모드 */
-@media (prefers-color-scheme: dark) {
-  .recent-view-page {
-    background: #0f172a;
-  }
-
-  .header-content,
-  .loading-spinner,
-  .error-content,
-  .pagination-container {
-    background: rgba(30, 30, 30, 0.95);
-    border-color: rgba(125, 129, 162, 0.3);
-  }
-
-  .page-title {
-    color: rgba(255, 255, 255, 0.9);
-  }
-
-  .page-description,
-  .loading-text,
-  .error-message {
-    color: rgba(185, 187, 204, 0.9);
-  }
-}
-
-/* 인쇄 스타일 */
-@media print {
-  .recent-view-page {
-    background: white;
-    padding: 1rem;
-  }
-
-  .header-content,
-  .loading-spinner,
-  .error-content,
-  .pagination-container {
-    background: white;
-    border: 1px solid #333;
-    box-shadow: none;
-  }
 
   .retry-btn {
-    display: none;
+    transition: none;
   }
 }
 </style>

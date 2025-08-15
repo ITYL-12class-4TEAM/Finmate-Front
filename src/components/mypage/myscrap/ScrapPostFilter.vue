@@ -40,12 +40,16 @@ const handleToggleProduct = (tag) => {
 </script>
 
 <style scoped>
-/* 필터 섹션 - 커뮤니티와 동일한 스타일 */
+/* 필터 섹션 */
 .filter-section {
+  width: 100%;
+  max-width: 26.875rem; /* 430px */
+  margin: 0 auto;
   padding: 1rem;
   border: 0.125rem solid var(--color-bg-light);
   border-radius: 1.25rem;
   margin-bottom: 0.5rem;
+  background-color: var(--color-white);
 }
 
 .filter-label {
@@ -73,9 +77,27 @@ const handleToggleProduct = (tag) => {
 
 .tag-list {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  flex-wrap: nowrap; /* 줄바꿈 방지 */
+  gap: 0.2rem;
   margin-top: 0.5rem;
+  -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
+  padding-bottom: 0.25rem;
+  text-align: center;
+  justify-content: center;
+}
+
+/* 스크롤바 스타일링 */
+.tag-list::-webkit-scrollbar {
+  height: 0.125rem;
+}
+
+.tag-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tag-list::-webkit-scrollbar-thumb {
+  background: var(--color-light);
+  border-radius: 0.0625rem;
 }
 
 .tag-button {
@@ -83,7 +105,7 @@ const handleToggleProduct = (tag) => {
   padding: 0.4rem 1rem;
   border-radius: 1.25rem;
   border: 0.125rem solid var(--color-bg-light);
-  background-color: white;
+  background-color: var(--color-white);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -91,10 +113,14 @@ const handleToggleProduct = (tag) => {
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  flex-shrink: 0; /* 버튼 크기 고정 */
+  white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+  color: var(--color-main);
 }
 
 .tag-button i {
   font-size: 0.7rem;
+  color: var(--color-sub);
 }
 
 .tag-button:hover {
@@ -109,11 +135,16 @@ const handleToggleProduct = (tag) => {
 .tag-button.selected {
   background-color: var(--color-main);
   border-color: var(--color-main);
-  color: white;
+  color: var(--color-white);
 }
 
-/* 반응형 디자인 */
-@media (max-width: 48rem) {
+.tag-button.selected i {
+  color: var(--color-white);
+}
+
+/* 모바일 최적화 */
+@media (max-width: 23.4375rem) {
+  /* 375px */
   .filter-section {
     padding: 0.75rem;
   }

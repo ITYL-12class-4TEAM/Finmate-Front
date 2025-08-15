@@ -157,7 +157,7 @@
         <div v-if="moreUrl" class="more-section mt-3">
           <button class="more-button w-100" @click="navigateToMore">
             <div class="button-content d-flex align-items-center justify-content-center gap-2">
-              <span class="button-text">더 많은 최근 상품 보기</span>
+              <span class="button-text">더 보기</span>
               <div class="button-arrow">
                 <i class="fas fa-arrow-right" style="font-size: 0.875rem"></i>
               </div>

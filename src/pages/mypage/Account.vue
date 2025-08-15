@@ -6,11 +6,11 @@
 
       <!-- 비밀번호 입력 폼 -->
       <VerifyPasswordForm
-        :currentPassword="currentPassword"
-        :showPassword="showPassword"
+        :current-password="currentPassword"
+        :show-password="showPassword"
         :loading="loading"
-        :hasError="hasError"
-        :errorMessage="errorMessage"
+        :has-error="hasError"
+        :error-message="errorMessage"
         @update:password="currentPassword = $event"
         @toggle-visibility="togglePasswordVisibility"
         @clear-error="clearError"
@@ -38,7 +38,6 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { memberAPI } from '../../api/member';
 import { authAPI } from '../../api/auth';
-import VerifyUserCard from '@/components/mypage/verify/VerifyUserCard.vue';
 import VerifyPasswordForm from '@/components/mypage/verify/VerifyPasswordForm.vue';
 import VerifySecurityNotice from '@/components/mypage/verify/VerifySecurityNotice.vue';
 import VerifyBottomLinks from '@/components/mypage/verify/VerifyBottomLinks.vue';
@@ -149,30 +148,27 @@ const proceedToEdit = () => {
 
 <style scoped>
 .password-verify {
-  min-height: 100vh;
+  width: 100%;
+  max-width: 26.875rem; /* 430px */
+  margin: 0 auto;
+  padding: 1rem;
   background: var(--color-white);
-  padding: 2rem 1rem;
+  min-height: 100vh;
   display: flex;
   align-items: center;
 }
 
 .verify-container {
-  max-width: 420px;
-  margin: 0 auto;
   width: 100%;
 }
 
-@media (max-width: 768px) {
+/* 모바일 최적화 - 작은 화면에서 패딩 조정 */
+@media (max-width: 23.4375rem) {
+  /* 375px */
   .password-verify {
-    padding: 1.5rem 1rem;
+    padding: 0.75rem;
     align-items: flex-start;
     padding-top: 2rem;
-    margin-top: 3rem;
-  }
-
-  .verify-container {
-    max-width: 100%;
-    margin: 0;
   }
 }
 </style>

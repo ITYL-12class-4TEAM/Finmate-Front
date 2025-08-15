@@ -9,17 +9,17 @@
     <!-- 탈퇴 확인 폼 -->
     <DeleteConfirmSection
       v-if="showConfirmation"
-      :userInfo="userInfo"
-      :confirmEmail="confirmEmail"
-      :deleteReason="deleteReason"
-      :additionalFeedback="additionalFeedback"
-      :finalConfirm="finalConfirm"
-      :emailError="emailError"
+      :user-info="userInfo"
+      :confirm-email="confirmEmail"
+      :delete-reason="deleteReason"
+      :additional-feedback="additionalFeedback"
+      :final-confirm="finalConfirm"
+      :email-error="emailError"
       :processing="processing"
-      @update:confirmEmail="confirmEmail = $event"
-      @update:deleteReason="deleteReason = $event"
-      @update:additionalFeedback="additionalFeedback = $event"
-      @update:finalConfirm="finalConfirm = $event"
+      @update:confirm-email="confirmEmail = $event"
+      @update:delete-reason="deleteReason = $event"
+      @update:additional-feedback="additionalFeedback = $event"
+      @update:final-confirm="finalConfirm = $event"
       @clear-email-error="clearEmailError"
       @proceed="proceedToDelete"
       @cancel="cancelDeletion"
@@ -181,16 +181,19 @@ onMounted(() => {
 
 <style scoped>
 .delete-account {
-  min-height: 100vh;
-  background-color: var(--color-white);
-  padding: 2rem 0;
-  max-width: 800px;
+  width: 100%;
+  max-width: 26.875rem; /* 430px */
   margin: 0 auto;
+  padding: 1rem;
+  background-color: var(--color-white);
+  min-height: 100vh;
 }
 
-@media (max-width: 768px) {
+/* 모바일 최적화 - 작은 화면에서 패딩 조정 */
+@media (max-width: 23.4375rem) {
+  /* 375px */
   .delete-account {
-    padding: 1rem 0;
+    padding: 0.75rem;
   }
 }
 </style>
