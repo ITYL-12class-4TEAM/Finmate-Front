@@ -128,7 +128,6 @@ import ProductFeatures from '@/components/products/detail/ProductFeatures.vue';
 import CompareFloatingBar from '@/components/products/compare/CompareFloatingBar.vue';
 import GptDetailModal from '@/components/products/detail/GptDetailModal.vue';
 import useCompareList from '@/composables/useCompareList';
-import { useToast } from '@/composables/useToast';
 import { resolveCompanyLogo } from '@/constants/companyLogoMap';
 
 const route = useRoute();
@@ -137,7 +136,6 @@ const router = useRouter();
 const product = ref(null);
 const loading = ref(true);
 const error = ref(null);
-const selectedTerm = ref({ name: '', description: '' });
 const showGptDetailModal = ref(false);
 
 const {
@@ -553,9 +551,9 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0rem;
   width: 100%;
-  padding: 0 1rem;
+  padding: 0 0.75rem;
 }
 
 .header-left {
@@ -569,13 +567,15 @@ onMounted(() => {
   gap: 0.375rem;
   background: var(--color-white);
   color: var(--color-main);
+  height: 2.1rem;
   border: 0.0625rem solid var(--color-light);
   border-radius: 1.5rem;
-  padding: 0.5rem 0.875rem;
+  padding: 0.5rem 0.75rem;
   font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.1);
 }
 
 .favorite-btn:hover {
@@ -588,7 +588,6 @@ onMounted(() => {
 
 .favorite-btn .favorite-icon {
   color: #ffd700;
-  font-size: 1rem;
 }
 
 .favorite-btn .btn-text {
@@ -601,9 +600,10 @@ onMounted(() => {
   gap: 0.375rem;
   background: var(--color-white);
   color: var(--color-main);
+  height: 2.1rem;
   border: 0.0625rem solid var(--color-light);
   border-radius: 1.5rem;
-  padding: 0.5rem 0.875rem;
+  padding: 0.5rem 0.75rem;
   font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
@@ -750,7 +750,7 @@ onMounted(() => {
   filter: brightness(110%);
 }
 
-@media (max-width: 26.875rem) {
+@media (max-width: 20rem) {
   .page-header {
     padding: 0 0.75rem;
   }

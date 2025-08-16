@@ -514,7 +514,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 2.625rem;
+  height: 2.1rem;
   background-color: var(--color-white);
   padding: 0 0rem;
   border-bottom: 0.0625rem solid #f0f0f0;
