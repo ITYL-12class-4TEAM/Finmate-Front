@@ -77,9 +77,9 @@
         <div v-if="gptLoading" class="btn-loading">
           <div class="mini-spinner"></div>
         </div>
-        <span v-else class="gpt-icon">🤖</span>
+        <i v-else class="fas fa-brain"></i>
         <span class="btn-text">
-          {{ gptLoading ? '분석 중...' : 'MATE 비교요약' }}
+          {{ gptLoading ? '분석 중...' : 'AI 비교요약' }}
         </span>
       </button>
     </div>
@@ -102,7 +102,7 @@ import CompareTable from '@/components/products/compare/CompareTable.vue';
 import CompareEmptyState from '@/components/products/compare/CompareEmptyState.vue';
 import CompareErrorState from '@/components/products/compare/CompareErrorState.vue';
 import { compareProductsAPI } from '../../api/product';
-import GptExampleModal from '@/components/products/compare/GptExampleModal.vue';
+import GptExampleModal from '@/components/products/compare/GptModal.vue';
 
 // 라우터 및 컴포저블 초기화
 const router = useRouter();
@@ -506,16 +506,18 @@ onMounted(() => {
 .compare-page {
   padding-bottom: 5rem;
   min-height: 100vh;
+  max-width: 26.875rem;
+  margin: 0 auto;
 }
 
 .page-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 42px;
-  background-color: #ffffff;
+  height: 2.625rem;
+  background-color: var(--color-white);
   padding: 0 0rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 0.0625rem solid #f0f0f0;
   box-sizing: border-box;
 }
 
@@ -528,16 +530,18 @@ onMounted(() => {
 
 .header-left {
   justify-content: flex-start;
-  flex: 0 0 auto; /* 뒤로가기 버튼 크기만큼만 차지 */
+  flex: 0 0 auto;
 }
+
 .header-center {
-  flex-grow: 1; /* 중앙 버튼이 남은 공간을 모두 차지하도록 설정 */
+  flex-grow: 1;
   justify-content: end;
   margin-right: 0.5rem;
 }
+
 .header-right {
   justify-content: flex-end;
-  flex: 0 0 auto; /* 비우기 버튼 크기만큼만 차지 */
+  flex: 0 0 auto;
 }
 
 .product-type-tabs {
@@ -565,7 +569,7 @@ onMounted(() => {
 }
 
 .tab-btn.active {
-  background-color: #fff;
+  background-color: var(--color-white);
   color: var(--color-main);
   font-weight: 600;
   box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.1);
@@ -581,7 +585,7 @@ onMounted(() => {
 }
 
 .message-container {
-  background-color: #ffffff;
+  background-color: var(--color-white);
   border-radius: 0.75rem;
   padding: 1.25rem;
   box-shadow: 0 0.25rem 1.5rem rgba(45, 51, 107, 0.08);
@@ -593,7 +597,7 @@ onMounted(() => {
   width: 3.5rem;
   height: 3.5rem;
   background-color: var(--color-main);
-  color: white;
+  color: var(--color-white);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -617,7 +621,7 @@ onMounted(() => {
 
 .go-to-list-btn {
   background-color: var(--color-main);
-  color: white;
+  color: var(--color-white);
   border: none;
   border-radius: 0.5rem;
   padding: 0.75rem 1.5rem;
@@ -631,19 +635,9 @@ onMounted(() => {
   background-color: #373d7c;
 }
 
-.compare-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #ffffff;
-  padding: 0.55rem 1.5rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.03);
-}
-
 .list-btn {
-  background: #ffffff;
-  border: 1px solid var(--color-sub);
+  background: var(--color-white);
+  border: 0.0625rem solid var(--color-sub);
   color: var(--color-main);
   font-size: 0.8rem;
   font-weight: 600;
@@ -656,7 +650,7 @@ onMounted(() => {
 
 .clear-btn {
   background: #ebebeb;
-  border: 1px solid var(--color-sub);
+  border: 0.0625rem solid var(--color-sub);
   color: var(--color-sub);
   font-size: 0.8rem;
   font-weight: 500;
@@ -669,7 +663,7 @@ onMounted(() => {
 
 .list-btn:hover {
   background-color: var(--color-main);
-  color: #ffffff;
+  color: var(--color-white);
 }
 
 .clear-btn:hover {
@@ -677,7 +671,6 @@ onMounted(() => {
   border-color: #d0d0d0;
   color: var(--color-main);
 }
-/* ----- 버튼 스타일 수정 끝 ----- */
 
 .loading-state {
   display: flex;
@@ -711,15 +704,15 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, var(--color-main) 0%, #3d4785 100%);
-  color: white;
-  border: none;
-  border-radius: 2rem;
+  background: var(--color-white);
+  color: var(--color-main);
+  border: 0.0625rem solid var(--color-light);
+  border-radius: 1.5rem;
   padding: 0.75rem 1.25rem;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 0.5rem 1.5rem rgba(45, 51, 107, 0.3);
+  box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.1);
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
   min-width: 10rem;
@@ -731,17 +724,18 @@ onMounted(() => {
 }
 
 .gpt-summary-btn:not(:disabled):hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0.75rem 2rem rgba(45, 51, 107, 0.4);
+  background-color: var(--color-bg-light);
+  transform: translateY(-0.125rem);
+  box-shadow: 0 0.25rem 0.75rem rgba(45, 51, 107, 0.15);
 }
 
 .gpt-summary-btn:active {
   transform: translateY(0);
 }
 
-.gpt-icon {
-  font-size: 1.125rem;
-  animation: bounce 2s infinite;
+.gpt-summary-btn i {
+  font-size: 1rem;
+  color: var(--color-main);
 }
 
 .btn-loading {
@@ -753,8 +747,8 @@ onMounted(() => {
 .mini-spinner {
   width: 1rem;
   height: 1rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
+  border: 0.125rem solid rgba(45, 51, 107, 0.3);
+  border-top-color: var(--color-main);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -763,40 +757,20 @@ onMounted(() => {
   white-space: nowrap;
 }
 
-@keyframes toastSlideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(1rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-}
-
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-@keyframes bounce {
-  0%,
-  20%,
-  53%,
-  80%,
-  100% {
-    transform: translate3d(0, 0, 0);
+@media (max-width: 26.875rem) {
+  .page-header {
+    padding: 0 0.75rem;
   }
-  40%,
-  43% {
-    transform: translate3d(0, -8px, 0);
-  }
-  70% {
-    transform: translate3d(0, -4px, 0);
-  }
-  90% {
-    transform: translate3d(0, -2px, 0);
+
+  .gpt-summary-btn {
+    padding: 0.625rem 1rem;
+    font-size: 0.8rem;
   }
 }
 </style>
