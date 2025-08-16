@@ -568,14 +568,10 @@ onMounted(async () => {
 }
 
 .username-highlight {
-  background: linear-gradient(135deg, var(--color-main), var(--color-sub));
-  color: var(--color-white);
-  padding: 0.3rem 0.75rem;
+  color: var(--color-main);
   margin-top: 2rem;
-  border-radius: 1rem;
   font-weight: 700;
-  display: inline-block;
-  box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.3);
+  font-size: 1.1rem;
 }
 
 .wmti-code-display {
@@ -583,9 +579,9 @@ onMounted(async () => {
 }
 
 .code-text {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 800;
-  background: linear-gradient(135deg, var(--color-main), var(--color-sub));
+  background: var(--color-main);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1161,17 +1157,17 @@ onMounted(async () => {
   width: 100%;
 }
 .action-button.primary {
-  background: linear-gradient(135deg, #8e44ad, #9b59b6);
+  background: #8e44ad;
   color: var(--color-white);
   box-shadow: 0 0.25rem 0.75rem rgba(142, 68, 173, 0.3);
 }
 .action-button.primary:hover {
   transform: translateY(-0.0625rem);
   box-shadow: 0 0.5rem 1.25rem rgba(142, 68, 173, 0.4);
-  background: linear-gradient(135deg, #732d91, #8e44ad);
+  background: #732d91;
 }
 .action-button.secondary {
-  background: linear-gradient(135deg, #3498db, #5dade2);
+  background: #3498db;
   color: var(--color-white);
   box-shadow: 0 0.25rem 0.75rem rgba(52, 152, 219, 0.3);
 }
@@ -1179,11 +1175,11 @@ onMounted(async () => {
 .action-button.secondary:hover {
   transform: translateY(-0.0625rem);
   box-shadow: 0 0.5rem 1.25rem rgba(52, 152, 219, 0.4);
-  background: linear-gradient(135deg, #2980b9, #3498db);
+  background: #2980b9;
 }
 
 .action-button.tertiary {
-  background: linear-gradient(135deg, #95a5a6, #bdc3c7);
+  background: #95a5a6;
   color: var(--color-white);
   box-shadow: 0 0.25rem 0.75rem rgba(149, 165, 166, 0.3);
 }
@@ -1191,7 +1187,7 @@ onMounted(async () => {
 .action-button.tertiary:hover {
   transform: translateY(-0.0625rem);
   box-shadow: 0 0.5rem 1.25rem rgba(149, 165, 166, 0.4);
-  background: linear-gradient(135deg, #7f8c8d, #95a5a6);
+  background: #7f8c8d;
 }
 
 .action-button:active {

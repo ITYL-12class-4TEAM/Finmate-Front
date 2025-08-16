@@ -97,12 +97,11 @@ const handleCardClick = async () => {
 .recent-view-item {
   background: var(--color-white);
   border-radius: 0.75rem;
-  padding: 2rem;
-  border: 1px solid #f1f5f9;
+  padding: 1rem;
+  border: 1px solid var(--color-light);
   transition: all 0.2s ease;
   position: relative;
   cursor: pointer;
-  /* 오른쪽에 여백 추가 */
   padding-right: 3rem;
 }
 
@@ -152,12 +151,6 @@ const handleCardClick = async () => {
 }
 
 @media (max-width: 768px) {
-  .recent-view-item {
-    padding: 1.5rem;
-    /* 모바일에서도 오른쪽 여백 */
-    padding-right: 2.5rem;
-  }
-
   .item-content {
     margin-top: 0.625rem;
   }
@@ -176,7 +169,7 @@ const handleCardClick = async () => {
 
 @media (max-width: 480px) {
   .recent-view-item {
-    padding: 1.5rem;
+    padding: 0.75rem;
     padding-right: 2.25rem;
   }
 

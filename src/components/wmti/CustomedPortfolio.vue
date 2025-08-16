@@ -937,11 +937,11 @@ onMounted(() => {
 }
 
 /* 근거 설명 서브섹션 제목 */
-.subsection-title {
+.reasoning-header .subsection-title {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-main);
-  margin: 0 0 0.875rem 0;
+  margin-bottom: 0;
   display: flex;
   align-items: center;
   gap: 0.3rem;

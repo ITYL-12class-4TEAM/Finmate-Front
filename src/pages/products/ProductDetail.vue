@@ -129,9 +129,11 @@ import CompareFloatingBar from '@/components/products/compare/CompareFloatingBar
 import GptDetailModal from '@/components/products/detail/GptDetailModal.vue';
 import useCompareList from '@/composables/useCompareList';
 import { resolveCompanyLogo } from '@/constants/companyLogoMap';
+import { useToast } from '@/composables/useToast';
 
 const route = useRoute();
 const router = useRouter();
+const { showToast } = useToast();
 
 const product = ref(null);
 const loading = ref(true);
@@ -551,7 +553,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0rem;
+  margin-bottom: 0.3rem;
   width: 100%;
   padding: 0 0.75rem;
 }
@@ -564,6 +566,8 @@ onMounted(() => {
 .favorite-btn {
   display: flex;
   align-items: center;
+  margin-left: auto;
+  margin-right: 0.3rem;
   gap: 0.375rem;
   background: var(--color-white);
   color: var(--color-main);

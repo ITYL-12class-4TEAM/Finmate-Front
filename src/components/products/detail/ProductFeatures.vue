@@ -162,7 +162,7 @@ const features = computed(() => {
 }
 
 .feature-icon i {
-  color: #9387d6;
+  color: var(--color-main);
 }
 
 .feature-content {
@@ -173,7 +173,7 @@ const features = computed(() => {
 
 .feature-label {
   font-size: 0.8125rem; /* 13px */
-  color: #5a607c; /* var(--color-sub)와 유사한 색상 */
+  color: var(--color-sub);
   margin-bottom: 0.25rem;
 }
 

@@ -195,7 +195,7 @@ const formattedTime = (arr) => {
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-sub), var(--color-light));
+  background: var(--color-sub);
   color: white;
   font-size: 0.625rem;
   font-weight: 600;

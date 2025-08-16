@@ -138,7 +138,6 @@ const heroCardStyle = computed(() => ({
   padding: 0;
   overflow: hidden;
   position: relative;
-  min-height: 20rem;
   display: flex;
   flex-direction: column;
 }
@@ -165,11 +164,11 @@ const heroCardStyle = computed(() => ({
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .hero-title {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 800;
   color: white;
   margin: 0;
@@ -178,7 +177,7 @@ const heroCardStyle = computed(() => ({
 }
 
 .hero-code {
-  font-size: 2.5rem;
+  font-size: 1.5rem;
   font-weight: 900;
   color: white;
   margin: 0;
@@ -197,16 +196,14 @@ const heroCardStyle = computed(() => ({
 
 .character-container {
   position: relative;
-  width: 10rem;
-  height: 10rem;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .character-image {
-  width: 9.5rem;
-  height: 9.5rem;
+  width: 7rem;
+  height: rem;
   object-fit: cover;
   border-radius: 1rem;
   filter: drop-shadow(0 0.25rem 0.75rem rgba(0, 0, 0, 0.15));
@@ -346,11 +343,6 @@ const heroCardStyle = computed(() => ({
   .hero-content {
     padding: 1.25rem;
     gap: 0.5rem;
-  }
-
-  .character-container {
-    width: 8rem;
-    height: 8rem;
   }
 
   .character-image,

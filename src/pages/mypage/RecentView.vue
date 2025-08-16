@@ -498,7 +498,7 @@ onMounted(() => {
 .main-content {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.5rem;
 }
 
 /* 페이지네이션 */

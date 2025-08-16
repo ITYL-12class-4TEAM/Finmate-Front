@@ -62,7 +62,7 @@ const handleClearAll = () => emit('delete-all');
   padding: 1rem 1.25rem;
   background: var(--color-white);
   border-radius: 0.75rem;
-  border: 1px solid #f1f5f9;
+  border: 1px solid var(--color-light);
   gap: 1rem;
 }
 

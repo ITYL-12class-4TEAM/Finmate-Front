@@ -460,14 +460,14 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  color: var(--color-sub);
+  color: var(--color-main);
   transition: all 0.2s ease;
   flex-shrink: 0;
   -webkit-tap-highlight-color: transparent;
 }
 
 .settings-btn:hover {
-  background: var(--color-sub);
+  background: var(--color-main);
   color: var(--color-white);
 }
 
@@ -573,12 +573,12 @@ onUnmounted(() => {
 
 .menu-item:hover .menu-icon,
 .menu-item.active .menu-icon {
-  background: var(--color-sub);
+  background: var(--color-main);
 }
 
 .menu-icon i {
   font-size: 1rem;
-  color: var(--color-sub);
+  color: var(--color-main);
   transition: color 0.2s ease;
 }
 

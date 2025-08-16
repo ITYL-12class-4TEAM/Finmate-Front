@@ -61,4 +61,17 @@ onMounted(fetchPopularProducts);
   overflow-x: auto;
   padding-bottom: 0.5rem;
 }
+
+.scroll-wrapper::-webkit-scrollbar {
+  height: 0.4rem;
+}
+
+.scroll-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-wrapper::-webkit-scrollbar-thumb {
+  background: var(--color-light);
+  border-radius: 0.3rem;
+}
 </style>
