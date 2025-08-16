@@ -509,16 +509,6 @@ onUnmounted(() => {
   position: relative;
 }
 
-.section-title::after {
-  content: '';
-  position: absolute;
-  bottom: -0.125rem;
-  left: 0;
-  width: 2rem;
-  height: 0.125rem;
-  background: var(--color-sub);
-}
-
 /* 메뉴 리스트 */
 .menu-list {
   display: flex;

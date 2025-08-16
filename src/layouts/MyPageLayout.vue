@@ -60,26 +60,13 @@ onUnmounted(() => {
 
 .content {
   flex: 1;
-  padding: 2rem;
   min-height: 100vh;
+  width: 100%;
   box-sizing: border-box;
   overflow-x: hidden;
 }
 
-/* 반응형: 모바일, 태블릿 */
-@media (max-width: 1024px) {
-  .content {
-    padding: 1.5rem;
-  }
-}
-
 @media (max-width: 768px) {
-  .content {
-    margin-left: 0;
-    padding: 1rem;
-    width: 100%;
-  }
-
   .content.menu-active {
     filter: blur(2px);
   }

@@ -53,13 +53,13 @@ const router = createRouter({
     {
       path: '/mypage',
       name: 'MyPage',
-      component: () => import('../pages/mypage/MypageLayout.vue'), // 마이페이지 공통 레이아웃
+      component: () => import('../layouts/MyPageLayout.vue'), // 마이페이지 공통 레이아웃
       meta: { requiresAuth: true },
       children: [
         {
           path: '',
           name: 'ShowMyPage',
-          component: () => import('../pages/mypage/MyPage.vue'),
+          component: () => import('../pages/Mypage/MyPage.vue'),
         },
         {
           path: 'favorites',
