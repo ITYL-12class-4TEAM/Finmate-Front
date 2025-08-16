@@ -163,7 +163,7 @@ const formattedDate = computed(() => {
   width: 1.375rem;
   height: 1.375rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-sub), var(--color-light));
+  background: var(--color-sub);
   color: white;
   font-size: 0.5625rem;
   font-weight: 600;

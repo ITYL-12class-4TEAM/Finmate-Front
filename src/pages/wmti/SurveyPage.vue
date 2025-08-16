@@ -690,7 +690,7 @@ onUnmounted(() => {
   transform: translateX(-50%);
   width: 3rem;
   height: 3rem;
-  background: linear-gradient(135deg, var(--color-main), #4a5299);
+  background: var(--color-main);
   color: white;
   border: none;
   border-radius: 50%;
@@ -761,7 +761,7 @@ onUnmounted(() => {
   justify-content: center;
   gap: 0.5rem;
   font-family: inherit;
-  background: linear-gradient(135deg, #95a5a6, #bdc3c7);
+  background: var(--color-sub);
   color: var(--color-white);
   position: relative;
   overflow: hidden;
@@ -779,7 +779,7 @@ onUnmounted(() => {
 }
 
 .submit-button.ready {
-  background: linear-gradient(135deg, var(--color-main), #4a5299);
+  background: var(--color-main);
   box-shadow: 0 0.25rem 0.938rem rgba(45, 51, 107, 0.3);
 }
 

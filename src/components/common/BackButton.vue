@@ -77,7 +77,7 @@ const goBack = () => {
 }
 
 .icon {
-  background-color: var(--color-sub);
+  background-color: var(--color-main);
   width: 80px;
   height: 30px;
   color: white;

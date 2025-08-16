@@ -519,6 +519,7 @@ onMounted(() => {
   padding: 0 0rem;
   border-bottom: 0.0625rem solid #f0f0f0;
   box-sizing: border-box;
+  margin-bottom: 0.3rem;
 }
 
 .header-left,
@@ -715,7 +716,6 @@ onMounted(() => {
   box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.1);
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
-  min-width: 10rem;
 }
 
 .gpt-summary-btn:disabled {

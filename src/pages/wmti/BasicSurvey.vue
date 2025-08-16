@@ -205,7 +205,7 @@ onMounted(() => {
 
 .step-button {
   width: 100%;
-  background: linear-gradient(135deg, var(--color-main), #4a5299);
+  background: var(--color-main);
   color: white;
   padding: 0.875rem;
   font-size: 0.9rem;
@@ -224,7 +224,7 @@ onMounted(() => {
 
 .step-button:disabled,
 .step-button.disabled {
-  background: linear-gradient(135deg, #95a5a6, #bdc3c7);
+  background: #95a5a6;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
