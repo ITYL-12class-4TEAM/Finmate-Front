@@ -339,8 +339,30 @@ const formattedDate = computed(() => {
   if (!createdAt.value || createdAt.value.length !== 6) {
     return '제출 시각 없음';
   }
-  const date = new Date(...createdAt.value);
-  return date.toLocaleString('ko-KR');
+
+  try {
+    const [year, month, day, hour, minute, second] = createdAt.value;
+    const date = new Date(year, month - 1, day, hour, minute, second);
+
+    // 유효성검사
+    if (isNaN(date.getTime())) {
+      console.error('Invalid date from createdAt:', createdAt.value);
+      return '제출 시각 오류';
+    }
+
+    return date.toLocaleString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
+  } catch (error) {
+    console.error('Date formatting error:', error, createdAt.value);
+    return '제출 시각 오류';
+  }
 });
 
 // ===== Public 절대경로를 사용하는 WMTI 이미지 URL 계산 함수 =====

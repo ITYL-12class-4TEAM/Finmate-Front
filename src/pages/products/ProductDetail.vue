@@ -4,10 +4,12 @@
       <div class="spinner"></div>
       <p>상품 정보를 불러오는 중입니다...</p>
     </div>
-    <div v-else-if="error" class="error-container">
-      <div class="error-icon">!</div>
-      <p>{{ error }}</p>
+    <div v-else-if="error">
       <BackButton />
+      <div class="error-container">
+        <div class="error-icon">!</div>
+        <p>{{ error }}</p>
+      </div>
     </div>
 
     <div v-else-if="product" class="product-container">
@@ -637,8 +639,8 @@ onMounted(() => {
 .info-section {
   background-color: var(--color-white);
   border-radius: 0.75rem;
-  padding: 1.25rem 1rem;
-  margin: 0 1rem 0.5rem 1rem;
+  padding: 0.5rem 1rem;
+  margin: 0 0rem 0.5rem;
   box-shadow: 0 0.125rem 1rem rgba(45, 51, 107, 0.04);
   box-sizing: border-box;
 }
@@ -650,7 +652,7 @@ onMounted(() => {
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--color-main);
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 0.5rem 0;
   padding-bottom: 0.5rem;
   border-bottom: 0.0625rem solid var(--color-bg-light);
 }

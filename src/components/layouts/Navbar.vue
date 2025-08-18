@@ -13,26 +13,34 @@
           <!-- 알림 아이콘 -->
           <NotificationButton />
           <div class="user-menu" @click="toggleDropdown()">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              width="24"
-              height="24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
-              />
-            </svg>
+            <div class="user-avatar">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                width="24"
+                height="24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                />
+              </svg>
+            </div>
             <!-- 사용자 메뉴 드롭다운 -->
             <div class="user-dropdown" :class="{ open: dropdownOpen }">
-              <p>{{ authStore.userInfo?.nickname || '사용자' }}님</p>
-              <router-link to="/mypage">마이페이지 이동</router-link>
-              <button @click="handleLogout">로그아웃</button>
+              <div class="user-info">
+                <p class="user-name">{{ authStore.userInfo?.nickname || '사용자' }}님</p>
+              </div>
+              <router-link to="/mypage" class="dropdown-item">
+                <span>마이페이지</span>
+              </router-link>
+              <button class="dropdown-item logout-btn" @click="handleLogout">
+                <span>로그아웃</span>
+              </button>
             </div>
           </div>
         </div>
@@ -123,14 +131,17 @@ function toggleDropdown() {
   color: var(--color-main);
   z-index: 1000;
 }
+
 .navbar__logo img {
   height: 40px;
 }
+
 .navbar__right {
   display: flex;
   align-items: center;
   gap: 8px;
 }
+
 .login-btn {
   color: var(--color-sub);
   background-color: var(--color-bg-light);
@@ -143,6 +154,7 @@ function toggleDropdown() {
   font-weight: 600;
   box-shadow: 0 1px 3px rgba(125, 129, 162, 0.1);
 }
+
 .login-btn:active {
   background-color: var(--color-light);
   color: var(--color-main);
@@ -150,6 +162,7 @@ function toggleDropdown() {
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(45, 51, 107, 0.15);
 }
+
 .hamburger {
   background: none;
   color: var(--color-main);
@@ -157,53 +170,89 @@ function toggleDropdown() {
   cursor: pointer;
   padding: 4px;
 }
+
 .navbar__icons {
   display: flex;
-  gap: 16px;
+  gap: 8px;
   align-items: center;
 }
-.icon-button img {
-  width: 24px;
-  height: 24px;
-}
+
 .user-menu {
   position: relative;
   display: inline-block;
   cursor: pointer;
 }
-.user-menu img {
-  width: 24px;
-  height: 24px;
+
+.user-avatar {
+  padding: 10px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+  color: var(--color-main);
 }
+
+.user-avatar:hover {
+  background-color: #f5f5f5;
+}
+
 .user-dropdown {
   display: none;
   position: absolute;
-  top: 100%;
+  top: calc(100% + 8px);
   right: 0;
   background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border-radius: 8px;
-  min-width: 160px;
+  min-width: 180px;
   flex-direction: column;
-  gap: 8px;
   font-weight: 400;
-  font-size: 13px;
+  font-size: 14px;
   z-index: 20;
-  pointer-events: auto;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
 }
+
 .user-dropdown.open {
   display: flex;
 }
-.user-dropdown button {
-  background: none;
+
+.user-info {
+  padding: 12px 16px;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.user-name {
+  margin: 0;
+  font-weight: 500;
+  color: var(--color-main);
+  font-size: 14px;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 10px 16px;
+  text-decoration: none;
+  color: var(--color-main);
+  transition: background-color 0.2s ease;
   border: none;
+  background: none;
+  width: 100%;
   text-align: left;
   cursor: pointer;
-  padding: 4px 0;
-  color: var(--color-main);
+  font-size: 14px;
 }
-.user-dropdown button:hover {
-  color: var(--color-accent);
+
+.dropdown-item:hover {
+  background-color: #f3f4f6;
+}
+
+.logout-btn {
+  color: #ef4444;
+  border-top: 1px solid #e5e7eb;
+}
+
+.logout-btn:hover {
+  background-color: #fef2f2;
+  color: #dc2626;
 }
 </style>
