@@ -203,20 +203,20 @@ const blockUser = async () => {
 
 const shareUrl = async () => {
   showMoreMenu.value = false;
-  // const currentUrl = window.location.href;
+  const currentUrl = window.location.href;
 
   try {
-    // if (navigator.share) {
-    //   // 모바일 네이티브 공유
-    //   await navigator.share({
-    //     title: post.value?.title || '게시글',
-    //     url: currentUrl,
-    //   });
-    // } else {
-    //   // 클립보드 복사
-    //   await navigator.clipboard.writeText(currentUrl);
-    //   showToast('URL이 클립보드에 복사되었습니다.', 'success');
-    // }
+    if (navigator.share) {
+      // 모바일 네이티브 공유
+      await navigator.share({
+        title: post.value?.title || '게시글',
+        url: currentUrl,
+      });
+    } else {
+      // 클립보드 복사
+      await navigator.clipboard.writeText(currentUrl);
+      showToast('URL이 클립보드에 복사되었습니다.', 'success');
+    }
     showToast('URL이 클립보드에 복사되었습니다.', 'success');
   } catch (error) {
     showToast('URL 공유에 실패했습니다.', 'error');
@@ -262,8 +262,13 @@ const toggleLike = async () => {
       post.value.likes = Math.max((post.value.likes || 0) - 1, 0);
     }
   } catch (e) {
-    console.error('좋아요 토글 실패:', e);
-    alert('좋아요 처리에 실패했습니다.');
+    const status = e?.response?.status ?? e?.status ?? null;
+
+    if (status === 401) {
+      showToast('로그인이 필요한 기능입니다', 'warning');
+    } else {
+      showToast('좋아요 처리에 실패했습니다.', 'error');
+    }
   }
 };
 
@@ -279,8 +284,13 @@ const toggleScrap = async () => {
       post.value.scraps = Math.max((post.value.scraps || 0) - 1, 0);
     }
   } catch (e) {
-    console.error('스크랩 토글 실패:', e);
-    alert('스크랩 처리에 실패했습니다.');
+    const status = e?.response?.status ?? e?.status ?? null;
+
+    if (status === 401) {
+      showToast('로그인이 필요한 기능입니다', 'warning');
+    } else {
+      showToast('스크랩 처리에 실패했습니다.', 'error');
+    }
   }
 };
 
@@ -320,7 +330,13 @@ const submitComment = async () => {
     newComment.value = '';
     await fetchComments();
   } catch (e) {
-    alert('댓글 등록 실패');
+    const status = e?.response?.status ?? e?.status ?? null;
+
+    if (status === 401) {
+      showToast('로그인이 필요한 기능입니다', 'warning');
+    } else {
+      showToast('댓글 처리에 실패했습니다.', 'error');
+    }
   }
 };
 
