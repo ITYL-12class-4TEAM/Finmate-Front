@@ -1,13 +1,15 @@
 <template>
   <div class="product-detail-page">
-    <BackButton />
     <div v-if="loading" class="loading-container">
       <div class="spinner"></div>
       <p>상품 정보를 불러오는 중입니다...</p>
     </div>
-    <div v-else-if="error" class="error-container">
-      <div class="error-icon">!</div>
-      <p>{{ error }}</p>
+    <div v-else-if="error">
+      <BackButton />
+      <div class="error-container">
+        <div class="error-icon">!</div>
+        <p>{{ error }}</p>
+      </div>
     </div>
 
     <div v-else-if="product" class="product-container">
