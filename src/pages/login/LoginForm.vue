@@ -110,7 +110,7 @@ const handleLogin = async () => {
 };
 
 const getSocialLoginURL = (provider) => {
-  const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+  const baseURL = 'http://54.180.75.58:8080';
   return `${baseURL}/oauth2/authorization/${provider}`;
 };
 
