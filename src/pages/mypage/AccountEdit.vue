@@ -267,7 +267,8 @@ const updateUserProfile = async () => {
 };
 
 const changeUserPassword = async () => {
-  const username = userInfo.value.username || userInfo.value.email;
+  const username = userInfo.value.email;
+  console.log('Changing password for:', username);
   if (!username) {
     throw new Error('사용자 정보가 올바르지 않습니다.');
   }
@@ -277,6 +278,7 @@ const changeUserPassword = async () => {
     editForm.value.confirmPassword,
     username
   );
+  console.log('Password change response:', response);
 
   if (!response.success) {
     throw new Error(response.message || '비밀번호 변경에 실패했습니다.');
@@ -337,11 +339,11 @@ const updateProfile = async () => {
         results.push({ success: false, message: error.message });
       }
     }
-
     // 비밀번호 변경
-    if (changePassword.value && editForm.value.newPassword) {
+    if (changePassword.value && editForm.value.newPassword === editForm.value.confirmPassword) {
       try {
         const message = await changeUserPassword();
+        console.log('Password changed successfully:', message);
         results.push({ success: true, message });
       } catch (error) {
         results.push({ success: false, message: error.message });
