@@ -409,6 +409,7 @@ const fetchResult = async () => {
     preInfoData.value = preInfoRes.body?.data || {};
 
     // 분석 데이터와 이미지를 병렬로 로드
+    // eslint-disable-next-line no-unused-vars
     const [analysisData, imageUrl] = await Promise.all([
       fetchAnalysis(data.wmtiCode),
       Promise.resolve(getWMTIImageUrl(data.wmtiCode)), // 동기 함수를 Promise로 래핑

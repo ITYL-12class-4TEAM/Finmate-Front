@@ -164,7 +164,7 @@ const handleScrap = async (post) => {
       posts.value[postIndex].scrapCount += posts.value[postIndex].isScrapped ? 1 : -1;
     }
   } catch (err) {
-    showToast(`게시글 ${postId} 업데이트 실패:`, 'error');
+    showToast(`게시글 ${post.id} 업데이트 실패:`, 'error');
   }
 };
 

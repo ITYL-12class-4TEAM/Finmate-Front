@@ -20,7 +20,7 @@ let sseInitialized = false;
 
 watch(
   () => authStore.isAuthenticated,
-  (isAuth, wasAuth) => {
+  (isAuth) => {
     if (isAuth && !sseInitialized) {
       if (Notification.permission === 'default') {
         Notification.requestPermission();

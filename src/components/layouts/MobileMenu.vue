@@ -93,7 +93,7 @@
 <script setup>
 import { ref, defineProps } from 'vue';
 
-const props = defineProps({
+defineProps({
   isOpen: {
     type: Boolean,
     default: false,

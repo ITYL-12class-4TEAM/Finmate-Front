@@ -1,7 +1,7 @@
 <template>
   <div class="posts-section">
-    <CommentPostSummary :totalPosts="posts.length" />
-    
+    <CommentPostSummary :total-posts="posts.length" />
+
     <!-- 게시글 목록 -->
     <section class="post-list">
       <div v-if="paginatedPosts.length === 0" class="empty-message">
@@ -13,8 +13,8 @@
           v-for="post in paginatedPosts"
           :key="`comment-post-${post.postId}`"
           :post="convertToPostCardFormat(post)"
-          :isLiked="post.isLiked || false"
-          :isScrapped="post.isScrapped || false"
+          :is-liked="post.isLiked || false"
+          :is-scrapped="post.isScrapped || false"
           @click="$emit('post-click', post.postId)"
           @scrap="$emit('scrap', $event)"
         />
@@ -24,17 +24,17 @@
     <!-- 페이징 컨트롤 -->
     <CommentPostPagination
       v-if="totalPages > 1"
-      :currentPage="currentPage"
-      :totalPages="totalPages"
+      :current-page="currentPage"
+      :total-pages="totalPages"
       @page-change="$emit('page-change', $event)"
     />
 
     <!-- 페이지 정보 -->
     <CommentPostPageInfo
       v-if="posts.length > 0"
-      :totalPosts="posts.length"
-      :startIndex="startIndex"
-      :endIndex="endIndex"
+      :total-posts="posts.length"
+      :start-index="startIndex"
+      :end-index="endIndex"
     />
   </div>
 </template>

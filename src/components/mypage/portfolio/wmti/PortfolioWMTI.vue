@@ -122,7 +122,7 @@
 <script setup>
 import { ref } from 'vue';
 
-const props = defineProps({
+defineProps({
   myWMTI: {
     type: String,
     default: '',

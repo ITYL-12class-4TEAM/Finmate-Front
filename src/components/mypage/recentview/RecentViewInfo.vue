@@ -50,7 +50,7 @@
 </template>
 
 <script setup>
-const props = defineProps({
+defineProps({
   product: {
     type: Object,
     required: true,
@@ -73,7 +73,7 @@ const getRstvValue = (rstvValue) => {
   return rstvValue;
 };
 
-const emit = defineEmits(['toggle-favorite']);
+defineEmits(['toggle-favorite']);
 
 // 금리 관련 헬퍼 함수들
 const hasBaseRate = (product) => {
@@ -135,10 +135,6 @@ const formatViewedTime = (viewedAt) => {
   } catch (error) {
     return '';
   }
-};
-
-const toggleFavorite = () => {
-  emit('toggle-favorite', props.product.productId);
 };
 </script>
 

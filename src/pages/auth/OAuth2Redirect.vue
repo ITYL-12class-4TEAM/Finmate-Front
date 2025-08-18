@@ -9,7 +9,7 @@
 
 <script setup>
 import { onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { authAPI } from '@/api/auth';
 import { useToast } from '@/composables/useToast';
@@ -17,7 +17,6 @@ import { useToast } from '@/composables/useToast';
 const { showToast } = useToast();
 
 const router = useRouter();
-const route = useRoute();
 const authStore = useAuthStore();
 
 onMounted(async () => {

@@ -32,7 +32,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, computed, nextTick } from 'vue';
+import { ref, watch, onMounted, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { getProductsAPI, getProductsFilterOptionsAPI } from '@/api/product';
 import SavingsSearchForm from '../../components/products/savings/SavingsSearchForm.vue';
@@ -48,7 +48,6 @@ const interestType = ref(route.query.intrRateType || 'S');
 // ProductSavings.vue 파일에서
 const rsrvType = ref(route.query.rsrvType || 'F');
 // computed 속성으로 변경하여 항상 최신 상태 유지
-const rsrvTypeNm = computed(() => (rsrvType.value === 'F' ? '자유적립식' : '정액적립식'));
 const joinWay = ref(route.query.joinWays ? route.query.joinWays.split(',') : 'all');
 const sortBy = ref(route.query.sortBy || 'intrRate');
 const depositProducts = ref([]);

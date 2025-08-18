@@ -14,7 +14,7 @@
       <!-- 댓글 리스트 -->
       <div class="comments-grid">
         <div
-          v-for="(comment, index) in displayComments"
+          v-for="comment in displayComments"
           :key="`comment-${comment.id || comment.commentId}`"
           class="comment-card"
           @click="$emit('navigate-to-post', comment.postId)"
@@ -32,13 +32,19 @@
                     </h6>
                     <!-- 날짜 -->
                     <span class="comment-date-abs">
-                      <i class="fas fa-clock" style="color: #9ca3af; font-size: 0.5rem; margin-right: 0.25rem;"></i>
+                      <i
+                        class="fas fa-clock"
+                        style="color: #9ca3af; font-size: 0.5rem; margin-right: 0.25rem"
+                      ></i>
                       {{ formatDate(comment.createdAt || comment.created_at || comment.date) }}
                     </span>
                   </div>
                   <div class="comment-meta">
                     <div class="post-ref-badge">
-                      <i class="fas fa-file-alt" style="color: #0284c7; font-size: 0.5rem; margin-right: 0.25rem;"></i>
+                      <i
+                        class="fas fa-file-alt"
+                        style="color: #0284c7; font-size: 0.5rem; margin-right: 0.25rem"
+                      ></i>
                       <span>게시글 #{{ comment.postId }}</span>
                     </div>
                     <div class="post-stats">
@@ -47,11 +53,14 @@
                         class="stat-item"
                         :class="{ liked: comment.isLiked || comment.is_liked || comment.liked }"
                       >
-                        <i 
-                          class="fas fa-heart" 
+                        <i
+                          class="fas fa-heart"
                           :style="{
-                            color: (comment.isLiked || comment.is_liked || comment.liked) ? '#ef4444' : '#9ca3af',
-                            fontSize: '0.65rem'
+                            color:
+                              comment.isLiked || comment.is_liked || comment.liked
+                                ? '#ef4444'
+                                : '#9ca3af',
+                            fontSize: '0.65rem',
                           }"
                         ></i>
                         <span class="stat-count">{{
@@ -66,7 +75,10 @@
               <!-- 화살표 아이콘 (Font Awesome으로 변경) -->
               <div class="col-auto">
                 <div class="arrow-wrapper">
-                  <i class="fas fa-chevron-right arrow-icon" style="color: #9ca3af; font-size: 0.875rem;"></i>
+                  <i
+                    class="fas fa-chevron-right arrow-icon"
+                    style="color: #9ca3af; font-size: 0.875rem"
+                  ></i>
                 </div>
               </div>
             </div>
@@ -81,7 +93,7 @@
             <span class="button-text">더보기</span>
             <span class="button-count">({{ remainingCount }})</span>
             <div class="button-arrow">
-              <i class="fas fa-arrow-right" style="font-size: 0.75rem;"></i>
+              <i class="fas fa-arrow-right" style="font-size: 0.75rem"></i>
             </div>
           </div>
         </button>
@@ -158,7 +170,10 @@ const formatDate = (dateString) => {
       day: 'numeric',
     });
   } catch (error) {
-    console.error('<i class="fas fa-exclamation-triangle" style="color: #ffc107;"></i> 날짜 포맷팅 에러:', error);
+    console.error(
+      '<i class="fas fa-exclamation-triangle" style="color: #ffc107;"></i> 날짜 포맷팅 에러:',
+      error
+    );
     return '방금';
   }
 };
@@ -436,14 +451,25 @@ const formatDate = (dateString) => {
 
 /* Font Awesome 아이콘 애니메이션 */
 @keyframes heartbeat {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes arrow-bounce {
-  0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(3px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(3px);
+  }
 }
 
 /* 호버 시 아이콘 색상 변경 */

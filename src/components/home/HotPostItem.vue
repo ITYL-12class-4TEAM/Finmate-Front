@@ -62,7 +62,7 @@ const goToDetail = () => {
 <style scoped>
 .post-card {
   background: #fff;
-  border: 1.5px solid var(--color-main);
+  border: 1px solid var(--color-light);
   border-radius: 0.6rem;
   padding: 1rem;
   margin-bottom: 0.8rem;

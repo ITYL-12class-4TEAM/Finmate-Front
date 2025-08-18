@@ -281,6 +281,7 @@ const parsedPreferentialConditions = computed(() => {
   for (const condition of conditions) {
     if (condition.trim() === '') continue;
 
+    // eslint-disable-next-line no-useless-escape
     const cleanCondition = condition.replace(/^\d+[\.\)]\s*|\-\s*|\*\s*/, '').trim();
 
     if (cleanCondition) {

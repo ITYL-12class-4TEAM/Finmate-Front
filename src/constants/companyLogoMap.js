@@ -88,7 +88,6 @@ const keywordToLogoMap = {
   제주: 'jeju.png',
   수협: 'suhyup.png',
   금화: 'geumhwa.png',
-  유안타: 'yuanta.png',
   유진: 'eugene.png',
   OK: 'ok.png',
   SBI: 'sbi.png',
