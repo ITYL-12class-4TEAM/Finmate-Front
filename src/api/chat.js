@@ -86,7 +86,7 @@ export const compareProductsWithGPT = async (compareList) => {
       };
     });
 
-    const response = await fetch('/api/chat/compare', {
+    const response = await fetch('/chat/compare', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestData),
@@ -238,7 +238,7 @@ export const getProductSummaryWithGPT = async (product, selectedOption) => {
       throw new Error('상품 데이터를 변환할 수 없습니다.');
     }
 
-    const response = await fetch('/api/chat/summary', {
+    const response = await fetch('/chat/summary', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

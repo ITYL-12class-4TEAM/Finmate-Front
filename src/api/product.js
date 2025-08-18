@@ -27,7 +27,7 @@ export const getProductsAPI = async (params = {}) => {
     }
 
     // 백엔드 API 호출 - 파라미터를 직접 요청 본문으로 전달
-    const response = await api.post('/api/products/search', requestBody);
+    const response = await api.post('/products/search', requestBody);
 
     // 응답 로깅
     // console.log('API 원본 응답:', response.data.body.data);
@@ -48,7 +48,7 @@ export const getProductsAPI = async (params = {}) => {
 export const getProductDetailAPI = async (productType, productId, params = {}) => {
   try {
     // API 호출
-    const response = await api.get(`/api/products/${productType}/${productId}`, { params });
+    const response = await api.get(`/products/${productType}/${productId}`, { params });
 
     // 응답 로깅
     // console.log('상품 상세 응답:', response.data.body.data);
@@ -67,7 +67,7 @@ export const getProductDetailAPI = async (productType, productId, params = {}) =
  */
 export const getProductsCategoriesAPI = async () => {
   try {
-    const response = await api.get('/api/products/categories');
+    const response = await api.get('/products/categories');
 
     return response.data.body.data.categories || [];
   } catch (error) {
@@ -79,7 +79,7 @@ export const getProductsCategoriesAPI = async () => {
 export const getProductsFilterOptionsAPI = async (category) => {
   try {
     // api 객체 사용 (axios 인스턴스)
-    const response = await api.get('/api/products/filter-options', {
+    const response = await api.get('/products/filter-options', {
       params: { category },
     });
 
@@ -116,7 +116,7 @@ export const compareProductsAPI = async (
 ) => {
   try {
     // URL 직접 구성 (파라미터 문제를 확실히 해결하기 위해)
-    let url = '/api/products/compare?';
+    let url = '/products/compare?';
 
     // productIds를 개별 파라미터로 변환
     if (Array.isArray(productIds) && productIds.length > 0) {

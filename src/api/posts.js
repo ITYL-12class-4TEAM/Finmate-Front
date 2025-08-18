@@ -3,7 +3,7 @@ import { productTagMap } from '@/constants/tags';
 
 // 게시글 목록 조회
 export const getPostsAPI = async ({ page = 1, size = 5 }) => {
-  const res = await api.get(`/api/posts/paging`, {
+  const res = await api.get(`/posts/paging`, {
     params: {
       page,
       size,
@@ -36,7 +36,7 @@ export const getPostsAPI = async ({ page = 1, size = 5 }) => {
 
 // 게시글 상세 조회
 export const getPostByIdAPI = async (postId, memberId) => {
-  const res = await api.get(`/api/posts/${postId}`);
+  const res = await api.get(`/posts/${postId}`);
   const post = res.data.body.data;
 
   return {
@@ -61,30 +61,30 @@ export const getPostByIdAPI = async (postId, memberId) => {
 
 // 게시글 등록
 export const createPostAPI = async (postData) => {
-  const res = await api.post('/api/posts', postData);
+  const res = await api.post('/posts', postData);
   return res.data.body.data;
 };
 
 // 게시글 수정
 export const updatePostAPI = async (postId, postData) => {
-  const res = await api.put(`/api/posts/${postId}`, postData);
+  const res = await api.put(`/posts/${postId}`, postData);
   return res.data.body.data;
 };
 
 // 게시글 삭제
 export const deletePostAPI = async (postId) => {
-  const res = await api.delete(`/api/posts/${postId}`);
+  const res = await api.delete(`/posts/${postId}`);
   return res.data;
 };
 
 // 첨부파일 삭제 TODO: 배포 후 처리
 // export const deleteFileAPI = async (no) => {
-//   const res = await api.delete(`/api/posts/attachment/${no}`);
+//   const res = await api.delete(`/posts/attachment/${no}`);
 //   return res.data;
 // };
 
 // 전체 핫게시물 조회
 export const getHotPostsAPI = async () => {
-  const res = await api.get('/api/posts/hot');
+  const res = await api.get('/posts/hot');
   return res.data.body.data;
 };

@@ -1,11 +1,10 @@
-// src/api/sms.js
 import api from './index';
 
 export const smsAPI = {
   sendVerification: async (phoneNumber) => {
     try {
       const response = await api.get(
-        `/api/sms/send-verification?phoneNumber=${encodeURIComponent(phoneNumber)}`
+        `/sms/send-verification?phoneNumber=${encodeURIComponent(phoneNumber)}`
       );
 
       const result = response.data;
@@ -34,7 +33,7 @@ export const smsAPI = {
   verifyCode: async (phoneNumber, code) => {
     try {
       const response = await api.post(
-        `/api/sms/verify-code?phoneNumber=${encodeURIComponent(
+        `/sms/verify-code?phoneNumber=${encodeURIComponent(
           phoneNumber
         )}&code=${encodeURIComponent(code)}`
       );

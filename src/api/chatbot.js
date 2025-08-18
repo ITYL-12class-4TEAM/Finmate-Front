@@ -10,7 +10,7 @@ export const sessionAPI = {
    * @returns {Promise<Object>} 세션 생성 결과
    */
   async createSession(sessionId) {
-    const response = await api.post('/api/chatbot/session', null, {
+    const response = await api.post('/chatbot/session', null, {
       params: { sessionId },
       timeout: 10000,
       validateStatus: (status) => status < 500,
@@ -24,7 +24,7 @@ export const sessionAPI = {
    * @returns {Promise<Object>} 세션 종료 결과
    */
   async endSession(sessionId) {
-    const response = await api.delete('/api/chatbot/session', {
+    const response = await api.delete('/chatbot/session', {
       params: { sessionId },
       timeout: 5000,
       validateStatus: (status) => status < 500,
@@ -44,7 +44,7 @@ export const messageAPI = {
    * @returns {Promise<Object>} ChatGPT 응답
    */
   async sendMessage(sessionId, userMessage) {
-    const response = await api.post('/api/chatbot/message', null, {
+    const response = await api.post('/chatbot/message', null, {
       params: {
         sessionId,
         userMessage,
@@ -65,7 +65,7 @@ export const userDataAPI = {
    * @returns {Promise<Array>} 좋아요 한 글 목록
    */
   async getMyLikedPosts() {
-    const response = await api.get('/api/post-like/me', {
+    const response = await api.get('/post-like/me', {
       timeout: 15000,
     });
     return this.extractData(response);
@@ -76,7 +76,7 @@ export const userDataAPI = {
    * @returns {Promise<Array>} 스크랩한 글 목록
    */
   async getMyScrapPosts() {
-    const response = await api.get('/api/scraps/my', {
+    const response = await api.get('/scraps/my', {
       timeout: 15000,
     });
     return this.extractData(response);
@@ -87,7 +87,7 @@ export const userDataAPI = {
    * @returns {Promise<Array>} 내가 쓴 글 목록
    */
   async getMyPosts() {
-    const response = await api.get('/api/posts/my', {
+    const response = await api.get('/posts/my', {
       timeout: 15000,
     });
     return this.extractData(response);
@@ -98,7 +98,7 @@ export const userDataAPI = {
    * @returns {Promise<Array>} 내가 쓴 댓글 목록
    */
   async getMyComments() {
-    const response = await api.get('/api/comments/my', {
+    const response = await api.get('/comments/my', {
       timeout: 15000,
     });
     return this.extractData(response);
@@ -109,7 +109,7 @@ export const userDataAPI = {
    * @returns {Promise<Array>} 관심상품 목록
    */
   async getWishlistProducts() {
-    const response = await api.get('/api/wishlist', {
+    const response = await api.get('/wishlist', {
       timeout: 15000,
     });
     return this.extractData(response);
@@ -120,7 +120,7 @@ export const userDataAPI = {
    * @returns {Promise<Array>} 최근 본 상품 목록
    */
   async getRecentViewedProducts() {
-    const response = await api.get('/api/recent-viewed', {
+    const response = await api.get('/recent-viewed', {
       timeout: 15000,
     });
     return this.extractData(response);
@@ -175,7 +175,7 @@ export const publicDataAPI = {
    * @returns {Promise<Array>} 핫 게시물 목록
    */
   async getHotPosts() {
-    const response = await api.get('/api/posts/hot', {
+    const response = await api.get('/posts/hot', {
       timeout: 15000,
     });
     return userDataAPI.extractData(response);

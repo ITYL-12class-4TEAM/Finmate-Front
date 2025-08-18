@@ -30,7 +30,7 @@ export const memberAPI = {
 
   // 프로필 수정 API (수정된 버전)
   updateProfile: async (data) => {
-    const response = await api.put('/api/auth/profile', data);
+    const response = await api.put('/auth/profile', data);
     const result = response.data;
 
     return {
@@ -42,7 +42,7 @@ export const memberAPI = {
 
   // 닉네임 중복 확인
   checkNickname: async (nickname) => {
-    const response = await api.get(`/api/validation/check/nickname`, {
+    const response = await api.get(`/validation/check/nickname`, {
       params: { nickname },
     });
     const result = response.data;

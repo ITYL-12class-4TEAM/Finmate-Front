@@ -10,45 +10,45 @@ import {
 
 // 기본 정보 제출
 export const postPreinfoAPI = async (info) => {
-  const res = await api.post('/api/preinfo/submit', info);
+  const res = await api.post('/preinfo/submit', info);
   return res.data;
 };
 //wmti설문문항 가져오기
 export const getWMTIQuestionsAPI = async () => {
-  const res = await api.get('/api/wmti/questions');
+  const res = await api.get('/wmti/questions');
   return res.data;
 };
 // wmti설문답변 제출
 export const postwmtiAPI = async (info) => {
-  const res = await api.post('/api/wmti/submit', info);
+  const res = await api.post('/wmti/submit', info);
   return res.data;
 };
 // WMTI 코드 기반 분석 정보 조회 (wmti-analysis.json 호출)
 export const getWMTIAnalysisAPI = async (wmtiCode) => {
-  const res = await api.get(`/api/wmti/analysis/${wmtiCode}`);
+  const res = await api.get(`/wmti/analysis/${wmtiCode}`);
   return res.data;
 };
 //Preinfo 연산값 조회
 export const getPreInfoCalcAPI = async () => {
-  const res = await api.get(`/api/preinfo/my`);
+  const res = await api.get(`/preinfo/my`);
   return res.data;
 };
 
 // wmti 코드 모아보기
 export const getWMTICodesAPI = async () => {
-  const res = await api.get('/api/wmti/analysis/all');
+  const res = await api.get('/wmti/analysis/all');
   return res.data;
 };
 
 // wmti결과 가져오기
 export const getWMTIResultAPI = async (memberId) => {
-  const res = await api.get(`/api/wmti/result/${memberId}`);
+  const res = await api.get(`/wmti/result/${memberId}`);
   return res.data;
 };
 
 //wmti 검사이력 가져오기
 export const getWMTIHistoryAPI = async (memberId) => {
-  const res = await api.get(`/api/wmti/history/member/${memberId}`);
+  const res = await api.get(`/wmti/history/member/${memberId}`);
 
   if (res.data.header.status !== 'OK') {
     throw new Error(res.data.header.message);
