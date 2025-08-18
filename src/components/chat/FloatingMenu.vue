@@ -121,6 +121,7 @@ onBeforeUnmount(() => {
   transform: scale(1.1);
 }
 
+/* 데스크탑 챗봇 창 스타일 */
 .chat-window {
   position: fixed;
   bottom: 1.25rem; /* 20px / 16 */
@@ -141,7 +142,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
 }
 
-/* 태블릿 사이즈 */
+/* 태블릿 사이즈 - 전체 화면으로 변경 */
 @media (max-width: 48rem) {
   /* 768px / 16 */
   .floating-menu {
@@ -150,14 +151,21 @@ onBeforeUnmount(() => {
   }
 
   .chat-window {
-    bottom: 1rem; /* 16px / 16 */
-    right: 1rem; /* 16px / 16 */
-    width: min(20rem, 80vw); /* 320px / 16, 80vw */
-    min-height: 30rem; /* 480px / 16 */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    max-width: none;
+    max-height: none;
+    min-height: 100vh;
+    animation: slideUpMobile 0.3s ease;
   }
 }
 
-/* 모바일 사이즈 */
+/* 모바일 사이즈 - 전체 화면 */
 @media (max-width: 26.875rem) {
   /* 430px / 16 */
   .floating-menu {
@@ -189,7 +197,7 @@ onBeforeUnmount(() => {
   }
 }
 
-/* 매우 작은 모바일 */
+/* 매우 작은 모바일 - 전체 화면 */
 @media (max-width: 23.4375rem) {
   /* 375px / 16 */
   .floating-menu {
