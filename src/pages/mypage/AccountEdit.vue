@@ -403,7 +403,6 @@ onMounted(async () => {
   // 2. 사용자 정보 조회
   try {
     const response = await memberAPI.getMyInfo();
-    showToast('사용자 정보 조회 결과:', 'success');
     if (response.success) {
       userInfo.value = response.data;
       // 3. 폼 초기값 설정
