@@ -225,15 +225,14 @@ const isSubmitting = ref(false);
 const originalData = ref(null);
 
 //Composable 사용
-const { backupFormData, restoreFormData, hasValidBackup, clearBackup, forceBackupFormData } =
-  useFormBackup({
-    pageKey: 'preinfo',
-    expiryHours: 1,
-    formRef: form,
-    autoBackup: true,
-    submittedKey: 'preinfoSubmitted',
-    forceBackup: true, // 제출 여부 무시하고 백업
-  });
+const { backupFormData, restoreFormData, hasValidBackup, clearBackup } = useFormBackup({
+  pageKey: 'preinfo',
+  expiryHours: 1,
+  formRef: form,
+  autoBackup: true,
+  submittedKey: 'preinfoSubmitted',
+  forceBackup: true, // 제출 여부 무시하고 백업
+});
 
 const { processSubmissionError, resetRetryCount } = useAuthError({
   maxRetryCount: 3,

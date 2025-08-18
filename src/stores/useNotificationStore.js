@@ -127,12 +127,12 @@ export const useNotificationStore = defineStore('notification', () => {
       };
 
       // 연결 확인 이벤트
-      eventSource.value.addEventListener('connected', (event) => {
+      eventSource.value.addEventListener('connected', () => {
         console.log('SSE 연결 확인');
       });
 
       // 하트비트 이벤트
-      eventSource.value.addEventListener('heartbeat', (event) => {
+      eventSource.value.addEventListener('heartbeat', () => {
         console.log('하트비트 수신');
       });
 

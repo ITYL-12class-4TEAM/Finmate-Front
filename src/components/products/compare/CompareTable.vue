@@ -110,11 +110,6 @@ const isProductSavings = (item) => {
   return item.productType === 'savings' || item.rsrvType || item.rsrv_type;
 };
 
-// 적금 상품 포함 여부 (UI 분기 처리용)
-const hasSavingsProducts = computed(() => {
-  return props.items.some((item) => isProductSavings(item));
-});
-
 const getInterestTypeClass = (value) => {
   if (value === '단리') return 'simple';
   if (value === '복리') return 'compound';

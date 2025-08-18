@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-const props = defineProps({
+defineProps({
   conditions: {
     type: Array,
     default: () => [],

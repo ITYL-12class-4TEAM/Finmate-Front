@@ -82,7 +82,7 @@ const props = defineProps({
 });
 
 // 이벤트 정의
-const emit = defineEmits(['focus-metric']);
+defineEmits(['focus-metric']);
 
 // 통화 포맷팅 (한국 스타일에 최적화)
 const formatCurrency = (amount) => {

@@ -69,7 +69,7 @@ const formatCount = (count) => {
   .meta-content {
     font-size: 0.625rem;
   }
-  
+
   .meta-content i {
     font-size: 0.5625rem;
   }

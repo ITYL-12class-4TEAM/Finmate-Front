@@ -43,12 +43,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import MessageItem from './MessageItem.vue';
 import WelcomeMessage from './WelcomeMessage.vue';
 import TypingIndicator from './TypingIndicator.vue';
 
-const props = defineProps({
+defineProps({
   messages: Array,
   isTyping: Boolean,
   isAuthenticated: Boolean,

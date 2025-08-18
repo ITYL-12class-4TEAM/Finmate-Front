@@ -13,9 +13,9 @@
         <div class="form-group">
           <label for="name">이름</label>
           <input
-            type="text"
             id="name"
             v-model="phoneForm.name"
+            type="text"
             placeholder="이름을 입력하세요"
             required
           />
@@ -24,19 +24,19 @@
           <label for="phone">휴대폰 번호</label>
           <div class="input-with-button">
             <input
-              type="tel"
               id="phone"
               v-model="phoneForm.phone"
-              @input="formatPhoneNumber"
+              type="tel"
               placeholder="010-0000-0000"
               maxlength="13"
               required
+              @input="formatPhoneNumber"
             />
             <button
               type="button"
               class="verify-btn"
-              @click="sendPhoneVerification"
               :disabled="!phoneForm.phone || phoneVerificationSent"
+              @click="sendPhoneVerification"
             >
               {{ phoneVerificationSent ? '발송완료' : '인증하기' }}
             </button>
@@ -46,17 +46,17 @@
           <label for="verificationCode">인증번호</label>
           <div class="input-with-button">
             <input
-              type="text"
               id="verificationCode"
               v-model="phoneForm.verificationCode"
+              type="text"
               placeholder="인증번호를 입력하세요"
               required
             />
             <button
               type="button"
               class="verify-btn"
-              @click="verifyPhoneCode"
               :disabled="!phoneForm.verificationCode"
+              @click="verifyPhoneCode"
             >
               인증확인
             </button>
@@ -92,13 +92,11 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
 import { authAPI } from '@/api/auth';
 import { smsAPI } from '@/api/sms';
 import { useToast } from '@/composables/useToast';
 
 const { showToast } = useToast();
-const router = useRouter();
 
 // 상태 관리
 const isLoading = ref(false);

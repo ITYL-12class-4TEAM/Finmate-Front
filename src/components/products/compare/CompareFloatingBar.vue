@@ -90,7 +90,7 @@ const handleClearList = async () => {
 
 .clear-btn {
   background: #d3d3d3;
-  color: #222222
+  color: #222222;
 }
 
 .clear-btn:hover {

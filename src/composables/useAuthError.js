@@ -1,4 +1,3 @@
-// src/composables/useAuthError.js
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -47,7 +46,7 @@ export function useAuthError(options = {}) {
   };
 
   // 토큰 만료 처리
-  const handleTokenExpired = async (backupFormData, showModalFn, handleSubmitFn) => {
+  const handleTokenExpired = async (backupFormData, showModalFn) => {
     if (backupFormData) {
       backupFormData();
     }
@@ -148,7 +147,7 @@ Wi-Fi나 데이터 연결을 확인하시고 다시 시도해주세요.`;
   };
 
   // 일반 에러 모달
-  const showGenericErrorModal = async (showModalFn, backupFormData, handleSubmitFn) => {
+  const showGenericErrorModal = async (showModalFn, backupFormData) => {
     const message = `예상치 못한 문제가 발생했어요.
 
 입력하신 정보는 임시 저장되었으니 안심하시고 잠시 후 다시 시도해주세요.`;

@@ -50,7 +50,7 @@
 </template>
 
 <script setup>
-const props = defineProps({
+defineProps({
   favorite: {
     type: Object,
     required: true,
@@ -74,7 +74,7 @@ const getIntrRateType = (intrRateType) => {
   return intrRateType;
 };
 
-const emit = defineEmits(['toggle-favorite']);
+defineEmits(['toggle-favorite']);
 
 // 금리 관련 헬퍼 함수들
 const hasBaseRate = (favorite) => {
@@ -123,10 +123,6 @@ const formatCount = (count) => {
     return `${thousand}천`;
   }
   return new Intl.NumberFormat('ko-KR').format(count);
-};
-
-const toggleFavorite = () => {
-  emit('toggle-favorite', props.favorite.productId);
 };
 </script>
 

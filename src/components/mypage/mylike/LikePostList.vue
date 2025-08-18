@@ -1,7 +1,7 @@
 <template>
   <div class="posts-section">
-    <LikePostSummary :totalPosts="posts.length" />
-    
+    <LikePostSummary :total-posts="posts.length" />
+
     <!-- 게시글 목록 -->
     <section class="post-list">
       <div v-if="paginatedPosts.length === 0" class="empty-message">
@@ -13,8 +13,8 @@
         v-else
         :key="post.postId"
         :post="convertToPostCardFormat(post)"
-        :isLiked="post.liked || false"
-        :isScrapped="post.scraped || false"
+        :is-liked="post.liked || false"
+        :is-scrapped="post.scraped || false"
         @click="$emit('post-click', post.postId)"
         @like="$emit('like', $event)"
         @scrap="$emit('scrap', $event)"
@@ -24,17 +24,17 @@
     <!-- 페이징 컨트롤 -->
     <LikePostPagination
       v-if="totalPages > 1"
-      :currentPage="currentPage"
-      :totalPages="totalPages"
+      :current-page="currentPage"
+      :total-pages="totalPages"
       @page-change="$emit('page-change', $event)"
     />
 
     <!-- 페이지 정보 -->
     <LikePostPageInfo
       v-if="posts.length > 0"
-      :totalPosts="posts.length"
-      :startIndex="startIndex"
-      :endIndex="endIndex"
+      :total-posts="posts.length"
+      :start-index="startIndex"
+      :end-index="endIndex"
     />
   </div>
 </template>

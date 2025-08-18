@@ -245,6 +245,7 @@ const createOverviewChart = async () => {
       return gradient;
     });
 
+    // eslint-disable-next-line no-undef
     overviewChartInstance = new Chart(ctx, {
       type: 'doughnut',
       data: {

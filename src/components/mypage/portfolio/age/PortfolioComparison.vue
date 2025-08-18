@@ -16,7 +16,7 @@
 <script setup>
 import AgeComparisonChart from './AgeComparisonChart.vue';
 
-const props = defineProps({
+defineProps({
   // 사용자 기본 정보
   userAgeGroup: {
     type: String,

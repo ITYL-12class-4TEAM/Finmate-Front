@@ -14,7 +14,7 @@
       <!-- 게시글 리스트 -->
       <div class="posts-grid">
         <div
-          v-for="(post, index) in displayPosts"
+          v-for="post in displayPosts"
           :key="`post-${post.postId}`"
           class="post-card"
           @click="$emit('navigate-to-post', post.postId)"
@@ -124,7 +124,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['navigate-to-post', 'navigate-to-more']);
+defineEmits(['navigate-to-post', 'navigate-to-more']);
 
 const displayPosts = computed(() => {
   return props.message.data?.slice(0, 5) || [];
