@@ -4,7 +4,7 @@ export const memberAPI = {
   // 사용자 정보 조회
   getMyInfo: async () => {
     try {
-      const response = await api.get('/api/member/me');
+      const response = await api.get('/member/me');
       const result = response.data;
 
       return {
