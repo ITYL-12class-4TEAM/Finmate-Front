@@ -341,12 +341,10 @@ const formattedDate = computed(() => {
   }
 
   try {
-    // createdAt 배열: [년, 월, 일, 시, 분, 초]
-    // JavaScript Date의 월은 0부터 시작하므로 서버에서 받은 월 값에서 1을 빼줘야 함
     const [year, month, day, hour, minute, second] = createdAt.value;
     const date = new Date(year, month - 1, day, hour, minute, second);
 
-    // 유효한 날짜인지 확인
+    // 유효성검사
     if (isNaN(date.getTime())) {
       console.error('Invalid date from createdAt:', createdAt.value);
       return '제출 시각 오류';
