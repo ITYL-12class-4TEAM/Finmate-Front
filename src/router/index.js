@@ -53,13 +53,13 @@ const router = createRouter({
     {
       path: '/mypage',
       name: 'MyPage',
-      component: () => import('../pages/mypage/MypageLayout.vue'), // 마이페이지 공통 레이아웃
+      component: () => import('../layouts/MyPageLayout.vue'), // 마이페이지 공통 레이아웃
       meta: { requiresAuth: true },
       children: [
         {
           path: '',
           name: 'ShowMyPage',
-          component: () => import('../pages/mypage/MyPage.vue'),
+          component: () => import('../pages/Mypage/MyPage.vue'),
         },
         {
           path: 'favorites',
@@ -177,12 +177,14 @@ const router = createRouter({
           path: 'preinfo',
           name: 'PreInfoForm',
           component: () => import('../pages/wmti/PreInfoForm.vue'),
+          meta: { requiresAuth: true },
         },
         // 기본 성향 검사
         {
           path: 'survey',
           name: 'SurveyPage',
           component: () => import('../pages/wmti/SurveyPage.vue'),
+          meta: { requiresAuth: true },
         }, // WMTI 성향 검사지
         {
           path: 'result',
@@ -235,6 +237,18 @@ const router = createRouter({
       component: () => import('../pages/NotFound/NotFound.vue'), // NotFound 컴포넌트
     },
   ],
+  scrollBehavior(to, from, savedPosition) {
+    // 뒤로/앞으로 가기일 때는 기존 위치 복원
+    if (savedPosition) {
+      return savedPosition;
+    }
+    // 해시가 있으면 앵커로 이동
+    if (to.hash) {
+      return { el: to.hash, behavior: 'smooth' };
+    }
+    // 그 외에는 항상 최상단
+    return { left: 0, top: 0 };
+  },
 });
 
 // 인증 가드 적용

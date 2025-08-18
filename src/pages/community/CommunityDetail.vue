@@ -6,66 +6,21 @@
       <h1 class="board-title">게시판</h1>
       <div class="more-menu">
         <button class="more-button" @click="toggleMoreMenu">
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <circle cx="12" cy="12" r="1" />
-            <circle cx="12" cy="5" r="1" />
-            <circle cx="12" cy="19" r="1" />
-          </svg>
+          <i class="fas fa-ellipsis-v"></i>
         </button>
 
         <!-- 더보기 드롭다운 메뉴 -->
         <div v-if="showMoreMenu" class="more-dropdown" @click.stop>
           <button class="dropdown-item" @click="reportPost">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
-              />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
+            <i class="fas fa-exclamation-triangle"></i>
             신고
           </button>
           <button class="dropdown-item" @click="blockUser">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <path d="M4.93 4.93l14.14 14.14" />
-            </svg>
+            <i class="fas fa-ban"></i>
             차단
           </button>
           <button class="dropdown-item" @click="shareUrl">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-              <polyline points="16,6 12,2 8,6" />
-              <line x1="12" y1="2" x2="12" y2="15" />
-            </svg>
+            <i class="fas fa-share"></i>
             URL 공유
           </button>
         </div>
@@ -106,61 +61,17 @@
           <div class="reactions">
             <!-- 좋아요 버튼 -->
             <button class="reaction-btn" :class="{ liked: post.liked }" @click="toggleLike">
-              <svg
-                v-if="post.liked"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                stroke="none"
-              >
-                <path
-                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                />
-              </svg>
-              <svg
-                v-else
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                />
-              </svg>
+              <i class="fa-heart" :class="post.liked ? 'fas' : 'far'"></i>
               <span class="count">{{ post.likes || 0 }}</span>
             </button>
 
-            <button class="reaction-btn" @click="toggleComments" aria-label="댓글 보기">
-              <i class="bi bi-chat" style="font-size: 1rem; color: currentColor"></i>
+            <button class="reaction-btn" aria-label="댓글 보기" @click="toggleComments">
+              <i class="fas fa-comment"></i>
               <span class="count">{{ comments.length }}</span>
             </button>
             <!-- 스크랩 버튼 -->
             <button class="reaction-btn" :class="{ scraped: post.scraped }" @click="toggleScrap">
-              <svg
-                v-if="post.scraped"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                stroke="none"
-              >
-                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-              </svg>
-              <svg
-                v-else
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-              </svg>
+              <i class="fa-bookmark" :class="post.scraped ? 'fas' : 'far'"></i>
               <span class="count">{{ post.scraps || 0 }}</span>
             </button>
           </div>
@@ -178,7 +89,7 @@
           class="comment-input"
           @keypress.enter="submitComment"
         />
-        <button class="comment-submit" @click="submitComment" :disabled="!newComment.trim()">
+        <button class="comment-submit" :disabled="!newComment.trim()" @click="submitComment">
           등록
         </button>
       </div>
@@ -209,15 +120,10 @@
           class="comment-input"
           @keypress.enter="submitComment"
         />
-        <button class="comment-submit" @click="submitComment" :disabled="!newComment.trim()">
+        <button class="comment-submit" :disabled="!newComment.trim()" @click="submitComment">
           등록
         </button>
       </div>
-    </div>
-
-    <!-- 알림 토스트 -->
-    <div v-if="showToast" class="toast" :class="toastType">
-      {{ toastMessage }}
     </div>
   </div>
 </template>
@@ -237,11 +143,13 @@ import { togglePostScrapAPI } from '@/api/postScrap';
 
 import { useModal } from '@/composables/useModal';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useToast } from '@/composables/useToast';
 
 // 전역번수/ref 선언
 const route = useRoute();
 const router = useRouter();
 const { showModal } = useModal();
+const { showToast } = useToast();
 const authStore = useAuthStore();
 
 const memberId = computed(() => authStore.userInfo?.memberId || null);
@@ -253,28 +161,16 @@ const comments = ref([]);
 const newComment = ref('');
 const isAnonymous = ref(false);
 const showMoreMenu = ref(false);
-const showToast = ref(false);
-const toastMessage = ref('');
-const toastType = ref('success');
 
 // 날짜 배열 포맷: [2024, 7, 25, 13, 45] → "07/25 13:45"
 const formattedTime = (arr) => {
   if (!arr || arr.length < 5) return '';
+  // eslint-disable-next-line no-unused-vars
   const [_, month, day, hour, minute] = arr;
   return `${String(month).padStart(2, '0')}/${String(day).padStart(
     2,
     '0'
   )} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-};
-
-// 토스트 메시지 표시
-const showToastMessage = (message, type = 'success') => {
-  toastMessage.value = message;
-  toastType.value = type;
-  showToast.value = true;
-  setTimeout(() => {
-    showToast.value = false;
-  }, 3000);
 };
 
 // 더보기 메뉴 토글
@@ -288,13 +184,12 @@ const handleClickOutside = (event) => {
     showMoreMenu.value = false;
   }
 };
-
 // 더보기 메뉴 기능들
 const reportPost = async () => {
   showMoreMenu.value = false;
   if (await showModal('이 게시글을 신고하시겠습니까?')) {
     // 신고 API 호출
-    showToastMessage('신고가 접수되었습니다.');
+    showToast('신고가 접수되었습니다.', 'success');
   }
 };
 
@@ -302,28 +197,29 @@ const blockUser = async () => {
   showMoreMenu.value = false;
   if (await showModal(`${post.value?.nickname}님을 차단하시겠습니까?`)) {
     // 차단 API 호출
-    showToastMessage('사용자가 차단되었습니다.');
+    showToast('사용자가 차단되었습니다.', 'success');
   }
 };
 
 const shareUrl = async () => {
   showMoreMenu.value = false;
-  const currentUrl = window.location.href;
+  // const currentUrl = window.location.href;
 
   try {
-    if (navigator.share) {
-      // 모바일 네이티브 공유
-      await navigator.share({
-        title: post.value?.title || '게시글',
-        url: currentUrl,
-      });
-    } else {
-      // 클립보드 복사
-      await navigator.clipboard.writeText(currentUrl);
-      showToastMessage('URL이 클립보드에 복사되었습니다.');
-    }
+    // if (navigator.share) {
+    //   // 모바일 네이티브 공유
+    //   await navigator.share({
+    //     title: post.value?.title || '게시글',
+    //     url: currentUrl,
+    //   });
+    // } else {
+    //   // 클립보드 복사
+    //   await navigator.clipboard.writeText(currentUrl);
+    //   showToast('URL이 클립보드에 복사되었습니다.', 'success');
+    // }
+    showToast('URL이 클립보드에 복사되었습니다.', 'success');
   } catch (error) {
-    showToastMessage('URL 공유에 실패했습니다.', 'error');
+    showToast('URL 공유에 실패했습니다.', 'error');
   }
 };
 
@@ -331,10 +227,15 @@ const shareUrl = async () => {
 const fetchPostDetail = async () => {
   try {
     post.value = await getPostByIdAPI(postId, memberId.value);
-    // post.value = mockPost;
   } catch (e) {
-    // alert('게시물을 불러오지 못했습니다.');
-    console.error('게시글 불러오기 실패:', e);
+    const status = e?.response?.status ?? e?.status ?? null;
+
+    if (status === 404) {
+      showToast('게시글을 찾을 수 없습니다.', 'error');
+      router.push('/community');
+    } else {
+      showToast('게시글 불러오기 실패', 'error');
+    }
   }
 };
 
@@ -518,6 +419,10 @@ onUnmounted(() => {
   color: var(--color-main);
 }
 
+.more-button i {
+  font-size: 1.25rem;
+}
+
 .more-dropdown {
   position: absolute;
   top: 100%;
@@ -558,6 +463,12 @@ onUnmounted(() => {
   color: #ef4444;
 }
 
+.dropdown-item i {
+  font-size: 1rem;
+  width: 1rem;
+  text-align: center;
+}
+
 /* 게시글 메인 */
 .post-main {
   background: white;
@@ -588,7 +499,7 @@ onUnmounted(() => {
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-sub), var(--color-light));
+  background: var(--color-sub);
   color: white;
   font-size: 0.8125rem;
   font-weight: 600;
@@ -711,7 +622,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  color: #9ca3af;
+  color: var(--color-sub);
   font-size: 0.8125rem;
   padding: 0.375rem 0.5rem;
   border-radius: 0.375rem;
@@ -736,12 +647,16 @@ onUnmounted(() => {
 }
 
 .reaction-btn.scraped {
-  color: var(--color-main);
+  color: var(--color-sub);
 }
 
 .reaction-btn.scraped:hover {
   color: var(--color-sub);
   background: rgba(125, 129, 162, 0.05);
+}
+
+.reaction-btn i {
+  font-size: 1rem;
 }
 
 .count {
@@ -854,29 +769,6 @@ onUnmounted(() => {
   display: none;
 }
 
-/* 토스트 메시지 */
-.toast {
-  position: fixed;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: white;
-  z-index: 1000;
-  animation: slideUp 0.3s ease;
-}
-
-.toast.success {
-  background: #10b981;
-}
-
-.toast.error {
-  background: #ef4444;
-}
-
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -904,6 +796,10 @@ onUnmounted(() => {
 
   .more-menu {
     right: 1rem;
+  }
+
+  .more-button i {
+    font-size: 1.125rem;
   }
 
   .board-title {
@@ -978,6 +874,10 @@ onUnmounted(() => {
     padding: 0.25rem 0.375rem;
   }
 
+  .reaction-btn i {
+    font-size: 0.9375rem;
+  }
+
   .comment-section {
     margin: 1.25rem 0.75rem 1rem;
   }
@@ -990,6 +890,10 @@ onUnmounted(() => {
   .dropdown-item {
     padding: 0.625rem;
     font-size: 0.8125rem;
+  }
+
+  .dropdown-item i {
+    font-size: 0.9375rem;
   }
 
   /* 웹/모바일 표시 전환 */

@@ -50,13 +50,13 @@
 
     <!-- 좌우 라벨 -->
     <div class="scale-labels">
-      <span class="scale-label left">
+      <span class="scale-label left multiline-text">
         <i class="fa-solid fa-arrow-left"></i>
         {{ question.left_ans }}
       </span>
-      <span class="scale-label right">
-        {{ question.right_ans }}
+      <span class="scale-label right multiline-text">
         <i class="fa-solid fa-arrow-right"></i>
+        {{ question.right_ans }}
       </span>
     </div>
 
@@ -137,9 +137,11 @@ defineProps({
   display: flex;
   align-items: center;
   gap: 0.08rem;
-  background: linear-gradient(135deg, var(--color-main), #4a5299);
+  background: var(--color-main);
   color: var(--color-white);
-  padding: 0.5rem 0.5rem;
+  width: 2.75rem;
+  height: 2rem;
+  justify-content: center;
   border-radius: 1.25rem;
   font-weight: 700;
   box-shadow: 0 0.188rem 0.75rem rgba(45, 51, 107, 0.25);
@@ -155,7 +157,7 @@ defineProps({
 }
 
 .completion-badge {
-  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  background: #27ae60;
   color: var(--color-white);
   width: 1.75rem;
   height: 1.75rem;
@@ -422,7 +424,7 @@ defineProps({
 /* 반응형 - 모바일에서도 크기 차등 유지 */
 @media (max-width: 26.875rem) {
   .question-container {
-    padding: 1.25rem;
+    padding: 1.25rem 0.5rem 1.25rem;
   }
 
   .question-text {

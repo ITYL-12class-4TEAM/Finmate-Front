@@ -34,7 +34,7 @@
           </span>
         </div>
       </div>
-      <WishButton />
+      <WishButton v-if="isLoggedIn" />
     </div>
   </div>
 </template>
@@ -42,6 +42,7 @@
 <script setup>
 import { computed } from 'vue';
 import WishButton from '@/components/products/wishlist/WishlistButton.vue';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const props = defineProps({
   product: { type: Object, required: true },
@@ -51,6 +52,9 @@ const props = defineProps({
   interestTypeName: { type: String, default: '' },
   savingsTypeCode: { type: String, default: null }, // ✨ prop 추가
 });
+
+const authStore = useAuthStore();
+const isLoggedIn = computed(() => authStore.isAuthenticated);
 
 // 금리 유형에 따른 클래스 반환
 const getInterestTypeClass = (typeName) => {

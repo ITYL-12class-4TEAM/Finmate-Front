@@ -3,7 +3,7 @@
     {{ term }}
     <div class="tooltip" :class="{ visible: show }">
       <p class="term">{{ term }}</p>
-      <p>{{ termDescription }}</p>
+      <p class="description">{{ termDescription }}</p>
     </div>
   </span>
 </template>
@@ -24,7 +24,6 @@ const termDescription = computed(() => financialTerms[props.term] || '설명 없
   display: inline-block;
   cursor: help;
   border-bottom: 2px dotted var(--color-sub);
-  font-weight: 500;
 }
 
 .tooltip {
@@ -42,7 +41,7 @@ const termDescription = computed(() => financialTerms[props.term] || '설명 없
   border-radius: 0.75rem;
   white-space: normal;
   word-break: keep-all;
-  min-width: 8rem;
+  min-width: 10rem;
   box-shadow: 0 5px 5px rgba(0, 0, 0, 0.2);
   opacity: 0;
   transition:

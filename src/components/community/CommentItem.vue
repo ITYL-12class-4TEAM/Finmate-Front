@@ -17,70 +17,18 @@
           :class="{ liked: comment.liked }"
           @click="toggleLike(comment.commentId)"
         >
-          <svg v-if="comment.liked" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-            <path
-              d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218
-           25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25
-           2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052
-           5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25
-           0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17
-           15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z"
-            />
-          </svg>
-          <svg
-            v-else
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5
-           -1.935 0-3.597 1.126-4.312 2.733
-           -.715-1.607-2.377-2.733-4.313-2.733
-           C5.1 3.75 3 5.765 3 8.25
-           c0 7.22 9 12 9 12s9-4.78 9-12Z"
-            />
-          </svg>
+          <i class="fa-heart" :class="comment.liked ? 'fas' : 'far'"></i>
           <span class="count">{{ comment.likeCount }}</span>
         </button>
 
         <!-- 대댓글 작성 버튼 -->
         <button v-if="!isReply" class="reply-toggle-btn" @click="isReplying = !isReplying">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z"
-            />
-          </svg>
+          <i class="fas fa-reply"></i>
           {{ isReplying ? '취소' : '댓글' }}
         </button>
 
         <button v-if="comment.isMine" class="delete-btn" @click="handleDelete(comment.commentId)">
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"
-            />
-          </svg>
+          <i class="fas fa-trash"></i>
           삭제
         </button>
       </div>
@@ -105,21 +53,8 @@
           class="reply-input"
           @keypress.enter="handleReplySubmit"
         />
-        <button class="reply-submit" @click="handleReplySubmit" :disabled="!replyContent.trim()">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
-            />
-          </svg>
+        <button class="reply-submit" :disabled="!replyContent.trim()" @click="handleReplySubmit">
+          <i class="fas fa-paper-plane"></i>
         </button>
       </div>
     </div>
@@ -128,16 +63,7 @@
     <div v-if="childReplies.length" class="replies">
       <div v-for="reply in childReplies" :key="reply.commentId" class="reply-wrapper">
         <div class="reply-arrow">
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M7 17L17 7M17 7H7M17 7V17" />
-          </svg>
+          <i class="fas fa-reply fa-flip-horizontal"></i>
         </div>
         <CommentItem
           :comment="reply"
@@ -181,9 +107,12 @@ const isAnonymous = ref(false);
 
 // 액션 핸들러
 const toggleLike = async (id) => {
-  const newStatus = await toggleCommentLikeAPI(id);
-  props.comment.liked = newStatus;
-  props.comment.likeCount += newStatus ? 1 : -1;
+  try {
+    await toggleCommentLikeAPI(id);
+    if (props.refresh) await props.refresh();
+  } catch (e) {
+    console.error('좋아요 토글 실패:', e);
+  }
 };
 
 const handleDelete = async (id) => {
@@ -224,6 +153,7 @@ const childReplies = computed(() =>
 // 날짜 배열 포맷
 const formattedTime = (arr) => {
   if (!arr || arr.length < 5) return '';
+  // eslint-disable-next-line no-unused-vars
   const [_, month, day, hour, minute] = arr;
   return `${String(month).padStart(2, '0')}/${String(day).padStart(
     2,
@@ -236,7 +166,7 @@ const formattedTime = (arr) => {
 .comment {
   background: white;
   padding: 0.75rem;
-  border-bottom: 1px solid #f1f3f4;
+  border-bottom: 0.0625rem solid #f1f3f4;
   transition: all 0.2s ease;
 }
 
@@ -248,7 +178,6 @@ const formattedTime = (arr) => {
   border-bottom: none;
 }
 
-/* 댓글 헤더 */
 .comment-header {
   display: flex;
   align-items: center;
@@ -266,7 +195,7 @@ const formattedTime = (arr) => {
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-sub), var(--color-light));
+  background: var(--color-sub);
   color: white;
   font-size: 0.625rem;
   font-weight: 600;
@@ -274,7 +203,7 @@ const formattedTime = (arr) => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 1px 3px rgba(45, 51, 107, 0.1);
+  box-shadow: 0 0.0625rem 0.1875rem rgba(45, 51, 107, 0.1);
 }
 
 .author-details {
@@ -328,13 +257,17 @@ const formattedTime = (arr) => {
   background: rgba(239, 68, 68, 0.05);
 }
 
+.like-btn i {
+  font-size: 0.875rem;
+}
+
 .count {
   font-weight: 500;
 }
 
 .reply-toggle-btn {
   background: none;
-  border: 1px solid var(--color-light);
+  border: 0.0625rem solid var(--color-light);
   color: var(--color-sub);
   font-size: 0.625rem;
   display: flex;
@@ -351,6 +284,10 @@ const formattedTime = (arr) => {
   background: var(--color-bg-light);
   border-color: var(--color-sub);
   color: var(--color-main);
+}
+
+.reply-toggle-btn i {
+  font-size: 0.75rem;
 }
 
 .delete-btn {
@@ -372,7 +309,10 @@ const formattedTime = (arr) => {
   color: #dc2626;
 }
 
-/* 댓글 내용 */
+.delete-btn i {
+  font-size: 0.75rem;
+}
+
 .comment-content {
   margin-bottom: 0.5rem;
 }
@@ -384,15 +324,12 @@ const formattedTime = (arr) => {
   margin: 0;
 }
 
-/* 댓글 푸터 - 제거됨 */
-
-/* 대댓글 작성 폼 */
 .reply-form {
   margin-top: 0.75rem;
   padding: 0.75rem;
   background: var(--color-bg-light);
   border-radius: 0.5rem;
-  border: 1px solid rgba(185, 187, 204, 0.15);
+  border: 0.0625rem solid rgba(185, 187, 204, 0.15);
 }
 
 .reply-form-header {
@@ -416,7 +353,7 @@ const formattedTime = (arr) => {
 .reply-input {
   flex: 1;
   padding: 0.5rem 0.75rem;
-  border: 1px solid rgba(185, 187, 204, 0.25);
+  border: 0.0625rem solid rgba(185, 187, 204, 0.25);
   border-radius: 1.5rem;
   font-size: 0.75rem;
   background: white;
@@ -427,7 +364,7 @@ const formattedTime = (arr) => {
 
 .reply-input:focus {
   border-color: var(--color-sub);
-  box-shadow: 0 0 0 2px rgba(125, 129, 162, 0.08);
+  box-shadow: 0 0 0 0.125rem rgba(125, 129, 162, 0.08);
 }
 
 .reply-input::placeholder {
@@ -461,10 +398,13 @@ const formattedTime = (arr) => {
   transform: none;
 }
 
-/* 대댓글 */
+.reply-submit i {
+  font-size: 0.875rem;
+}
+
 .replies {
   margin-top: 0.75rem;
-  border-top: 1px solid #f1f3f4;
+  border-top: 0.0625rem solid #f1f3f4;
   padding-top: 0.75rem;
 }
 
@@ -486,10 +426,14 @@ const formattedTime = (arr) => {
   opacity: 0.7;
 }
 
+.reply-arrow i {
+  font-size: 0.75rem;
+}
+
 .reply {
   flex: 1;
   background: rgba(248, 250, 252, 0.5);
-  border: 1px solid rgba(185, 187, 204, 0.1);
+  border: 0.0625rem solid rgba(185, 187, 204, 0.1);
   border-radius: 0.5rem;
   padding: 0.75rem;
   transition: all 0.2s ease;
@@ -500,8 +444,7 @@ const formattedTime = (arr) => {
   border-color: rgba(185, 187, 204, 0.2);
 }
 
-/* 반응형 */
-@media (max-width: 768px) {
+@media (max-width: 26.875rem) {
   .comment {
     padding: 0.625rem;
   }
@@ -544,6 +487,26 @@ const formattedTime = (arr) => {
   .like-btn {
     font-size: 0.6875rem;
     padding: 0.1875rem 0.3125rem;
+  }
+
+  .like-btn i {
+    font-size: 0.8125rem;
+  }
+
+  .reply-toggle-btn i {
+    font-size: 0.6875rem;
+  }
+
+  .delete-btn i {
+    font-size: 0.6875rem;
+  }
+
+  .reply-submit i {
+    font-size: 0.8125rem;
+  }
+
+  .reply-arrow i {
+    font-size: 0.6875rem;
   }
 }
 </style>

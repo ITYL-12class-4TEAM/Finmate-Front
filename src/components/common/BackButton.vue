@@ -59,7 +59,7 @@ const goBack = () => {
     ((window.history.state && window.history.state.back != null) || window.history.length > 1);
 
   if (props.preferBack && hasHistory) {
-    router.back();
+    router.push(window.history.state.back, { scroll: false });
     return;
   }
 
@@ -77,7 +77,7 @@ const goBack = () => {
 }
 
 .icon {
-  background-color: var(--color-sub);
+  background-color: var(--color-main);
   width: 80px;
   height: 30px;
   color: white;

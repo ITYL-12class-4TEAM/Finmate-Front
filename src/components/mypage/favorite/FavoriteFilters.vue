@@ -12,72 +12,104 @@
             placeholder="상품명이나 은행명 검색..."
             @input="handleSearchInput"
           />
-          <button v-if="searchQuery" class="clear-btn" title="검색어 지우기" @click="clearSearch">
-            <i class="fa-solid fa-times"></i>
+          <button v-if="searchQuery" class="clear-btn" @click="clearSearch">
+            <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
       </div>
 
-      <!-- 필터 옵션들 -->
+      <!-- 필터 옵션들 (모든 화면에서 일렬) -->
       <div class="filter-options">
         <!-- 상품 유형 선택 -->
         <div class="filter-group">
-          <label class="filter-label">
-            <i class="fa-solid fa-layer-group"></i>
-            상품 유형
-          </label>
-          <div class="custom-select">
-            <select :value="selectedType" class="select-input" @change="handleTypeChange">
-              <option value="">전체 상품</option>
-              <option value="예금">예금</option>
-              <option value="적금">적금</option>
-              <option value="펀드">펀드</option>
-              <option value="대출">대출</option>
-              <option value="보험">보험</option>
-              <option value="연금">연금</option>
-            </select>
-            <i class="fa-solid fa-chevron-down select-arrow"></i>
+          <label class="filter-label">상품 유형</label>
+          <div ref="typeSelectRef" class="custom-select">
+            <div
+              class="select-trigger"
+              :class="{ active: typeDropdownOpen }"
+              @click="toggleTypeDropdown"
+            >
+              <span class="select-value">{{ getTypeLabel(selectedType) }}</span>
+              <i
+                class="fa-solid fa-chevron-down select-arrow"
+                :class="{ rotated: typeDropdownOpen }"
+              ></i>
+            </div>
+            <div class="select-dropdown" :class="{ open: typeDropdownOpen }">
+              <div
+                class="select-option"
+                :class="{ selected: selectedType === '' }"
+                @click="selectType('')"
+              >
+                전체 상품
+              </div>
+              <div
+                class="select-option"
+                :class="{ selected: selectedType === '예금' }"
+                @click="selectType('예금')"
+              >
+                예금
+              </div>
+              <div
+                class="select-option"
+                :class="{ selected: selectedType === '적금' }"
+                @click="selectType('적금')"
+              >
+                적금
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- 정렬 옵션 -->
         <div class="filter-group">
-          <label class="filter-label">
-            <i class="fa-solid fa-sort"></i>
-            정렬 방식
-          </label>
-          <div class="custom-select">
-            <select :value="sortBy" class="select-input" @change="handleSortChange">
-              <option value="name-asc">이름순</option>
-              <!-- <option value="interest-desc">금리 높은순</option>
-              <option value="interest-asc">금리 낮은순</option> -->
-              <option value="wishlist-desc">인기순</option>
-              <option value="date-desc">최신순</option>
-            </select>
-            <i class="fa-solid fa-chevron-down select-arrow"></i>
+          <label class="filter-label">정렬 방식</label>
+          <div ref="sortSelectRef" class="custom-select">
+            <div
+              class="select-trigger"
+              :class="{ active: sortDropdownOpen }"
+              @click="toggleSortDropdown"
+            >
+              <span class="select-value">{{ getSortLabel(sortBy) }}</span>
+              <i
+                class="fa-solid fa-chevron-down select-arrow"
+                :class="{ rotated: sortDropdownOpen }"
+              ></i>
+            </div>
+            <div class="select-dropdown" :class="{ open: sortDropdownOpen }">
+              <div
+                class="select-option"
+                :class="{ selected: sortBy === 'name-asc' }"
+                @click="selectSort('name-asc')"
+              >
+                이름순
+              </div>
+              <div
+                class="select-option"
+                :class="{ selected: sortBy === 'wishlist-desc' }"
+                @click="selectSort('wishlist-desc')"
+              >
+                인기순
+              </div>
+              <div
+                class="select-option"
+                :class="{ selected: sortBy === 'date-desc' }"
+                @click="selectSort('date-desc')"
+              >
+                최신순
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-
-      <!-- 필터 상태 표시 -->
-      <div v-if="hasActiveFilters" class="active-filters">
-        <span class="filter-status">
-          <i class="fa-solid fa-filter"></i>
-          필터 적용됨
-        </span>
-        <button class="clear-all-btn" @click="clearAllFilters">
-          <i class="fa-solid fa-times"></i>
-          전체 초기화
-        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 
-const props = defineProps({
+defineProps({
   searchQuery: String,
   selectedType: String,
   sortBy: String,
@@ -85,24 +117,38 @@ const props = defineProps({
 
 const emit = defineEmits(['update:searchQuery', 'update:selectedType', 'update:sortBy', 'filter']);
 
-// 활성 필터 여부 확인
-const hasActiveFilters = computed(() => {
-  return props.searchQuery || props.selectedType;
-});
+// 드롭다운 상태
+const typeDropdownOpen = ref(false);
+const sortDropdownOpen = ref(false);
+const typeSelectRef = ref(null);
+const sortSelectRef = ref(null);
 
-// 이벤트 핸들러들
+// 라벨 매핑
+const getTypeLabel = (value) => {
+  const labels = {
+    '': '전체 상품',
+    예금: '예금',
+    적금: '적금',
+    펀드: '펀드',
+    대출: '대출',
+    보험: '보험',
+    연금: '연금',
+  };
+  return labels[value] || '전체 상품';
+};
+
+const getSortLabel = (value) => {
+  const labels = {
+    'name-asc': '이름순',
+    'wishlist-desc': '인기순',
+    'date-desc': '최신순',
+  };
+  return labels[value] || '이름순';
+};
+
+// 이벤트 핸들러
 const handleSearchInput = (event) => {
   emit('update:searchQuery', event.target.value);
-  emit('filter');
-};
-
-const handleTypeChange = (event) => {
-  emit('update:selectedType', event.target.value);
-  emit('filter');
-};
-
-const handleSortChange = (event) => {
-  emit('update:sortBy', event.target.value);
   emit('filter');
 };
 
@@ -111,35 +157,65 @@ const clearSearch = () => {
   emit('filter');
 };
 
-const clearAllFilters = () => {
-  emit('update:searchQuery', '');
-  emit('update:selectedType', '');
-  emit('update:sortBy', 'name-asc');
-  emit('filter');
+// 드롭다운 토글
+const toggleTypeDropdown = () => {
+  typeDropdownOpen.value = !typeDropdownOpen.value;
+  if (typeDropdownOpen.value) {
+    sortDropdownOpen.value = false;
+  }
 };
+
+const toggleSortDropdown = () => {
+  sortDropdownOpen.value = !sortDropdownOpen.value;
+  if (sortDropdownOpen.value) {
+    typeDropdownOpen.value = false;
+  }
+};
+
+// 옵션 선택
+const selectType = (value) => {
+  emit('update:selectedType', value);
+  emit('filter');
+  typeDropdownOpen.value = false;
+};
+
+const selectSort = (value) => {
+  emit('update:sortBy', value);
+  emit('filter');
+  sortDropdownOpen.value = false;
+};
+
+// 외부 클릭 감지
+const handleClickOutside = (event) => {
+  if (typeSelectRef.value && !typeSelectRef.value.contains(event.target)) {
+    typeDropdownOpen.value = false;
+  }
+  if (sortSelectRef.value && !sortSelectRef.value.contains(event.target)) {
+    sortDropdownOpen.value = false;
+  }
+};
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
 </script>
 
 <style scoped>
 .favorites-filters {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .filter-container {
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
-  border-radius: 1rem;
-  padding: 1.25rem;
-  border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow: 0 2px 8px -2px rgba(45, 51, 107, 0.1);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--color-white);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  border: 1px solid #f1f5f9;
 }
 
-.filter-container:hover {
-  border-color: rgba(185, 187, 204, 0.4);
-  box-shadow: 0 4px 12px -2px rgba(45, 51, 107, 0.15);
-}
-
-/* 검색 입력 영역 */
 .search-wrapper {
   margin-bottom: 1rem;
 }
@@ -152,39 +228,31 @@ const clearAllFilters = () => {
 
 .search-icon {
   position: absolute;
-  left: 1rem;
+  left: 0.875rem;
   color: var(--color-sub);
   font-size: 0.875rem;
   z-index: 2;
-  transition: color 0.2s ease;
 }
 
 .search-input {
   width: 100%;
-  padding: 0.875rem 1rem 0.875rem 2.5rem;
-  font-size: 0.95rem;
-  border: 1px solid rgba(185, 187, 204, 0.4);
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.8);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  font-size: 0.875rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background: var(--color-white);
   color: var(--color-main);
+  transition: all 0.2s ease;
 }
 
 .search-input::placeholder {
-  color: var(--color-sub);
-  opacity: 0.7;
+  color: var(--color-light);
 }
 
 .search-input:focus {
   outline: none;
   border-color: var(--color-main);
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 0 0 3px rgba(45, 51, 107, 0.1);
-}
-
-.search-input:focus + .search-icon,
-.search-input-container:hover .search-icon {
-  color: var(--color-main);
+  box-shadow: 0 0 0 1px var(--color-main);
 }
 
 .clear-btn {
@@ -200,16 +268,16 @@ const clearAllFilters = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .clear-btn:hover {
-  background: rgba(185, 187, 204, 0.2);
+  background: #f3f4f6;
   color: var(--color-main);
 }
 
-/* 필터 옵션들 */
+/* 필터 옵션 - 모든 화면에서 일렬 배치 */
 .filter-options {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -219,116 +287,219 @@ const clearAllFilters = () => {
 .filter-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.375rem;
 }
 
 .filter-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.8125rem;
+  font-weight: 500;
   color: var(--color-main);
-}
-
-.filter-label i {
-  font-size: 0.75rem;
-  color: var(--color-sub);
 }
 
 /* 커스텀 셀렉트 */
 .custom-select {
   position: relative;
+  z-index: 10;
 }
 
-.select-input {
-  width: 100%;
-  padding: 0.75rem 2.5rem 0.75rem 1rem;
-  font-size: 0.9rem;
-  border: 1px solid rgba(185, 187, 204, 0.4);
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.8);
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  color: var(--color-main);
-  appearance: none;
-}
-
-.select-input:focus {
-  outline: none;
-  border-color: var(--color-main);
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 0 0 3px rgba(45, 51, 107, 0.1);
-}
-
-.select-arrow {
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--color-sub);
-  font-size: 0.75rem;
-  pointer-events: none;
-  transition: all 0.2s ease;
-}
-
-.custom-select:hover .select-arrow {
-  color: var(--color-main);
-}
-
-/* 활성 필터 상태 */
-.active-filters {
+.select-trigger {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 1rem;
-  padding: 0.75rem 1rem;
-  background: linear-gradient(135deg, rgba(45, 51, 107, 0.05) 0%, rgba(125, 129, 162, 0.03) 100%);
-  border-radius: 0.75rem;
-  border: 1px solid rgba(45, 51, 107, 0.15);
-}
-
-.filter-status {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--color-main);
-}
-
-.filter-status i {
-  font-size: 0.75rem;
-  color: var(--color-sub);
-}
-
-.clear-all-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.375rem 0.75rem;
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-  color: white;
-  border: none;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  border: 1px solid #e2e8f0;
   border-radius: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 600;
+  background: var(--color-white);
+  color: var(--color-main);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
+  user-select: none;
 }
 
-.clear-all-btn:hover {
-  background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%);
-  transform: translateY(-1px);
+.select-trigger:hover {
+  border-color: var(--color-main);
 }
 
-.clear-all-btn i {
-  font-size: 0.7rem;
+.select-trigger.active {
+  border-color: var(--color-main);
+  box-shadow: 0 0 0 1px var(--color-main);
 }
 
-/* 로딩 상태 */
-.favorites-filters.loading {
-  opacity: 0.7;
-  pointer-events: none;
+.select-value {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.select-arrow {
+  color: var(--color-sub);
+  font-size: 0.75rem;
+  transition: transform 0.2s ease;
+  margin-left: 0.5rem;
+  flex-shrink: 0;
+}
+
+.select-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+.select-dropdown {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  right: 0;
+  background: var(--color-white);
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-0.5rem);
+  transition: all 0.2s ease;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 20;
+}
+
+.select-dropdown.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.select-option {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--color-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #f8fafc;
+}
+
+.select-option:last-child {
+  border-bottom: none;
+}
+
+.select-option:hover {
+  background: #f8fafc;
+}
+
+.select-option.selected {
+  background: var(--color-main);
+  color: var(--color-white);
+}
+
+.select-option.selected:hover {
+  background: var(--color-sub);
+}
+
+/* 스크롤바 스타일 */
+.select-dropdown::-webkit-scrollbar {
+  width: 4px;
+}
+
+.select-dropdown::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.select-dropdown::-webkit-scrollbar-thumb {
+  background: var(--color-light);
+  border-radius: 2px;
+}
+
+/* 모바일에서도 일렬 유지 */
+@media (max-width: 768px) {
+  .filter-container {
+    padding: 0.875rem;
+  }
+
+  .search-wrapper {
+    margin-bottom: 0.875rem;
+  }
+
+  .search-input {
+    padding: 0.625rem 0.875rem 0.625rem 2.25rem;
+    font-size: 0.8125rem;
+  }
+
+  .filter-options {
+    gap: 0.75rem;
+  }
+
+  .filter-label {
+    font-size: 0.75rem;
+  }
+
+  .select-trigger {
+    padding: 0.4375rem 0.625rem;
+    font-size: 0.75rem;
+  }
+
+  .select-option {
+    padding: 0.4375rem 0.625rem;
+    font-size: 0.75rem;
+  }
+
+  .select-arrow {
+    font-size: 0.6875rem;
+    margin-left: 0.375rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-container {
+    padding: 0.75rem;
+  }
+
+  .search-input {
+    padding: 0.5rem 0.75rem 0.5rem 2rem;
+    font-size: 0.75rem;
+  }
+
+  .search-icon {
+    left: 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  .clear-btn {
+    right: 0.625rem;
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  .filter-options {
+    gap: 0.625rem;
+  }
+
+  .filter-label {
+    font-size: 0.6875rem;
+  }
+
+  .select-trigger {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.6875rem;
+  }
+
+  .select-option {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.6875rem;
+  }
+
+  .select-arrow {
+    font-size: 0.625rem;
+    margin-left: 0.25rem;
+  }
+}
+
+/* 애니메이션 개선 */
+@media (prefers-reduced-motion: reduce) {
+  .select-dropdown,
+  .select-arrow,
+  .select-trigger,
+  .select-option {
+    transition: none;
+  }
 }
 </style>

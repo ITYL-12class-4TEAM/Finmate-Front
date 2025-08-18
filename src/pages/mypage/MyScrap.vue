@@ -1,119 +1,96 @@
 <template>
-  <!-- <PageHeader title="내 스크랩" /> -->
+  <div class="my-scraps-container">
+    <BackButton class="mb-3" />
+    <LoadingSpinner v-if="loading" />
+    <ErrorAlert v-else-if="error" :message="error" />
 
-  <LoadingSpinner v-if="loading" />
+    <div v-else class="my-scraps-content">
+      <!-- 필터 섹션 -->
+      <ScrapPostFilter
+        :product-tags="productTags"
+        :selected-products="selectedProducts"
+        @toggle-product="toggleProduct"
+      />
 
-  <ErrorAlert v-else-if="error" :message="error" />
-
-  <div v-else>
-    <ScrappedPostFilter
-      v-model:search-query="searchQuery"
-      v-model:selected-board="selectedBoard"
-      v-model:sort-by="sortBy"
-      @filter="filterAndSortPosts"
-    />
-
-    <div>
-      <ScrappedPostActions :filtered-count="filteredPosts.length" />
-
-      <ScrappedPostList :posts="paginatedPosts" @view-post="viewPost" />
-
-      <Pagination
-        v-if="totalPages > 1"
+      <!-- 스크랩 게시글 목록 섹션 -->
+      <ScrapPostList
+        :posts="filteredPosts"
         :current-page="currentPage"
-        :total-pages="totalPages"
-        @change-page="changePage"
+        :posts-per-page="postsPerPage"
+        @page-change="changePage"
+        @post-click="goToDetailPage"
+        @scrap="handleScrap"
       />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import router from '@/router';
 
 import LoadingSpinner from '@/components/mypage/common/LoadingSpinner.vue';
 import ErrorAlert from '@/components/mypage/common/ErrorAlert.vue';
-import Pagination from '@/components/mypage/common/Pagination.vue';
-import ScrappedPostFilter from '@/components/mypage/myscrap/ScrapPostFilter.vue';
-import ScrappedPostActions from '@/components/mypage/myscrap/ScrapPostAction.vue';
-import ScrappedPostList from '@/components/mypage/myscrap/ScrapPostList.vue';
+import ScrapPostFilter from '@/components/mypage/myscrap/ScrapPostFilter.vue';
+import ScrapPostList from '@/components/mypage/myscrap/ScrapPostList.vue';
 import { postsAPI } from '@/api/mypost';
 import { useToast } from '@/composables/useToast';
+import BackButton from '@/components/common/BackButton.vue';
 
 const { showToast } = useToast();
 
 const loading = ref(false);
 const error = ref('');
 const posts = ref([]);
-const searchQuery = ref('');
-const selectedBoard = ref('');
-const sortBy = ref('scrap-date-desc');
 const currentPage = ref(1);
-const itemsPerPage = 15;
+const postsPerPage = 5;
 
-// 날짜 배열 → Date 객체로 변환
-const toDate = (input) => {
-  if (Array.isArray(input)) {
-    const [year, month, day, hour = 0, minute = 0, second = 0] = input;
-    return new Date(year, month - 1, day, hour, minute, second);
-  }
-  return new Date(input);
-};
+// 필터 관련 상태
+const productTags = ['예금', '적금', '펀드', '보험'];
+const selectedProducts = ref([]);
 
 const filteredPosts = computed(() => {
   let filtered = [...posts.value];
 
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase();
-    filtered = filtered.filter(
-      (post) =>
-        post.title.toLowerCase().includes(query) ||
-        post.content.toLowerCase().includes(query) ||
-        (post.authorName || '').toLowerCase().includes(query)
-    );
+  // 상품군 필터링
+  if (selectedProducts.value.length > 0) {
+    filtered = filtered.filter((post) => {
+      return selectedProducts.value.includes(post.productType);
+    });
   }
 
-  if (selectedBoard.value) {
-    filtered = filtered.filter((post) => post.boardType === selectedBoard.value);
+  // 스크랩 일시순 정렬 (최신순)
+  return filtered.sort((a, b) => new Date(b.scrapCreatedAt) - new Date(a.scrapCreatedAt));
+});
+
+// 필터링 함수
+const toggleProduct = (tag) => {
+  const index = selectedProducts.value.indexOf(tag);
+  if (index === -1) {
+    selectedProducts.value.push(tag);
+  } else {
+    selectedProducts.value.splice(index, 1);
   }
+  // 필터 변경 시 첫 페이지로 이동
+  currentPage.value = 1;
+};
 
-  switch (sortBy.value) {
-    case 'scrap-date-desc':
-      filtered.sort((a, b) => toDate(b.scrapCreatedAt) - toDate(a.scrapCreatedAt));
-      break;
-    case 'post-date-desc':
-      filtered.sort((a, b) => toDate(b.postCreatedAt) - toDate(a.postCreatedAt));
-      break;
-    case 'like-desc':
-      filtered.sort((a, b) => b.likeCount - a.likeCount);
-      break;
-    case 'comment-desc':
-      filtered.sort((a, b) => b.commentCount - a.commentCount);
-      break;
-  }
-
-  return filtered;
-});
-
-const totalPages = computed(() => {
-  return Math.ceil(filteredPosts.value.length / itemsPerPage);
-});
-
-const paginatedPosts = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  return filteredPosts.value.slice(start, end);
-});
+function convertDateArrayToISOString(arr) {
+  if (!Array.isArray(arr) || arr.length < 3) return '';
+  const [year, month, day, hour = 0, minute = 0, second = 0] = arr;
+  return new Date(year, month - 1, day, hour, minute, second).toISOString();
+}
 
 const fetchPosts = async () => {
   loading.value = true;
   error.value = '';
 
   try {
+    // 내 스크랩 목록 가져오기
     const response = await postsAPI.getMyScraps();
-
     const apiData = response.body?.data || response.data;
+
+    // 각 스크랩된 게시글의 상세 정보 가져오기
     const postPromises = apiData.map(async (item) => {
       const postRes = await postsAPI.getPost(item.postId);
       const post = postRes.body.data;
@@ -122,13 +99,21 @@ const fetchPosts = async () => {
         postId: post.postId,
         title: post.title,
         content: post.content,
-        authorName: post.anonymous ? '익명' : `사용자 ${post.memberId}`,
-        postCreatedAt: convertDateArrayToISOString(post.createdAt),
-        boardType: post.boardId === 1 ? 'FREE' : 'HOT',
+        boardType: post.boardId === 1 ? 'FREE' : post.boardId === 2 ? 'HOT' : 'NOTICE',
         isAnonymous: post.anonymous,
-        likeCount: post.likeCount,
-        commentCount: post.commentCount,
-        scrapCreatedAt: convertDateArrayToISOString(item.hotBoardTime),
+        // API에서 받은 실제 닉네임 정보 사용
+        nickname: post.nickname || post.authorName || post.writer || '작성자',
+        likeCount: post.likeCount || 0,
+        commentCount: post.commentCount || 0,
+        scrapCount: post.scrapCount || 0,
+        postCreatedAt: convertDateArrayToISOString(post.createdAt), // 게시글 작성일
+        scrapCreatedAt: convertDateArrayToISOString(item.hotBoardTime), // 스크랩일
+        // 좋아요 및 스크랩 상태 (스크랩한 게시글이므로 스크랩은 항상 true)
+        liked: post.liked || post.isLiked || false,
+        scraped: true, // 스크랩 목록이므로 항상 true
+        // 실제 API에서 상품 타입을 받아오도록 수정 (임시 랜덤 제거)
+        productType:
+          post.productType || productTags[Math.floor(Math.random() * productTags.length)],
       };
     });
 
@@ -141,41 +126,88 @@ const fetchPosts = async () => {
     loading.value = false;
   }
 };
-function convertDateArrayToISOString(arr) {
-  if (!Array.isArray(arr) || arr.length < 3) return '';
-  const [year, month, day, hour = 0, minute = 0, second = 0] = arr;
-  return new Date(year, month - 1, day, hour, minute, second).toISOString();
-}
 
-const filterAndSortPosts = () => {
-  currentPage.value = 1;
-};
+// 스크랩 토글 함수
+const handleScrap = async (post) => {
+  try {
+    // 스크랩 API 호출 (실제 API 구현 필요)
+    // const response = await postsAPI.toggleScrap(post.id);
 
-const viewPost = (post) => {
-  router.push(`/community/${post.postId}`);
-};
-
-const changePage = (page) => {
-  if (page >= 1 && page <= totalPages.value && page !== currentPage.value) {
-    currentPage.value = page;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // 스크랩 해제 시 목록에서 제거
+    const postIndex = posts.value.findIndex((p) => p.postId === post.id);
+    if (postIndex !== -1) {
+      if (posts.value[postIndex].scraped) {
+        // 스크랩 해제 - 목록에서 제거
+        posts.value.splice(postIndex, 1);
+      }
+    }
+  } catch (err) {
+    console.error('스크랩 처리 실패:', err);
   }
 };
+
+// 개별 게시글 정보 최신화
+const refreshPost = async (postId) => {
+  try {
+    const res = await postsAPI.getPost(postId);
+    const updated = res.data.body?.data || res.body?.data || res.data;
+
+    const index = posts.value.findIndex((p) => p.postId === postId);
+    if (index !== -1) {
+      posts.value[index] = {
+        ...posts.value[index],
+        title: updated.title,
+        content: updated.content,
+        likeCount: updated.likeCount || 0,
+        commentCount: updated.commentCount || 0,
+        scrapCount: updated.scrapCount || posts.value[index].scrapCount || 0,
+        liked: updated.liked || updated.isLiked || posts.value[index].liked || false,
+        // 스크랩 상태는 유지 (스크랩 목록이므로)
+        scraped: true,
+      };
+    }
+  } catch (err) {
+    console.error(`게시글 ${postId} 업데이트 실패:`, err);
+  }
+};
+
+const goToDetailPage = (postId) => {
+  router.push(`/community/${postId}`);
+};
+
+// 페이지 변경
+const changePage = (page) => {
+  currentPage.value = page;
+  // 페이지 변경 시 스크롤을 맨 위로
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+// 필터 변경 시 첫 페이지로 이동하는 watcher
+watch(
+  selectedProducts,
+  () => {
+    currentPage.value = 1;
+  },
+  { deep: true }
+);
 
 onMounted(() => {
   fetchPosts();
 });
+
+defineExpose({ refreshPost });
 </script>
 
 <style scoped>
-.my-scrapped-posts {
-  padding: 1rem 0;
+.my-scraps-container {
+  width: 100%;
+  max-width: 26.875rem; /* 430px */
+  margin: 0 auto;
+  background-color: var(--color-white);
+  min-height: 100vh;
 }
 
-.content-area {
-  background: white;
-  border-radius: 0.75rem;
-  padding: 2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+.my-scraps-content {
+  width: 100%;
 }
 </style>

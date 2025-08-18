@@ -2,7 +2,7 @@
   <div class="preinfo-container">
     <div class="preinfo-form">
       <!-- 뒤로가기 버튼 -->
-      <BackButton title="돌아가기" to="/wmti/basic" />
+      <BackButton to="/wmti/basic" />
       <!-- 헤더 -->
       <div class="form-header">
         <div class="header-accent"></div>
@@ -530,11 +530,10 @@ onMounted(async () => {
 /* 컨테이너 */
 .preinfo-container {
   min-height: 100vh;
-  /* background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%); */
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 1rem 0 1rem;
 }
 
 .preinfo-form {
@@ -559,7 +558,7 @@ onMounted(async () => {
 .header-accent {
   width: 3.75rem;
   height: 0.25rem;
-  background: linear-gradient(90deg, var(--color-main), var(--color-sub));
+  background: var(--color-main);
   border-radius: 0.125rem;
   margin: 0 auto 1rem;
 }
@@ -595,7 +594,7 @@ onMounted(async () => {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--color-main), var(--color-sub));
+  background: var(--color-main);
   transition: width 0.5s ease;
   border-radius: 0.1875rem;
 }
@@ -645,7 +644,7 @@ onMounted(async () => {
   content: '';
   flex: 1;
   height: 0.0625rem;
-  background: linear-gradient(90deg, var(--color-main), transparent);
+  background: var(--color-main);
 }
 
 .title-number {
@@ -654,7 +653,7 @@ onMounted(async () => {
   justify-content: center;
   width: 1.75rem;
   height: 1.75rem;
-  background: linear-gradient(135deg, var(--color-main), var(--color-sub));
+  background: var(--color-main);
   color: var(--color-white);
   border-radius: 50%;
   font-size: 0.75rem;
@@ -766,7 +765,7 @@ onMounted(async () => {
 }
 
 .currency-unit {
-  background: linear-gradient(135deg, var(--color-sub), var(--color-main));
+  background: var(--color-sub);
   color: var(--color-white);
   padding: 0.5rem 0.75rem;
   border-radius: 50%;
@@ -794,7 +793,7 @@ onMounted(async () => {
   left: 0.25rem;
   width: calc(50% - 0.4rem);
   height: calc(100% - 0.5rem);
-  background: linear-gradient(135deg, var(--color-main), var(--color-sub));
+  background: var(--color-main);
   border-radius: 0.5rem;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 0.125rem 0.25rem rgba(45, 51, 107, 0.2);
@@ -945,7 +944,7 @@ onMounted(async () => {
 .submit-btn {
   margin-top: 0.5rem;
   padding: 0.875rem;
-  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
+  background: var(--color-main);
   color: var(--color-white);
   border: none;
   border-radius: 0.75rem;
@@ -966,7 +965,7 @@ onMounted(async () => {
   transform: none;
 }
 .submit-btn.no-changes {
-  background: linear-gradient(135deg, #95a5a6, #bdc3c7);
+  background: var(--color-sub);
   cursor: not-allowed;
 }
 

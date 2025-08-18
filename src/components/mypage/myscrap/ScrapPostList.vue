@@ -1,95 +1,157 @@
 <template>
-  <div>
-    <!-- 스크랩 리스트 -->
-    <div class="scraps-list">
-      <ScrapPostItem
-        v-for="post in posts"
-        :key="`scrap-${post.postId}`"
-        :post="post"
-        @view="$emit('view-post', $event)"
+  <div class="posts-section">
+    <ScrapPostSummary :total-posts="posts.length" />
+
+    <!-- 게시글 목록 -->
+    <section class="post-list">
+      <div v-if="paginatedPosts.length === 0" class="empty-message">
+        <i class="fas fa-search"></i>
+        <p>조건에 맞는 스크랩 게시글이 없습니다.</p>
+      </div>
+      <PostCard
+        v-for="post in paginatedPosts"
+        v-else
+        :key="post.postId"
+        :post="convertToPostCardFormat(post)"
+        :is-liked="post.liked || false"
+        :is-scrapped="post.scraped || false"
+        @click="$emit('post-click', post.postId)"
+        @scrap="$emit('scrap', $event)"
       />
-    </div>
+    </section>
+
+    <!-- 페이징 컨트롤 -->
+    <ScrapPostPagination
+      v-if="totalPages > 1"
+      :current-page="currentPage"
+      :total-pages="totalPages"
+      @page-change="$emit('page-change', $event)"
+    />
+
+    <!-- 페이지 정보 -->
+    <ScrapPostPageInfo
+      v-if="posts.length > 0"
+      :total-posts="posts.length"
+      :start-index="startIndex"
+      :end-index="endIndex"
+    />
   </div>
 </template>
 
 <script setup>
-import ScrapPostItem from './ScrapPostItem.vue';
+import { computed } from 'vue';
+import PostCard from '@/components/community/PostCard.vue';
+import ScrapPostSummary from './ScrapPostSummary.vue';
+import ScrapPostPagination from './ScrapPostPagination.vue';
+import ScrapPostPageInfo from './ScrapPostPageInfo.vue';
 
 const props = defineProps({
   posts: {
     type: Array,
     required: true,
   },
+  currentPage: {
+    type: Number,
+    required: true,
+  },
+  postsPerPage: {
+    type: Number,
+    default: 5,
+  },
 });
 
-const emit = defineEmits(['view-post']);
+defineEmits(['page-change', 'post-click', 'scrap']);
+
+const totalPages = computed(() => {
+  return Math.ceil(props.posts.length / props.postsPerPage);
+});
+
+const startIndex = computed(() => (props.currentPage - 1) * props.postsPerPage);
+const endIndex = computed(() =>
+  Math.min(startIndex.value + props.postsPerPage, props.posts.length)
+);
+
+const paginatedPosts = computed(() => {
+  return props.posts.slice(startIndex.value, endIndex.value);
+});
+
+// PostCard 컴포넌트에 맞는 형식으로 변환
+const convertToPostCardFormat = (post) => {
+  return {
+    id: post.postId,
+    title: post.title,
+    content: post.content,
+    createdAt: convertToDateArray(post.postCreatedAt), // 게시글 작성일
+    likes: post.likeCount,
+    comments: post.commentCount,
+    scraps: post.scrapCount || 0,
+    // 실제 닉네임 표시 (익명이면 '익명', 아니면 실제 닉네임)
+    nickname: post.isAnonymous ? '익명' : post.nickname || post.authorName || '작성자',
+    productType: post.productType,
+  };
+};
+
+// ISO 문자열을 배열 형식으로 변환
+const convertToDateArray = (isoString) => {
+  if (!isoString) return [];
+  const date = new Date(isoString);
+  return [
+    date.getFullYear(),
+    date.getMonth() + 1,
+    date.getDate(),
+    date.getHours(),
+    date.getMinutes(),
+  ];
+};
 </script>
+
 <style scoped>
-.scraps-list {
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
-  border-radius: 1rem;
-  border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow: 0 2px 8px -2px rgba(45, 51, 107, 0.1);
-  backdrop-filter: blur(10px);
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.posts-section {
+  margin-top: 0;
 }
 
-.scraps-list:hover {
-  border-color: rgba(185, 187, 204, 0.4);
-  box-shadow: 0 4px 12px -2px rgba(45, 51, 107, 0.15);
-}
-
-/* 빈 상태 처리 */
-.scraps-list:empty::after {
-  content: '게시글이 없습니다.';
+/* 게시글 목록 - 커뮤니티와 동일한 스타일 */
+.post-list {
   display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  min-height: 25rem;
+}
+
+.empty-message {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.875rem;
+  padding: 2rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 3rem 1rem;
-  color: var(--color-sub);
-  font-size: 0.95rem;
-  font-weight: 500;
+  gap: 0.75rem;
 }
 
-/* 로딩 상태 */
-.scraps-list.loading {
-  opacity: 0.7;
-  pointer-events: none;
+.empty-message i {
+  font-size: 2rem;
+  color: #d1d5db;
 }
 
-.scraps-list.loading::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(var(--color-light), 0.3), transparent);
-  animation: shimmer 2s infinite;
-  z-index: 1;
+.empty-message p {
+  margin: 0;
 }
 
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
+/* 반응형 디자인 */
+@media (max-width: 48rem) {
+  .post-list {
+    min-height: 21.875rem;
   }
-  100% {
-    transform: translateX(100%);
+
+  .empty-message {
+    font-size: 0.8125rem;
   }
-}
 
-/* PostItem 간격 조정 */
-.scraps-list :deep(.post-item:not(:last-child)) {
-  border-bottom: 1px solid rgba(185, 187, 204, 0.2);
-}
-
-.scraps-list :deep(.post-item) {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.scraps-list :deep(.post-item:hover) {
-  background: rgba(45, 51, 107, 0.02);
-  transform: translateY(-1px);
+  .empty-message i {
+    font-size: 1.75rem;
+  }
 }
 </style>

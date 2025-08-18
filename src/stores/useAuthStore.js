@@ -126,9 +126,7 @@ export const useAuthStore = defineStore('auth', () => {
     accessToken.value = null;
     refreshToken.value = null;
 
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('userInfo');
+    localStorage.clear();
   };
 
   const initialize = async () => {

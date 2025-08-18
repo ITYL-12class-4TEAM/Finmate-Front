@@ -2,14 +2,14 @@
   <section class="interest-section">
     <div class="interest-rates">
       <div class="rate-item">
-        <span class="rate-label">기본금리</span>
+        <span class="rate-label"><FinancialTerm term="기본금리" /></span>
         <span class="rate-value">
           {{ formatRate(selectedOption?.intr_rate) }}
         </span>
       </div>
       <div class="rate-divider"></div>
       <div class="rate-item">
-        <span class="rate-label">우대금리</span>
+        <span class="rate-label"><FinancialTerm term="우대금리" /></span>
         <span class="rate-value highlight">
           {{ formatRate(selectedOption?.intr_rate2) }}
         </span>
@@ -27,6 +27,8 @@
 </template>
 
 <script setup>
+import FinancialTerm from '@/components/common/FinancialTerm.vue';
+
 defineProps({
   selectedOption: { type: Object, default: null },
   formatRate: { type: Function, required: true },

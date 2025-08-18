@@ -1,99 +1,158 @@
 <template>
-  <div>
-    <!-- 게시글 리스트 -->
-    <div class="posts-list">
-      <CommentedPostItem
-        v-for="post in posts"
-        :key="`${post.postId}-${post.myCommentId}`"
-        :post="post"
-        @view="$emit('view-post', $event)"
-        @view-comment="$emit('view-comment', $event)"
-        @like="(postId) => refreshPost(postId)"
-        @comment="(postId) => refreshPost(postId)"
-      />
-    </div>
+  <div class="posts-section">
+    <CommentPostSummary :totalPosts="posts.length" />
+    
+    <!-- 게시글 목록 -->
+    <section class="post-list">
+      <div v-if="paginatedPosts.length === 0" class="empty-message">
+        <i class="fas fa-search"></i>
+        <p>댓글을 작성한 게시글이 없습니다.</p>
+      </div>
+      <div v-else class="post-card-container">
+        <PostCard
+          v-for="post in paginatedPosts"
+          :key="`comment-post-${post.postId}`"
+          :post="convertToPostCardFormat(post)"
+          :isLiked="post.isLiked || false"
+          :isScrapped="post.isScrapped || false"
+          @click="$emit('post-click', post.postId)"
+          @scrap="$emit('scrap', $event)"
+        />
+      </div>
+    </section>
+
+    <!-- 페이징 컨트롤 -->
+    <CommentPostPagination
+      v-if="totalPages > 1"
+      :currentPage="currentPage"
+      :totalPages="totalPages"
+      @page-change="$emit('page-change', $event)"
+    />
+
+    <!-- 페이지 정보 -->
+    <CommentPostPageInfo
+      v-if="posts.length > 0"
+      :totalPosts="posts.length"
+      :startIndex="startIndex"
+      :endIndex="endIndex"
+    />
   </div>
 </template>
 
 <script setup>
-import CommentedPostItem from './CommentPostItem.vue';
+import { computed } from 'vue';
+import PostCard from '@/components/community/PostCard.vue';
+import CommentPostSummary from './CommentPostSummary.vue';
+import CommentPostPagination from './CommentPostPagination.vue';
+import CommentPostPageInfo from './CommentPostPageInfo.vue';
 
 const props = defineProps({
   posts: {
     type: Array,
     required: true,
   },
+  currentPage: {
+    type: Number,
+    required: true,
+  },
+  postsPerPage: {
+    type: Number,
+    default: 5,
+  },
 });
 
-const emit = defineEmits(['view-post', 'view-comment']);
+defineEmits(['page-change', 'post-click', 'scrap']);
+
+const totalPages = computed(() => {
+  return Math.ceil(props.posts.length / props.postsPerPage);
+});
+
+const startIndex = computed(() => (props.currentPage - 1) * props.postsPerPage);
+const endIndex = computed(() =>
+  Math.min(startIndex.value + props.postsPerPage, props.posts.length)
+);
+
+const paginatedPosts = computed(() => {
+  return props.posts.slice(startIndex.value, endIndex.value);
+});
+
+// PostCard 컴포넌트에 맞는 형식으로 변환
+const convertToPostCardFormat = (post) => {
+  return {
+    id: post.postId,
+    title: post.title,
+    content: post.content,
+    createdAt: convertToDateArray(post.postCreatedAt),
+    likes: post.likeCount || 0,
+    comments: post.commentCount || 0,
+    scraps: post.scrapCount || 0,
+    nickname: post.authorName,
+    boardType: post.boardType,
+    productType: post.productType,
+    // 내 댓글 정보 추가 표시
+    myComment: {
+      content: post.myCommentContent,
+      createdAt: convertToDateArray(post.myCommentCreatedAt),
+    },
+  };
+};
+
+// ISO 문자열을 배열 형식으로 변환
+const convertToDateArray = (isoString) => {
+  if (!isoString) return [];
+  const date = new Date(isoString);
+  return [
+    date.getFullYear(),
+    date.getMonth() + 1,
+    date.getDate(),
+    date.getHours(),
+    date.getMinutes(),
+  ];
+};
 </script>
 
 <style scoped>
-.posts-list {
-  background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg-light) 100%);
-  border-radius: 1rem;
-  border: 1px solid rgba(185, 187, 204, 0.3);
-  box-shadow: 0 2px 8px -2px rgba(45, 51, 107, 0.1);
-  backdrop-filter: blur(10px);
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.posts-section {
+  margin-top: 0;
 }
 
-.posts-list:hover {
-  border-color: rgba(185, 187, 204, 0.4);
-  box-shadow: 0 4px 12px -2px rgba(45, 51, 107, 0.15);
+/* 게시글 목록 */
+.post-list {
+  margin-top: 1rem;
+  min-height: 25rem;
 }
 
-/* 빈 상태 처리 */
-.posts-list:empty::after {
-  content: '게시글이 없습니다.';
+.post-card-container {
   display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.empty-message {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.875rem;
+  padding: 2rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 3rem 1rem;
-  color: var(--color-sub);
-  font-size: 0.95rem;
-  font-weight: 500;
+  gap: 0.75rem;
 }
 
-/* 로딩 상태 */
-.posts-list.loading {
-  opacity: 0.7;
-  pointer-events: none;
+.empty-message i {
+  font-size: 2rem;
+  color: #d1d5db;
 }
 
-.posts-list.loading::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(var(--color-light), 0.3), transparent);
-  animation: shimmer 2s infinite;
-  z-index: 1;
+.empty-message p {
+  margin: 0;
 }
 
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
+/* 반응형 디자인 */
+@media (max-width: 48rem) {
+  .post-list {
+    min-height: 21.875rem;
   }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-/* PostItem 간격 조정 */
-.posts-list :deep(.post-item:not(:last-child)) {
-  border-bottom: 1px solid rgba(185, 187, 204, 0.2);
-}
-
-.posts-list :deep(.post-item) {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.posts-list :deep(.post-item:hover) {
-  background: rgba(45, 51, 107, 0.02);
-  transform: translateY(-1px);
 }
 </style>

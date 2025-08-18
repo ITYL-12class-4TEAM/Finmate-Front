@@ -19,7 +19,7 @@
             :message="message"
             :data="message.data"
             :title="message.title"
-            :moreUrl="message.moreUrl"
+            :more-url="message.moreUrl"
             @navigate-to-post="$emit('navigate-to-post', $event)"
             @navigate-to-more="$emit('navigate-to-more', $event)"
             @navigate-to-survey="$emit('navigate-to-survey')"
@@ -47,7 +47,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { computed } from 'vue';
 import botAvatarImage from '@/assets/images/해결사.png';
 import TextContent from './contents/TextContent.vue';
 import SurveyContent from './contents/SurveyContent.vue';
@@ -58,22 +58,15 @@ import FinanceContent from './contents/FinanceContent.vue';
 import RecentProductsContent from './contents/RecentProductsContent.vue';
 import WishlistProductsContent from './contents/WishlistProductsContent.vue';
 
-const props = defineProps({
+defineProps({
   message: Object,
 });
 
 defineEmits(['navigate-to-post', 'navigate-to-more', 'navigate-to-survey']);
 
-const isLiked = ref(false);
 const messageDelay = computed(() => `${Math.random() * 0.3}s`);
 
-const toggleLike = () => {
-  isLiked.value = !isLiked.value;
-};
-
 const getContentComponent = (contentType) => {
-  console.log('🔍 MessageItem contentType:', contentType);
-
   const components = {
     text: TextContent,
     survey: SurveyContent,
@@ -88,8 +81,6 @@ const getContentComponent = (contentType) => {
   };
 
   const component = components[contentType] || TextContent;
-  console.log('🎯 선택된 컴포넌트:', component.name || 'TextContent');
-
   return component;
 };
 

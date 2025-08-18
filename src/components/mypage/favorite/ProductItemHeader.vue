@@ -1,3 +1,4 @@
+<!-- FavoriteItemHeader.vue -->
 <template>
   <div class="favorite-item-header">
     <div class="category-info">
@@ -7,12 +8,12 @@
       >
         {{ getCategoryFromSubcategory(favorite.subcategoryName) }}
       </span>
-      <small class="subcategory-name">{{ favorite.subcategoryName }}</small>
+      <span class="subcategory-name">{{ favorite.subcategoryName }}</span>
     </div>
 
     <div class="item-controls">
       <FavoriteButton
-        :is-favorite="isFavorite"
+        :is-favorite="true"
         :product-id="favorite.productId"
         :loading="statusLoading"
         @remove-favorite="handleRemoveFavorite"
@@ -31,15 +32,12 @@ import { useToast } from '@/composables/useToast';
 const { showToast } = useToast();
 
 const props = defineProps({
-  favorite: {
-    type: Object,
-    required: true,
-  },
+  favorite: { type: Object, required: true },
 });
 
 const emit = defineEmits(['remove-favorite']);
 
-const isFavorite = ref(true); // 즐겨찾기 목록이니까 기본값 true
+const isFavorite = ref(true);
 const statusLoading = ref(true);
 
 onMounted(async () => {
@@ -55,18 +53,16 @@ onMounted(async () => {
 });
 
 const handleRemoveFavorite = () => {
-  isFavorite.value = false; // 즉시 UI 업데이트
+  isFavorite.value = false;
   emit('remove-favorite', props.favorite);
 };
 
 const handleAddFavorite = () => {
-  isFavorite.value = true; // 즉시 UI 업데이트
-  // 즐겨찾기 목록에서는 이 경우가 없어야 하지만, 혹시 모르니...
+  isFavorite.value = true;
 };
 
 const getCategoryFromSubcategory = (subcategoryName) => {
   if (!subcategoryName) return '';
-
   const categoryMapping = {
     연금저축: '연금',
     자유적금: '적금',
@@ -77,7 +73,6 @@ const getCategoryFromSubcategory = (subcategoryName) => {
     복리예금: '예금',
     단리예금: '예금',
   };
-
   return categoryMapping[subcategoryName] || subcategoryName;
 };
 
@@ -94,87 +89,76 @@ const getProductTypeBadge = (type) => {
 };
 </script>
 
-<style>
-/* 나머지 스타일은 그대로 유지 */
+<style scoped>
 .favorite-item-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 0.75rem;
-  border: 1px solid rgba(185, 187, 204, 0.2);
-  backdrop-filter: blur(5px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.favorite-item-header:hover {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(185, 187, 204, 0.4);
-  transform: translateY(-1px);
+  padding: 0.875rem 0;
 }
 
 .category-info {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  flex: 1;
 }
 
 .category-badge {
+  display: inline-flex;
+  align-items: center;
   font-size: 0.75rem;
   font-weight: 600;
   padding: 0.375rem 0.75rem;
   border-radius: 1rem;
-  transition: all 0.2s ease;
+  color: var(--color-white);
 }
 
-/* 카테고리별 배지 스타일 */
 .badge-deposit {
-  background: linear-gradient(135deg, var(--color-main) 0%, var(--color-sub) 100%);
-  color: white;
+  background: var(--color-main);
 }
-
 .badge-savings {
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  color: white;
+  background: #059669;
 }
-
 .badge-fund {
-  background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
-  color: white;
+  background: #0891b2;
 }
-
 .badge-loan {
-  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
-  color: white;
+  background: #d97706;
 }
-
 .badge-insurance {
-  background: linear-gradient(135deg, var(--color-sub) 0%, #9ca0b8 100%);
-  color: white;
+  background: #7c3aed;
 }
-
 .badge-pension {
-  background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
-  color: white;
+  background: #374151;
 }
-
 .badge-default {
-  background: linear-gradient(135deg, var(--color-light) 0%, #9ca0b8 100%);
-  color: white;
+  background: var(--color-sub);
 }
 
 .subcategory-name {
   color: var(--color-sub);
-  font-size: 0.8rem;
+  font-size: 0.8125rem;
   font-weight: 500;
-  opacity: 0.8;
 }
 
 .item-controls {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .favorite-item-header {
+    padding: 0.75rem 0;
+  }
+
+  .category-badge {
+    font-size: 0.6875rem;
+    padding: 0.3125rem 0.625rem;
+  }
+
+  .subcategory-name {
+    font-size: 0.75rem;
+  }
 }
 </style>

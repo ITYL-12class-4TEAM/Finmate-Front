@@ -86,10 +86,7 @@ export function useAuthError(options = {}) {
     const message = `로그인이 만료되었어요.
 
 입력하신 정보는 안전하게 임시 저장되었으니 걱정하지 마세요!
-로그인 후 이 페이지로 돌아오면 자동으로 복원됩니다.
-
-확인: 로그인하러 가기
-취소: 페이지 새로고침`;
+로그인 후 이 페이지로 돌아오면 자동으로 복원됩니다.`;
 
     const result = await showModalFn(message);
 
@@ -126,10 +123,7 @@ export function useAuthError(options = {}) {
   const showServerErrorModal = async (showModalFn, handleSubmitFn) => {
     const message = `서버에 일시적인 문제가 발생했어요.
 
-보통 금방 해결되니까 조금만 기다리신 후 다시 시도해주세요!
-
-확인: 잠시 후 다시 시도
-취소: 나중에 하기`;
+보통 금방 해결되니까 조금만 기다리신 후 다시 시도해주세요!`;
 
     const result = await showModalFn(message);
 
@@ -144,10 +138,7 @@ export function useAuthError(options = {}) {
   const showNetworkErrorModal = async (showModalFn, handleSubmitFn) => {
     const message = `인터넷 연결에 문제가 있는 것 같아요.
 
-Wi-Fi나 데이터 연결을 확인하시고 다시 시도해주세요.
-
-확인: 다시 시도하기
-취소: 나중에 하기`;
+Wi-Fi나 데이터 연결을 확인하시고 다시 시도해주세요.`;
 
     const result = await showModalFn(message);
 
@@ -160,10 +151,7 @@ Wi-Fi나 데이터 연결을 확인하시고 다시 시도해주세요.
   const showGenericErrorModal = async (showModalFn, backupFormData, handleSubmitFn) => {
     const message = `예상치 못한 문제가 발생했어요.
 
-입력하신 정보는 임시 저장되었으니 안심하시고 잠시 후 다시 시도해주세요.
-
-확인: 다시 시도하기
-취소: 페이지 새로고침`;
+입력하신 정보는 임시 저장되었으니 안심하시고 잠시 후 다시 시도해주세요.`;
 
     const result = await showModalFn(message);
 
@@ -186,10 +174,7 @@ Wi-Fi나 데이터 연결을 확인하시고 다시 시도해주세요.
   const showRetryModal = async (showModalFn, handleSubmitFn) => {
     const message = `다시 시도할 준비가 되었나요?
 
-입력하신 정보는 그대로 유지됩니다.
-
-확인: 지금 시도하기
-취소: 나중에 하기`;
+입력하신 정보는 그대로 유지됩니다.`;
 
     const result = await showModalFn(message);
 
@@ -212,10 +197,7 @@ Wi-Fi나 데이터 연결을 확인하시고 다시 시도해주세요.
     setTimeout(async () => {
       const message = `페이지를 새로고침하시겠어요?
 
-입력하신 정보는 자동으로 백업됩니다.
-
-확인: 새로고침 하기
-취소: 계속 작업하기`;
+입력하신 정보는 자동으로 백업됩니다.`;
 
       const result = await showModalFn(message);
 

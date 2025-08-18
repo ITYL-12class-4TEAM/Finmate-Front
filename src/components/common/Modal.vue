@@ -42,6 +42,7 @@ const modalStore = useModalStore();
   font-size: 1rem;
   margin-bottom: 1.5rem;
   color: #333;
+  white-space: pre-line;
 }
 
 .modal-actions {

@@ -5,13 +5,19 @@
       <BackButton :to="'/community'" class="back-button" />
       <h1 class="board-title">글수정</h1>
       <div class="complete-section">
-        <button class="complete-btn" @click="submitPost" :disabled="!isFormValid">완료</button>
+        <button class="complete-btn" :disabled="!isFormValid" @click="updatePost">
+          <i class="fas fa-check"></i>
+          완료
+        </button>
       </div>
     </div>
     <div class="edit-form">
       <!-- 제목 입력 -->
       <div class="input-group">
-        <label class="input-label">제목</label>
+        <label class="input-label">
+          <i class="fas fa-heading"></i>
+          제목
+        </label>
         <input
           v-model="title"
           type="text"
@@ -23,7 +29,10 @@
 
       <!-- 내용 입력 -->
       <div class="input-group">
-        <label class="input-label">내용</label>
+        <label class="input-label">
+          <i class="fas fa-align-left"></i>
+          내용
+        </label>
         <textarea
           v-model="content"
           placeholder="내용을 입력해주세요."
@@ -35,7 +44,10 @@
 
       <!-- 상품군 태그 선택 -->
       <div class="input-group">
-        <label class="input-label">상품군</label>
+        <label class="input-label">
+          <i class="fas fa-tags"></i>
+          상품군
+        </label>
         <div class="tag-container">
           <button
             v-for="tag in productTags"
@@ -43,7 +55,7 @@
             :class="['tag-btn', { active: selectedProduct === tag }]"
             @click="selectProduct(tag)"
           >
-            #{{ tag }}
+            <i class="fas fa-hashtag"></i>{{ tag }}
           </button>
         </div>
       </div>
@@ -52,7 +64,7 @@
       <div class="input-group">
         <div class="checkbox-container">
           <CustomCheckbox id="edit-anonymous" v-model="isAnonymous">
-            <span class="checkbox-label">익명으로 작성</span>
+            <span class="checkbox-label"> 익명으로 작성 </span>
           </CustomCheckbox>
         </div>
       </div>
@@ -170,11 +182,19 @@ const updatePost = async () => {
 }
 
 .input-label {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-main);
   margin-bottom: 0.5rem;
+}
+
+.input-label i {
+  font-size: 0.875rem;
+  color: var(--color-sub);
+  width: 1rem;
 }
 
 .form-input,
@@ -213,7 +233,6 @@ const updatePost = async () => {
   margin-top: 0.25rem;
 }
 
-/* 태그 컨테이너 */
 .tag-container {
   display: flex;
   gap: 0.5rem;
@@ -236,6 +255,13 @@ const updatePost = async () => {
   box-shadow: 0 0.0625rem 0.25rem rgba(0, 0, 0, 0.05);
   white-space: nowrap;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.tag-btn i {
+  font-size: 0.75rem;
 }
 
 .tag-btn:hover {
@@ -269,6 +295,14 @@ const updatePost = async () => {
   font-size: 0.8125rem;
   color: var(--color-sub);
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.checkbox-label i {
+  font-size: 0.875rem;
+  color: var(--color-sub);
 }
 
 .header-bar {
@@ -280,13 +314,15 @@ const updatePost = async () => {
   position: sticky;
   top: 0;
   z-index: 10;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 0.0625rem solid #f3f4f6;
   position: relative;
 }
+
 .back-button {
   position: absolute;
   left: 1.25rem;
 }
+
 .complete-section {
   position: absolute;
   right: 1.25rem;
@@ -302,17 +338,24 @@ const updatePost = async () => {
   border-radius: 1rem;
   transition: all 0.2s ease;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
 .complete-btn:hover:not(:disabled) {
   background: var(--color-sub);
-  transform: translateY(-1px);
+  transform: translateY(-0.0625rem);
 }
 
 .complete-btn:disabled {
   background: #d1d5db;
   cursor: not-allowed;
   transform: none;
+}
+
+.complete-btn i {
+  font-size: 0.8125rem;
 }
 
 .board-title {
@@ -322,8 +365,7 @@ const updatePost = async () => {
   margin: 0;
 }
 
-/* 반응형 */
-@media (max-width: 768px) {
+@media (max-width: 26.875rem) {
   .community-edit {
     padding: 0.75rem;
   }
@@ -334,6 +376,14 @@ const updatePost = async () => {
 
   .input-group {
     margin-bottom: 1.25rem;
+  }
+
+  .input-label {
+    font-size: 0.8125rem;
+  }
+
+  .input-label i {
+    font-size: 0.8125rem;
   }
 
   .form-input,
@@ -355,13 +405,14 @@ const updatePost = async () => {
     font-size: 0.6875rem;
   }
 
-  .submit-btn {
-    padding: 0.75rem 1.5rem;
-    font-size: 0.875rem;
+  .tag-btn i {
+    font-size: 0.6875rem;
   }
+
   .board-title {
     font-size: 1rem;
   }
+
   .header-bar {
     padding: 0.875rem 1rem;
   }
@@ -369,16 +420,26 @@ const updatePost = async () => {
   .back-button {
     left: 1rem;
   }
-  .complete-btn {
-    font-size: 0.8125rem;
-    padding: 0.375rem 0.875rem;
-  }
+
   .complete-section {
     right: 1rem;
   }
+
   .complete-btn {
     font-size: 0.8125rem;
     padding: 0.375rem 0.875rem;
+  }
+
+  .complete-btn i {
+    font-size: 0.75rem;
+  }
+
+  .checkbox-label {
+    font-size: 0.75rem;
+  }
+
+  .checkbox-label i {
+    font-size: 0.8125rem;
   }
 }
 </style>
