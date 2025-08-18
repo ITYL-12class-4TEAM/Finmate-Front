@@ -150,6 +150,7 @@ const getTypeIcon = (type) => {
   const icons = {
     POST_COMMENT: 'fas fa-comment',
     POST_LIKE: 'fas fa-heart',
+    COMMENT_REPLY: 'fas fa-reply',
     HOT_POST: 'fas fa-fire',
   };
   return icons[type] || 'fas fa-bell';
@@ -364,6 +365,10 @@ const formatTime = (dateString) => {
 
 .item-icon.type-HOT_POST {
   background: #f59e0b; /* 주황색 - 인기글 */
+}
+
+.item-icon.type-COMMENT_REPLY {
+  background: #8b5cf6; /* 보라색 - 댓글 답글 */
 }
 
 .item-icon.type-SYSTEM {
