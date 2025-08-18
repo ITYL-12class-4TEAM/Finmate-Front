@@ -86,6 +86,7 @@ import { toggleCommentLikeAPI } from '@/api/commentLike';
 import { deleteCommentAPI, createCommentAPI } from '@/api/comments';
 
 import { useModal } from '@/composables/useModal';
+import { useToast } from '@/composables/useToast';
 
 import CustomCheckbox from '@/components/community/CustomCheckbox.vue';
 
@@ -100,6 +101,7 @@ const props = defineProps({
 });
 
 const { showModal } = useModal();
+const { showToast } = useToast();
 
 const replyContent = ref('');
 const isReplying = ref(false);
@@ -111,7 +113,13 @@ const toggleLike = async (id) => {
     await toggleCommentLikeAPI(id);
     if (props.refresh) await props.refresh();
   } catch (e) {
-    console.error('좋아요 토글 실패:', e);
+    const status = e?.response?.status ?? e?.status ?? null;
+
+    if (status === 401) {
+      showToast('로그인이 필요한 기능입니다', 'warning');
+    } else {
+      showToast('좋아요 처리에 실패했습니다.', 'error');
+    }
   }
 };
 
@@ -141,7 +149,13 @@ const handleReplySubmit = async () => {
 
     if (props.refresh) await props.refresh();
   } catch (e) {
-    alert('대댓글 작성 실패');
+    const status = e?.response?.status ?? e?.status ?? null;
+
+    if (status === 401) {
+      showToast('로그인이 필요한 기능입니다', 'warning');
+    } else {
+      showToast('대댓글 처리에 실패했습니다.', 'error');
+    }
   }
 };
 

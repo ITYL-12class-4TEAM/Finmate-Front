@@ -2,24 +2,36 @@ import api from './index';
 import { productTagMap } from '@/constants/tags';
 
 // 게시글 목록 조회
-export const getPostsAPI = async (boardId) => {
-  const res = await api.get(`/api/posts/board/${boardId}`);
-  const posts = res.data.body.data;
+export const getPostsAPI = async ({ page = 1, size = 5 }) => {
+  const res = await api.get(`/api/posts/paging`, {
+    params: {
+      page,
+      size,
+    },
+  });
+  const data = res.data.body.data;
 
-  return posts.map((post) => ({
+  const content = data.content.map((post) => ({
     id: post.postId,
     title: post.title,
     content: post.content,
     createdAt: post.createdAt,
+    lastUpdated: post.lastUpdated,
     likes: post.likeCount,
     comments: post.commentCount,
     liked: post.liked,
     scraped: post.scraped,
     scrapCount: post.scrapCount,
-    tendency: 'APWC', // 임의 값 (백엔드 리팩터링 전)
     productType: productTagMap[post.productTag],
     nickname: post.nickname,
+    anonymous: post.anonymous,
   }));
+
+  return {
+    content,
+    totalElements: data.totalElements,
+    totalPages: data.totalPages,
+  };
 };
 
 // 게시글 상세 조회

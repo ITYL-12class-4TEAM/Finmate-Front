@@ -22,25 +22,29 @@
 
     <!-- 게시글 목록 -->
     <section class="post-list">
-      <div v-if="filteredPosts.length === 0" class="empty-message">
+      <div v-if="loading" class="empty-message">로딩 중…</div>
+
+      <div v-else-if="displayPosts.length === 0" class="empty-message">
         <i class="fas fa-search"></i>
         <p>조건에 맞는 게시글이 없습니다.</p>
       </div>
-      <PostCard
-        v-for="post in paginatedPosts"
-        v-else
-        :key="post.postId"
-        :post="post"
-        :is-liked="post.liked"
-        :is-scrapped="post.scraped"
-        @click="goToDetailPage(post.id)"
-        @like="handleLike"
-        @scrap="handleScrap"
-      />
+
+      <template v-else>
+        <PostCard
+          v-for="post in displayPosts"
+          :key="post.id"
+          :post="post"
+          :is-liked="post.liked"
+          :is-scrapped="post.scraped"
+          @click="goToDetailPage(post.id)"
+          @like="handleLike"
+          @scrap="handleScrap"
+        />
+      </template>
     </section>
 
     <!-- 페이징 컨트롤 -->
-    <div v-if="totalPages > 1" class="pagination">
+    <div v-if="!loading && totalPages > 1" class="pagination">
       <button
         class="page-btn prev-btn"
         :disabled="currentPage === 1"
@@ -48,7 +52,6 @@
       >
         <i class="fas fa-chevron-left"></i>
       </button>
-
       <div class="page-numbers">
         <button
           v-for="page in visiblePages"
@@ -60,7 +63,6 @@
           {{ page }}
         </button>
       </div>
-
       <button
         class="page-btn next-btn"
         :disabled="currentPage === totalPages"
@@ -71,9 +73,11 @@
     </div>
 
     <!-- 페이지 정보 -->
-    <div v-if="filteredPosts.length > 0" class="page-info">
+    <div v-if="!loading && totalElements > 0" class="page-info">
       <i class="fas fa-info-circle"></i>
-      총 {{ filteredPosts.length }}개 게시글 중 {{ startIndex + 1 }}-{{ endIndex }}번째
+      총 {{ totalElements }}개 게시글 중 {{ (currentPage - 1) * postsPerPage + 1 }}-{{
+        Math.min(currentPage * postsPerPage, totalElements)
+      }}번째
     </div>
 
     <!-- 플로팅 글 작성 버튼 -->
@@ -85,30 +89,42 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { getPostsAPI } from '@/api/posts';
 import { togglePostLikeAPI } from '@/api/postLike';
 import { togglePostScrapAPI } from '@/api/postScrap';
-import { mockPosts } from './communityMock';
 import PostCard from '@/components/community/PostCard.vue';
 
 const router = useRouter();
 const posts = ref([]);
-const boardId = 1; // 자유게시판
+const loading = ref(false);
 
 // 페이징 관련 상태
 const currentPage = ref(1);
 const postsPerPage = 5;
-
-const useMock = false;
+const totalElements = ref(0);
+const totalPages = ref(1);
 
 const fetchPosts = async () => {
   try {
-    posts.value = useMock ? mockPosts : await getPostsAPI(boardId);
+    loading.value = true;
+    const {
+      content,
+      totalElements: tEl,
+      totalPages: tPg,
+    } = await getPostsAPI({
+      page: currentPage.value,
+      size: postsPerPage,
+    });
+    posts.value = content;
+    totalElements.value = tEl;
+    totalPages.value = tPg;
   } catch (e) {
     console.error('게시물 불러오기 실패:', e);
     alert('게시물을 불러오지 못했습니다.');
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -158,8 +174,12 @@ onMounted(fetchPosts);
 
 // 필터 옵션
 const productTags = ['예금', '적금', '펀드', '보험'];
-const selectedTendency = ref([]);
 const selectedProducts = ref([]);
+
+const displayPosts = computed(() => {
+  if (selectedProducts.value.length === 0) return posts.value;
+  return posts.value.filter((p) => selectedProducts.value.includes(p.productType));
+});
 
 // 공통 토글 헬퍼
 const toggleItem = (listRef, item) => {
@@ -170,36 +190,18 @@ const toggleItem = (listRef, item) => {
 // 필터 선택 핸들러
 const toggleProduct = (t) => {
   toggleItem(selectedProducts, t);
-  // 필터 변경 시 첫 페이지로 이동
   currentPage.value = 1;
 };
 
-// 필터링 로직
-const filteredPosts = computed(() => {
-  return posts.value.filter((post) => {
-    const hasTendency =
-      selectedTendency.value.length === 0 ||
-      selectedTendency.value.every((t) => post.tendency?.includes(t));
-    const hasProduct =
-      selectedProducts.value.length === 0 || selectedProducts.value.includes(post.productType);
+// 페이지 변경
+const changePage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+};
 
-    return hasTendency && hasProduct;
-  });
-});
-
-// 페이징 계산
-const totalPages = computed(() => Math.ceil(filteredPosts.value.length / postsPerPage));
-
-const startIndex = computed(() => (currentPage.value - 1) * postsPerPage);
-const endIndex = computed(() =>
-  Math.min(startIndex.value + postsPerPage, filteredPosts.value.length)
-);
-
-const paginatedPosts = computed(() => {
-  return filteredPosts.value.slice(startIndex.value, endIndex.value);
-});
-
-// 페이지 번호 표시 로직 (최대 5개 페이지 번호 표시)
+// 페이지 보이기
 const visiblePages = computed(() => {
   const pages = [];
   const maxVisiblePages = 5;
@@ -208,35 +210,15 @@ const visiblePages = computed(() => {
   let start = Math.max(1, currentPage.value - half);
   let end = Math.min(totalPages.value, start + maxVisiblePages - 1);
 
-  // 끝에서부터 계산해서 시작점 조정
   if (end - start + 1 < maxVisiblePages) {
     start = Math.max(1, end - maxVisiblePages + 1);
   }
-
-  for (let i = start; i <= end; i++) {
-    pages.push(i);
-  }
-
+  for (let i = start; i <= end; i++) pages.push(i);
   return pages;
 });
 
-// 페이지 변경
-const changePage = (page) => {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page;
-    // 페이지 변경 시 스크롤을 맨 위로
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-};
-
-// 필터 변경 시 첫 페이지로 이동하는 watcher
-watch(
-  [selectedTendency, selectedProducts],
-  () => {
-    currentPage.value = 1;
-  },
-  { deep: true }
-);
+// 페이지/필터 변경 시 재호출
+watch(currentPage, fetchPosts);
 
 // 라우팅
 const goToWritePage = () => router.push({ name: 'CommunityWrite' });
@@ -327,7 +309,7 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
   flex-direction: column;
   gap: 0.5rem;
   margin-top: 1rem;
-  min-height: 25rem;
+  min-height: 37.5rem;
 }
 
 .empty-message {
