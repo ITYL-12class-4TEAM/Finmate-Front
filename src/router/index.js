@@ -59,7 +59,7 @@ const router = createRouter({
         {
           path: '',
           name: 'ShowMyPage',
-          component: () => import('../pages/Mypage/MyPage.vue'),
+          component: () => import('../pages/mypage/MyPage.vue'),
         },
         {
           path: 'favorites',
