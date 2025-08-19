@@ -35,13 +35,14 @@ onMounted(async () => {
 
     if (error === 'oauth2_failed' && errorMessage) {
       const decodedMessage = decodeURIComponent(errorMessage);
-      showToast(decodedMessage, 'error');
+      console.error('OAuth2 로그인 실패:', decodedMessage);
 
       router.push('/login');
       return;
     }
 
     if (isNewMember) {
+      localStorage.setItem('signupPending', 'true');
       router.push({
         path: '/login/signup',
         query: {
