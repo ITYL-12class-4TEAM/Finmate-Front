@@ -69,13 +69,10 @@ onMounted(async () => {
 
       if (authResult && authResult.accessToken && authResult.refreshToken) {
         authStore.setTokens(authResult.accessToken, authResult.refreshToken);
-
         if (authResult.userInfo) {
           authStore.setUser(authResult.userInfo);
 
-          // 사용자 정보 설정 후 추가정보 필요 여부 체크
           setTimeout(() => {
-            // 기존 회원도 추가정보가 없으면 추가정보 입력 페이지로 리다이렉트
             const needsInfo =
               authStore.needsAdditionalInfo ||
               authResult.userInfo?.isNewMember === true ||
@@ -84,6 +81,7 @@ onMounted(async () => {
               !authResult.userInfo?.gender;
 
             if (needsInfo) {
+              authStore.setNeedsAdditionalInfo(true);
               router.push({
                 path: '/login/signup',
                 query: {
@@ -97,8 +95,6 @@ onMounted(async () => {
               showToast('서비스 이용을 위해 추가 정보를 입력해주세요.', 'info');
               return;
             }
-
-            // 모든 정보가 완료된 경우
             showToast('로그인 성공!');
             router.push('/');
           }, 100);
