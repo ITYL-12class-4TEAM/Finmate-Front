@@ -46,11 +46,9 @@
     </div>
     <!-- 소셜 로그인 -->
     <div class="social-login">
-      <button class="social-btn google" @click="handleGoogleLogin">
-        <img src="@/assets/images/google_icon.png" alt="Google" />
-      </button>
       <button class="social-btn kakao" @click="handleKakaoLogin">
         <img src="@/assets/images/kakao_icon.png" alt="Kakao" />
+        <p>카카오로 로그인</p>
       </button>
     </div>
   </div>
@@ -111,10 +109,6 @@ const handleLogin = async () => {
 
 const getSocialLoginURL = (provider) => {
   return `http://54.180.75.58:8080/oauth2/authorization/${provider}`;
-};
-
-const handleGoogleLogin = () => {
-  window.location.href = getSocialLoginURL('google');
 };
 
 const handleKakaoLogin = () => {
@@ -227,45 +221,17 @@ const handleKakaoLogin = () => {
 .social-login {
   display: flex;
   justify-content: center;
-  gap: 1rem; /* 16px */
-  margin-top: 1.25rem; /* 20px */
-  position: relative;
-  padding-top: 1.25rem; /* 20px */
-}
-
-.social-login::before {
-  content: 'SNS LOGIN';
-  position: absolute;
-  top: -0.9375rem; /* -15px */
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.75rem; /* 12px */
-  color: var(--color-sub);
-  background: white;
-  padding: 0 0.9375rem; /* 15px */
-}
-
-.social-login::after {
-  content: '';
-  position: absolute;
-  top: 0.625rem; /* 10px */
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: var(--color-light);
-  z-index: -1;
+  margin-top: 1rem;
 }
 
 .social-btn {
-  width: 3.125rem; /* 50px */
-  height: 3.125rem; /* 50px */
   border: none;
-  border-radius: 50%;
+  border-radius: 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  padding: 0.3rem 0.7rem;
   transition: transform 0.2s ease;
 }
 
@@ -274,19 +240,20 @@ const handleKakaoLogin = () => {
 }
 
 .social-btn img {
-  width: 1.875rem; /* 30px */
-  height: 1.875rem; /* 30px */
-  object-fit: contain;
+  width: 2rem;
+  height: 2rem;
+}
+
+.social-btn p {
+  margin: 0;
+  padding: 0;
+  color: #777;
+  font-weight: 800;
+  font-size: 0.8rem;
 }
 
 .social-btn.kakao {
   background-color: #fee500;
   box-shadow: 0 0.125rem 0.5rem rgba(254, 229, 0, 0.3); /* 2px 8px */
-}
-
-.social-btn.google {
-  background-color: #fff;
-  border: 1px solid #dadce0;
-  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1); /* 2px 8px */
 }
 </style>
