@@ -8,35 +8,10 @@ export async function authGuard(to, from, next) {
 
   const requiresAuth = to.meta.requiresAuth;
   const isLoggedIn = authStore.isAuthenticated;
+
   const isGuestOnly = to.meta.guestOnly === true;
 
-  const needsAdditionalInfo =
-    authStore.needsAdditionalInfo ||
-    (isLoggedIn &&
-      authStore.user &&
-      (!authStore.user.nickname || !authStore.user.birthDate || !authStore.user.gender));
-
-  if (needsAdditionalInfo) {
-    const allowedPaths = ['/login/signup', '/signup', '/auth/oauth2/redirect'];
-
-    if (!allowedPaths.includes(to.path)) {
-      next({
-        path: '/login/signup',
-        query: {
-          socialSignup: 'true',
-          name: authStore.user?.username,
-          email: authStore.user?.email,
-          required: 'true',
-          from: to.path,
-        },
-        replace: true,
-      });
-      return;
-    }
-    next();
-    return;
-  }
-
+  // 로그인 안 한 유저가 인증 필요한 페이지 접근 시
   if (requiresAuth && !isLoggedIn) {
     const confirmed = await modalStore.showModal(
       '로그인이 필요한 기능입니다.\n로그인 하시겠습니까?'
@@ -52,12 +27,8 @@ export async function authGuard(to, from, next) {
     return;
   }
 
+  // 로그인한 유저가 로그인/회원가입 페이지 접근 시
   if (isGuestOnly && isLoggedIn) {
-    if (to.path === '/login/signup' || to.path === '/signup') {
-      next();
-      return;
-    }
-
     next('/');
     return;
   }

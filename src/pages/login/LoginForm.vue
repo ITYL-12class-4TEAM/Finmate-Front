@@ -96,30 +96,9 @@ const handleLogin = async () => {
 
     if (result.success) {
       showToast('로그인 성공!');
-
-      // 로그인 후 추가정보 필요 여부 체크
-      setTimeout(() => {
-        if (authStore.needsAdditionalInfo) {
-          // 일반 로그인에서 추가정보가 필요한 경우 - 소셜 로그인과 동일한 형태로
-          router.push({
-            path: '/login/signup',
-            query: {
-              socialSignup: 'true', // 일반 로그인도 같은 형태로 처리
-              name: authStore.user?.username,
-              email: authStore.user?.email,
-              required: 'true',
-              from: router.currentRoute.value.query.redirect || '/',
-            },
-            replace: true,
-          });
-          showToast('서비스 이용을 위해 추가 정보를 입력해주세요.', 'info');
-          return;
-        }
-
-        // 추가정보가 완료된 경우 원래 목적지로 이동
-        const redirectTo = router.currentRoute.value.query.redirect || '/';
-        router.push(redirectTo);
-      }, 100);
+      const redirectTo = router.currentRoute.value.query.redirect || '/';
+      await router.push(redirectTo);
+      // alert(`환영합니다! ${authStore.userInfo?.nickname || authStore.userInfo?.username || ''}님`);
     } else {
       showToast(result.message, 'error');
     }
