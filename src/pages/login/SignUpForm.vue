@@ -620,7 +620,6 @@ const handleSignup = async () => {
       receivePushNotification: agreements.value.marketing,
     };
 
-    // 일반 회원가입인 경우에만 비밀번호와 휴대폰 정보 추가
     if (!isSocialSignup.value) {
       signupData.password = signupForm.value.password;
       signupData.passwordCheck = signupForm.value.passwordConfirm;
@@ -634,24 +633,40 @@ const handleSignup = async () => {
 
     if (response.success) {
       if (isSocialSignup.value) {
-        const authData = response.data;
+        // 소셜 회원가입 완료 후 OAuth2 토큰 교환
+        const pendingCode = localStorage.getItem('pendingOAuth2Code');
 
-        // 토큰 설정
-        authStore.setTokens(authData.accessToken, authData.refreshToken);
+        if (pendingCode) {
+          // 저장된 OAuth2 코드로 실제 로그인 처리
+          const authResult = await authAPI.exchangeOAuth2Token(pendingCode);
 
-        // 사용자 정보 설정
-        if (authData.userInfo) {
-          authStore.setUser(authData.userInfo);
+          if (authResult.success && authResult.data) {
+            const authData = authResult.data;
+
+            // 토큰 설정
+            authStore.setTokens(authData.accessToken, authData.refreshToken);
+
+            // 사용자 정보 설정
+            if (authData.userInfo) {
+              authStore.setUser(authData.userInfo);
+            }
+
+            // 임시 코드 삭제
+            localStorage.removeItem('pendingOAuth2Code');
+
+            showToast('소셜 회원가입이 완료되었습니다!');
+
+            // 원래 가려던 페이지로 이동
+            const redirectTo = route.query.from || '/';
+            router.push(redirectTo);
+          } else {
+            showToast('로그인 처리 중 오류가 발생했습니다.', 'error');
+            router.push('/login');
+          }
+        } else {
+          showToast('인증 정보가 없습니다. 다시 로그인해주세요.', 'error');
+          router.push('/login');
         }
-
-        // 확실히 신규 회원 상태를 false로 변경
-        authStore.completeSignup();
-
-        showToast('소셜 회원가입이 완료되었습니다!');
-
-        // 원래 가려던 페이지로 이동
-        const redirectTo = route.query.from || '/';
-        router.push(redirectTo);
       } else {
         showToast('회원가입이 완료되었습니다. 로그인해주세요.');
         router.push('/login');
