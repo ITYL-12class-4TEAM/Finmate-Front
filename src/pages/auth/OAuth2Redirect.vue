@@ -73,8 +73,17 @@ onMounted(async () => {
         if (authResult.userInfo) {
           authStore.setUser(authResult.userInfo);
 
+          // 사용자 정보 설정 후 추가정보 필요 여부 체크
           setTimeout(() => {
-            if (authStore.needsAdditionalInfo) {
+            // 기존 회원도 추가정보가 없으면 추가정보 입력 페이지로 리다이렉트
+            const needsInfo =
+              authStore.needsAdditionalInfo ||
+              authResult.userInfo?.isNewMember === true ||
+              !authResult.userInfo?.nickname ||
+              !authResult.userInfo?.birthDate ||
+              !authResult.userInfo?.gender;
+
+            if (needsInfo) {
               router.push({
                 path: '/login/signup',
                 query: {
@@ -89,6 +98,7 @@ onMounted(async () => {
               return;
             }
 
+            // 모든 정보가 완료된 경우
             showToast('로그인 성공!');
             router.push('/');
           }, 100);
