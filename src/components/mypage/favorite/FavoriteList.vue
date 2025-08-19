@@ -7,7 +7,7 @@
       </div>
       <h4 class="empty-title">즐겨찾기한 상품이 없습니다</h4>
       <p class="empty-description">관심 있는 금융상품을 즐겨찾기에 추가해보세요</p>
-      <button class="explore-btn" @click="$emit('explore-products')">
+      <button class="explore-btn" @click="exploreProducts">
         <i class="fa-solid fa-search"></i>
         상품 둘러보기
       </button>
@@ -30,12 +30,19 @@
 
 <script setup>
 import FavoriteItem from './FavoriteItem.vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 defineProps({
   favorites: { type: Array, required: true },
 });
 
 defineEmits(['remove-favorite', 'explore-products', 'click-favorite']);
+
+const exploreProducts = () => {
+  router.push('/products/deposit');
+};
 </script>
 
 <style scoped>
