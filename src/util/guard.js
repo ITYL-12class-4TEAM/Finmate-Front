@@ -8,8 +8,16 @@ export async function authGuard(to, from, next) {
 
   const requiresAuth = to.meta.requiresAuth;
   const isLoggedIn = authStore.isAuthenticated;
-
   const isGuestOnly = to.meta.guestOnly === true;
+
+  // 소셜 회원가입 미완료 강제 이동
+  const signupPending = localStorage.getItem('signupPending') === 'true';
+  const SIGNUP_PATH = '/login/signup';
+  const SIGNUP_WHITELIST = [SIGNUP_PATH];
+  if (signupPending && !SIGNUP_WHITELIST.includes(to.path)) {
+    next({ path: SIGNUP_PATH, query: { socialSignup: 'true' } });
+    return;
+  }
 
   // 로그인 안 한 유저가 인증 필요한 페이지 접근 시
   if (requiresAuth && !isLoggedIn) {
