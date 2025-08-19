@@ -43,6 +43,10 @@ onMounted(async () => {
 
     if (isNewMember) {
       localStorage.setItem('signupPending', 'true');
+      localStorage.setItem(
+        'signupPrefill',
+        JSON.stringify({ name: username, email, profileImage })
+      );
       router.push({
         path: '/login/signup',
         query: {
