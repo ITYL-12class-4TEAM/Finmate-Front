@@ -4,33 +4,42 @@ import { authAPI } from '@/api/auth';
 import { memberAPI } from '@/api/member';
 
 export const useAuthStore = defineStore('auth', () => {
-  // 상태
   const user = ref(JSON.parse(localStorage.getItem('userInfo')) || null);
   const accessToken = ref(localStorage.getItem('accessToken') || null);
   const refreshToken = ref(localStorage.getItem('refreshToken') || null);
   const isLoading = ref(false);
+  const needsAdditionalInfoFlag = ref(false);
 
-  // Getters
   const isAuthenticated = computed(() => !!accessToken.value);
   const userInfo = computed(() => user.value);
   const isNewMember = computed(() => user.value?.isNewMember === true);
-  const needsAdditionalInfo = computed(() => isAuthenticated.value && isNewMember.value);
 
-  // 사용자 정보 설정
+  const needsAdditionalInfo = computed(() => {
+    if (needsAdditionalInfoFlag.value) return true;
+    if (isAuthenticated.value && isNewMember.value) return true;
+    if (isAuthenticated.value && user.value) {
+      return !user.value.nickname || !user.value.birthDate || !user.value.gender;
+    }
+    return false;
+  });
+
   const setUser = (userInfo) => {
     user.value = userInfo;
     localStorage.setItem('userInfo', JSON.stringify(userInfo));
   };
 
-  // 소셜 회원가입 완료 처리
+  const setNeedsAdditionalInfo = (value) => {
+    needsAdditionalInfoFlag.value = value;
+  };
+
   const completeSignup = () => {
     if (user.value) {
       user.value.isNewMember = false;
       localStorage.setItem('userInfo', JSON.stringify(user.value));
     }
+    needsAdditionalInfoFlag.value = false;
   };
 
-  // 추가정보 입력 페이지로 리다이렉트 필요 여부 체크
   const shouldRedirectToSignup = (to) => {
     if (!needsAdditionalInfo.value) return false;
 
@@ -38,7 +47,6 @@ export const useAuthStore = defineStore('auth', () => {
     return !allowedPaths.includes(to.path);
   };
 
-  // 로그인 액션
   const login = async (email, password) => {
     isLoading.value = true;
 
@@ -64,7 +72,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  // 로그아웃 액션
   const logout = async () => {
     try {
       if (accessToken.value) {
@@ -81,7 +88,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  // 회원탈퇴 액션
   const withdraw = async (withdrawData) => {
     try {
       isLoading.value = true;
@@ -129,7 +135,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  // 토큰 설정
   const setTokens = (newAccessToken, newRefreshToken) => {
     if (newAccessToken) {
       accessToken.value = newAccessToken;
@@ -142,11 +147,11 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  // 인증 데이터 초기화
   const clearAuthData = () => {
     user.value = null;
     accessToken.value = null;
     refreshToken.value = null;
+    needsAdditionalInfoFlag.value = false;
 
     localStorage.clear();
   };
@@ -184,7 +189,6 @@ export const useAuthStore = defineStore('auth', () => {
   const shouldValidateTokenOnInit = async () => {
     const currentPath = window.location.pathname;
 
-    // 공개 페이지(추가 예정)
     const publicPages = ['/', '/login', '/register', '/about'];
 
     if (publicPages.includes(currentPath)) {
@@ -195,25 +199,23 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   return {
-    // 상태
     user,
     accessToken,
     refreshToken,
     isLoading,
 
-    // Getters
     isAuthenticated,
     userInfo,
     isNewMember,
     needsAdditionalInfo,
 
-    // 액션
     login,
     logout,
     withdraw,
     refreshUser,
     setTokens,
     setUser,
+    setNeedsAdditionalInfo,
     completeSignup,
     shouldRedirectToSignup,
     clearAuthData,
