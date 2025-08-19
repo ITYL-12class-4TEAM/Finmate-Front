@@ -13,6 +13,30 @@ export const useAuthStore = defineStore('auth', () => {
   // Getters
   const isAuthenticated = computed(() => !!accessToken.value);
   const userInfo = computed(() => user.value);
+  const isNewMember = computed(() => user.value?.isNewMember === true);
+  const needsAdditionalInfo = computed(() => isAuthenticated.value && isNewMember.value);
+
+  // 사용자 정보 설정
+  const setUser = (userInfo) => {
+    user.value = userInfo;
+    localStorage.setItem('userInfo', JSON.stringify(userInfo));
+  };
+
+  // 소셜 회원가입 완료 처리
+  const completeSignup = () => {
+    if (user.value) {
+      user.value.isNewMember = false;
+      localStorage.setItem('userInfo', JSON.stringify(user.value));
+    }
+  };
+
+  // 추가정보 입력 페이지로 리다이렉트 필요 여부 체크
+  const shouldRedirectToSignup = (to) => {
+    if (!needsAdditionalInfo.value) return false;
+
+    const allowedPaths = ['/login/signup', '/signup', '/auth/oauth2/redirect'];
+    return !allowedPaths.includes(to.path);
+  };
 
   // 로그인 액션
   const login = async (email, password) => {
@@ -26,8 +50,7 @@ export const useAuthStore = defineStore('auth', () => {
         setTokens(loginData.accessToken, loginData.refreshToken);
 
         if (loginData.userInfo) {
-          user.value = loginData.userInfo;
-          localStorage.setItem('userInfo', JSON.stringify(loginData.userInfo));
+          setUser(loginData.userInfo);
         }
 
         return { success: true, message: result.message };
@@ -96,8 +119,7 @@ export const useAuthStore = defineStore('auth', () => {
       const result = await memberAPI.getMyInfo();
 
       if (result.success) {
-        user.value = result.data;
-        localStorage.setItem('userInfo', JSON.stringify(result.data));
+        setUser(result.data);
         return true;
       } else {
         return false;
@@ -135,9 +157,12 @@ export const useAuthStore = defineStore('auth', () => {
     const savedRefreshToken = localStorage.getItem('refreshToken');
 
     try {
-      user.value = JSON.parse(savedUserInfo);
+      if (savedUserInfo) {
+        user.value = JSON.parse(savedUserInfo);
+      }
       accessToken.value = savedAccessToken;
       refreshToken.value = savedRefreshToken;
+
       const shouldValidateToken = false;
 
       if (shouldValidateToken) {
@@ -155,6 +180,7 @@ export const useAuthStore = defineStore('auth', () => {
   const hasValidTokens = () => {
     return !!(accessToken.value && refreshToken.value);
   };
+
   const shouldValidateTokenOnInit = async () => {
     const currentPath = window.location.pathname;
 
@@ -178,6 +204,8 @@ export const useAuthStore = defineStore('auth', () => {
     // Getters
     isAuthenticated,
     userInfo,
+    isNewMember,
+    needsAdditionalInfo,
 
     // 액션
     login,
@@ -185,6 +213,9 @@ export const useAuthStore = defineStore('auth', () => {
     withdraw,
     refreshUser,
     setTokens,
+    setUser,
+    completeSignup,
+    shouldRedirectToSignup,
     clearAuthData,
     initialize,
     hasValidTokens,
