@@ -41,7 +41,11 @@ onMounted(async () => {
       return;
     }
 
+    // 신규 회원인 경우 로그인 처리 없이 바로 추가정보 입력 페이지로 이동
     if (isNewMember) {
+      // 임시로 코드를 localStorage에 저장 (추가정보 입력 완료 후 사용)
+      localStorage.setItem('pendingOAuth2Code', code);
+
       router.push({
         path: '/login/signup',
         query: {
