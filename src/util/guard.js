@@ -10,8 +10,13 @@ export async function authGuard(to, from, next) {
   const isLoggedIn = authStore.isAuthenticated;
   const isGuestOnly = to.meta.guestOnly === true;
 
-  // 추가정보 미입력 회원 체크 (최우선 처리)
-  if (authStore.needsAdditionalInfo) {
+  const needsAdditionalInfo =
+    authStore.needsAdditionalInfo ||
+    (isLoggedIn &&
+      authStore.user &&
+      (!authStore.user.nickname || !authStore.user.birthDate || !authStore.user.gender));
+
+  if (needsAdditionalInfo) {
     const allowedPaths = ['/login/signup', '/signup', '/auth/oauth2/redirect'];
 
     if (!allowedPaths.includes(to.path)) {
@@ -28,9 +33,10 @@ export async function authGuard(to, from, next) {
       });
       return;
     }
+    next();
+    return;
   }
 
-  // 로그인 안 한 유저가 인증 필요한 페이지 접근 시
   if (requiresAuth && !isLoggedIn) {
     const confirmed = await modalStore.showModal(
       '로그인이 필요한 기능입니다.\n로그인 하시겠습니까?'
@@ -46,10 +52,8 @@ export async function authGuard(to, from, next) {
     return;
   }
 
-  // 로그인한 유저가 로그인/회원가입 페이지 접근 시
   if (isGuestOnly && isLoggedIn) {
-    // 단, 추가정보 미입력 회원은 회원가입 페이지 접근 허용
-    if (authStore.needsAdditionalInfo && (to.path === '/login/signup' || to.path === '/signup')) {
+    if (to.path === '/login/signup' || to.path === '/signup') {
       next();
       return;
     }
