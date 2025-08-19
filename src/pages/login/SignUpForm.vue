@@ -422,7 +422,7 @@ onMounted(() => {
   if (route.query.socialSignup === 'true') {
     isSocialSignup.value = true;
 
-    // URL에서 받은 정보로 폼 미리 채우기
+    // 쿼리에서 받은 정보로 폼 미리 채우기
     if (route.query.name) {
       signupForm.value.name = route.query.name;
     }
@@ -435,6 +435,23 @@ onMounted(() => {
     if (route.query.phone) {
       signupForm.value.phone = route.query.phone;
       phoneVerified.value = true;
+    }
+
+    // 쿼리가 없거나 비어있다면 로컬스토리지 백업 사용
+    const prefillRaw = localStorage.getItem('signupPrefill');
+    if (prefillRaw) {
+      try {
+        const prefill = JSON.parse(prefillRaw);
+        if (!signupForm.value.name && prefill?.name) {
+          signupForm.value.name = prefill.name;
+        }
+        if (!signupForm.value.email && prefill?.email) {
+          signupForm.value.email = prefill.email;
+          emailVerified.value = true;
+        }
+      } catch (error) {
+        console.error('로컬스토리지에서 회원가입 정보 불러오기 실패:', error);
+      }
     }
 
     showToast('추가 정보를 입력해주세요.');
@@ -635,6 +652,7 @@ const handleSignup = async () => {
       if (isSocialSignup.value) {
         const authData = response.data;
         localStorage.removeItem('signupPending');
+        localStorage.removeItem('signupPrefill');
 
         authStore.setTokens(authData.accessToken, authData.refreshToken);
 
