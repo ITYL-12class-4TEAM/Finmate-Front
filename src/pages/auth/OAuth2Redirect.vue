@@ -49,12 +49,15 @@ onMounted(async () => {
           name: username,
           email: email,
           profileImage: profileImage || '',
+          required: 'true',
         },
+        replace: true,
       });
 
       return;
     }
 
+    // 기존 회원 로그인 처리
     const result = await authAPI.exchangeOAuth2Token(code);
 
     if (result.success) {
@@ -64,11 +67,31 @@ onMounted(async () => {
         authStore.setTokens(authResult.accessToken, authResult.refreshToken);
 
         if (authResult.userInfo) {
-          authStore.user = authResult.userInfo;
-          localStorage.setItem('userInfo', JSON.stringify(authResult.userInfo));
+          authStore.setUser(authResult.userInfo);
+
+          setTimeout(() => {
+            if (authStore.needsAdditionalInfo) {
+              router.push({
+                path: '/login/signup',
+                query: {
+                  socialSignup: 'true',
+                  name: authResult.userInfo?.username,
+                  email: authResult.userInfo?.email,
+                  required: 'true',
+                },
+                replace: true,
+              });
+              showToast('서비스 이용을 위해 추가 정보를 입력해주세요.', 'info');
+              return;
+            }
+
+            showToast('로그인 성공!');
+            router.push('/');
+          }, 100);
+        } else {
+          showToast('로그인 정보 저장에 실패했습니다.', 'error');
+          router.push('/login');
         }
-        showToast('로그인 성공!');
-        router.push('/');
       } else {
         showToast('로그인 정보 저장에 실패했습니다.', 'error');
         router.push('/login');
@@ -78,6 +101,7 @@ onMounted(async () => {
       router.push('/login');
     }
   } catch (error) {
+    console.error('OAuth2 redirect error:', error);
     showToast('로그인 처리 중 오류가 발생했습니다.', 'error');
     router.push('/login');
   }
