@@ -12,9 +12,9 @@
       <div class="form-group">
         <label for="name">이름</label>
         <input
+          type="text"
           id="name"
           v-model="signupForm.name"
-          type="text"
           placeholder="이름을 입력하세요"
           :disabled="isSocialSignup"
           required
@@ -26,20 +26,20 @@
         <label for="email">이메일</label>
         <div class="input-with-button">
           <input
-            id="email"
-            v-model="signupForm.email"
             autocomplete="off"
             type="email"
+            id="email"
+            v-model="signupForm.email"
             placeholder="이메일을 입력하세요"
             :disabled="isSocialSignup"
             required
           />
           <button
-            v-if="!isSocialSignup"
             type="button"
             class="verify-btn"
-            :disabled="!signupForm.email || isSocialSignup"
             @click="checkEmailDuplicate"
+            :disabled="!signupForm.email || isSocialSignup"
+            v-if="!isSocialSignup"
           >
             중복확인
           </button>
@@ -55,17 +55,17 @@
         <label for="nickname">닉네임</label>
         <div class="input-with-button">
           <input
-            id="nickname"
-            v-model="signupForm.nickname"
             autocomplete="off"
             type="text"
+            id="nickname"
+            v-model="signupForm.nickname"
             placeholder="닉네임을 입력하세요"
           />
           <button
             type="button"
             class="verify-btn"
-            :disabled="!signupForm.nickname"
             @click="checkNicknameDuplicate"
+            :disabled="!signupForm.nickname"
           >
             중복확인
           </button>
@@ -74,13 +74,13 @@
       </div>
 
       <!-- 비밀번호 (소셜 로그인이 아닌 경우만 표시) -->
-      <div v-if="!isSocialSignup" class="form-group">
+      <div class="form-group" v-if="!isSocialSignup">
         <label for="password">비밀번호</label>
         <div class="password-input">
           <input
+            :type="showPassword ? 'text' : 'password'"
             id="password"
             v-model="signupForm.password"
-            :type="showPassword ? 'text' : 'password'"
             autocomplete="new-password"
             placeholder="8자 이상, 영문/숫자/특수문자 포함"
             :required="!isSocialSignup"
@@ -106,13 +106,13 @@
       </div>
 
       <!-- 비밀번호 확인 (소셜 로그인이 아닌 경우만 표시) -->
-      <div v-if="!isSocialSignup" class="form-group">
+      <div class="form-group" v-if="!isSocialSignup">
         <label for="passwordConfirm">비밀번호 확인</label>
         <input
-          id="passwordConfirm"
-          v-model="signupForm.passwordConfirm"
           autocomplete="off"
           type="password"
+          id="passwordConfirm"
+          v-model="signupForm.passwordConfirm"
           placeholder="비밀번호를 다시 입력하세요"
           :required="!isSocialSignup"
         />
@@ -128,22 +128,22 @@
       </div>
 
       <!-- 휴대폰 번호 (일반 회원가입에서만 표시) -->
-      <div v-if="!isSocialSignup" class="form-group">
+      <div class="form-group" v-if="!isSocialSignup">
         <label for="phone">휴대폰 번호</label>
         <div class="input-with-button">
           <input
-            id="phone"
-            v-model="signupForm.phone"
             autocomplete="off"
             type="tel"
+            id="phone"
+            v-model="signupForm.phone"
             placeholder="010-0000-0000"
             required
           />
           <button
             type="button"
             class="verify-btn"
-            :disabled="!signupForm.phone"
             @click="sendPhoneVerification"
+            :disabled="!signupForm.phone"
           >
             인증하기
           </button>
@@ -151,22 +151,22 @@
       </div>
 
       <!-- 인증 코드 (일반 회원가입에서만 표시) -->
-      <div v-if="phoneVerificationSent && !isSocialSignup" class="form-group">
+      <div class="form-group" v-if="phoneVerificationSent && !isSocialSignup">
         <label for="verificationCode">인증 코드</label>
         <div class="input-with-button">
           <input
-            id="verificationCode"
-            v-model="signupForm.verificationCode"
             autocomplete="off"
             type="text"
+            id="verificationCode"
+            v-model="signupForm.verificationCode"
             placeholder="인증 코드를 입력하세요"
             required
           />
           <button
             type="button"
             class="verify-btn"
-            :disabled="!signupForm.verificationCode"
             @click="verifyPhoneCode"
+            :disabled="!signupForm.verificationCode"
           >
             확인
           </button>
@@ -177,7 +177,7 @@
       <!-- 생일 -->
       <div class="form-group">
         <label for="birthdate">생년월일</label>
-        <input id="birthdate" v-model="signupForm.birthdate" type="date" required />
+        <input type="date" id="birthdate" v-model="signupForm.birthdate" required />
       </div>
 
       <!-- 성별 -->
@@ -209,7 +209,7 @@
         <div class="agreement-section">
           <!-- 전체 동의 -->
           <label class="agreement-item all-agreement">
-            <input v-model="agreements.all" type="checkbox" @change="toggleAllAgreements" />
+            <input type="checkbox" v-model="agreements.all" @change="toggleAllAgreements" />
             <span class="checkmark"></span>
             <span class="agreement-text">전체 동의</span>
           </label>
@@ -220,21 +220,21 @@
           <!-- 개별 약관들 -->
           <div class="individual-agreements">
             <label class="agreement-item">
-              <input v-model="agreements.terms" type="checkbox" required />
+              <input type="checkbox" v-model="agreements.terms" required />
               <span class="checkmark"></span>
               <span class="agreement-text">이용약관 동의 (필수)</span>
               <button type="button" class="view-btn" @click="showTermsModal = true">보기</button>
             </label>
 
             <label class="agreement-item">
-              <input v-model="agreements.privacy" type="checkbox" required />
+              <input type="checkbox" v-model="agreements.privacy" required />
               <span class="checkmark"></span>
               <span class="agreement-text">개인정보 처리방침 동의 (필수)</span>
               <button type="button" class="view-btn" @click="showPrivacyModal = true">보기</button>
             </label>
 
             <label class="agreement-item optional">
-              <input v-model="agreements.marketing" type="checkbox" />
+              <input type="checkbox" v-model="agreements.marketing" />
               <span class="checkmark"></span>
               <span class="agreement-text">마케팅 정보 수신 동의 (선택)</span>
               <button type="button" class="view-btn" @click="showMarketingModal = true">
@@ -251,7 +251,7 @@
         <div class="modal-content" @click.stop>
           <div class="modal-header">
             <h3>이용약관</h3>
-            <button class="close-btn" @click="showTermsModal = false">&times;</button>
+            <button @click="showTermsModal = false" class="close-btn">&times;</button>
           </div>
           <div class="modal-body">
             <h4>제1조 (목적)</h4>
@@ -287,7 +287,7 @@
         <div class="modal-content" @click.stop>
           <div class="modal-header">
             <h3>개인정보 처리방침</h3>
-            <button class="close-btn" @click="showPrivacyModal = false">&times;</button>
+            <button @click="showPrivacyModal = false" class="close-btn">&times;</button>
           </div>
           <div class="modal-body">
             <h4>1. 개인정보의 처리목적</h4>
@@ -320,7 +320,7 @@
         <div class="modal-content" @click.stop>
           <div class="modal-header">
             <h3>마케팅 정보 수신 동의</h3>
-            <button class="close-btn" @click="showMarketingModal = false">&times;</button>
+            <button @click="showMarketingModal = false" class="close-btn">&times;</button>
           </div>
           <div class="modal-body">
             <h4>마케팅 정보 수신 동의 안내</h4>
@@ -419,35 +419,25 @@ const isSocialSignup = ref(false);
 
 // 컴포넌트 마운트 시 URL 파라미터 확인
 onMounted(() => {
-  console.log('=== SignUpForm onMounted ===');
-  console.log('route.query:', route.query);
-  console.log('socialSignup 체크:', route.query.socialSignup === 'true');
-
   if (route.query.socialSignup === 'true') {
     isSocialSignup.value = true;
-    console.log('소셜 회원가입 모드로 설정됨');
 
     // URL에서 받은 정보로 폼 미리 채우기
     if (route.query.name) {
       signupForm.value.name = route.query.name;
-      console.log('이름 설정:', route.query.name);
     }
 
     if (route.query.email) {
       signupForm.value.email = route.query.email;
       emailVerified.value = true;
-      console.log('이메일 설정:', route.query.email);
     }
 
     if (route.query.phone) {
       signupForm.value.phone = route.query.phone;
       phoneVerified.value = true;
-      console.log('전화번호 설정:', route.query.phone);
     }
 
     showToast('추가 정보를 입력해주세요.');
-  } else {
-    console.log('일반 회원가입 모드');
   }
 });
 
@@ -630,70 +620,30 @@ const handleSignup = async () => {
       receivePushNotification: agreements.value.marketing,
     };
 
+    // 일반 회원가입인 경우에만 비밀번호와 휴대폰 정보 추가
     if (!isSocialSignup.value) {
       signupData.password = signupForm.value.password;
       signupData.passwordCheck = signupForm.value.passwordConfirm;
       signupData.phoneNumber = signupForm.value.phone;
     }
 
-    // API 호출
     const response = isSocialSignup.value
       ? await authAPI.socialSignup(signupData)
       : await authAPI.signup(signupData);
 
     if (response.success) {
       if (isSocialSignup.value) {
-        // 🔥 핵심 수정: 이미 로그인된 사용자인지 체크
-        if (authStore.isAuthenticated && authStore.user) {
-          // 이미 로그인된 상태 (기존 회원이 추가정보 입력하는 경우)
-          console.log('이미 로그인된 사용자 - 토큰 교환 건너뛰기');
+        const authData = response.data;
 
-          // needsAdditionalInfo 플래그 해제
-          authStore.setNeedsAdditionalInfo(false);
+        authStore.setTokens(authData.accessToken, authData.refreshToken);
 
-          showToast('추가 정보 입력이 완료되었습니다!');
-
-          // 원래 가려던 페이지로 이동
-          const redirectTo = route.query.from || '/';
-          router.push(redirectTo);
-        } else {
-          // 신규 회원인 경우 - OAuth2 토큰 교환 필요
-          const pendingCode = localStorage.getItem('pendingOAuth2Code');
-
-          if (pendingCode) {
-            console.log('신규 회원 - OAuth2 토큰 교환 진행');
-
-            // 저장된 OAuth2 코드로 실제 로그인 처리
-            const authResult = await authAPI.exchangeOAuth2Token(pendingCode);
-
-            if (authResult.success && authResult.data) {
-              const authData = authResult.data;
-
-              // 토큰 설정
-              authStore.setTokens(authData.accessToken, authData.refreshToken);
-
-              // 사용자 정보 설정
-              if (authData.userInfo) {
-                authStore.setUser(authData.userInfo);
-              }
-
-              // 임시 코드 삭제
-              localStorage.removeItem('pendingOAuth2Code');
-
-              showToast('소셜 회원가입이 완료되었습니다!');
-
-              // 원래 가려던 페이지로 이동
-              const redirectTo = route.query.from || '/';
-              router.push(redirectTo);
-            } else {
-              showToast('로그인 처리 중 오류가 발생했습니다.', 'error');
-              router.push('/login');
-            }
-          } else {
-            showToast('인증 정보가 없습니다. 다시 로그인해주세요.', 'error');
-            router.push('/login');
-          }
+        if (authData.userInfo) {
+          authStore.user = authData.userInfo;
+          localStorage.setItem('userInfo', JSON.stringify(authData.userInfo));
         }
+
+        showToast('소셜 회원가입이 완료되었습니다!');
+        router.push('/');
       } else {
         showToast('회원가입이 완료되었습니다. 로그인해주세요.');
         router.push('/login');
