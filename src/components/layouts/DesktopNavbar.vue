@@ -45,6 +45,10 @@
   cursor: pointer;
 }
 
+.menu-item:hover {
+  color: var(--color-sub);
+}
+
 .menu-item .dropdown {
   display: none;
   position: absolute;
@@ -55,6 +59,8 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   z-index: 10;
   flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
 }
 
 .menu-item:hover .dropdown {
@@ -64,5 +70,12 @@
 .dropdown li {
   padding: 8px 20px;
   white-space: nowrap;
+  color: var(--color-main);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.dropdown li:hover {
+  background-color: #f3f4f6;
 }
 </style>

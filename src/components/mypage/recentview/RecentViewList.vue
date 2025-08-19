@@ -33,7 +33,9 @@
 
 <script setup>
 import RecentViewItem from './RecentViewItem.vue';
-import router from '@/router';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const props = defineProps({
   products: { type: Array, required: true },
@@ -62,6 +64,7 @@ const handleSelect = (productId, isSelected) => {
   }
   emit('update:selectedRecent', newSelected);
 };
+
 const exploreProducts = () => {
   router.push('/products/deposit');
 };

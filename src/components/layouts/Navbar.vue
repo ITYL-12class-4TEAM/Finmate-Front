@@ -12,7 +12,8 @@
         <div class="navbar__icons">
           <!-- 알림 아이콘 -->
           <NotificationButton />
-          <div class="user-menu" @click="toggleDropdown()">
+          <!-- 사용자 아이콘 -->
+          <div ref="userMenuRef" class="user-menu" @click="toggleDropdown()">
             <div class="user-avatar">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -70,7 +71,7 @@
   </header>
 </template>
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/useAuthStore';
 import DesktopNavbar from './DesktopNavbar.vue';
@@ -87,6 +88,7 @@ const authStore = useAuthStore();
 const isMobile = ref(false);
 const mobileOpen = ref(false);
 const dropdownOpen = ref(false);
+const userMenuRef = ref(null);
 
 const checkViewport = () => {
   isMobile.value = window.innerWidth <= 768;
@@ -117,6 +119,21 @@ const handleLogout = async () => {
 function toggleDropdown() {
   dropdownOpen.value = !dropdownOpen.value;
 }
+
+// 유저 메뉴 클릭 외부 클릭 시 드롭다운 닫기
+const handleClickOutside = (event) => {
+  if (userMenuRef.value && !userMenuRef.value.contains(event.target)) {
+    dropdownOpen.value = false;
+  }
+};
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
 </script>
 <style scoped>
 .navbar {
@@ -186,12 +203,11 @@ function toggleDropdown() {
 .user-avatar {
   padding: 10px;
   border-radius: 6px;
-  transition: background-color 0.2s ease;
   color: var(--color-main);
 }
 
 .user-avatar:hover {
-  background-color: #f5f5f5;
+  color: var(--color-sub);
 }
 
 .user-dropdown {
