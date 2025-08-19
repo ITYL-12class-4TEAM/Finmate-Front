@@ -419,25 +419,35 @@ const isSocialSignup = ref(false);
 
 // 컴포넌트 마운트 시 URL 파라미터 확인
 onMounted(() => {
+  console.log('=== SignUpForm onMounted ===');
+  console.log('route.query:', route.query);
+  console.log('socialSignup 체크:', route.query.socialSignup === 'true');
+
   if (route.query.socialSignup === 'true') {
     isSocialSignup.value = true;
+    console.log('소셜 회원가입 모드로 설정됨');
 
     // URL에서 받은 정보로 폼 미리 채우기
     if (route.query.name) {
       signupForm.value.name = route.query.name;
+      console.log('이름 설정:', route.query.name);
     }
 
     if (route.query.email) {
       signupForm.value.email = route.query.email;
       emailVerified.value = true;
+      console.log('이메일 설정:', route.query.email);
     }
 
     if (route.query.phone) {
       signupForm.value.phone = route.query.phone;
       phoneVerified.value = true;
+      console.log('전화번호 설정:', route.query.phone);
     }
 
     showToast('추가 정보를 입력해주세요.');
+  } else {
+    console.log('일반 회원가입 모드');
   }
 });
 
