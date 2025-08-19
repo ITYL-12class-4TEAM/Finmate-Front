@@ -643,39 +643,56 @@ const handleSignup = async () => {
 
     if (response.success) {
       if (isSocialSignup.value) {
-        // 소셜 회원가입 완료 후 OAuth2 토큰 교환
-        const pendingCode = localStorage.getItem('pendingOAuth2Code');
+        // 🔥 핵심 수정: 이미 로그인된 사용자인지 체크
+        if (authStore.isAuthenticated && authStore.user) {
+          // 이미 로그인된 상태 (기존 회원이 추가정보 입력하는 경우)
+          console.log('이미 로그인된 사용자 - 토큰 교환 건너뛰기');
 
-        if (pendingCode) {
-          // 저장된 OAuth2 코드로 실제 로그인 처리
-          const authResult = await authAPI.exchangeOAuth2Token(pendingCode);
+          // needsAdditionalInfo 플래그 해제
+          authStore.setNeedsAdditionalInfo(false);
 
-          if (authResult.success && authResult.data) {
-            const authData = authResult.data;
+          showToast('추가 정보 입력이 완료되었습니다!');
 
-            // 토큰 설정
-            authStore.setTokens(authData.accessToken, authData.refreshToken);
+          // 원래 가려던 페이지로 이동
+          const redirectTo = route.query.from || '/';
+          router.push(redirectTo);
+        } else {
+          // 신규 회원인 경우 - OAuth2 토큰 교환 필요
+          const pendingCode = localStorage.getItem('pendingOAuth2Code');
 
-            // 사용자 정보 설정
-            if (authData.userInfo) {
-              authStore.setUser(authData.userInfo);
+          if (pendingCode) {
+            console.log('신규 회원 - OAuth2 토큰 교환 진행');
+
+            // 저장된 OAuth2 코드로 실제 로그인 처리
+            const authResult = await authAPI.exchangeOAuth2Token(pendingCode);
+
+            if (authResult.success && authResult.data) {
+              const authData = authResult.data;
+
+              // 토큰 설정
+              authStore.setTokens(authData.accessToken, authData.refreshToken);
+
+              // 사용자 정보 설정
+              if (authData.userInfo) {
+                authStore.setUser(authData.userInfo);
+              }
+
+              // 임시 코드 삭제
+              localStorage.removeItem('pendingOAuth2Code');
+
+              showToast('소셜 회원가입이 완료되었습니다!');
+
+              // 원래 가려던 페이지로 이동
+              const redirectTo = route.query.from || '/';
+              router.push(redirectTo);
+            } else {
+              showToast('로그인 처리 중 오류가 발생했습니다.', 'error');
+              router.push('/login');
             }
-
-            // 임시 코드 삭제
-            localStorage.removeItem('pendingOAuth2Code');
-
-            showToast('소셜 회원가입이 완료되었습니다!');
-
-            // 원래 가려던 페이지로 이동
-            const redirectTo = route.query.from || '/';
-            router.push(redirectTo);
           } else {
-            showToast('로그인 처리 중 오류가 발생했습니다.', 'error');
+            showToast('인증 정보가 없습니다. 다시 로그인해주세요.', 'error');
             router.push('/login');
           }
-        } else {
-          showToast('인증 정보가 없습니다. 다시 로그인해주세요.', 'error');
-          router.push('/login');
         }
       } else {
         showToast('회원가입이 완료되었습니다. 로그인해주세요.');
