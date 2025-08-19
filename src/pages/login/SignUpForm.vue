@@ -454,7 +454,14 @@ onMounted(() => {
       }
     }
 
-    showToast('추가 정보를 입력해주세요.');
+    // 가드에 의해 되돌아온 경우에만 안내 토스트
+    const redirected = localStorage.getItem('signupRedirected') === 'true';
+    if (redirected) {
+      showToast('서비스 이용에 추가 정보가 필요해요.', 'warning');
+      localStorage.removeItem('signupRedirected');
+    } else {
+      showToast('추가 정보를 입력해주세요.');
+    }
   }
 });
 

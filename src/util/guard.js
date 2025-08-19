@@ -1,12 +1,10 @@
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useModalStore } from '@/stores/useModalStore';
-import { useToast } from '@/composables/useToast';
 import router from '@/router';
 
 export async function authGuard(to, from, next) {
   const authStore = useAuthStore();
   const modalStore = useModalStore();
-  const { showToast } = useToast();
 
   const requiresAuth = to.meta.requiresAuth;
   const isLoggedIn = authStore.isAuthenticated;
@@ -17,7 +15,7 @@ export async function authGuard(to, from, next) {
   const SIGNUP_PATH = '/login/signup';
   const SIGNUP_WHITELIST = [SIGNUP_PATH];
   if (signupPending && !SIGNUP_WHITELIST.includes(to.path)) {
-    showToast('추가 정보를 입력해주세요.', 'warning');
+    localStorage.setItem('signupRedirected', 'true');
     next({ path: SIGNUP_PATH, query: { socialSignup: 'true' } });
     return;
   }
