@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { authGuard } from '@/util/guard';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -11,34 +12,35 @@ const router = createRouter({
       path: '/',
       name: 'Home',
       component: () => import('../pages/Home/Home.vue'),
-    }, // 메인 홈 페이지
+    },
 
     // 인증/로그인 관련 라우트
     {
       path: '/login',
-      component: () => import('../pages/login/LoginLayout.vue'), // // 로그인/회원가입/아이디/비번 찾기 공통 레이아웃
+      component: () => import('../pages/login/LoginLayout.vue'),
       meta: { guestOnly: true },
       children: [
         {
           path: '',
           name: 'login',
           component: () => import('../pages/login/LoginForm.vue'),
-        }, // 로그인
+        },
         {
           path: 'signup',
           name: 'signup',
           component: () => import('../pages/login/SignUpForm.vue'),
-        }, // 회원가입
+          alias: '/signup',
+        },
         {
           path: 'find-id',
           name: 'findId',
           component: () => import('../pages/login/FindIdForm.vue'),
-        }, // 아이디 찾기
+        },
         {
           path: 'find-password',
           name: 'findPassword',
           component: () => import('../pages/login/FindPasswordForm.vue'),
-        }, // 비밀번호 찾기
+        },
       ],
     },
 
@@ -53,7 +55,7 @@ const router = createRouter({
     {
       path: '/mypage',
       name: 'MyPage',
-      component: () => import('../layouts/MyPageLayout.vue'), // 마이페이지 공통 레이아웃
+      component: () => import('../layouts/MyPageLayout.vue'),
       meta: { requiresAuth: true },
       children: [
         {
@@ -65,47 +67,42 @@ const router = createRouter({
           path: 'favorites',
           name: 'Favorites',
           component: () => import('../pages/mypage/Favorites.vue'),
-        }, // 즐겨찾기
-
+        },
         {
           path: 'recent-view',
           name: 'RecentView',
           component: () => import('../pages/mypage/RecentView.vue'),
-        }, // 최근 본 상품
+        },
         {
           path: 'portfolio',
           name: 'Portfolio',
           component: () => import('../pages/mypage/Portfolio.vue'),
-        }, // 포트폴리오
+        },
         {
           path: 'wmti-history',
           name: 'WMTIHistory',
           component: () => import('../pages/mypage/WMTIHistory.vue'),
-        }, // WMTI 히스토리
-
-        // 커뮤니티 활동
+        },
         {
           path: 'my-posts',
           name: 'MyPosts',
           component: () => import('../pages/mypage/MyPosts.vue'),
-        }, // 내 게시글
+        },
         {
           path: 'my-comments',
           name: 'MyComments',
           component: () => import('../pages/mypage/MyComments.vue'),
-        }, // 내 댓글
+        },
         {
           path: 'my-scrap',
           name: 'MyScrap',
           component: () => import('../pages/mypage/MyScrap.vue'),
-        }, // 내 스크랩
+        },
         {
           path: 'my-likes',
           name: 'MyLikes',
           component: () => import('../pages/mypage/MyLikes.vue'),
-        }, // 내 좋아요
-
-        // 계정 관리
+        },
         {
           path: 'settings',
           name: 'settings',
@@ -116,7 +113,6 @@ const router = createRouter({
           name: 'settingsEdit',
           component: () => import('../pages/mypage/AccountEdit.vue'),
         },
-        //회원탈퇴
         {
           path: 'settings/delete',
           name: 'settingsDelete',
@@ -129,31 +125,28 @@ const router = createRouter({
     {
       path: '/products',
       name: 'Products',
-      component: () => import('../layouts/ProductsLayout.vue'), // 공통 레이아웃
+      component: () => import('../layouts/ProductsLayout.vue'),
       children: [
         {
           path: 'deposit',
           name: 'ProductDeposit',
           component: () => import('../pages/products/ProductDeposit.vue'),
-        }, // 예금
+        },
         {
           path: 'savings',
           name: 'ProductSavings',
           component: () => import('../pages/products/ProductSavings.vue'),
-        }, // 적금
+        },
         {
           path: 'pension',
           name: 'ProductPension',
           component: () => import('../pages/products/ProductPension.vue'),
-        }, // 연금
-        //{ path: 'fund', name: 'ProductFund', component: () => import('../pages/products/ProductFund.vue')}, // 펀드q
-        //{ path: 'loan', name: 'ProductLoan', component: () => import('../pages/products/ProductLoan.vue')}, // 대출
-        //{ path: 'insurance', name: 'ProductInsurance', component: () => import('../pages/products/ProductInsurance.vue')}, // 보험
+        },
         {
           path: ':category/:id',
           name: 'ProductDetail',
           component: () => import('../pages/products/ProductDetail.vue'),
-        }, // 상세보기
+        },
         {
           path: 'compare',
           name: 'ProductCompare',
@@ -166,7 +159,7 @@ const router = createRouter({
     {
       path: '/wmti',
       name: 'WMTI',
-      component: () => import('../layouts/WMTILayout.vue'), // 선택
+      component: () => import('../layouts/WMTILayout.vue'),
       children: [
         {
           path: 'basic',
@@ -179,54 +172,53 @@ const router = createRouter({
           component: () => import('../pages/wmti/PreInfoForm.vue'),
           meta: { requiresAuth: true },
         },
-        // 기본 성향 검사
         {
           path: 'survey',
           name: 'SurveyPage',
           component: () => import('../pages/wmti/SurveyPage.vue'),
           meta: { requiresAuth: true },
-        }, // WMTI 성향 검사지
+        },
         {
           path: 'result',
           name: 'SurveyResult',
           component: () => import('../pages/wmti/SurveyResult.vue'),
           meta: { requiresAuth: true },
-        }, // WMTI 성향 결과지
+        },
         {
           path: 'collection',
           name: 'WMTICollection',
           component: () => import('../pages/wmti/WMTICollection.vue'),
-        }, // WMTI 컬렉션(16종 코드모아보기)
+        },
       ],
     },
 
     // 커뮤니티
     {
       path: '/community',
-      component: () => import('../layouts/CommunityLayout.vue'), // 레이아웃 컴포넌트
+      component: () => import('../layouts/CommunityLayout.vue'),
       children: [
         {
           path: '',
           name: 'CommunityList',
           component: () => import('../pages/community/CommunityList.vue'),
-        }, // 게시글 목록
+        },
         {
           path: 'write',
           name: 'CommunityWrite',
           component: () => import('../pages/community/CommunityWrite.vue'),
           meta: { requiresAuth: true },
-        }, // 게시글 작성
+        },
         {
           path: ':id',
           name: 'CommunityDetail',
           component: () => import('../pages/community/CommunityDetail.vue'),
-        }, // 게시글 상세
+        },
         {
           path: ':id/edit',
           name: 'CommunityEdit',
           component: () => import('../pages/community/CommunityEdit.vue'),
           meta: { requiresAuth: true },
-        }, // 게시글 수정
+        },
       ],
     },
 
@@ -234,24 +226,60 @@ const router = createRouter({
     {
       path: '/:paths(.*)*',
       name: 'notFound',
-      component: () => import('../pages/NotFound/NotFound.vue'), // NotFound 컴포넌트
+      component: () => import('../pages/NotFound/NotFound.vue'),
     },
   ],
   scrollBehavior(to, from, savedPosition) {
-    // 뒤로/앞으로 가기일 때는 기존 위치 복원
     if (savedPosition) {
       return savedPosition;
     }
-    // 해시가 있으면 앵커로 이동
     if (to.hash) {
       return { el: to.hash, behavior: 'smooth' };
     }
-    // 그 외에는 항상 최상단
     return { left: 0, top: 0 };
   },
 });
 
-// 인증 가드 적용
+// 기존 인증 가드 적용
 router.beforeEach(authGuard);
+
+// 추가정보 미입력 사용자 리다이렉트 가드 (강화된 버전)
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore();
+
+  // 추가정보 미입력 회원 체크 및 리다이렉트
+  if (authStore.shouldRedirectToSignup(to)) {
+    next({
+      path: '/login/signup',
+      query: {
+        socialSignup: 'true',
+        name: authStore.user?.username,
+        email: authStore.user?.email,
+        required: 'true',
+        from: to.path, // 원래 가려던 페이지 정보 저장
+      },
+      replace: true, // 브라우저 히스토리에 남지 않도록 설정
+    });
+    return;
+  }
+
+  next();
+});
+
+// 추가: 라우터 변경 후에도 체크 (혹시 놓친 케이스 대응)
+router.afterEach((to) => {
+  const authStore = useAuthStore();
+
+  // 페이지 이동 후 추가정보 체크
+  if (
+    authStore.needsAdditionalInfo &&
+    !['/login/signup', '/signup', '/auth/oauth2/redirect'].includes(to.path)
+  ) {
+    // 약간의 지연을 두고 리다이렉트 (컴포넌트 렌더링 완료 후)
+    setTimeout(() => {
+      authStore.checkAuthStatus();
+    }, 100);
+  }
+});
 
 export default router;

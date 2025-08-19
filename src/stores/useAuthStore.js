@@ -2,17 +2,59 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { authAPI } from '@/api/auth';
 import { memberAPI } from '@/api/member';
+import router from '@/router';
 
 export const useAuthStore = defineStore('auth', () => {
-  // 상태
   const user = ref(JSON.parse(localStorage.getItem('userInfo')) || null);
   const accessToken = ref(localStorage.getItem('accessToken') || null);
   const refreshToken = ref(localStorage.getItem('refreshToken') || null);
   const isLoading = ref(false);
 
-  // Getters
   const isAuthenticated = computed(() => !!accessToken.value);
   const userInfo = computed(() => user.value);
+  const isNewMember = computed(() => user.value?.isNewMember === true);
+  const needsAdditionalInfo = computed(() => isAuthenticated.value && isNewMember.value);
+
+  const setUser = (userInfo) => {
+    user.value = userInfo;
+    localStorage.setItem('userInfo', JSON.stringify(userInfo));
+  };
+
+  const completeSignup = () => {
+    if (user.value) {
+      user.value.isNewMember = false;
+      localStorage.setItem('userInfo', JSON.stringify(user.value));
+    }
+  };
+
+  const checkAuthStatus = () => {
+    if (needsAdditionalInfo.value) {
+      const currentPath = router.currentRoute.value.path;
+      const allowedPaths = ['/login/signup', '/signup'];
+
+      if (!allowedPaths.includes(currentPath)) {
+        router.push({
+          path: '/login/signup',
+          query: {
+            socialSignup: 'true',
+            name: user.value?.username,
+            email: user.value?.email,
+            required: 'true',
+          },
+          replace: true,
+        });
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const shouldRedirectToSignup = (to) => {
+    if (!needsAdditionalInfo.value) return false;
+
+    const allowedPaths = ['/login/signup', '/signup', '/auth/oauth2/redirect'];
+    return !allowedPaths.includes(to.path);
+  };
 
   // 로그인 액션
   const login = async (email, password) => {
@@ -26,9 +68,13 @@ export const useAuthStore = defineStore('auth', () => {
         setTokens(loginData.accessToken, loginData.refreshToken);
 
         if (loginData.userInfo) {
-          user.value = loginData.userInfo;
-          localStorage.setItem('userInfo', JSON.stringify(loginData.userInfo));
+          setUser(loginData.userInfo);
         }
+
+        // 로그인 후 추가정보 확인
+        setTimeout(() => {
+          checkAuthStatus();
+        }, 100);
 
         return { success: true, message: result.message };
       } else {
@@ -41,7 +87,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  // 로그아웃 액션
   const logout = async () => {
     try {
       if (accessToken.value) {
@@ -58,7 +103,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  // 회원탈퇴 액션
   const withdraw = async (withdrawData) => {
     try {
       isLoading.value = true;
@@ -96,8 +140,7 @@ export const useAuthStore = defineStore('auth', () => {
       const result = await memberAPI.getMyInfo();
 
       if (result.success) {
-        user.value = result.data;
-        localStorage.setItem('userInfo', JSON.stringify(result.data));
+        setUser(result.data);
         return true;
       } else {
         return false;
@@ -107,7 +150,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  // 토큰 설정
   const setTokens = (newAccessToken, newRefreshToken) => {
     if (newAccessToken) {
       accessToken.value = newAccessToken;
@@ -120,7 +162,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  // 인증 데이터 초기화
   const clearAuthData = () => {
     user.value = null;
     accessToken.value = null;
@@ -135,9 +176,16 @@ export const useAuthStore = defineStore('auth', () => {
     const savedRefreshToken = localStorage.getItem('refreshToken');
 
     try {
-      user.value = JSON.parse(savedUserInfo);
+      if (savedUserInfo) {
+        user.value = JSON.parse(savedUserInfo);
+      }
       accessToken.value = savedAccessToken;
       refreshToken.value = savedRefreshToken;
+
+      setTimeout(() => {
+        checkAuthStatus();
+      }, 100);
+
       const shouldValidateToken = false;
 
       if (shouldValidateToken) {
@@ -155,10 +203,10 @@ export const useAuthStore = defineStore('auth', () => {
   const hasValidTokens = () => {
     return !!(accessToken.value && refreshToken.value);
   };
+
   const shouldValidateTokenOnInit = async () => {
     const currentPath = window.location.pathname;
 
-    // 공개 페이지(추가 예정)
     const publicPages = ['/', '/login', '/register', '/about'];
 
     if (publicPages.includes(currentPath)) {
@@ -169,22 +217,25 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   return {
-    // 상태
     user,
     accessToken,
     refreshToken,
     isLoading,
 
-    // Getters
     isAuthenticated,
     userInfo,
+    isNewMember,
+    needsAdditionalInfo,
 
-    // 액션
     login,
     logout,
     withdraw,
     refreshUser,
     setTokens,
+    setUser,
+    completeSignup,
+    checkAuthStatus,
+    shouldRedirectToSignup,
     clearAuthData,
     initialize,
     hasValidTokens,
