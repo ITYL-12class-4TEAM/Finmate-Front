@@ -43,34 +43,12 @@
       </template>
     </section>
 
-    <!-- 페이징 컨트롤 -->
-    <div v-if="!loading && totalPages > 1" class="pagination">
-      <button
-        class="page-btn prev-btn"
-        :disabled="currentPage === 1"
-        @click="changePage(currentPage - 1)"
-      >
-        <i class="fas fa-chevron-left"></i>
-      </button>
-      <div class="page-numbers">
-        <button
-          v-for="page in visiblePages"
-          :key="page"
-          class="page-btn"
-          :class="{ active: page === currentPage }"
-          @click="changePage(page)"
-        >
-          {{ page }}
-        </button>
-      </div>
-      <button
-        class="page-btn next-btn"
-        :disabled="currentPage === totalPages"
-        @click="changePage(currentPage + 1)"
-      >
-        <i class="fas fa-chevron-right"></i>
-      </button>
-    </div>
+    <Pagination
+      v-if="!loading && totalPages > 1"
+      :total-pages="totalPages"
+      :current-page="currentPage"
+      @page-change="changePage"
+    />
 
     <!-- 페이지 정보 -->
     <div v-if="!loading && totalElements > 0" class="page-info">
@@ -95,6 +73,7 @@ import { getPostsAPI } from '@/api/posts';
 import { togglePostLikeAPI } from '@/api/postLike';
 import { togglePostScrapAPI } from '@/api/postScrap';
 import PostCard from '@/components/community/PostCard.vue';
+import Pagination from '@/components/products/common/Pagination.vue';
 
 const router = useRouter();
 const posts = ref([]);
@@ -201,22 +180,6 @@ const changePage = (page) => {
   }
 };
 
-// 페이지 보이기
-const visiblePages = computed(() => {
-  const pages = [];
-  const maxVisiblePages = 5;
-  const half = Math.floor(maxVisiblePages / 2);
-
-  let start = Math.max(1, currentPage.value - half);
-  let end = Math.min(totalPages.value, start + maxVisiblePages - 1);
-
-  if (end - start + 1 < maxVisiblePages) {
-    start = Math.max(1, end - maxVisiblePages + 1);
-  }
-  for (let i = start; i <= end; i++) pages.push(i);
-  return pages;
-});
-
 // 페이지/필터 변경 시 재호출
 watch(currentPage, fetchPosts);
 
@@ -235,7 +198,7 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
 
 .filter-section {
   padding: 1rem;
-  border: 0.125rem solid var(--color-bg-light);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
   border-radius: 1.25rem;
   margin-bottom: 0.5rem;
 }
@@ -252,7 +215,7 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
 
 .filter-label i {
   font-size: 0.875rem;
-  color: var(--color-sub);
+  color: var(--color-main);
 }
 
 .filter-group {
@@ -265,6 +228,7 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
 
 .tag-list {
   display: flex;
+  justify-content: space-between;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.5rem;
@@ -274,15 +238,14 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
   font-size: 0.8rem;
   padding: 0.4rem 1rem;
   border-radius: 1.25rem;
-  border: 0.125rem solid var(--color-bg-light);
-  background-color: white;
-  font-weight: 600;
+  background-color: var(--color-main);
   cursor: pointer;
   transition: all 0.2s ease;
   outline: none;
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  color: white;
 }
 
 .tag-button i {
@@ -290,18 +253,11 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
 }
 
 .tag-button:hover {
-  border-color: var(--color-main);
-  background-color: var(--color-bg-light);
+  background-color: var(--color-sub);
 }
 
 .tag-button:focus {
   outline: none;
-}
-
-.tag-button.selected {
-  background-color: var(--color-main);
-  border-color: var(--color-main);
-  color: white;
 }
 
 .post-list {
@@ -456,86 +412,9 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
 }
 
 @media (max-width: 26.875rem) {
-  .community-list {
-    padding: 0.5rem;
-    padding-bottom: 5rem;
-  }
-
-  .filter-section {
-    padding: 0.75rem;
-  }
-
-  .filter-label {
-    font-size: 0.8125rem;
-  }
-
-  .filter-label i {
-    font-size: 0.8125rem;
-  }
-
   .tag-button {
-    font-size: 0.75rem;
-    padding: 0.3rem 0.8rem;
-  }
-
-  .tag-button i {
-    font-size: 0.65rem;
-  }
-
-  .pagination {
-    gap: 0.25rem;
-    margin: 1.5rem 0 0.5rem 0;
-  }
-
-  .page-btn {
-    width: 2.25rem;
-    height: 2.25rem;
-    font-size: 0.8125rem;
-  }
-
-  .page-btn i {
-    font-size: 0.8125rem;
-  }
-
-  .page-info {
-    font-size: 0.6875rem;
-  }
-
-  .page-info i {
-    font-size: 0.6875rem;
-  }
-
-  .post-list {
-    min-height: 21.875rem;
-  }
-
-  .empty-message {
-    font-size: 0.8125rem;
-  }
-
-  .empty-message i {
-    font-size: 1.75rem;
-  }
-
-  .floating-write-button {
-    min-width: 5rem;
-    height: 2.75rem;
-    bottom: 1.5rem;
     font-size: 0.9rem;
-    padding: 0 1.25rem;
-    gap: 0.375rem;
-  }
-
-  .floating-write-button i {
-    font-size: 0.8125rem;
-  }
-
-  .floating-write-button:hover {
-    transform: translateX(-50%) translateY(-0.125rem) scale(1.05);
-  }
-
-  .floating-write-button:active {
-    transform: translateX(-50%) translateY(0) scale(0.95);
+    padding: 0.2rem 0.5rem;
   }
 }
 </style>

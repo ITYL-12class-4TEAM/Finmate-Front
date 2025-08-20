@@ -273,7 +273,7 @@ const updatePost = async () => {
 }
 
 .tag-btn.active {
-  background: linear-gradient(135deg, var(--color-main), var(--color-sub));
+  background: var(--color-main);
   border-color: transparent;
   color: white;
   transform: translateY(-0.0625rem);
@@ -281,7 +281,7 @@ const updatePost = async () => {
 }
 
 .tag-btn.active:hover {
-  background: linear-gradient(135deg, var(--color-sub), var(--color-light));
+  background: var(--color-sub);
   transform: translateY(-0.0625rem);
   box-shadow: 0 0.25rem 0.875rem rgba(45, 51, 107, 0.25);
 }

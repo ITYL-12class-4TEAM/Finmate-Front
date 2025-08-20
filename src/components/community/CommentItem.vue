@@ -206,12 +206,12 @@ const formattedTime = (arr) => {
 }
 
 .author-avatar {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
-  background: var(--color-sub);
+  background: var(--color-main);
   color: white;
-  font-size: 0.625rem;
+  font-size: 0.7rem;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -228,12 +228,12 @@ const formattedTime = (arr) => {
 
 .nickname {
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   color: var(--color-main);
 }
 
 .time {
-  font-size: 0.625rem;
+  font-size: 0.8rem;
   color: #9ca3af;
 }
 
@@ -250,7 +250,7 @@ const formattedTime = (arr) => {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   padding: 0.25rem 0.375rem;
   border-radius: 0.25rem;
   transition: all 0.2s ease;
@@ -272,7 +272,7 @@ const formattedTime = (arr) => {
 }
 
 .like-btn i {
-  font-size: 0.875rem;
+  font-size: 0.9rem;
 }
 
 .count {
@@ -283,7 +283,7 @@ const formattedTime = (arr) => {
   background: none;
   border: 0.0625rem solid var(--color-light);
   color: var(--color-sub);
-  font-size: 0.625rem;
+  font-size: 0.7rem;
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -332,7 +332,7 @@ const formattedTime = (arr) => {
 }
 
 .comment-content p {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   line-height: 1.5;
   color: #374151;
   margin: 0;
@@ -459,18 +459,10 @@ const formattedTime = (arr) => {
 }
 
 @media (max-width: 26.875rem) {
-  .comment {
-    padding: 0.625rem;
-  }
-
   .author-avatar {
-    width: 1.25rem;
-    height: 1.25rem;
-    font-size: 0.5625rem;
-  }
-
-  .action-buttons {
-    gap: 0.25rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: 0.65rem;
   }
 
   .reply-wrapper {
@@ -484,27 +476,6 @@ const formattedTime = (arr) => {
   .reply-submit {
     width: 1.75rem;
     height: 1.75rem;
-  }
-
-  .nickname {
-    font-size: 0.6875rem;
-  }
-
-  .time {
-    font-size: 0.5625rem;
-  }
-
-  .comment-content p {
-    font-size: 0.6875rem;
-  }
-
-  .like-btn {
-    font-size: 0.6875rem;
-    padding: 0.1875rem 0.3125rem;
-  }
-
-  .like-btn i {
-    font-size: 0.8125rem;
   }
 
   .reply-toggle-btn i {
