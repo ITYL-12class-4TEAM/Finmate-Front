@@ -66,7 +66,7 @@
             </button>
 
             <button class="reaction-btn" aria-label="댓글 보기" @click="toggleComments">
-              <i class="fas fa-comment"></i>
+              <i class="fa-regular fa-comment"></i>
               <span class="count">{{ comments.length }}</span>
             </button>
             <!-- 스크랩 버튼 -->
@@ -372,7 +372,7 @@ onUnmounted(() => {
 }
 
 .stat-count {
-  font-size: 0.625rem;
+  font-size: 0.7rem;
   font-weight: 500;
 }
 
@@ -515,9 +515,9 @@ onUnmounted(() => {
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
-  background: var(--color-sub);
+  background: var(--color-main);
   color: white;
-  font-size: 0.8125rem;
+  font-size: 0.9rem;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -535,12 +535,12 @@ onUnmounted(() => {
 
 .nickname {
   font-weight: 600;
-  font-size: 0.8125rem;
+  font-size: 0.9rem;
   color: var(--color-main);
 }
 
 .time {
-  font-size: 0.6875rem;
+  font-size: 0.8rem;
   color: #9ca3af;
 }
 
@@ -553,7 +553,7 @@ onUnmounted(() => {
 .post-actions button {
   background: none;
   border: none;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -611,7 +611,7 @@ onUnmounted(() => {
 .tag {
   background: var(--color-bg-light);
   color: var(--color-sub);
-  font-size: 0.6875rem;
+  font-size: 0.8rem;
   font-weight: 500;
   padding: 0.25rem 0.625rem;
   border-radius: 0.875rem;
@@ -639,7 +639,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 0.375rem;
   color: var(--color-sub);
-  font-size: 0.8125rem;
+  font-size: 0.9rem;
   padding: 0.375rem 0.5rem;
   border-radius: 0.375rem;
   transition: all 0.2s ease;
@@ -686,9 +686,8 @@ onUnmounted(() => {
   gap: 1rem;
   background: white;
   border-radius: 0.75rem;
-  padding: 1rem 1.25rem;
+  padding: 0.5rem 0.25rem;
   margin: 1rem 1.25rem;
-  border: 1px solid #f3f4f6;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
@@ -843,11 +842,11 @@ onUnmounted(() => {
   }
 
   .nickname {
-    font-size: 0.75rem;
+    font-size: 0.85rem;
   }
 
   .time {
-    font-size: 0.625rem;
+    font-size: 0.8rem;
   }
 
   .post-actions {
@@ -855,17 +854,17 @@ onUnmounted(() => {
   }
 
   .post-actions button {
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     padding: 0.1875rem 0.375rem;
   }
 
   .title {
-    font-size: 0.9375rem;
+    font-size: 0.95rem;
     margin-bottom: 0.875rem;
   }
 
   .body-text {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     margin-bottom: 0.875rem;
   }
 
@@ -875,7 +874,7 @@ onUnmounted(() => {
   }
 
   .tag {
-    font-size: 0.625rem;
+    font-size: 0.75rem;
     padding: 0.1875rem 0.5rem;
   }
 

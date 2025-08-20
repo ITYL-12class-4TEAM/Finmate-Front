@@ -16,7 +16,7 @@
           </div>
 
           <div class="stat-item">
-            <i class="fas fa-comment interaction-icon"></i>
+            <i class="fa-regular fa-comment interaction-icon"></i>
             <span class="stat-count">{{ post.comments || 0 }}</span>
           </div>
 
@@ -78,15 +78,14 @@ const formattedDate = computed(() => {
   background: white;
   border-radius: 0.75rem;
   padding: 0.75rem;
-  border: 0.0625rem solid #f3f4f6;
+  border: 0.0625rem solid var(--color-bg-light);
   box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.02);
   cursor: pointer;
   transition: all 0.2s ease;
-  height: 7rem;
+  height: 7.5rem;
 }
 
 .post-card:hover {
-  border-color: var(--color-light);
   box-shadow: 0 0.25rem 1rem rgba(45, 51, 107, 0.08);
   transform: translateY(-0.0625rem);
 }
@@ -106,7 +105,7 @@ const formattedDate = computed(() => {
 }
 
 .post-title {
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--color-main);
   margin: 0;
@@ -121,14 +120,14 @@ const formattedDate = computed(() => {
 }
 
 .post-date {
-  font-size: 0.5625rem;
+  font-size: 0.75rem;
   color: #9ca3af;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .post-content {
-  font-size: 0.6875rem;
+  font-size: 0.8rem;
   line-height: 1.4;
   color: #6b7280;
   margin: 0 0 0rem 0;
@@ -178,7 +177,7 @@ const formattedDate = computed(() => {
   display: flex;
   align-items: center;
   gap: 0.1875rem;
-  color: var(--color-sub);
+  color: var(--color-main);
   transition: color 0.2s ease;
   cursor: pointer;
   padding: 0.1875rem;
@@ -202,8 +201,7 @@ const formattedDate = computed(() => {
 }
 
 .interaction-icon {
-  font-size: 0.65rem;
-  color: var(--color-sub);
+  font-size: 0.8rem;
   transition: color 0.2s ease;
 }
 
@@ -216,55 +214,27 @@ const formattedDate = computed(() => {
 }
 
 .stat-count {
-  font-size: 0.625rem;
+  font-size: 0.8rem;
   font-weight: 500;
 }
 
 .post-owner {
-  font-size: 0.6875rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  color: var(--color-sub);
+  color: var(--color-main);
   white-space: nowrap;
 }
 
 @media (max-width: 26.875rem) {
   .post-card {
-    padding: 0.8rem;
-    height: 6.5rem;
+    height: auto;
   }
 
   .post-title {
-    font-size: 0.8125rem;
-  }
-
-  .post-content {
-    font-size: 0.65rem;
-  }
-
-  .post-date {
-    font-size: 0.5rem;
-  }
-
-  .stat-count {
-    font-size: 0.5625rem;
-  }
-
-  .author-avatar {
-    width: 1.25rem;
-    height: 1.25rem;
-    font-size: 0.5rem;
-  }
-
-  .post-owner {
-    font-size: 0.625rem;
-  }
-
-  .post-stats {
-    gap: 0.75rem;
-  }
-
-  .interaction-icon {
-    font-size: 0.6rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
   }
 }
 </style>
