@@ -43,34 +43,12 @@
       </template>
     </section>
 
-    <!-- 페이징 컨트롤 -->
-    <div v-if="!loading && totalPages > 1" class="pagination">
-      <button
-        class="page-btn prev-btn"
-        :disabled="currentPage === 1"
-        @click="changePage(currentPage - 1)"
-      >
-        <i class="fas fa-chevron-left"></i>
-      </button>
-      <div class="page-numbers">
-        <button
-          v-for="page in visiblePages"
-          :key="page"
-          class="page-btn"
-          :class="{ active: page === currentPage }"
-          @click="changePage(page)"
-        >
-          {{ page }}
-        </button>
-      </div>
-      <button
-        class="page-btn next-btn"
-        :disabled="currentPage === totalPages"
-        @click="changePage(currentPage + 1)"
-      >
-        <i class="fas fa-chevron-right"></i>
-      </button>
-    </div>
+    <Pagination
+      v-if="!loading && totalPages > 1"
+      :total-pages="totalPages"
+      :current-page="currentPage"
+      @page-change="changePage"
+    />
 
     <!-- 페이지 정보 -->
     <div v-if="!loading && totalElements > 0" class="page-info">
@@ -95,6 +73,7 @@ import { getPostsAPI } from '@/api/posts';
 import { togglePostLikeAPI } from '@/api/postLike';
 import { togglePostScrapAPI } from '@/api/postScrap';
 import PostCard from '@/components/community/PostCard.vue';
+import Pagination from '@/components/products/common/Pagination.vue';
 
 const router = useRouter();
 const posts = ref([]);
@@ -201,22 +180,6 @@ const changePage = (page) => {
   }
 };
 
-// 페이지 보이기
-const visiblePages = computed(() => {
-  const pages = [];
-  const maxVisiblePages = 5;
-  const half = Math.floor(maxVisiblePages / 2);
-
-  let start = Math.max(1, currentPage.value - half);
-  let end = Math.min(totalPages.value, start + maxVisiblePages - 1);
-
-  if (end - start + 1 < maxVisiblePages) {
-    start = Math.max(1, end - maxVisiblePages + 1);
-  }
-  for (let i = start; i <= end; i++) pages.push(i);
-  return pages;
-});
-
 // 페이지/필터 변경 시 재호출
 watch(currentPage, fetchPosts);
 
@@ -235,7 +198,7 @@ const goToDetailPage = (id) => router.push({ name: 'CommunityDetail', params: { 
 
 .filter-section {
   padding: 1rem;
-  border: 0.125rem solid var(--color-bg-light);
+  border: 0.125rem solid var(--color-main);
   border-radius: 1.25rem;
   margin-bottom: 0.5rem;
 }
