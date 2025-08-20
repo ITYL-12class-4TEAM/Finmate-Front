@@ -42,7 +42,9 @@ const router = useRouter();
 const route = useRoute();
 
 // ------ State ------
-const depositAmount = ref(route.query.amount ? route.query.amount : '100000');
+const depositAmount = ref(
+  route.query.amount ? new Intl.NumberFormat('ko-KR').format(route.query.amount) : '100,000' // 콤마 포함 기본값
+);
 const period = ref(route.query.saveTrm || '6');
 const interestType = ref(route.query.intrRateType || 'S');
 // ProductSavings.vue 파일에서
@@ -220,7 +222,7 @@ const onSearch = (formData) => {
 };
 
 const onReset = () => {
-  depositAmount.value = '100000';
+  depositAmount.value = '100,000';
   period.value = '6';
   interestType.value = 'S';
   rsrvType.value = 'F';

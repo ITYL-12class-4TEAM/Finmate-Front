@@ -333,10 +333,22 @@ const onProductClick = (product) => {
 
   emit('product-click', product);
 };
-const onPageChange = (page) => {
-  // 스크롤을 페이지 최상단으로 이동
-  window.scrollTo(0, 530);
+watch(
+  () => props.currentPage,
+  (newPage, oldPage) => {
+    if (newPage !== oldPage) {
+      setTimeout(() => {
+        window.scrollTo({
+          top: 520,
+          behavior: 'smooth',
+        });
+      }, 200);
+    }
+  }
+);
 
+// onPageChange는 단순하게
+const onPageChange = (page) => {
   emit('page-change', page);
 };
 const onSortChange = () => emit('sort-change', { sortBy: localSortBy.value });
