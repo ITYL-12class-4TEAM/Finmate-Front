@@ -720,9 +720,6 @@ onMounted(() => {
   border-radius: 1rem;
   padding: 1rem;
   border: 0.0625rem solid rgba(185, 187, 204, 0.3);
-  box-shadow:
-    0 0.25rem 0.375rem -0.0625rem rgba(45, 51, 107, 0.1),
-    0 0.125rem 0.25rem -0.0625rem rgba(45, 51, 107, 0.06);
   backdrop-filter: blur(0.625rem);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -904,7 +901,6 @@ onMounted(() => {
   border-radius: 0.5rem;
   overflow: hidden;
   background: var(--color-white);
-  box-shadow: 0 0.125rem 0.25rem rgba(45, 51, 107, 0.05);
   transition: all 0.3s ease;
 }
 

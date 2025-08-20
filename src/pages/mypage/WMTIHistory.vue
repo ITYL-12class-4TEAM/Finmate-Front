@@ -98,10 +98,7 @@ import { ref, onMounted } from 'vue';
 import { getWMTIHistoryAPI } from '@/api/wmti';
 import router from '@/router';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useToast } from '@/composables/useToast';
 import BackButton from '@/components/common/BackButton.vue';
-
-const { showToast } = useToast();
 
 // State
 const loading = ref(false);
@@ -120,7 +117,7 @@ const fetchHistoryData = async () => {
     historyList.value = await getWMTIHistoryAPI(memberId);
     historyList.value.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   } catch (e) {
-    showToast('히스토리 불러오기를 실패했습니다', 'error');
+    console.log('히스토리 불러오기를 실패했습니다', 'error');
   } finally {
     loading.value = false;
   }
