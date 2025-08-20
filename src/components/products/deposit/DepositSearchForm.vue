@@ -133,7 +133,7 @@ const isDepositActive = computed(() => route.path.includes('/deposit'));
 const isSavingActive = computed(() => route.path.includes('/savings'));
 
 const props = defineProps({
-  depositAmount: { type: String, default: '100000' },
+  depositAmount: { type: String, default: '100,000' },
   period: { type: String, default: '6' },
   interestType: { type: String, default: 'S' },
   joinWay: { type: [String, Array], default: 'all' },

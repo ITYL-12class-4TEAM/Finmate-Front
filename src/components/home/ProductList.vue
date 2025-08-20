@@ -36,7 +36,7 @@ onMounted(fetchPopularProducts);
 
 <style scoped>
 .product-list {
-  padding: 1rem;
+  padding: 1rem 0;
 }
 
 .title {
@@ -53,7 +53,7 @@ onMounted(fetchPopularProducts);
 .category-title {
   font-size: 0.95rem;
   font-weight: 600;
-  margin: 0.5rem 0;
+  margin: 0.5rem;
 }
 
 .scroll-wrapper {
