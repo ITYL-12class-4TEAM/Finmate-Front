@@ -683,7 +683,7 @@ onUnmounted(() => {
 .comment-write {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.2rem;
   background: white;
   border-radius: 0.75rem;
   padding: 0.5rem 0.25rem;
@@ -699,7 +699,8 @@ onUnmounted(() => {
 }
 
 .comment-input {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 0;
   padding: 0.75rem 1rem;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;

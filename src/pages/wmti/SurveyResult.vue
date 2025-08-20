@@ -426,7 +426,6 @@ const fetchResult = async () => {
     characterImageUrl.value = imageUrl;
   } catch (err) {
     console.error('이미지 불러오기 실패:', err);
-    showToast('이미지를 불러오지 못했습니다.', 'error');
   } finally {
     isLoading.value = false;
   }
