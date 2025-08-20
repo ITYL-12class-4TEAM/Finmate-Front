@@ -6,6 +6,14 @@
       <p>결과를 불러오는 중...</p>
     </div>
 
+    <!-- Empty State -->
+    <div v-else-if="!analysisObject?.wmtiCode && !isLoading" class="empty">
+      <i class="fas fa-clipboard-check"></i>
+      <h3>아직 검사 결과가 없습니다</h3>
+      <p>금융 성향 검사를 받아보세요</p>
+      <button class="btn-primary" @click="goToWMTI">검사 받기</button>
+    </div>
+
     <!-- 메인 콘텐츠 -->
     <div v-else>
       <!-- 헤더 섹션 -->
@@ -417,8 +425,8 @@ const fetchResult = async () => {
 
     characterImageUrl.value = imageUrl;
   } catch (err) {
-    console.error('결과 불러오기 실패:', err);
-    showToast('결과를 불러오지 못했습니다.', 'error');
+    console.error('이미지 불러오기 실패:', err);
+    showToast('이미지를 불러오지 못했습니다.', 'error');
   } finally {
     isLoading.value = false;
   }
@@ -436,6 +444,7 @@ const fetchAnalysis = async (wmtiCode) => {
 };
 
 // 라우팅 함수
+const goToWMTI = () => router.push('/wmti/basic');
 const goToWMTIList = () => router.push('/wmti/collection');
 const goToHistory = () => router.push('/mypage/wmti-history');
 const goToPortfolio = () => {
@@ -520,8 +529,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* 기존 스타일 유지 - 여기서는 생략 */
-
 /* 로딩 오버레이 */
 .loading-overlay {
   position: fixed;
@@ -561,6 +568,38 @@ onMounted(async () => {
     transform: rotate(360deg);
   }
 }
+/* Empty State */
+.empty {
+  background: var(--color-white);
+  padding: 3.75rem 1.25rem;
+  border-radius: 0.75rem;
+  text-align: center;
+}
+
+.empty i {
+  font-size: 3rem;
+  color: var(--color-light);
+  margin-bottom: 1rem;
+}
+
+.empty h3 {
+  color: var(--color-main);
+  margin-bottom: 0.5rem;
+}
+
+.empty p {
+  color: var(--color-sub);
+  margin-bottom: 1.5rem;
+}
+.btn-primary {
+  background: var(--color-main);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+}
 
 /* 컨테이너 설정 */
 .result-page {
@@ -580,7 +619,8 @@ onMounted(async () => {
   padding: 1.5rem;
   background: var(--color-white);
   border-radius: 1.25rem;
-  box-shadow: 0 1.25rem 8rem rgba(45, 51, 107, 0.15);
+  border: 1px solid rgba(185, 187, 204, 0.2);
+  /* box-shadow: 0 1.25rem 8rem rgba(45, 51, 107, 0.15); */
 }
 
 .user-greeting {
@@ -748,9 +788,9 @@ onMounted(async () => {
 .score-card,
 .CustomedPortfolio-card {
   background: var(--color-white);
+  border: 1px solid rgba(185, 187, 204, 0.2);
   border-radius: 1.25rem;
   padding: 1.5rem;
-  box-shadow: 0 1.25rem 2.5rem rgba(45, 51, 107, 0.15);
   animation: fadeInUp 0.6s ease-out both;
 }
 
@@ -897,7 +937,7 @@ onMounted(async () => {
 .tag-item:hover {
   background: linear-gradient(135deg, rgba(45, 51, 107, 0.12), rgba(125, 129, 162, 0.08));
   transform: translateY(-0.0625rem);
-  box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.15);
+  /* box-shadow: 0 0.125rem 0.5rem rgba(45, 51, 107, 0.15); */
 }
 
 /* 설명 섹션 */
@@ -1154,7 +1194,7 @@ onMounted(async () => {
   padding: 1.5rem;
   background: var(--color-white);
   border-radius: 1.25rem;
-  box-shadow: 0 1.25rem 2.5rem rgba(45, 51, 107, 0.15);
+  border: 1px solid rgba(185, 187, 204, 0.2);
   animation: fadeInUp 0.6s ease-out 0.4s both;
 }
 
@@ -1182,34 +1222,28 @@ onMounted(async () => {
 .action-button.primary {
   background: #8e44ad;
   color: var(--color-white);
-  box-shadow: 0 0.25rem 0.75rem rgba(142, 68, 173, 0.3);
 }
 .action-button.primary:hover {
   transform: translateY(-0.0625rem);
-  box-shadow: 0 0.5rem 1.25rem rgba(142, 68, 173, 0.4);
   background: #732d91;
 }
 .action-button.secondary {
   background: #3498db;
   color: var(--color-white);
-  box-shadow: 0 0.25rem 0.75rem rgba(52, 152, 219, 0.3);
 }
 
 .action-button.secondary:hover {
   transform: translateY(-0.0625rem);
-  box-shadow: 0 0.5rem 1.25rem rgba(52, 152, 219, 0.4);
   background: #2980b9;
 }
 
 .action-button.tertiary {
   background: #95a5a6;
   color: var(--color-white);
-  box-shadow: 0 0.25rem 0.75rem rgba(149, 165, 166, 0.3);
 }
 
 .action-button.tertiary:hover {
   transform: translateY(-0.0625rem);
-  box-shadow: 0 0.5rem 1.25rem rgba(149, 165, 166, 0.4);
   background: #7f8c8d;
 }
 

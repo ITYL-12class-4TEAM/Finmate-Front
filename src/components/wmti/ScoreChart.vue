@@ -13,15 +13,15 @@
           <div
             v-if="aLetter === 'A'"
             class="bar-progress left bar-a"
-            :style="{ width: aScore + '%' }"
+            :style="{ width: getRelativeWidth(aScore) + '%' }"
           ></div>
         </div>
-        <div class="bar-center">50</div>
+        <div class="bar-center"></div>
         <div class="bar-right">
           <div
             v-if="aLetter === 'I'"
             class="bar-progress right bar-i"
-            :style="{ width: iScore + '%' }"
+            :style="{ width: getRelativeWidth(iScore) + '%' }"
           ></div>
           <span class="bar-info" :class="{ dominant: aLetter === 'I' }">
             I {{ Math.round(iScore) }}%
@@ -43,15 +43,15 @@
           <div
             v-if="pLetter === 'P'"
             class="bar-progress left bar-p"
-            :style="{ width: pScore + '%' }"
+            :style="{ width: getRelativeWidth(pScore) + '%' }"
           ></div>
         </div>
-        <div class="bar-center">50</div>
+        <div class="bar-center"></div>
         <div class="bar-right">
           <div
             v-if="pLetter === 'B'"
             class="bar-progress right bar-b"
-            :style="{ width: bScore + '%' }"
+            :style="{ width: getRelativeWidth(bScore) + '%' }"
           ></div>
           <span class="bar-info" :class="{ dominant: pLetter === 'B' }">
             B {{ Math.round(bScore) }}%
@@ -73,15 +73,15 @@
           <div
             v-if="mLetter === 'M'"
             class="bar-progress left bar-m"
-            :style="{ width: mScore + '%' }"
+            :style="{ width: getRelativeWidth(mScore) + '%' }"
           ></div>
         </div>
-        <div class="bar-center">50</div>
+        <div class="bar-center"></div>
         <div class="bar-right">
           <div
             v-if="mLetter === 'W'"
             class="bar-progress right bar-w"
-            :style="{ width: wScore + '%' }"
+            :style="{ width: getRelativeWidth(wScore) + '%' }"
           ></div>
           <span class="bar-info" :class="{ dominant: mLetter === 'W' }">
             W {{ Math.round(wScore) }}%
@@ -103,15 +103,15 @@
           <div
             v-if="lLetter === 'L'"
             class="bar-progress left bar-l"
-            :style="{ width: lScore + '%' }"
+            :style="{ width: getRelativeWidth(lScore) + '%' }"
           ></div>
         </div>
-        <div class="bar-center">50</div>
+        <div class="bar-center"></div>
         <div class="bar-right">
           <div
             v-if="lLetter === 'C'"
             class="bar-progress right bar-c"
-            :style="{ width: cScore + '%' }"
+            :style="{ width: getRelativeWidth(cScore) + '%' }"
           ></div>
           <span class="bar-info" :class="{ dominant: lLetter === 'C' }">
             C {{ Math.round(cScore) }}%
@@ -176,6 +176,16 @@ defineProps({
     required: true,
   },
 });
+
+// 50%를 기준으로 상대적 너비 계산
+const getRelativeWidth = (score) => {
+  // 50%보다 높은 경우에만 바를 표시하므로
+  // (점수 - 50) * 2 를 하여 0~50% 범위를 0~100%로 변환
+  const relativeScore = (score - 50) * 2;
+
+  // 최소 0%, 최대 100%로 제한
+  return Math.max(0, Math.min(100, relativeScore));
+};
 </script>
 
 <style scoped>
@@ -237,21 +247,14 @@ defineProps({
 }
 
 .bar-center {
-  width: 1.75rem;
-  text-align: center;
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--color-sub);
-  background: var(--color-white);
-  border-radius: 0.625rem;
-  padding: 0.25rem 0;
-  z-index: 2;
-  border: 0.125rem solid rgba(185, 187, 204, 0.3);
+  height: 90%;
+  width: 0.085rem;
+  background-color: var(--color-main);
 }
 
 .bar-progress {
   height: 1.375rem;
-  border-radius: 0.625rem;
+  border-radius: 0.3rem;
   transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
   position: absolute;
   animation: progressLoad 1.2s ease-out 0.6s both;
