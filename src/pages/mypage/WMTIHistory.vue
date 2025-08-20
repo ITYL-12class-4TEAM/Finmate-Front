@@ -120,7 +120,7 @@ const fetchHistoryData = async () => {
     historyList.value = await getWMTIHistoryAPI(memberId);
     historyList.value.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   } catch (e) {
-    showToast('히스토리 불러오기 실패:', 'error');
+    showToast('히스토리 불러오기를 실패했습니다', 'error');
   } finally {
     loading.value = false;
   }

@@ -340,10 +340,10 @@ onMounted(async () => {
     if (response.success) {
       userData.value = response.data;
     } else {
-      showToast('사용자 정보 조회 실패:', response.message, 'error');
+      showToast('사용자 정보 조회를 실패했습니다.', 'error');
     }
   } catch (error) {
-    showToast('사용자 정보 조회 실패:', error, 'error');
+    showToast('사용자 정보 조회를 실패했습니다.', 'error');
   }
 });
 
