@@ -35,7 +35,7 @@
 - **Framework**: Vue 3 (Composition API)  
 - **State Management**: Pinia  
 - **Build Tool**: Vite  
-- **Styling**: SCSS, Tailwind 일부 적용  
+- **Styling**: CSS, Fontawesome, Bootstrap
 - **Deployment**: Vercel  
 
 ### 협업 & 관리
