@@ -10,11 +10,6 @@
   <img src="https://img.shields.io/badge/Pinia-Store-FFD952?logo=vue.js&logoColor=white" />
   <img src="https://img.shields.io/badge/SCSS-CSS%20Preprocessor-CC6699?logo=sass&logoColor=white" />
   <img src="https://img.shields.io/badge/Deployment-Vercel-000000?logo=vercel&logoColor=white" />
-  <br>
-  <img src="https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=Spring&logoColor=white">
-  <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=MySQL&logoColor=white">
-  <img src="https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white">
-  <img src="https://img.shields.io/badge/Amazon%20EC2-FF9900?style=for-the-badge&logo=Amazon%20EC2&logoColor=white">
 </p>
 
 ---
@@ -43,13 +38,6 @@
 - **Styling**: CSS, Fontawesome, Bootstrap
 - **Deployment**: Vercel  
 
-### Backend
-- **Framework**: Spring 5.3 (Legacy)  
-- **Security & Auth**: Spring Security, JWT  
-- **Database & Cache**: MySQL, Redis  
-- **Logging & Docs**: Log4j2, Swagger  
-- **Deployment & CI/CD**: AWS EC2, Nginx, GitHub Actions  
-
 ### 협업 & 관리
 - GitHub, GitHub Projects, PR 리뷰 & 코드 컨벤션
 - Figma로 UI/UX 설계 👉 [Figma - FinMate](https://www.figma.com/design/JNQEx3lVgzP1sGgmAcoZDh/ITYL_12%ED%9A%8C%EC%B0%A8_4%ED%8C%80?node-id=0-1&t=8WHFruNnrzYrSzD1-1)
@@ -75,7 +63,7 @@
 | **강영광** | OpenAPI 데이터 가공, 마이페이지 구현 | [Glory](https://github.com/glorypang) |
 | **조하영** | 로그인/로그아웃, 알림 기능 | [fanfanduck](https://github.com/fanfanduck) |
 | **오혁신** | 예적금 상품 필터링/검색, 상품 비교 | [Hyukman818](https://github.com/Hyukman818) |
-| **신예린** | 챗봇, 커뮤니티, 상품 비교 및 요약 AI 연동, 백엔드 배포, CI/CD | [nyeroni](https://github.com/nyeroni) |
+| **신예린** | 챗봇, 커뮤니티, 상품 비교 및 요약 AI 연동, CI/CD | [nyeroni](https://github.com/nyeroni) |
 | **이주영** | WMTI 투자성향 분석, 맞춤 포트폴리오 추천 | [LeeJooYoung1999](https://github.com/LeeJooYoung1999) |
 | **최혜림** | 프론트엔드 리더, 커뮤니티 구현, 공통 컴포넌트 개발, 프론트 배포 | [BaileyChoi](https://github.com/BaileyChoi) |
 
